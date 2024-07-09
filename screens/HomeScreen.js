@@ -1,19 +1,26 @@
 import React from 'react';
-import {View, ScrollView, StyleSheet, Text} from 'react-native';
-import CustomHeader from '../components/CustomHeader'; // Import CustomHeader component
+import { View, ScrollView, StyleSheet, Text } from 'react-native';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import Icon from 'react-native-vector-icons/Ionicons';
+import CustomHeader from '../components/CustomHeader';
 import AutoImageSlider from '../components/AutoImageSlider';
 import HelpBox from '../components/HelpBox';
 import Categories from '../components/Categories';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 import AutoImageSlider2 from '../components/AutoImageSlider2';
 import BestDeals from '../components/BestDeals';
 import LatestProducts from '../components/LatestProducts';
 import UpcomingProducts from '../components/UpcomingProducts';
+import CartScreen from './CartScreen';
+import ProfileScreen from './ProfileScreen';
+import QuotesScreen from './QuotesScreen'; // import QuotesScreen
 
-const HomeScreen = ({navigation}) => {
+const Tab = createMaterialBottomTabNavigator();
+
+const HomeContent = () => {
   return (
     <ScrollView style={styles.container}>
-      <CustomHeader title="Home" navigation={navigation} />
+      <CustomHeader title="Home" />
       <AutoImageSlider />
       <View style={styles.backgroundContainer}>
         <View style={styles.topHalf} />
@@ -35,6 +42,52 @@ const HomeScreen = ({navigation}) => {
         <Text style={styles.crossBee}>CrossBee</Text>
       </View>
     </ScrollView>
+  );
+};
+
+const HomeScreen = () => {
+  return (
+    <Tab.Navigator
+      initialRouteName="HomeContent"
+      activeColor={colors.main} // Use main color for active color
+      inactiveColor="#8A8A8A"
+      barStyle={{ backgroundColor: '#FFFFFF' }}
+      shifting={true} // add shifting for rounded rectangle
+      sceneAnimationEnabled={true} // Enable scene animation for better transitions
+    >
+      <Tab.Screen
+        name="HomeContent"
+        component={HomeContent}
+        options={{
+          tabBarIcon: ({ color }) => <Icon name="home" color={color} size={22} />,
+          tabBarLabel: 'Home',
+        }}
+      />
+      <Tab.Screen
+        name="Cart"
+        component={CartScreen}
+        options={{
+          tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
+          tabBarLabel: 'Cart',
+        }}
+      />
+      <Tab.Screen
+        name="Quotes"
+        component={QuotesScreen} // add QuotesScreen
+        options={{
+          tabBarIcon: ({ color }) => <Icon name="chatbubbles-outline" color={color} size={22} />,
+          tabBarLabel: 'Quotes',
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color }) => <Icon name="person-outline" color={color} size={22} />,
+          tabBarLabel: 'Profile',
+        }}
+      />
+    </Tab.Navigator>
   );
 };
 

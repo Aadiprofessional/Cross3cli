@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import BottomTabNavigator from './navigation/BottomTabNavigator';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
-import CartScreen from './screens/CartScreen';
 
 type RootStackParamList = {
-  Login: undefined;
+  Login: { login: () => void };
   Home: undefined;
-  BottomTabNavigator: undefined;
-  Cart: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -25,28 +22,16 @@ const App: React.FC = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={isLoggedIn ? 'BottomTabNavigator' : 'Login'}
-      >
+      <Stack.Navigator initialRouteName={isLoggedIn ? 'Home' : 'Login'}>
         <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{ headerShown: false }}
-          initialParams={{ login }} // Pass login function to LoginScreen if needed
+          initialParams={{ login }}
         />
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="BottomTabNavigator"
-          component={BottomTabNavigator}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Cart"
-          component={CartScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

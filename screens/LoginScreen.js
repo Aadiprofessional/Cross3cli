@@ -7,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-
 import {colors} from '../styles/color';
 import {sizes} from '../styles/size';
 
