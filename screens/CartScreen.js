@@ -1,28 +1,37 @@
-import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {colors} from '../styles/color';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';
 
-const CartScreen = ({cartItems, totalAmount}) => {
-  // Temporary data for demonstration
-  const sampleCartItems = [
-    {id: 1, name: 'Product A', price: 19.99},
-    {id: 2, name: 'Product B', price: 24.99},
-    {id: 3, name: 'Product C', price: 14.99},
-  ];
-  const sampleTotalAmount = sampleCartItems.reduce(
-    (sum, item) => sum + item.price,
-    0,
-  );
+const CartScreen = () => {
+  const [cartItems, setCartItems] = useState([
+    { id: 1, name: 'Product A', price: 19.99, quantity: 1 },
+    { id: 2, name: 'Product B', price: 24.99, quantity: 1 },
+    { id: 3, name: 'Product C', price: 14.99, quantity: 1 },
+  ]);
+
+  const navigation = useNavigation();
+
+  const updateCartItemQuantity = (itemId, newQuantity) => {
+    const updatedItems = cartItems.map(item =>
+      item.id === itemId ? { ...item, quantity: newQuantity } : item
+    );
+    setCartItems(updatedItems);
+  };
 
   const handleGetQuotation = () => {
-    // Placeholder action for Get Quotation button
     console.log('Get Quotation button pressed');
   };
 
   const handlePlaceOrder = () => {
-    // Placeholder action for Place Order button
-    console.log('Place Order button pressed');
+    const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    navigation.navigate('OrderSummary', { cartItems, totalAmount });
+  };
+
+  const handleRemoveItem = (itemId) => {
+    const updatedItems = cartItems.filter(item => item.id !== itemId);
+    setCartItems(updatedItems);
   };
 
   return (
@@ -30,29 +39,36 @@ const CartScreen = ({cartItems, totalAmount}) => {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.cartText}>Cart</Text>
-          <Text style={styles.cartItemCount}>({sampleCartItems.length})</Text>
+          <Text style={styles.cartItemCount}>({cartItems.length} items)</Text>
         </View>
         <View style={styles.headerRight}>
           <Text style={styles.subtotalText}>Subtotal:</Text>
           <Text style={styles.totalAmountText}>
-            ${sampleTotalAmount.toFixed(2)}
+            ${cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
           </Text>
         </View>
       </View>
       <View style={styles.cartItemsContainer}>
-        {/* Render each cart item */}
-        {sampleCartItems.map(item => (
-          <CartItem key={item.id} name={item.name} price={item.price} />
+        {cartItems.map(item => (
+          <CartItem
+            key={item.id}
+            id={item.id}
+            name={item.name}
+            price={item.price}
+            quantity={item.quantity}
+            onUpdateQuantity={updateCartItemQuantity}
+            onRemoveItem={handleRemoveItem}
+          />
         ))}
       </View>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={[styles.button, {backgroundColor: colors.second}]}
+          style={[styles.button, { backgroundColor: colors.second }]}
           onPress={handleGetQuotation}>
           <Text style={styles.buttonText}>Get Quotation</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, {backgroundColor: colors.main}]}
+          style={[styles.button, { backgroundColor: colors.main }]}
           onPress={handlePlaceOrder}>
           <Text style={styles.buttonText}>Place Order</Text>
         </TouchableOpacity>
@@ -70,7 +86,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.main, // Replace with your primary color
+    backgroundColor: colors.main,
     padding: 15,
   },
   headerLeft: {
@@ -110,14 +126,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'stretch',
-    padding: 0,
   },
   button: {
     height: 50,
-
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 0,
   },
   buttonText: {
     fontSize: 18,

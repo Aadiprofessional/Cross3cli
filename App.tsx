@@ -14,6 +14,7 @@ import RegisterCompanyScreen from './screens/RegisterCompanyScreen';
 import CartScreen from './screens/CartScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SubCategoryScreen from './screens/SubCategoryScreen';
+import OrderSummaryScreen from './screens/OrderSummaryScreen';
 
 type RootStackParamList = {
   Login: { login: () => void };
@@ -27,6 +28,7 @@ type RootStackParamList = {
   Cart: undefined;
   Profile: undefined;
   SubCategoryScreen: { subcategory: string }; // Define subcategory parameter
+  OrderSummary: { cartItems: { id: number; name: string; price: number }[], totalAmount: number };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -125,6 +127,19 @@ const App: React.FC = () => {
             },
           }}
         />
+        <Stack.Screen
+          name="OrderSummary"
+          component={OrderSummaryScreen}
+          options={{
+            title: 'Order Summary', // Set the title of the screen
+            headerStyle: {
+              backgroundColor: colors.main,
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

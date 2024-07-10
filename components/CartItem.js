@@ -1,31 +1,50 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {colors} from '../styles/color';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { colors } from '../styles/color';
 
-const CartItem = ({name, price}) => {
-  const [quantity, setQuantity] = useState(1);
+const CartItem = ({ id, name, price, quantity, onUpdateQuantity, onRemoveItem }) => {
+  const [itemQuantity, setItemQuantity] = useState(quantity);
+  const [selectedColor, setSelectedColor] = useState(colors.main); // Default color
+
+  useEffect(() => {
+    setItemQuantity(quantity);
+  }, [quantity]);
 
   const handleIncreaseQuantity = () => {
-    setQuantity(quantity + 1);
+    const newQuantity = itemQuantity + 1;
+    setItemQuantity(newQuantity);
+    onUpdateQuantity(id, newQuantity);
   };
 
   const handleDecreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
+    const newQuantity = itemQuantity - 1;
+    setItemQuantity(newQuantity);
+    onUpdateQuantity(id, newQuantity);
+
+    if (newQuantity === 0) {
+      onRemoveItem(id);
     }
+  };
+
+  const handleColorChange = (color) => {
+    setSelectedColor(color);
+    // Optionally, you can handle color change logic here
   };
 
   return (
     <View style={styles.cartItemContainer}>
       <View style={styles.productImageContainer}>
-        {/* Placeholder image */}
-        <Text style={styles.productImage}>Product.png</Text>
+        <Image
+          source={require('../assets/product.png')} // Replace with your image source
+          style={styles.productImage}
+          resizeMode="cover"
+        />
       </View>
       <View style={styles.productDetails}>
         <Text style={styles.productName}>{name}</Text>
-        <Text style={styles.productPrice}>${price.toFixed(2)}</Text>
+        <Text style={styles.productPrice}>${(price * itemQuantity).toFixed(2)}</Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, {backgroundColor: colors.main}]}>
+          <View style={[styles.itemColor, { backgroundColor: selectedColor }]}>
             <Text style={styles.itemColorText}>Color</Text>
           </View>
         </View>
@@ -36,7 +55,7 @@ const CartItem = ({name, price}) => {
           onPress={handleDecreaseQuantity}>
           <Text style={styles.quantityButtonText}>-</Text>
         </TouchableOpacity>
-        <Text style={styles.quantityText}>{quantity}</Text>
+        <Text style={styles.quantityText}>{itemQuantity}</Text>
         <TouchableOpacity
           style={styles.quantityButton}
           onPress={handleIncreaseQuantity}>
@@ -52,11 +71,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    backgroundColor: colors.primary, // Replace with your primary color
+    backgroundColor: colors.primary,
     padding: 10,
     borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -71,45 +90,44 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   productImage: {
-    fontSize: 20,
-    color: '#000',
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
   },
   productDetails: {
     flex: 1,
   },
   productName: {
-    fontSize: 14,
-    fontWeight: 'normal', // Regular text
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   productPrice: {
-    fontSize: 20,
-    fontWeight: 'normal', // Regular text
+    fontSize: 18,
     marginTop: 5,
+    fontWeight: 'bold',
   },
   itemColorContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     marginTop: 5,
   },
   itemColor: {
     width: 40,
     height: 20,
-    borderRadius: 7,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.main, // Replace with your main color
+    borderRadius: 5,
+    marginRight: 10,
   },
   itemColorText: {
     fontSize: 14,
-    color: '#fff',
+    textAlign: 'center',
+    color: colors.background,
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginLeft: 'auto', // Pushes to the right
   },
   quantityButton: {
-    backgroundColor: colors.main, // Replace with your main color
+    backgroundColor: colors.main,
     borderRadius: 15,
     width: 30,
     height: 30,
