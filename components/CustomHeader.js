@@ -1,20 +1,28 @@
 import React from 'react';
-import {View, StyleSheet, Image} from 'react-native';
+import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 
 const CustomHeader = () => {
+  const navigation = useNavigation();
+
+  const handleSearchPress = () => {
+    // Navigate to the search screen
+    navigation.navigate('SearchScreen'); // Make sure 'SearchScreen' is added to your navigation stack
+  };
+
   return (
     <View style={styles.header}>
       <View style={styles.leftIcons}>
         <Image source={require('../assets/nav.png')} style={styles.icon} />
       </View>
       <View style={styles.centerLogo}>
-        <Image
-          source={require('../assets/logo.png')}
-          style={styles.logoImage}
-        />
+        <Image source={require('../assets/logo.png')} style={styles.logoImage} />
       </View>
       <View style={styles.rightIcons}>
-        <Image source={require('../assets/cart.png')} style={styles.icon} />
+        {/* Handle search press */}
+        <TouchableOpacity onPress={handleSearchPress}>
+          <Image source={require('../assets/search.png')} style={styles.icon} />
+        </TouchableOpacity>
         <Image source={require('../assets/profile.png')} style={styles.icon} />
       </View>
     </View>

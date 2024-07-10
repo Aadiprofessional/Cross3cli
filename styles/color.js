@@ -8,4 +8,5 @@ export const colors = {
   textPrimary: '#000',
   primary: '#FFE8C4',
   second: '#306487',
+  black : '#000000',
 };

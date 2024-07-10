@@ -13,7 +13,7 @@ import LatestProducts from '../components/LatestProducts';
 import UpcomingProducts from '../components/UpcomingProducts';
 import CartScreen from './CartScreen';
 import ProfileScreen from './ProfileScreen';
-import QuotesScreen from './QuotesScreen'; // import QuotesScreen
+import QuotesScreen from './QuotesScreen'; // Import QuotesScreen
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -52,14 +52,12 @@ const HomeScreen = () => {
       activeColor={colors.main} // Use main color for active color
       inactiveColor="#8A8A8A"
       barStyle={{ backgroundColor: '#FFFFFF' }}
-      shifting={true} // add shifting for rounded rectangle
-      sceneAnimationEnabled={true} // Enable scene animation for better transitions
     >
       <Tab.Screen
         name="HomeContent"
         component={HomeContent}
         options={{
-          tabBarIcon: ({ color }) => <Icon name="home" color={color} size={22} />,
+          tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={22} />,
           tabBarLabel: 'Home',
         }}
       />
@@ -73,9 +71,9 @@ const HomeScreen = () => {
       />
       <Tab.Screen
         name="Quotes"
-        component={QuotesScreen} // add QuotesScreen
+        component={QuotesScreen} // Add QuotesScreen
         options={{
-          tabBarIcon: ({ color }) => <Icon name="chatbubbles-outline" color={color} size={22} />,
+          tabBarIcon: ({ color }) => <Icon name="quote-outline" color={color} size={22} />, // Use appropriate icon name
           tabBarLabel: 'Quotes',
         }}
       />
