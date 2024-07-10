@@ -7,6 +7,10 @@ import HomeScreen from './screens/HomeScreen';
 import SearchScreen from './screens/SearchScreen'; // Import SearchScreen
 import ProductDetailPage from './screens/ProductDetailPage';
 import { colors } from './styles/color';
+import NeedHelpScreen from './screens/NeedHelpScreen';
+import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
+import TermsConditionsScreen from './screens/TermsConditionsScreen';
+import RegisterCompanyScreen from './screens/RegisterCompanyScreen';
 
 type RootStackParamList = {
   Login: { login: () => void };
@@ -66,6 +70,26 @@ const App: React.FC = () => {
               fontWeight: 'bold',
             },
           }}
+        />
+        <Stack.Screen
+          name="NeedHelp"
+          component={NeedHelpScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="PrivacyPolicyScreen"
+          component={PrivacyPolicyScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="TermsConditionsScreen"
+          component={TermsConditionsScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="RegisterCompanyScreen"
+          component={RegisterCompanyScreen}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>

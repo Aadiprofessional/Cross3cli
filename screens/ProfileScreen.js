@@ -13,17 +13,17 @@ const ProfileScreen = ({navigation}) => {
     {
       icon: require('../assets/icon1.png'),
       text: 'Register your Company',
-      screen: 'RegisterCompany',
+      screen: 'RegisterCompanyScreen',
     },
     {
       icon: require('../assets/icon2.png'),
       text: 'Terms and Condition',
-      screen: 'TermsConditions',
+      screen: 'TermsConditionsScreen',
     },
     {
       icon: require('../assets/icon3.png'),
       text: 'Privacy and policy',
-      screen: 'PrivacyPolicy',
+      screen: 'PrivacyPolicyScreen',
     },
     {
       icon: require('../assets/icon4.png'),
@@ -46,8 +46,8 @@ const ProfileScreen = ({navigation}) => {
         />
         <View style={styles.profileTextContainer}>
           <Text style={styles.nameText}>Your Name</Text>
-          <Text style={styles.newText}>New Text of Mobile</Text>
-          <Text style={styles.mobileText}>Your Mobile Number</Text>
+          <Text style={styles.newText}>Mobile:</Text>
+          <Text style={styles.mobileText}>+91 0504353435</Text>
         </View>
         <Image
           source={require('../assets/profile2.png')}
