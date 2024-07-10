@@ -1,19 +1,33 @@
+// CustomHeader.tsx
+
 import React from 'react';
 import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import { useNavigation, useRoute } from '@react-navigation/native'; // Import useNavigation and useRoute hooks
 
-const CustomHeader = () => {
+interface CustomHeaderProps {
+  toggleNavBar: () => void; // Function to toggle the left navbar
+}
+
+const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
   const navigation = useNavigation();
+  const route = useRoute();
 
   const handleSearchPress = () => {
     // Navigate to the search screen
     navigation.navigate('SearchScreen'); // Make sure 'SearchScreen' is added to your navigation stack
   };
 
+  // Conditionally render header based on route name
+  if (route.name !== 'Home') {
+    return null;
+  }
+
   return (
     <View style={styles.header}>
       <View style={styles.leftIcons}>
-        <Image source={require('../assets/nav.png')} style={styles.icon} />
+        <TouchableOpacity onPress={toggleNavBar}>
+          <Image source={require('../assets/nav.png')} style={styles.icon} />
+        </TouchableOpacity>
       </View>
       <View style={styles.centerLogo}>
         <Image source={require('../assets/logo.png')} style={styles.logoImage} />
@@ -62,7 +76,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 24,
     height: 24,
-    marginHorizontal: 10, // Adjust as needed for spacing between icons
+    marginHorizontal: 10,
   },
 });
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Animated } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomHeader from '../components/CustomHeader';
@@ -14,13 +14,14 @@ import UpcomingProducts from '../components/UpcomingProducts';
 import CartScreen from './CartScreen';
 import ProfileScreen from './ProfileScreen';
 import QuotesScreen from './QuotesScreen'; // Import QuotesScreen
+import LeftNavBar from '../components/LeftNavBar';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const HomeContent = () => {
   return (
     <ScrollView style={styles.container}>
-      <CustomHeader title="Home" />
+      
       <AutoImageSlider />
       <View style={styles.backgroundContainer}>
         <View style={styles.topHalf} />
@@ -46,50 +47,89 @@ const HomeContent = () => {
 };
 
 const HomeScreen = () => {
+  const [isNavBarVisible, setNavBarVisible] = useState(false);
+  const [slideAnim] = useState(new Animated.Value(-250)); // Initial position of sidebar
+
+  const toggleNavBar = () => {
+    if (isNavBarVisible) {
+      // Hide navbar
+      Animated.timing(slideAnim, {
+        toValue: -250,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setNavBarVisible(false));
+    } else {
+      // Show navbar
+      setNavBarVisible(true);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
   return (
-    <Tab.Navigator
-      initialRouteName="HomeContent"
-      activeColor={colors.main} // Use main color for active color
-      inactiveColor="#8A8A8A"
-      barStyle={{ backgroundColor: '#FFFFFF' }}
-    >
-      <Tab.Screen
-        name="HomeContent"
-        component={HomeContent}
-        options={{
-          tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={22} />,
-          tabBarLabel: 'Home',
-        }}
-      />
-      <Tab.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
-          tabBarLabel: 'Cart',
-        }}
-      />
-      <Tab.Screen
-        name="Quotes"
-        component={QuotesScreen} // Add QuotesScreen
-        options={{
-          tabBarIcon: ({ color }) => <Icon name="quote-outline" color={color} size={22} />, // Use appropriate icon name
-          tabBarLabel: 'Quotes',
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ color }) => <Icon name="person-outline" color={color} size={22} />,
-          tabBarLabel: 'Profile',
-        }}
-      />
-    </Tab.Navigator>
+    <View style={styles.mainContainer}>
+      {isNavBarVisible && (
+        <Animated.View style={[styles.navContainer, { transform: [{ translateX: slideAnim }] }]}>
+          <LeftNavBar toggleNavBar={toggleNavBar} />
+        </Animated.View>
+      )}
+      <View style={styles.contentContainer}>
+        <CustomHeader toggleNavBar={toggleNavBar} />
+        <Tab.Navigator
+          initialRouteName="HomeContent"
+          activeColor={colors.main} // Use main color for active color
+          inactiveColor="#8A8A8A"
+          barStyle={{ backgroundColor: '#FFFFFF' }}
+        >
+          <Tab.Screen
+            name="HomeContent"
+            component={HomeContent}
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={22} />,
+              tabBarLabel: 'Home',
+            }}
+          />
+          <Tab.Screen
+            name="Cart"
+            component={CartScreen}
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
+              tabBarLabel: 'Cart',
+            }}
+          />
+          <Tab.Screen
+            name="Quotes"
+            component={QuotesScreen} // Add QuotesScreen
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="quote-outline" color={color} size={22} />, // Use appropriate icon name
+              tabBarLabel: 'Quotes',
+            }}
+          />
+          <Tab.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="person-outline" color={color} size={22} />,
+              tabBarLabel: 'Profile',
+            }}
+          />
+        </Tab.Navigator>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF', // Set entire screen background to white
@@ -149,6 +189,17 @@ const styles = StyleSheet.create({
     opacity: 0.1,
     marginBottom: 200,
   },
+  navContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 250,
+    height: '100%',
+    backgroundColor: '#FFF',
+    zIndex: 10,
+    elevation: 10,
+  },
 });
 
 export default HomeScreen;
+

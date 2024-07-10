@@ -4,19 +4,29 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
-import SearchScreen from './screens/SearchScreen'; // Import SearchScreen
+import SearchScreen from './screens/SearchScreen';
 import ProductDetailPage from './screens/ProductDetailPage';
 import { colors } from './styles/color';
 import NeedHelpScreen from './screens/NeedHelpScreen';
 import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import TermsConditionsScreen from './screens/TermsConditionsScreen';
 import RegisterCompanyScreen from './screens/RegisterCompanyScreen';
+import CartScreen from './screens/CartScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import SubCategoryScreen from './screens/SubCategoryScreen';
 
 type RootStackParamList = {
   Login: { login: () => void };
   Home: undefined;
-  SearchScreen: undefined; // Add SearchScreen to RootStackParamList
+  SearchScreen: undefined;
   ProductDetailPage: { imageSource: string; description: string; price: string };
+  NeedHelp: undefined;
+  PrivacyPolicyScreen: undefined;
+  TermsConditionsScreen: undefined;
+  RegisterCompanyScreen: undefined;
+  Cart: undefined;
+  Profile: undefined;
+  SubCategoryScreen: { subcategory: string }; // Define subcategory parameter
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -45,13 +55,13 @@ const App: React.FC = () => {
         />
         <Stack.Screen
           name="SearchScreen"
-          component={SearchScreen} // Add SearchScreen to the stack
+          component={SearchScreen}
           options={{
-            title: 'Search', // Set the title of the screen
+            title: 'Search',
             headerStyle: {
-              backgroundColor: colors.main, // Change this to your desired color
+              backgroundColor: colors.main,
             },
-            headerTintColor: '#fff', // Text color
+            headerTintColor: '#fff',
             headerTitleStyle: {
               fontWeight: 'bold',
             },
@@ -61,11 +71,11 @@ const App: React.FC = () => {
           name="ProductDetailPage"
           component={ProductDetailPage}
           options={{
-            title: 'Product Detail', // Set the title of the screen
+            title: 'Product Detail',
             headerStyle: {
-              backgroundColor: colors.main, // Change this to your desired color
+              backgroundColor: colors.main,
             },
-            headerTintColor: '#fff', // Text color
+            headerTintColor: '#fff',
             headerTitleStyle: {
               fontWeight: 'bold',
             },
@@ -74,22 +84,46 @@ const App: React.FC = () => {
         <Stack.Screen
           name="NeedHelp"
           component={NeedHelpScreen}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="PrivacyPolicyScreen"
           component={PrivacyPolicyScreen}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="TermsConditionsScreen"
           component={TermsConditionsScreen}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="RegisterCompanyScreen"
           component={RegisterCompanyScreen}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Cart"
+          component={CartScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SubCategoryScreen"
+          component={SubCategoryScreen}
+          options={{
+            title: 'Subcategory', // Set the title of the screen
+            headerStyle: {
+              backgroundColor: colors.main,
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
