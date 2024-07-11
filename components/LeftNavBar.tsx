@@ -17,27 +17,27 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   const categories = [
     { 
       name: 'Electronics', 
-      icon: require('../assets/product.png'), // Use require for local images
+      icon: require('../assets/Categories.png'), // Use require for local images
       subcategories: ['Laptops', 'Mobile Phones', 'Tablets', 'Headphones', 'Smartwatches'] 
     },
     { 
       name: 'Clothing', 
-      icon: require('../assets/product.png'), // Example, replace with actual image
+      icon: require('../assets/Categories.png'), // Example, replace with actual image
       subcategories: ['Men', 'Women', 'Kids'] 
     },
     { 
       name: 'Kids', 
-      icon: require('../assets/product.png'), // Example, replace with actual image
+      icon: require('../assets/Categories.png'), // Example, replace with actual image
       subcategories: ['Boys', 'Girls'] 
     },
     { 
       name: 'Toys', 
-      icon: require('../assets/product.png'), // Example, replace with actual image
+      icon: require('../assets/Categories.png'), // Example, replace with actual image
       subcategories: ['Action Figures', 'Dolls', 'Board Games'] 
     },
     { 
       name: 'Books', 
-      icon: require('../assets/product.png'), // Example, replace with actual image
+      icon: require('../assets/Categories.png'), // Example, replace with actual image
       subcategories: ['Fiction', 'Non-Fiction', 'Children'] 
     },
   ];

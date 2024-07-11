@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { colors } from '../styles/color';
@@ -21,10 +21,7 @@ const ProductComponent = ({ productName, imageSource, description, price }) => {
     <TouchableOpacity style={styles.productContainer} onPress={navigateToProductDetail}>
       <View style={styles.productContent}>
         <View style={styles.productImageContainer}>
-          <View style={styles.productImage}>
-            {/* Replace 'product.png' with actual image source */}
-            <Icon name={imageSource} size={40} color="#484848" />
-          </View>
+          <Image source={imageSource} style={styles.productImage} resizeMode="contain" />
         </View>
         <Text style={styles.productDescription} numberOfLines={2}>
           {description}
@@ -54,9 +51,9 @@ const SearchScreen = () => {
 
   // Dummy product data for demonstration
   const products = [
-    { id: 1, productName: 'Product 1', imageSource: 'product.png', description: 'Product 1 Description', price: '$100' },
-    { id: 2, productName: 'Product 2', imageSource: 'product.png', description: 'Product 2 Description', price: '$150' },
-    { id: 3, productName: 'Product 3', imageSource: 'product.png', description: 'Product 3 Description', price: '$200' },
+    { id: 1, productName: 'Product 2', imageSource: require('../assets/product2.png'), description: 'Product 1 Description', price: '$100' },
+    { id: 2, productName: 'Product 2', imageSource: require('../assets/product2.png'), description: 'Product 2 Description', price: '$150' },
+    { id: 3, productName: 'Product 2', imageSource: require('../assets/product2.png'), description: 'Product 3 Description', price: '$200' },
     // Add more products as needed
   ];
 
@@ -234,9 +231,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   productImage: {
-    width: 40,
-    height: 40,
-    // Adjust styling for product image as needed
+    width: '100%',
+    height: '100%',
   },
   productDescription: {
     fontSize: 12,

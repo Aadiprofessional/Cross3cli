@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../styles/color';
-import CartItem from '../components/CartItem';
+import CartItem from '../components/CartItem'; // Import the CartItem component
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
- buttonsContainer: {
+  buttonsContainer: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'stretch',

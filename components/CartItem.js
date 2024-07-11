@@ -35,7 +35,7 @@ const CartItem = ({ id, name, price, quantity, onUpdateQuantity, onRemoveItem })
     <View style={styles.cartItemContainer}>
       <View style={styles.productImageContainer}>
         <Image
-          source={require('../assets/product.png')} // Replace with your image source
+          source={require('../assets/product2.png')} // Replace with your image source
           style={styles.productImage}
           resizeMode="cover"
         />
@@ -90,8 +90,8 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   productImage: {
-    width: '100%',
-    height: '100%',
+    width: '80%',
+    height: '80%',
     borderRadius: 10,
   },
   productDetails: {

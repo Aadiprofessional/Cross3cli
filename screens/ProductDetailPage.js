@@ -7,9 +7,9 @@ const ProductDetailPage = ({ route }) => {
 
   // Dummy product images for demonstration
   const productImages = [
-    require('../assets/product.png'),
-    require('../assets/product.png'),
-    require('../assets/product.png'),
+    require('../assets/product2.png'),
+    require('../assets/product2.png'),
+    require('../assets/product2.png'),
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
