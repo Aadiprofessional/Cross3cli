@@ -15,6 +15,7 @@ import CartScreen from './screens/CartScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SubCategoryScreen from './screens/SubCategoryScreen';
 import OrderSummaryScreen from './screens/OrderSummaryScreen';
+import QuotationScreen from './screens/QuotationScreen';
 
 type RootStackParamList = {
   Login: { login: () => void };
@@ -140,6 +141,21 @@ const App: React.FC = () => {
               fontWeight: 'bold',
             },
           }} />
+          
+          <Stack.Screen
+          name="Quotation"
+          component={QuotationScreen}
+          options={{
+            title: 'Quotation Screen', // Set the title of the screen
+            headerStyle: {
+              backgroundColor: colors.main,
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -27,7 +27,7 @@ const ProfileScreen = ({navigation}) => {
     },
     {
       icon: require('../assets/icon4.png'),
-      text: 'Need Help',
+      text: 'Contact us',
       screen: 'NeedHelp',
     },
     {

@@ -21,7 +21,7 @@ const CartScreen = () => {
   };
 
   const handleGetQuotation = () => {
-    console.log('Get Quotation button pressed');
+    navigation.navigate('Quotation');
   };
 
   const handlePlaceOrder = () => {
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  buttonsContainer: {
+ buttonsContainer: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'stretch',
