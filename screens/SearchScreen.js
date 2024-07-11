@@ -103,11 +103,7 @@ const SearchScreen = () => {
             )}
           />
         </View>
-        <View style={[styles.buttonWrapper, styles.electronicsButtonWrapper]}>
-          <TouchableOpacity style={styles.electronicsButton}>
-            <Text style={styles.electronicsButtonText}>Electronics</Text>
-          </TouchableOpacity>
-        </View>
+        
       </View>
 
       {/* Product list */}

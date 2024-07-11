@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
     borderColor: '#DDD',
     overflow: 'hidden',
     aspectRatio: 1, // Square aspect ratio
+    marginTop:10,
   },
   productImage: {
     width: '100%',
@@ -74,9 +75,10 @@ const styles = StyleSheet.create({
     resizeMode: 'contain', // Fit the image inside the container
   },
   productName: {
-    marginTop: 10,
+    
     fontSize: 16,
     textAlign: 'center',
+    color: colors.TextBlack,
   },
 });
 

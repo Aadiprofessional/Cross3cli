@@ -100,11 +100,13 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: colors.TextBlack,
   },
   productPrice: {
     fontSize: 18,
     marginTop: 5,
     fontWeight: 'bold',
+    color: colors.TextBlack,
   },
   itemColorContainer: {
     flexDirection: 'row',
@@ -143,6 +145,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginLeft: 10,
     marginRight: 10,
+    color: colors.TextBlack,
   },
 });
 

@@ -74,8 +74,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    width: 24,
-    height: 24,
+    width: 30,
+    height: 30,
     marginHorizontal: 10,
   },
 });

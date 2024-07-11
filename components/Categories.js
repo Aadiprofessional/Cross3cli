@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import CategoryItem from './CategoryItem';
-
+import { colors } from '../styles/color';
 const categories = [
   {id: 1, name: 'Category', image: require('../assets/Categories.png')},
   {id: 2, name: 'Category', image: require('../assets/Categories.png')},
@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 10,
+    color: colors.TextBlack,
   },
   scrollView: {
     flexDirection: 'row',

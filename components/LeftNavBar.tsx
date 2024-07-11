@@ -126,6 +126,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginLeft: 10,
     marginRight: 'auto', // Pushes the text to the left side
+    color: colors.TextBlack,
   },
   categoryIcon: {
     width: 32, // Increased size
@@ -142,6 +143,7 @@ const styles = StyleSheet.create({
   subcategoryText: {
     fontSize: 18,
     fontWeight: '400',
+    color: colors.TextBlack,
   },
   categoriesHeader: {
     flexDirection: 'row',

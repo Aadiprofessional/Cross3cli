@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 10,
     marginLeft: 10,
+    color: colors.TextBlack,
   },
   dealsContainer: {
     flexDirection: 'row',

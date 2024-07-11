@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { colors } from '../styles/color';
 
 const ProfileScreen = ({navigation}) => {
   const options = [
@@ -96,20 +97,24 @@ const styles = StyleSheet.create({
   },
   profileTextContainer: {
     flex: 1,
+    
   },
   nameText: {
     fontSize: 24,
     fontWeight: '600', // semi-bold
+    color: colors.TextBlack,
   },
   newText: {
     fontSize: 14,
     fontWeight: '600', // semi-bold
     marginTop: 5,
+    color: colors.TextBlack,
   },
   mobileText: {
     fontSize: 14,
     fontWeight: '600', // semi-bold
     marginTop: 5,
+    color: colors.TextBlack,
   },
   profileImage2: {
     width: 80,
@@ -136,6 +141,7 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     fontWeight: '600', // semi-bold
+    color: colors.TextBlack,
   },
 });
 

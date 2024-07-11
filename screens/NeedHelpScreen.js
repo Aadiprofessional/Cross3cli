@@ -107,14 +107,17 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+    color: colors.TextBlack,
   },
   mediumText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: colors.TextBlack,
   },
   regularText: {
     fontSize: 16,
     marginTop: 5,
+    color: colors.TextBlack,
   },
 });
 

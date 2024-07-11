@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 1,
     marginLeft: 15, // Align text with Categories component
+    color: colors.TextBlack,
   },
   autoImageSlider2: {
     marginTop: 0,
@@ -171,6 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 40,
     fontWeight: 'bold',
     opacity: 0.1,
+    color: colors.TextBlack,
   },
   emoji: {
     fontSize: 40,
@@ -188,6 +190,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     opacity: 0.1,
     marginBottom: 200,
+    color: colors.TextBlack,
   },
   navContainer: {
     position: 'absolute',

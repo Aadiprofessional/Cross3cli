@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+    
   },
   description: {
     fontSize: 12,

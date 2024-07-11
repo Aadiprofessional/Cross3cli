@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
-
+import { colors } from '../styles/color';
 const HelpBox = () => {
   const handleCallPress = () => {
     Linking.openURL('tel:9289881135');
@@ -58,15 +58,19 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 3,
+    
   },
   mainText: {
     fontFamily: 'Outfit-SemiBold',
+    fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 5,
+    color: colors.TextBlack,
   },
   subText: {
     fontFamily: 'Outfit-Regular',
     fontSize: 14,
+    color: colors.TextBlack,
   },
   iconContainer: {
     flex: 1,

@@ -84,7 +84,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           <Text style={styles.applicableText}>
             <Text style={{ color: colors.main, fontWeight: 'bold' }}>ABCDEF</Text>{'\n'}
             <Text style={{ fontSize: 14 }}>Get 30% off on minimum purchase of ₹2500</Text>{'\n'}
-            <Text style={{ fontSize: 12 }}>Applicable Only on electronics products. See terms and conditions</Text>
+            <Text style={{ fontSize: 12 }}>Applicable Only on electronics products. </Text>
           </Text>
           <TouchableOpacity style={styles.applyTextButton}>
             <Text style={styles.applyTextButtonText}>Apply</Text>
@@ -97,7 +97,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           <Text style={styles.applicableText}>
             <Text style={{ color: colors.main, fontWeight: 'bold' }}>GHIJKL</Text>{'\n'}
             <Text style={{ fontSize: 14 }}>Get 20% off on all electronics</Text>{'\n'}
-            <Text style={{ fontSize: 12 }}>Applicable Only on selected electronics items. Terms apply</Text>
+            <Text style={{ fontSize: 12 }}>Applicable Only on selected electronics items.</Text>
           </Text>
           <TouchableOpacity style={styles.applyTextButton}>
             <Text style={styles.applyTextButtonText}>Apply</Text>
@@ -178,6 +178,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+    color: colors.TextBlack,
   },
   applicableText: {
     fontSize: 14,
@@ -200,12 +201,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    color: colors.TextBlack,
   },
   itemCount: {
     fontSize: 16,
+    color: colors.TextBlack,
   },
   subtotal: {
     fontSize: 16,
+    color: colors.TextBlack,
   },
   cartItemsContainer: {
     flex: 1,
@@ -221,22 +225,27 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: 16,
+    color: colors.TextBlack,
   },
   summaryValue: {
     fontSize: 16,
+    color: colors.TextBlack,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
+    color: colors.TextBlack,
   },
   totalLabel: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: colors.TextBlack,
   },
   totalValue: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: colors.TextBlack,
   },
   checkoutContainer: {
     alignItems: 'center',

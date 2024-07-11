@@ -271,14 +271,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: colors.TextBlack,
   },
   productDetails: {
     width: '90%',
     marginTop: 20,
+    color: colors.TextBlack,
   },
   descriptionText: {
     fontSize: 16,
     marginBottom: 5,
+    color: colors.TextBlack,
   },
   priceContainer: {
     flexDirection: 'row',
@@ -288,6 +291,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     fontSize: 24,
+    color: colors.TextBlack,
   },
   truckIcon: {
     position: 'absolute',
@@ -325,6 +329,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: colors.TextBlack,
 
   
   },
@@ -367,6 +372,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginRight: 10,
+    color: colors.TextBlack,
   },
   quantityControl: {
     flexDirection: 'row',
@@ -385,14 +391,17 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
+    
   },
   quantityNumber: {
     fontSize: 18,
     marginHorizontal: 10,
+    color: colors.TextBlack,
   },
   regularText: {
     fontSize: 12,
     fontWeight: 'regular',
+    color: colors.TextBlack,
     
     marginBottom: 10,
   },
@@ -415,10 +424,12 @@ const styles = StyleSheet.create({
   },
   specLabel: {
     fontWeight: 'bold',
+    color: colors.TextBlack,
   },
   specValue: {
     flex: 1,
     textAlign: 'right',
+    color: colors.TextBlack,
   },
   addToCartButton: {
     backgroundColor: colors.main,

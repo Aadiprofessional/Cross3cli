@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
-
+import { colors } from '../styles/color';
 const CategoryItem = ({name, image}) => {
   return (
     <TouchableOpacity style={styles.container}>
@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 5,
     fontSize: 14,
+    color: colors.TextBlack,
   },
 });
 

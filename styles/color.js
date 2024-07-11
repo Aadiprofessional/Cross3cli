@@ -9,4 +9,5 @@ export const colors = {
   primary: '#FFE8C4',
   second: '#306487',
   black : '#000000',
+  TextBlack: '#181818',
 };
