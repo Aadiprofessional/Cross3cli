@@ -79,9 +79,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   icon: {
-    width: 48, // Increased the icon size to 2x
-    height: 48, // Increased the icon size to 2x
-    marginLeft: -15, // Adjusted margin to reduce space
+    width: 48,
+    height: 48, 
+    marginLeft: -15,
+    padding: 10,
   },
 });
 

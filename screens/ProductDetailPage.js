@@ -5,7 +5,6 @@ import { colors } from '../styles/color'; // Assuming you have defined colors el
 const ProductDetailPage = ({ route }) => {
   const { productName, imageSource, description, price } = route.params;
 
-  // Dummy product images for demonstration
   const productImages = [
     require('../assets/product2.png'),
     require('../assets/product2.png'),
@@ -62,7 +61,6 @@ const ProductDetailPage = ({ route }) => {
             ))}
           </ScrollView>
 
-          {/* Navigation arrows and dot indicators */}
           <TouchableOpacity style={[styles.arrowButton, { left: 10 }]} onPress={handlePrevious}>
             <Text style={styles.arrowText}>{'<'}</Text>
           </TouchableOpacity>
@@ -81,7 +79,6 @@ const ProductDetailPage = ({ route }) => {
             ))}
           </View>
 
-          {/* Truck icon */}
           <View style={styles.truckIcon}>
             <Image
               source={require('../assets/truck.png')}
@@ -89,14 +86,12 @@ const ProductDetailPage = ({ route }) => {
             />
           </View>
 
-          {/* Text outside the truck icon */}
           <View style={styles.truckTextContainer}>
             <Text style={styles.truckText}>Shipping Within 12 Days</Text>
           </View>
           
         </View>
 
-        {/* Product details */}
         <View style={styles.productDetails}>
           <Text style={styles.title}>{productName}</Text>
           <Text style={styles.descriptionText}>Description: {description}</Text>
@@ -108,7 +103,6 @@ const ProductDetailPage = ({ route }) => {
           </View>
         </View>
 
-        {/* Color selection */}
         <View style={styles.productDetails}>
           <Text style={styles.Head}>Colour:</Text>
           <View style={styles.colorSelectionContainer}>
@@ -135,7 +129,6 @@ const ProductDetailPage = ({ route }) => {
           </View>
         </View>
 
-        {/* Quantity selector */}
         <View style={styles.quantityContainer}>
           <Text style={styles.quantityText}>Quantity:</Text>
           <View style={styles.quantityControl}>
@@ -149,7 +142,6 @@ const ProductDetailPage = ({ route }) => {
           </View>
         </View>
 
-        {/* Product description */}
         <View style={styles.productDetails}>
           <Text style={styles.Head}>Product Description:</Text>
           <Text style={styles.regularText}>
@@ -164,7 +156,6 @@ const ProductDetailPage = ({ route }) => {
           </Text>
         </View>
 
-        {/* Product specifications */}
         <View style={styles.productDetails}>
           <Text style={styles.Head}>Product Specifications:</Text>
           <View style={styles.specificationTable}>
@@ -178,8 +169,6 @@ const ProductDetailPage = ({ route }) => {
             </View>
           </View>
         </View>
-
-        {/* Add to cart button */}
         <TouchableOpacity style={styles.addToCartButton}>
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
@@ -221,7 +210,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '90%',
-    aspectRatio: 1, // Square aspect ratio
+    aspectRatio: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 5,
     overflow: 'hidden',
@@ -297,28 +286,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     left: 10,
-    backgroundColor: colors.second, // Assuming colors.second is defined in your color styles
+    backgroundColor: colors.second,
     borderRadius: 20,
     padding: 10,
   },
   truckImage: {
     width: 24,
     height: 24,
-    tintColor: 'white', // Change the color of the truck icon if needed
+    tintColor: 'white',
   },
   truckTextContainer: {
     position: 'absolute',
     top: 15,
-    left: 50, // Adjust the position as needed
+    left: 50,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    // Assuming colors.second is defined in your color styles
+
     borderRadius: 10,
   },
   truckText: {
     color: '#333333',
     fontSize: 16,
-    fontWeight: '600', // Semi-bold
+    fontWeight: '600',
   },
   callIcon: {
     width: 60,

@@ -28,14 +28,14 @@ const CartItem = ({ id, name, price, quantity, onUpdateQuantity, onRemoveItem })
 
   const handleColorChange = (color) => {
     setSelectedColor(color);
-    // Optionally, you can handle color change logic here
+
   };
 
   return (
     <View style={styles.cartItemContainer}>
       <View style={styles.productImageContainer}>
         <Image
-          source={require('../assets/product2.png')} // Replace with your image source
+          source={require('../assets/product2.png')}
           style={styles.productImage}
           resizeMode="cover"
         />
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 'auto', // Pushes to the right
+    marginLeft: 'auto',
   },
   quantityButton: {
     backgroundColor: colors.main,

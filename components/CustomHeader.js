@@ -1,11 +1,10 @@
-// CustomHeader.tsx
-
 import React from 'react';
 import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native'; // Import useNavigation and useRoute hooks
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { colors } from '../styles/color';
 
 interface CustomHeaderProps {
-  toggleNavBar: () => void; // Function to toggle the left navbar
+  toggleNavBar: () => void;
 }
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
@@ -13,11 +12,8 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
   const route = useRoute();
 
   const handleSearchPress = () => {
-    // Navigate to the search screen
-    navigation.navigate('SearchScreen'); // Make sure 'SearchScreen' is added to your navigation stack
+    navigation.navigate('SearchScreen');
   };
-
-  // Conditionally render header based on route name
   if (route.name !== 'Home') {
     return null;
   }
@@ -33,7 +29,6 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
         <Image source={require('../assets/logo.png')} style={styles.logoImage} />
       </View>
       <View style={styles.rightIcons}>
-        {/* Handle search press */}
         <TouchableOpacity onPress={handleSearchPress}>
           <Image source={require('../assets/search.png')} style={styles.icon} />
         </TouchableOpacity>
@@ -49,9 +44,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#FCCC51', // Background color
+    backgroundColor: colors.main,
     elevation: 2,
-    paddingTop: 30, // Increase distance from top
+    paddingTop: 30,
   },
   leftIcons: {
     flexDirection: 'row',
@@ -66,7 +61,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoImage: {
-    width: 120, // Adjust width and height as needed
+    width: 120,
     height: 40,
   },
   rightIcons: {

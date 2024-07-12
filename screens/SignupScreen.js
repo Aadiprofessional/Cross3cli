@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {useFonts} from 'expo-font';
-import {colors} from '../styles/color'; // Adjust the path as necessary
-import {sizes} from '../styles/size'; // Adjust the path as necessary
+import {colors} from '../styles/color';
+import {sizes} from '../styles/size';
 
 const SignupScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
@@ -17,19 +17,19 @@ const SignupScreen = ({navigation}) => {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const [fontsLoaded] = useFonts({
-    'Outfit-Medium': require('../assets/fonts/Outfit-Medium.ttf'), // Ensure this path is correct
-    'Outfit-Regular': require('../assets/fonts/Outfit-Regular.ttf'), // Ensure this path is correct
+    'Outfit-Medium': require('../assets/fonts/Outfit-Medium.ttf'),
+    'Outfit-Regular': require('../assets/fonts/Outfit-Regular.ttf'),
   });
 
   if (!fontsLoaded) {
-    return null; // Or a loading indicator
+    return null;
   }
 
   const handleSignup = () => {
-    // Your signup logic here
     if (password === confirmPassword) {
       navigation.replace('Home');
     } else {
+      // eslint-disable-next-line no-alert
       alert('Passwords do not match');
     }
   };
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     width: sizes.logoWidth,
     height: sizes.logoHeight,
     resizeMode: 'contain',
-    marginVertical: sizes.marginVertical / 2, // Reduce the distance between images
+    marginVertical: sizes.marginVertical / 2,
   },
   welcomeText: {
     fontFamily: 'Outfit-Medium',

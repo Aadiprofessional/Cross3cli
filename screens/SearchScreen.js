@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
-import ProductComponent from '../components/ProductComponent'; // Import your ProductComponent here
-import SearchResultsScreen from './SearchResultsScreen'; // Import SearchResultsScreen
+import { useNavigation } from '@react-navigation/native'; 
+import ProductComponent from '../components/ProductComponent';
+import SearchResultsScreen from './SearchResultsScreen';
 
 const SearchScreen = () => {
   const navigation = useNavigation();
@@ -25,21 +25,19 @@ const SearchScreen = () => {
     { label: 'Category 3', value: 'category3' },
   ]);
 
-  // Dummy product data for demonstration
   const products = [
     { id: 1, productName: 'Product 1', imageSource: require('../assets/product2.png'), description: 'Product 1 Description', price: '$100' },
     { id: 2, productName: 'Product 2', imageSource: require('../assets/product2.png'), description: 'Product 2 Description', price: '$150' },
     { id: 3, productName: 'Product 3', imageSource: require('../assets/product2.png'), description: 'Product 3 Description', price: '$200' },
-    // Add more products as needed
   ];
 
   const handleSearch = () => {
-    // Filter products based on searchQuery
+
     const filteredProducts = products.filter(product =>
       product.productName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Navigate to SearchResultsScreen with filtered products
+
     navigation.navigate('SearchResultsScreen', { searchResults: filteredProducts });
   };
 
@@ -53,9 +51,9 @@ const SearchScreen = () => {
           placeholderTextColor="#484848"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearch} // Trigger search on submit
-          returnKeyType="search" // Show search button on keyboard
-          autoFocus // Automatically focus on input
+          onSubmitEditing={handleSearch}
+          returnKeyType="search"
+          autoFocus
         />
       </View>
       <View style={styles.buttonsContainer}>
@@ -94,8 +92,6 @@ const SearchScreen = () => {
           />
         </View>
       </View>
-
-      {/* Product list */}
       <View style={styles.productList}>
         {products.map(product => (
           <ProductComponent

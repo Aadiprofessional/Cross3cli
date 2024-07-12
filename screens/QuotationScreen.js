@@ -31,7 +31,6 @@ const QuotationScreen = () => {
 
   const handleCheckout = () => {
     console.log('Checkout button pressed');
-    // Implement your checkout logic here
   };
 
   const handleRemoveItem = (itemId) => {
@@ -54,7 +53,6 @@ const QuotationScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Quotes Box */}
       <View style={[styles.quotesBox, styles.shadow]}>
         <ScrollView contentContainerStyle={styles.boxContent}>
           <View style={styles.row}>
@@ -70,7 +68,6 @@ const QuotationScreen = () => {
           </View>
           <Text style={[styles.value, { color: '#F59F13' }]}>Pending</Text>
 
-          {/* Cart Items */}
           {cartItems.map(item => (
             <CartItem
               key={item.id}
@@ -83,7 +80,6 @@ const QuotationScreen = () => {
             />
           ))}
 
-          {/* Checkout Button */}
           <TouchableOpacity
             style={[styles.checkoutButton, { backgroundColor: colors.main }]}
             onPress={handleCheckout}>
@@ -92,7 +88,6 @@ const QuotationScreen = () => {
         </ScrollView>
       </View>
 
-      {/* Orders Box */}
       <View style={[styles.ordersBox, styles.shadow]}>
         <ScrollView contentContainerStyle={styles.boxContent}>
           <View style={styles.row}>
@@ -108,7 +103,6 @@ const QuotationScreen = () => {
           </View>
           <Text style={[styles.value, { color: '#F59F13' }]}>Pending</Text>
 
-          {/* Checkout Button */}
           <TouchableOpacity
             style={[styles.checkoutButton, { backgroundColor: colors.main }]}
             onPress={handleCheckout}>
@@ -142,7 +136,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    elevation: 3, // for Android
+    elevation: 3,
   },
   quotesButton: {
     backgroundColor: colors.main,
@@ -194,7 +188,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
-    alignSelf: 'center', // Center the button horizontally within the box
+    alignSelf: 'center',
   },
   buttonText: {
     fontSize: 16,
@@ -205,7 +199,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 2,
-    elevation: 3, // for Android
+    elevation: 3,
   },
 });
 

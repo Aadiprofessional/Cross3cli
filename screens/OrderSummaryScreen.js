@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
-import CartItem from '../components/CartItem'; // Make sure the path to CartItem is correct
+import CartItem from '../components/CartItem';
 import { colors } from '../styles/color';
 import { sizes } from '../styles/size';
 
@@ -29,14 +29,13 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   };
 
   const handleApplyCoupon = () => {
-    // Logic to apply coupon code
+
     console.log(`Applying coupon code: ${couponCode}`);
-    // Reset coupon code input after applying
+
     setCouponCode('');
   };
 
   const handleCheckout = () => {
-    // Logic to navigate to checkout screen or perform checkout action
     navigation.navigate('CheckoutScreen', { cartItems, totalAmount });
   };
 

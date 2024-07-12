@@ -1,4 +1,3 @@
-// size.js
 export const sizes = {
   topImageHeight: 150,
   logoWidth: 150,

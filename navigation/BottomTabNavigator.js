@@ -1,10 +1,10 @@
 import React from 'react';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import HomeContent from '../screens/HomeContent'; // Adjust the import based on your project structure
+import HomeContent from '../screens/HomeContent';
 import CartScreen from '../screens/CartScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import QuotesScreen from '../screens/QuotesScreen'; // Assuming you have a QuotesScreen
+import QuotesScreen from '../screens/QuotesScreen';
 
 const Tab = createMaterialBottomTabNavigator();
 

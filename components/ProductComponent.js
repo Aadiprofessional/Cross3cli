@@ -8,7 +8,6 @@ const ProductComponent = ({ imageSource, description, price }) => {
   const navigation = useNavigation();
 
   const handlePress = () => {
-    // Navigate to ProductDetailPage
     navigation.navigate('ProductDetailPage', { imageSource, description, price });
   };
 
@@ -31,7 +30,7 @@ const ProductComponent = ({ imageSource, description, price }) => {
 
 const styles = StyleSheet.create({
   productContainer: {
-    width: '48%', // Adjust based on your requirement for two products per row
+    width: '48%',
     marginBottom: 20,
   },
   productContent: {
@@ -52,7 +51,6 @@ const styles = StyleSheet.create({
   productImage: {
     width: 40,
     height: 40,
-    // Adjust styling for product image as needed
   },
   productDescription: {
     fontSize: 12,

@@ -23,7 +23,7 @@ const NeedHelpScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+  
       <View style={[styles.header, { backgroundColor: colors.main }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('../assets/back.png')} style={styles.backIcon} />
@@ -31,7 +31,6 @@ const NeedHelpScreen = () => {
         <Text style={styles.headerTitle}>Contact us</Text>
       </View>
 
-      {/* WhatsApp */}
       <TouchableOpacity style={styles.rectangle} onPress={handleWhatsApp}>
         <Image source={require('../assets/whatsapp.png')} style={styles.icon} />
         <View style={styles.textContainer}>
@@ -40,7 +39,6 @@ const NeedHelpScreen = () => {
         </View>
       </TouchableOpacity>
 
-      {/* Call */}
       <TouchableOpacity style={styles.rectangle} onPress={handleCall}>
         <Image source={require('../assets/call.png')} style={styles.icon} />
         <View style={styles.textContainer}>
@@ -49,7 +47,6 @@ const NeedHelpScreen = () => {
         </View>
       </TouchableOpacity>
 
-      {/* Mail */}
       <TouchableOpacity style={styles.rectangle} onPress={handleMail}>
         <Image source={require('../assets/mail.png')} style={styles.icon} />
         <View style={styles.textContainer}>

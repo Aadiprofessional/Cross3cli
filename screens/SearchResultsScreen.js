@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
-import ProductComponent from '../components/ProductComponent'; // Import your ProductComponent here
+import ProductComponent from '../components/ProductComponent';
 
 const SearchResultsScreen = ({ route }) => {
   const { searchResults } = route.params;
@@ -19,7 +19,7 @@ const SearchResultsScreen = ({ route }) => {
         )}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.productList}
-        numColumns={2} // Adjust based on your requirement
+        numColumns={2}
       />
     </View>
   );

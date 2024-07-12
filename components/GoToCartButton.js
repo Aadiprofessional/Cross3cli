@@ -6,7 +6,7 @@ const GoToCartButton = () => {
   const navigation = useNavigation();
 
   const handleGoToCart = () => {
-    navigation.navigate('Cart'); // Navigate to 'Cart' screen
+    navigation.navigate('Cart');
   };
 
   return (

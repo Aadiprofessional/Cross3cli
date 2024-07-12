@@ -5,15 +5,15 @@ import { colors } from '../styles/color';
 const PrivacyPolicyScreen = () => {
   return (
     <View style={styles.container}>
-      {/* Header */}
+
       <View style={styles.header}>
-        {/* Back button goes here if needed */}
+
         <Text style={styles.headerTitle}>Privacy Policy</Text>
       </View>
 
-      {/* Content */}
+
       <View style={styles.content}>
-        {/* Content goes here */}
+
         <Text>Privacy Policy content goes here.</Text>
       </View>
     </View>

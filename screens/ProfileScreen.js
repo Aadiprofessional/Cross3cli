@@ -72,14 +72,14 @@ const ProfileScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff', // Adjust as per your app's theme
+    backgroundColor: '#fff',
    
     paddingTop: 20,
   },
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff', // Background color of the rounded rectangle
+    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 15,
     shadowColor: '#000',
@@ -103,18 +103,18 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize: 24,
-    fontWeight: '600', // semi-bold
+    fontWeight: '600', 
     color: colors.TextBlack,
   },
   newText: {
     fontSize: 14,
-    fontWeight: '600', // semi-bold
+    fontWeight: '600', 
     marginTop: 5,
     color: colors.TextBlack,
   },
   mobileText: {
     fontSize: 14,
-    fontWeight: '600', // semi-bold
+    fontWeight: '600',
     marginTop: 5,
     color: colors.TextBlack,
   },
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   optionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff', // Background color of the option boxes
+    backgroundColor: '#fff',
     borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 16,
-    fontWeight: '600', // semi-bold
+    fontWeight: '600',
     color: colors.TextBlack,
   },
 });

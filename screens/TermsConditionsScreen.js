@@ -5,15 +5,13 @@ import { colors } from '../styles/color';
 const TermsConditionsScreen = () => {
   return (
     <View style={styles.container}>
-      {/* Header */}
+
       <View style={styles.header}>
-        {/* Back button goes here if needed */}
+
         <Text style={styles.headerTitle}>Terms and Conditions</Text>
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
-        {/* Content goes here */}
         <Text>Terms and Conditions content goes here.</Text>
       </View>
     </View>

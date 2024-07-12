@@ -9,7 +9,6 @@ const deals = [
 
 const LatestProducts = () => {
   const handleDealPress = dealId => {
-    // Handle click action for each deal here
     console.log(`Clicked on deal ${dealId}`);
   };
 

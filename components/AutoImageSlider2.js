@@ -10,22 +10,21 @@ const AutoImageSlider2 = () => {
     require('../assets/banner.png'),
   ];
 
-  // Add duplicates for looping effect
   const imagesWithDuplicates = [
-    images[images.length - 1], // Last image
+    images[images.length - 1],
     ...images,
-    images[0], // First image
+    images[0],
   ];
 
   const sliderWidth = Dimensions.get('window').width;
-  const imageWidth = sliderWidth; // 100% of the screen width
+  const imageWidth = sliderWidth;
 
   const scrollRef = useRef();
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex(current => (current === images.length ? 1 : current + 1));
-    }, 3000); // Change slide every 3 seconds
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [images.length]);
@@ -33,7 +32,7 @@ const AutoImageSlider2 = () => {
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
-        x: currentIndex * imageWidth, // Adjust scroll position
+        x: currentIndex * imageWidth,
         animated: true,
       });
     }
@@ -45,9 +44,9 @@ const AutoImageSlider2 = () => {
     const index = Math.floor(contentOffset / slideSize);
 
     if (index === 0) {
-      setCurrentIndex(images.length); // Jump to the last image (without animation)
+      setCurrentIndex(images.length);
     } else if (index === images.length + 1) {
-      setCurrentIndex(1); // Jump to the first image (without animation)
+      setCurrentIndex(1);
     } else {
       setCurrentIndex(index);
     }
@@ -83,8 +82,8 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     width: '100%',
-    height: 250, // Adjusted height to accommodate the images
-    overflow: 'hidden', // Ensures the content does not overflow the container
+    height: 250,
+    overflow: 'hidden',
   },
   backgroundContainer: {
     position: 'absolute',
@@ -93,11 +92,11 @@ const styles = StyleSheet.create({
   },
   topHalf: {
     backgroundColor: '#FFFFFF',
-    height: '50%', // Top half
+    height: '50%',
   },
   bottomHalf: {
     backgroundColor: colors.main,
-    height: '50%', // Bottom half
+    height: '50%',
   },
   scrollViewContent: {
     justifyContent: 'center',

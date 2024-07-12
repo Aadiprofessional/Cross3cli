@@ -17,15 +17,21 @@ import OrderSummaryScreen from './screens/OrderSummaryScreen';
 import QuotationScreen from './screens/QuotationScreen';
 import SearchResultsScreen from './screens/SearchResultsScreen';
 import { colors } from './styles/color';
+import LeftNavBar from './components/LeftNavBar';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isNavBarVisible, setIsNavBarVisible] = useState(false);
 
   const login = () => {
     // Simulate login logic here
     setIsLoggedIn(true);
+  };
+
+  const toggleNavBar = () => {
+    setIsNavBarVisible(!isNavBarVisible);
   };
 
   return (
@@ -48,11 +54,11 @@ const App = () => {
           options={{
             title: 'Search',
             headerStyle: {
-              backgroundColor: colors.main,  // Example header style
+              backgroundColor: colors.main,
             },
-            headerTintColor: '#fff', // Example header text color
+            headerTintColor: '#fff',
             headerTitleStyle: {
-              fontWeight: 'bold', // Example header title style
+              fontWeight: 'bold',
             },
           }}
         />
@@ -62,11 +68,11 @@ const App = () => {
           options={{
             title: 'Search Results',
             headerStyle: {
-              backgroundColor: colors.main,  // Example header style
+              backgroundColor: colors.main,
             },
-            headerTintColor: '#fff', // Example header text color
+            headerTintColor: '#fff',
             headerTitleStyle: {
-              fontWeight: 'bold', // Example header title style
+              fontWeight: 'bold',
             },
           }}
         />
@@ -76,11 +82,11 @@ const App = () => {
           options={{
             title: 'Product Detail',
             headerStyle: {
-              backgroundColor: colors.main, // Example header style
+              backgroundColor: colors.main,
             },
-            headerTintColor: '#fff', // Example header text color
+            headerTintColor: '#fff',
             headerTitleStyle: {
-              fontWeight: 'bold', // Example header title style
+              fontWeight: 'bold',
             },
           }}
         />
@@ -120,11 +126,11 @@ const App = () => {
           options={{
             title: 'Subcategory',
             headerStyle: {
-              backgroundColor: colors.main,  // Example header style
+              backgroundColor: colors.main,
             },
-            headerTintColor: '#fff', // Example header text color
+            headerTintColor: '#fff',
             headerTitleStyle: {
-              fontWeight: 'bold', // Example header title style
+              fontWeight: 'bold',
             },
           }}
         />
@@ -134,11 +140,11 @@ const App = () => {
           options={{
             title: 'Order Summary',
             headerStyle: {
-              backgroundColor: colors.main, // Example header style
+              backgroundColor: colors.main,
             },
-            headerTintColor: '#fff', // Example header text color
+            headerTintColor: '#fff',
             headerTitleStyle: {
-              fontWeight: 'bold', // Example header title style
+              fontWeight: 'bold',
             },
           }}
         />
@@ -148,15 +154,17 @@ const App = () => {
           options={{
             title: 'Quotation Screen',
             headerStyle: {
-              backgroundColor: colors.main, // Example header style
+              backgroundColor: colors.main,
             },
-            headerTintColor: '#fff', // Example header text color
+            headerTintColor: '#fff',
             headerTitleStyle: {
-              fontWeight: 'bold', // Example header title style
+              fontWeight: 'bold', 
             },
           }}
         />
       </Stack.Navigator>
+
+      {isNavBarVisible && <LeftNavBar toggleNavBar={toggleNavBar} />}
     </NavigationContainer>
   );
 };

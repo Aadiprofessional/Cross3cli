@@ -6,7 +6,7 @@ const SplashScreen = ({navigation}) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.replace('Login');
-    }, 4000); // Adjust the timeout as needed
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, [navigation]);
@@ -14,7 +14,7 @@ const SplashScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Gif
-        source={require('../assets/splash.gif')} // Replace with your GIF path
+        source={require('../assets/splash.gif')}
         style={styles.gif}
       />
     </View>

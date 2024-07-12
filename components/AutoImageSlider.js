@@ -4,38 +4,36 @@ import {sizes} from '../styles/size';
 import {colors} from '../styles/color';
 
 const AutoImageSlider = () => {
-  const [currentIndex, setCurrentIndex] = useState(1); // Start from the first actual image (after the duplicated one)
+  const [currentIndex, setCurrentIndex] = useState(1);
   const images = [
     require('../assets/banner.png'),
     require('../assets/banner.png'),
     require('../assets/banner.png'),
   ];
 
-  // Add duplicates for looping effect
   const imagesWithDuplicates = [
-    images[images.length - 1], // Last image
+    images[images.length - 1],
     ...images,
-    images[0], // First image
+    images[0],
   ];
 
   const sliderWidth = Dimensions.get('window').width;
-  const imageWidth = sliderWidth; // 100% of the screen width
-  const sideImageWidth = 0; // No side margins
+  const imageWidth = sliderWidth;
+  const sideImageWidth = 0;
 
   const scrollRef = useRef();
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex(current => (current === images.length ? 1 : current + 1));
-    }, 3000); // Change slide every 3 seconds
-
+    }, 3000);
     return () => clearInterval(interval);
   }, [images.length]);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
-        x: currentIndex * (imageWidth + sideImageWidth * 2), // Adjust scroll position
+        x: currentIndex * (imageWidth + sideImageWidth * 2),
         animated: true,
       });
     }
@@ -47,9 +45,9 @@ const AutoImageSlider = () => {
     const index = Math.floor(contentOffset / slideSize);
 
     if (index === 0) {
-      setCurrentIndex(images.length); // Jump to the last image (without animation)
+      setCurrentIndex(images.length);
     } else if (index === images.length + 1) {
-      setCurrentIndex(1); // Jump to the first image (without animation)
+      setCurrentIndex(1);
     } else {
       setCurrentIndex(index);
     }
@@ -79,7 +77,7 @@ const AutoImageSlider = () => {
             key={index}
             style={[
               styles.dot,
-              index === currentIndex - 1 && styles.activeDot, // Apply active dot style when current
+              index === currentIndex - 1 && styles.activeDot,
             ]}
           />
         ))}
@@ -92,10 +90,10 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     width: '100%',
-    height: 250, // Adjusted height to accommodate the images and dots
+    height: 250,
 
-    backgroundColor: colors.main, // Background color for the entire component
-    overflow: 'hidden', // Ensures the content does not overflow the container
+    backgroundColor: colors.main,
+    overflow: 'hidden',
   },
   scrollViewContent: {
     justifyContent: 'center',
@@ -112,11 +110,11 @@ const styles = StyleSheet.create({
   },
   pagination: {
     position: 'absolute',
-    bottom: 1, // Adjusted distance from the bottom of the images
+    bottom: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
-    paddingVertical: 5, // Padding for vertical spacing
+    paddingVertical: 5,
   },
   dot: {
     width: 8,

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../styles/color';
-import CartItem from '../components/CartItem'; // Import the CartItem component
+import CartItem from '../components/CartItem';
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([

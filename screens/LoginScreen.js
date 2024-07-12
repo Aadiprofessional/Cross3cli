@@ -15,7 +15,7 @@ const LoginScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Your login logic here
+
     navigation.replace('Home');
   };
 

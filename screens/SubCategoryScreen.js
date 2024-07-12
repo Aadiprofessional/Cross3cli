@@ -1,9 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
-import { colors } from '../styles/color'; // Import color styles
+import { useNavigation } from '@react-navigation/native';
+import { colors } from '../styles/color'; 
 
-// Example data - Replace with actual data fetched from your source
 const products = [
   { id: 1, name: 'Product 1', image: require('../assets/product.png') },
   { id: 2, name: 'Product 2', image: require('../assets/product.png') },
@@ -26,7 +25,6 @@ const SubCategoryScreen = ({ route }: { route: any }) => {
 
   return (
     <View style={styles.container}>
-      {/* Product Grid */}
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         {products.map((product) => (
           <TouchableOpacity
@@ -57,7 +55,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   productItem: {
-    width: '30%', // Adjust based on your design
+    width: '30%',
     marginBottom: 20,
   },
   productImageContainer: {
@@ -66,13 +64,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DDD',
     overflow: 'hidden',
-    aspectRatio: 1, // Square aspect ratio
+    aspectRatio: 1,
     marginTop:10,
   },
   productImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain', // Fit the image inside the container
+    resizeMode: 'contain',
   },
   productName: {
     

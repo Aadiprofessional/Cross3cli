@@ -5,15 +5,12 @@ import { colors } from '../styles/color';
 const RegisterCompanyScreen = () => {
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
-        {/* Back button goes here if needed */}
+
         <Text style={styles.headerTitle}>Register your Company</Text>
       </View>
 
-      {/* Content */}
       <View style={styles.content}>
-        {/* Content goes here */}
         <Text>Register your company content goes here.</Text>
       </View>
     </View>

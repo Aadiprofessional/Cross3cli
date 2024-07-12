@@ -1,5 +1,3 @@
-// ProductItem.js
-
 import React from 'react';
 import { View, Text, StyleSheet,Image } from 'react-native';
 import { colors } from '../styles/color';
@@ -9,7 +7,6 @@ const ProductItem = () => {
     <View style={styles.container}>
       <View style={styles.productContainer}>
         <View style={styles.imageContainer}>
-          {/* Replace 'product.png' with your actual image import */}
           <Image source={require('../assets/product.png')} style={styles.image} />
         </View>
         <View style={styles.textContainer}>

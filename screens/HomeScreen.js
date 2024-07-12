@@ -20,7 +20,7 @@ const Tab = createMaterialBottomTabNavigator();
 
 const HomeContent = () => {
   const handleWhatsAppPress = () => {
-    const url = 'whatsapp://send?phone=9289881135'; // Replace with your WhatsApp number
+    const url = 'whatsapp://send?phone=9289881135';
     Linking.openURL(url).catch(() => {
       alert('Make sure WhatsApp is installed on your device');
     });
@@ -50,7 +50,6 @@ const HomeContent = () => {
           <Text style={styles.crossBee}>CrossBee</Text>
         </View>
       </ScrollView>
-      {/* WhatsApp Icon */}
       <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsAppPress}>
         <View style={styles.whatsappIcon}>
           <Image source={require('../assets/whatsapp.png')} style={styles.whatsappIconImage} />
@@ -62,18 +61,16 @@ const HomeContent = () => {
 
 const HomeScreen = () => {
   const [isNavBarVisible, setNavBarVisible] = useState(false);
-  const [slideAnim] = useState(new Animated.Value(-250)); // Initial position of sidebar
+  const [slideAnim] = useState(new Animated.Value(-250));
 
   const toggleNavBar = () => {
     if (isNavBarVisible) {
-      // Hide navbar
       Animated.timing(slideAnim, {
         toValue: -250,
         duration: 300,
         useNativeDriver: true,
       }).start(() => setNavBarVisible(false));
     } else {
-      // Show navbar
       setNavBarVisible(true);
       Animated.timing(slideAnim, {
         toValue: 0,
@@ -104,7 +101,7 @@ const HomeScreen = () => {
         <CustomHeader toggleNavBar={toggleNavBar} />
         <Tab.Navigator
           initialRouteName="HomeContent"
-          activeColor={colors.main} // Use main color for active color
+          activeColor={colors.main}
           inactiveColor="#8A8A8A"
           barStyle={{ backgroundColor: '#FFFFFF' }}
         >
@@ -117,19 +114,19 @@ const HomeScreen = () => {
             }}
           />
           <Tab.Screen
+            name="Quotes"
+            component={QuotesScreen}
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="document-outline" color={color} size={22} />,
+              tabBarLabel: 'Quotes',
+            }}
+          />
+          <Tab.Screen
             name="Cart"
             component={CartScreen}
             options={{
               tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
               tabBarLabel: 'Cart',
-            }}
-          />
-          <Tab.Screen
-            name="Quotes"
-            component={QuotesScreen} // Add QuotesScreen
-            options={{
-              tabBarIcon: ({ color }) => <Icon name="file-o" color={color} size={22} />, // Use appropriate icon name
-              tabBarLabel: 'Quotes',
             }}
           />
           <Tab.Screen
@@ -156,7 +153,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Set entire screen background to white
+    backgroundColor: '#FFFFFF',
   },
   backgroundContainer: {
     position: 'relative',
@@ -170,18 +167,17 @@ const styles = StyleSheet.create({
     height: '5%',
   },
   helpBox: {
-    marginBottom: 0, // Ensure no margin bottom
+    marginBottom: 0,
   },
   categories: {
-    marginTop: 0, // Ensure no margin top
+    marginTop: 0,
     marginBottom: 0,
   },
   title: {
-    // Ensure it matches Categories text style
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 1,
-    marginLeft: 15, // Align text with Categories component
+    marginLeft: 15,
     color: colors.TextBlack,
   },
   autoImageSlider2: {
@@ -237,9 +233,9 @@ const styles = StyleSheet.create({
   },
   whatsappButton: {
     position: 'absolute',
-    bottom: 20, // Adjust this to be above the bottom navigation bar
+    bottom: 20,
     right: 15,
-    zIndex: 10, // Ensure it appears above other content
+    zIndex: 10,
   },
   whatsappIcon: {
     width:60,
