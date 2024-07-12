@@ -274,9 +274,10 @@ const styles = StyleSheet.create({
     color: colors.main,
   },
   backText: {
-    fontSize: 24,
+    fontSize: 34,
     fontWeight: '500',
     color: colors.main,
+    marginRight: 10,
   },
 });
 

@@ -6,7 +6,6 @@ import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import SearchScreen from './screens/SearchScreen';
 import ProductDetailPage from './screens/ProductDetailPage';
-import { colors } from './styles/color';
 import NeedHelpScreen from './screens/NeedHelpScreen';
 import PrivacyPolicyScreen from './screens/PrivacyPolicyScreen';
 import TermsConditionsScreen from './screens/TermsConditionsScreen';
@@ -16,25 +15,12 @@ import ProfileScreen from './screens/ProfileScreen';
 import SubCategoryScreen from './screens/SubCategoryScreen';
 import OrderSummaryScreen from './screens/OrderSummaryScreen';
 import QuotationScreen from './screens/QuotationScreen';
+import SearchResultsScreen from './screens/SearchResultsScreen';
+import { colors } from './styles/color';
 
-type RootStackParamList = {
-  Login: { login: () => void };
-  Home: undefined;
-  SearchScreen: undefined;
-  ProductDetailPage: { imageSource: string; description: string; price: string };
-  NeedHelp: undefined;
-  PrivacyPolicyScreen: undefined;
-  TermsConditionsScreen: undefined;
-  RegisterCompanyScreen: undefined;
-  Cart: undefined;
-  Profile: undefined;
-  SubCategoryScreen: { subcategory: string }; // Define subcategory parameter
-  OrderSummary: { cartItems: { id: number; name: string; price: number }[], totalAmount: number };
-};
+const Stack = createNativeStackNavigator();
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
-const App: React.FC = () => {
+const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const login = () => {
@@ -62,11 +48,25 @@ const App: React.FC = () => {
           options={{
             title: 'Search',
             headerStyle: {
-              backgroundColor: colors.main,
+              backgroundColor: colors.main,  // Example header style
             },
-            headerTintColor: '#fff',
+            headerTintColor: '#fff', // Example header text color
             headerTitleStyle: {
-              fontWeight: 'bold',
+              fontWeight: 'bold', // Example header title style
+            },
+          }}
+        />
+        <Stack.Screen
+          name="SearchResultsScreen"
+          component={SearchResultsScreen}
+          options={{
+            title: 'Search Results',
+            headerStyle: {
+              backgroundColor: colors.main,  // Example header style
+            },
+            headerTintColor: '#fff', // Example header text color
+            headerTitleStyle: {
+              fontWeight: 'bold', // Example header title style
             },
           }}
         />
@@ -76,11 +76,11 @@ const App: React.FC = () => {
           options={{
             title: 'Product Detail',
             headerStyle: {
-              backgroundColor: colors.main,
+              backgroundColor: colors.main, // Example header style
             },
-            headerTintColor: '#fff',
+            headerTintColor: '#fff', // Example header text color
             headerTitleStyle: {
-              fontWeight: 'bold',
+              fontWeight: 'bold', // Example header title style
             },
           }}
         />
@@ -118,13 +118,13 @@ const App: React.FC = () => {
           name="SubCategoryScreen"
           component={SubCategoryScreen}
           options={{
-            title: 'Subcategory', // Set the title of the screen
+            title: 'Subcategory',
             headerStyle: {
-              backgroundColor: colors.main,
+              backgroundColor: colors.main,  // Example header style
             },
-            headerTintColor: '#fff',
+            headerTintColor: '#fff', // Example header text color
             headerTitleStyle: {
-              fontWeight: 'bold',
+              fontWeight: 'bold', // Example header title style
             },
           }}
         />
@@ -132,27 +132,27 @@ const App: React.FC = () => {
           name="OrderSummary"
           component={OrderSummaryScreen}
           options={{
-            title: 'Order Summary', // Set the title of the screen
+            title: 'Order Summary',
             headerStyle: {
-              backgroundColor: colors.main,
+              backgroundColor: colors.main, // Example header style
             },
-            headerTintColor: '#fff',
+            headerTintColor: '#fff', // Example header text color
             headerTitleStyle: {
-              fontWeight: 'bold',
+              fontWeight: 'bold', // Example header title style
             },
-          }} />
-          
-          <Stack.Screen
+          }}
+        />
+        <Stack.Screen
           name="Quotation"
           component={QuotationScreen}
           options={{
-            title: 'Quotation Screen', // Set the title of the screen
+            title: 'Quotation Screen',
             headerStyle: {
-              backgroundColor: colors.main,
+              backgroundColor: colors.main, // Example header style
             },
-            headerTintColor: '#fff',
+            headerTintColor: '#fff', // Example header text color
             headerTitleStyle: {
-              fontWeight: 'bold',
+              fontWeight: 'bold', // Example header title style
             },
           }}
         />

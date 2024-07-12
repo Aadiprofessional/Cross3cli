@@ -128,7 +128,7 @@ const HomeScreen = () => {
             name="Quotes"
             component={QuotesScreen} // Add QuotesScreen
             options={{
-              tabBarIcon: ({ color }) => <Icon name="typing" color={color} size={22} />, // Use appropriate icon name
+              tabBarIcon: ({ color }) => <Icon name="file-o" color={color} size={22} />, // Use appropriate icon name
               tabBarLabel: 'Quotes',
             }}
           />

@@ -32,7 +32,7 @@ const Categories = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: 0,
     backgroundColor: '#fff',
     marginBottom: 1,
   },
@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 10,
     color: colors.TextBlack,
+    marginLeft:15,
   },
   scrollView: {
     flexDirection: 'row',
