@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff', // Adjust as per your app's theme
-    paddingHorizontal: 20,
+   
     paddingTop: 20,
   },
   profileContainer: {
@@ -88,6 +88,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
     marginBottom: 20,
+    marginLeft: 5 ,
+    marginRight: 5 ,
   },
   profileImage: {
     width: 80,
@@ -125,13 +127,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff', // Background color of the option boxes
     borderRadius: 10,
-    padding: 15,
+    padding: 10,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
     marginBottom: 10,
+    marginLeft: 5 ,
+    marginRight: 5 ,
   },
   optionIcon: {
     width: 40,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Animated, TouchableWithoutFeedback, Image, Linking } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, Image, TouchableOpacity, Animated, TouchableWithoutFeedback, Linking } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomHeader from '../components/CustomHeader';
@@ -13,35 +13,50 @@ import LatestProducts from '../components/LatestProducts';
 import UpcomingProducts from '../components/UpcomingProducts';
 import CartScreen from './CartScreen';
 import ProfileScreen from './ProfileScreen';
-import QuotesScreen from './QuotesScreen'; // Import QuotesScreen
+import QuotesScreen from './QuotesScreen';
 import LeftNavBar from '../components/LeftNavBar';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const HomeContent = () => {
+  const handleWhatsAppPress = () => {
+    const url = 'whatsapp://send?phone=9289881135'; // Replace with your WhatsApp number
+    Linking.openURL(url).catch(() => {
+      alert('Make sure WhatsApp is installed on your device');
+    });
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <AutoImageSlider />
-      <View style={styles.backgroundContainer}>
-        <View style={styles.topHalf} />
-        <View style={styles.bottomHalf} />
-        <HelpBox style={styles.helpBox} />
-        <Categories style={styles.categories} />
-        <Text style={styles.title}>Only For App Deals</Text>
-        <AutoImageSlider2 />
-        <BestDeals />
-        <UpcomingProducts />
-        <LatestProducts />
-      </View>
-      <View style={styles.endTextContainer}>
-        <Text style={styles.endText}>India's best</Text>
-        <Text style={styles.endText}>
-          delivery app<Text style={styles.emoji}>❤️</Text>
-        </Text>
-        <View style={styles.line} />
-        <Text style={styles.crossBee}>CrossBee</Text>
-      </View>
-    </ScrollView>
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container}>
+        <AutoImageSlider />
+        <View style={styles.backgroundContainer}>
+          <View style={styles.topHalf} />
+          <View style={styles.bottomHalf} />
+          <HelpBox style={styles.helpBox} />
+          <Categories style={styles.categories} />
+          <Text style={styles.title}>Only For App Deals</Text>
+          <AutoImageSlider2 />
+          <BestDeals />
+          <UpcomingProducts />
+          <LatestProducts />
+        </View>
+        <View style={styles.endTextContainer}>
+          <Text style={styles.endText}>India's best</Text>
+          <Text style={styles.endText}>
+            delivery app<Text style={styles.emoji}>❤️</Text>
+          </Text>
+          <View style={styles.line} />
+          <Text style={styles.crossBee}>CrossBee</Text>
+        </View>
+      </ScrollView>
+      {/* WhatsApp Icon */}
+      <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsAppPress}>
+        <View style={styles.whatsappIcon}>
+          <Image source={require('../assets/whatsapp.png')} style={styles.whatsappIconImage} />
+        </View>
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -74,68 +89,60 @@ const HomeScreen = () => {
     }
   };
 
-  const openWhatsApp = () => {
-    const url = 'https://wa.me/9289881135';
-    Linking.openURL(url).catch(err => console.error('An error occurred', err));
-  };
-
   return (
-    <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <View style={styles.mainContainer}>
-        {isNavBarVisible && (
-          <TouchableWithoutFeedback onPress={() => {}}>
+    <View style={styles.mainContainer}>
+      {isNavBarVisible && (
+        <TouchableWithoutFeedback onPress={handleOutsidePress}>
+          <View style={styles.overlay}>
             <Animated.View style={[styles.navContainer, { transform: [{ translateX: slideAnim }] }]}>
               <LeftNavBar toggleNavBar={toggleNavBar} />
             </Animated.View>
-          </TouchableWithoutFeedback>
-        )}
-        <View style={styles.contentContainer}>
-          <CustomHeader toggleNavBar={toggleNavBar} />
-          <Tab.Navigator
-            initialRouteName="HomeContent"
-            activeColor={colors.main} // Use main color for active color
-            inactiveColor="#8A8A8A"
-            barStyle={{ backgroundColor: '#FFFFFF' }}
-          >
-            <Tab.Screen
-              name="HomeContent"
-              component={HomeContent}
-              options={{
-                tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={22} />,
-                tabBarLabel: 'Home',
-              }}
-            />
-            <Tab.Screen
-              name="Cart"
-              component={CartScreen}
-              options={{
-                tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
-                tabBarLabel: 'Cart',
-              }}
-            />
-            <Tab.Screen
-              name="Quotes"
-              component={QuotesScreen} // Add QuotesScreen
-              options={{
-                tabBarIcon: ({ color }) => <Icon name="quote-outline" color={color} size={22} />, // Use appropriate icon name
-                tabBarLabel: 'Quotes',
-              }}
-            />
-            <Tab.Screen
-              name="Profile"
-              component={ProfileScreen}
-              options={{
-                tabBarIcon: ({ color }) => <Icon name="person-outline" color={color} size={22} />,
-                tabBarLabel: 'Profile',
-              }}
-            />
-          </Tab.Navigator>
-        </View>
-        <TouchableOpacity style={styles.whatsappIcon} onPress={openWhatsApp}>
-          <Image source={require('../assets/whatsapp.png')} style={styles.whatsappImage} />
-        </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
+      )}
+      <View style={styles.contentContainer}>
+        <CustomHeader toggleNavBar={toggleNavBar} />
+        <Tab.Navigator
+          initialRouteName="HomeContent"
+          activeColor={colors.main} // Use main color for active color
+          inactiveColor="#8A8A8A"
+          barStyle={{ backgroundColor: '#FFFFFF' }}
+        >
+          <Tab.Screen
+            name="HomeContent"
+            component={HomeContent}
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={22} />,
+              tabBarLabel: 'Home',
+            }}
+          />
+          <Tab.Screen
+            name="Cart"
+            component={CartScreen}
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
+              tabBarLabel: 'Cart',
+            }}
+          />
+          <Tab.Screen
+            name="Quotes"
+            component={QuotesScreen} // Add QuotesScreen
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="typing" color={color} size={22} />, // Use appropriate icon name
+              tabBarLabel: 'Quotes',
+            }}
+          />
+          <Tab.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{
+              tabBarIcon: ({ color }) => <Icon name="person-outline" color={color} size={22} />,
+              tabBarLabel: 'Profile',
+            }}
+          />
+        </Tab.Navigator>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 };
 
@@ -219,11 +226,23 @@ const styles = StyleSheet.create({
     zIndex: 10,
     elevation: 10,
   },
-  whatsappIcon: {
+  overlay: {
     position: 'absolute',
-    bottom: 100, // Adjust this to be above the bottom navigation bar
-    right: 10,
-    width: 60,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+    zIndex: 9,
+  },
+  whatsappButton: {
+    position: 'absolute',
+    bottom: 20, // Adjust this to be above the bottom navigation bar
+    right: 15,
+    zIndex: 10, // Ensure it appears above other content
+  },
+  whatsappIcon: {
+    width:60,
     height: 60,
     borderRadius: 30,
     backgroundColor: '#25D366',
@@ -231,7 +250,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 5,
   },
-  whatsappImage: {
+  whatsappIconImage: {
     width: 40,
     height: 40,
   },

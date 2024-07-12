@@ -28,7 +28,7 @@ const NeedHelpScreen = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image source={require('../assets/back.png')} style={styles.backIcon} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Need Help</Text>
+        <Text style={styles.headerTitle}>Contact us</Text>
       </View>
 
       {/* WhatsApp */}
