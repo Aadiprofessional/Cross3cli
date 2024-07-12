@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Animated } from 'react-native';
+import { View, ScrollView, StyleSheet, Text, TouchableOpacity, Animated, TouchableWithoutFeedback, Image, Linking } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomHeader from '../components/CustomHeader';
@@ -21,7 +21,6 @@ const Tab = createMaterialBottomTabNavigator();
 const HomeContent = () => {
   return (
     <ScrollView style={styles.container}>
-      
       <AutoImageSlider />
       <View style={styles.backgroundContainer}>
         <View style={styles.topHalf} />
@@ -69,56 +68,74 @@ const HomeScreen = () => {
     }
   };
 
+  const handleOutsidePress = () => {
+    if (isNavBarVisible) {
+      toggleNavBar();
+    }
+  };
+
+  const openWhatsApp = () => {
+    const url = 'https://wa.me/9289881135';
+    Linking.openURL(url).catch(err => console.error('An error occurred', err));
+  };
+
   return (
-    <View style={styles.mainContainer}>
-      {isNavBarVisible && (
-        <Animated.View style={[styles.navContainer, { transform: [{ translateX: slideAnim }] }]}>
-          <LeftNavBar toggleNavBar={toggleNavBar} />
-        </Animated.View>
-      )}
-      <View style={styles.contentContainer}>
-        <CustomHeader toggleNavBar={toggleNavBar} />
-        <Tab.Navigator
-          initialRouteName="HomeContent"
-          activeColor={colors.main} // Use main color for active color
-          inactiveColor="#8A8A8A"
-          barStyle={{ backgroundColor: '#FFFFFF' }}
-        >
-          <Tab.Screen
-            name="HomeContent"
-            component={HomeContent}
-            options={{
-              tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={22} />,
-              tabBarLabel: 'Home',
-            }}
-          />
-          <Tab.Screen
-            name="Cart"
-            component={CartScreen}
-            options={{
-              tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
-              tabBarLabel: 'Cart',
-            }}
-          />
-          <Tab.Screen
-            name="Quotes"
-            component={QuotesScreen} // Add QuotesScreen
-            options={{
-              tabBarIcon: ({ color }) => <Icon name="quote-outline" color={color} size={22} />, // Use appropriate icon name
-              tabBarLabel: 'Quotes',
-            }}
-          />
-          <Tab.Screen
-            name="Profile"
-            component={ProfileScreen}
-            options={{
-              tabBarIcon: ({ color }) => <Icon name="person-outline" color={color} size={22} />,
-              tabBarLabel: 'Profile',
-            }}
-          />
-        </Tab.Navigator>
+    <TouchableWithoutFeedback onPress={handleOutsidePress}>
+      <View style={styles.mainContainer}>
+        {isNavBarVisible && (
+          <TouchableWithoutFeedback onPress={() => {}}>
+            <Animated.View style={[styles.navContainer, { transform: [{ translateX: slideAnim }] }]}>
+              <LeftNavBar toggleNavBar={toggleNavBar} />
+            </Animated.View>
+          </TouchableWithoutFeedback>
+        )}
+        <View style={styles.contentContainer}>
+          <CustomHeader toggleNavBar={toggleNavBar} />
+          <Tab.Navigator
+            initialRouteName="HomeContent"
+            activeColor={colors.main} // Use main color for active color
+            inactiveColor="#8A8A8A"
+            barStyle={{ backgroundColor: '#FFFFFF' }}
+          >
+            <Tab.Screen
+              name="HomeContent"
+              component={HomeContent}
+              options={{
+                tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={22} />,
+                tabBarLabel: 'Home',
+              }}
+            />
+            <Tab.Screen
+              name="Cart"
+              component={CartScreen}
+              options={{
+                tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
+                tabBarLabel: 'Cart',
+              }}
+            />
+            <Tab.Screen
+              name="Quotes"
+              component={QuotesScreen} // Add QuotesScreen
+              options={{
+                tabBarIcon: ({ color }) => <Icon name="quote-outline" color={color} size={22} />, // Use appropriate icon name
+                tabBarLabel: 'Quotes',
+              }}
+            />
+            <Tab.Screen
+              name="Profile"
+              component={ProfileScreen}
+              options={{
+                tabBarIcon: ({ color }) => <Icon name="person-outline" color={color} size={22} />,
+                tabBarLabel: 'Profile',
+              }}
+            />
+          </Tab.Navigator>
+        </View>
+        <TouchableOpacity style={styles.whatsappIcon} onPress={openWhatsApp}>
+          <Image source={require('../assets/whatsapp.png')} style={styles.whatsappImage} />
+        </TouchableOpacity>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -202,7 +219,22 @@ const styles = StyleSheet.create({
     zIndex: 10,
     elevation: 10,
   },
+  whatsappIcon: {
+    position: 'absolute',
+    bottom: 100, // Adjust this to be above the bottom navigation bar
+    right: 10,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#25D366',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+  },
+  whatsappImage: {
+    width: 40,
+    height: 40,
+  },
 });
 
 export default HomeScreen;
-

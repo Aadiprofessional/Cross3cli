@@ -13,32 +13,102 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   const navigation = useNavigation();
 
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [expandedSubCategory, setExpandedSubCategory] = useState<string | null>(null);
 
   const categories = [
     { 
       name: 'Electronics', 
       icon: require('../assets/Categories.png'), // Use require for local images
-      subcategories: ['Laptops', 'Mobile Phones', 'Tablets', 'Headphones', 'Smartwatches'] 
+      subcategories: [
+        { 
+          name: 'Laptops', 
+          subsubcategories: ['Gaming Laptops', 'Ultrabooks', '2-in-1 Laptops'] 
+        },
+        { 
+          name: 'Mobile Phones', 
+          subsubcategories: ['Smartphones', 'Feature Phones'] 
+        },
+        { 
+          name: 'Tablets', 
+          subsubcategories: ['Android Tablets', 'iPads'] 
+        },
+        { 
+          name: 'Headphones', 
+          subsubcategories: ['Over-Ear', 'In-Ear', 'Wireless'] 
+        },
+        { 
+          name: 'Smartwatches', 
+          subsubcategories: ['Apple Watch', 'Android Wear'] 
+        },
+      ] 
     },
     { 
       name: 'Clothing', 
       icon: require('../assets/Categories.png'), // Example, replace with actual image
-      subcategories: ['Men', 'Women', 'Kids'] 
+      subcategories: [
+        { 
+          name: 'Men', 
+          subsubcategories: ['T-Shirts', 'Jeans', 'Shoes'] 
+        },
+        { 
+          name: 'Women', 
+          subsubcategories: ['Dresses', 'Tops', 'Shoes'] 
+        },
+        { 
+          name: 'Kids', 
+          subsubcategories: ['Boys', 'Girls'] 
+        },
+      ] 
     },
     { 
       name: 'Kids', 
       icon: require('../assets/Categories.png'), // Example, replace with actual image
-      subcategories: ['Boys', 'Girls'] 
+      subcategories: [
+        { 
+          name: 'Boys', 
+          subsubcategories: ['Toys', 'Clothing'] 
+        },
+        { 
+          name: 'Girls', 
+          subsubcategories: ['Toys', 'Clothing'] 
+        },
+      ] 
     },
     { 
       name: 'Toys', 
       icon: require('../assets/Categories.png'), // Example, replace with actual image
-      subcategories: ['Action Figures', 'Dolls', 'Board Games'] 
+      subcategories: [
+        { 
+          name: 'Action Figures', 
+          subsubcategories: ['Superheroes', 'Anime'] 
+        },
+        { 
+          name: 'Dolls', 
+          subsubcategories: ['Barbie', 'American Girl'] 
+        },
+        { 
+          name: 'Board Games', 
+          subsubcategories: ['Strategy', 'Family Games'] 
+        },
+      ] 
     },
     { 
       name: 'Books', 
       icon: require('../assets/Categories.png'), // Example, replace with actual image
-      subcategories: ['Fiction', 'Non-Fiction', 'Children'] 
+      subcategories: [
+        { 
+          name: 'Fiction', 
+          subsubcategories: ['Novels', 'Short Stories'] 
+        },
+        { 
+          name: 'Non-Fiction', 
+          subsubcategories: ['Biographies', 'Self-Help'] 
+        },
+        { 
+          name: 'Children', 
+          subsubcategories: ['Picture Books', 'Young Adult'] 
+        },
+      ] 
     },
   ];
 
@@ -47,6 +117,15 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       setExpandedCategory(null);
     } else {
       setExpandedCategory(categoryName);
+      setExpandedSubCategory(null); // Close subcategory if category is toggled
+    }
+  };
+
+  const toggleSubCategory = (subCategoryName: string) => {
+    if (expandedSubCategory === subCategoryName) {
+      setExpandedSubCategory(null);
+    } else {
+      setExpandedSubCategory(subCategoryName);
     }
   };
 
@@ -60,7 +139,38 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     toggleNavBar(); // Close the navbar after navigation
   };
 
-  const renderCategoryItem = ({ name, icon, screen, subcategories }: { name: string; icon: any; screen?: string; subcategories?: string[] }) => {
+  const renderSubSubCategoryItem = (subsubcategories: string[]) => {
+    return (
+      <View style={styles.subsubCategoryContainer}>
+        {subsubcategories.map((subsubcategory) => (
+          <TouchableOpacity key={subsubcategory} style={styles.subsubcategoryItem} onPress={() => navigateToSubCategory(subsubcategory)}>
+            <Text style={styles.subsubcategoryText}>{subsubcategory}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
+
+  const renderSubCategoryItem = (subcategories: { name: string; subsubcategories: string[] }[]) => {
+    return (
+      <View style={styles.subcategoryContainer}>
+        {subcategories.map(({ name, subsubcategories }) => {
+          const isExpanded = expandedSubCategory === name;
+          return (
+            <View key={name}>
+              <TouchableOpacity style={styles.subcategoryItem} onPress={() => toggleSubCategory(name)}>
+                <Text style={styles.subcategoryText}>{name}</Text>
+                <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={colors.second} />
+              </TouchableOpacity>
+              {isExpanded && renderSubSubCategoryItem(subsubcategories)}
+            </View>
+          );
+        })}
+      </View>
+    );
+  };
+
+  const renderCategoryItem = ({ name, icon, screen, subcategories }: { name: string; icon: any; screen?: string; subcategories?: { name: string; subsubcategories: string[] }[] }) => {
     const isExpanded = expandedCategory === name;
 
     return (
@@ -79,15 +189,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
           )}
         </TouchableOpacity>
 
-        {isExpanded && subcategories && (
-          <View style={styles.subcategoryContainer}>
-            {subcategories.map((subcategory) => (
-              <TouchableOpacity key={subcategory} style={styles.subcategoryItem} onPress={() => navigateToSubCategory(subcategory)}>
-                <Text style={styles.subcategoryText}>{subcategory}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+        {isExpanded && subcategories && renderSubCategoryItem(subcategories)}
       </View>
     );
   };
@@ -98,7 +200,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       <View style={styles.categoriesHeader}>
         <Text style={styles.categoriesHeaderText}>Categories</Text>
         <TouchableOpacity onPress={toggleNavBar}>
-          <Icon name="chevron-left" size={24} color={colors.main} />
+          <Text style={styles.backText}>{'<'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -138,10 +240,25 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
   },
   subcategoryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 10,
+    justifyContent: 'space-between',
   },
   subcategoryText: {
     fontSize: 18,
+    fontWeight: '400',
+    color: colors.TextBlack,
+  },
+  subsubCategoryContainer: {
+    marginTop: 5,
+    paddingLeft: 20,
+  },
+  subsubcategoryItem: {
+    paddingVertical: 10,
+  },
+  subsubcategoryText: {
+    fontSize: 16,
     fontWeight: '400',
     color: colors.TextBlack,
   },
@@ -153,6 +270,11 @@ const styles = StyleSheet.create({
   },
   categoriesHeaderText: {
     fontSize: 32,
+    fontWeight: '500',
+    color: colors.main,
+  },
+  backText: {
+    fontSize: 24,
     fontWeight: '500',
     color: colors.main,
   },
