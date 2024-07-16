@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import { colors } from '../styles/color';
+import {View, Text, StyleSheet, Image} from 'react-native';
+import {colors} from '../styles/color';
 
 const RegisterCompanyScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-
         <Text style={styles.headerTitle}>Register your Company</Text>
       </View>
 

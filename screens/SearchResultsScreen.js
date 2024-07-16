@@ -1,15 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
+import {View, Text, StyleSheet, FlatList, Image} from 'react-native';
 import ProductComponent from '../components/ProductComponent';
 
-const SearchResultsScreen = ({ route }) => {
-  const { searchResults } = route.params;
+const SearchResultsScreen = ({route}) => {
+  const {searchResults} = route.params;
 
   return (
     <View style={styles.container}>
       <FlatList
         data={searchResults}
-        renderItem={({ item }) => (
+        renderItem={({item}) => (
           <ProductComponent
             productName={item.productName}
             imageSource={item.imageSource}
@@ -17,7 +17,7 @@ const SearchResultsScreen = ({ route }) => {
             price={item.price}
           />
         )}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.productList}
         numColumns={2}
       />

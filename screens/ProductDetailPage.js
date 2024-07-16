@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import { colors } from '../styles/color'; // Assuming you have defined colors elsewhere
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
+import {colors} from '../styles/color'; // Assuming you have defined colors elsewhere
 
-const ProductDetailPage = ({ route }) => {
-  const { productName, imageSource, description, price } = route.params;
+const ProductDetailPage = ({route}) => {
+  const {productName, imageSource, description, price} = route.params;
 
   const productImages = [
     require('../assets/product2.png'),
@@ -16,11 +24,15 @@ const ProductDetailPage = ({ route }) => {
   const [quantity, setQuantity] = useState(1);
 
   const handlePrevious = () => {
-    setActiveIndex(activeIndex === 0 ? productImages.length - 1 : activeIndex - 1);
+    setActiveIndex(
+      activeIndex === 0 ? productImages.length - 1 : activeIndex - 1,
+    );
   };
 
   const handleNext = () => {
-    setActiveIndex(activeIndex === productImages.length - 1 ? 0 : activeIndex + 1);
+    setActiveIndex(
+      activeIndex === productImages.length - 1 ? 0 : activeIndex + 1,
+    );
   };
 
   const handleCall = () => {
@@ -28,14 +40,14 @@ const ProductDetailPage = ({ route }) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleColorSelect = (color) => {
+  const handleColorSelect = color => {
     setSelectedColor(color);
   };
 
   const handleIncreaseQuantity = () => {
     setQuantity(quantity + 1);
   };
-
+  
   const handleDecreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -50,21 +62,26 @@ const ProductDetailPage = ({ route }) => {
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
-            onScroll={(event) => {
+            onScroll={event => {
               const contentOffsetX = event.nativeEvent.contentOffset.x;
-              const index = Math.floor(contentOffsetX / styles.imageContainer.width);
+              const index = Math.floor(
+                contentOffsetX / styles.imageContainer.width,
+              );
               setActiveIndex(index);
-            }}
-          >
+            }}>
             {productImages.map((img, index) => (
               <Image key={index} source={img} style={styles.image} />
             ))}
           </ScrollView>
 
-          <TouchableOpacity style={[styles.arrowButton, { left: 10 }]} onPress={handlePrevious}>
+          <TouchableOpacity
+            style={[styles.arrowButton, {left: 10}]}
+            onPress={handlePrevious}>
             <Text style={styles.arrowText}>{'<'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.arrowButton, { right: 10 }]} onPress={handleNext}>
+          <TouchableOpacity
+            style={[styles.arrowButton, {right: 10}]}
+            onPress={handleNext}>
             <Text style={styles.arrowText}>{'>'}</Text>
           </TouchableOpacity>
           <View style={styles.dotContainer}>
@@ -89,7 +106,6 @@ const ProductDetailPage = ({ route }) => {
           <View style={styles.truckTextContainer}>
             <Text style={styles.truckText}>Shipping Within 12 Days</Text>
           </View>
-          
         </View>
 
         <View style={styles.productDetails}>
@@ -98,7 +114,10 @@ const ProductDetailPage = ({ route }) => {
           <View style={styles.priceContainer}>
             <Text style={styles.priceText}>Price: {price}</Text>
             <TouchableOpacity onPress={handleCall}>
-              <Image source={require('../assets/call.png')} style={styles.callIcon} />
+              <Image
+                source={require('../assets/call.png')}
+                style={styles.callIcon}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -132,11 +151,15 @@ const ProductDetailPage = ({ route }) => {
         <View style={styles.quantityContainer}>
           <Text style={styles.quantityText}>Quantity:</Text>
           <View style={styles.quantityControl}>
-            <TouchableOpacity style={styles.quantityButton} onPress={handleDecreaseQuantity}>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={handleDecreaseQuantity}>
               <Text style={styles.quantityButtonText}>-</Text>
             </TouchableOpacity>
             <Text style={styles.quantityNumber}>{quantity}</Text>
-            <TouchableOpacity style={styles.quantityButton} onPress={handleIncreaseQuantity}>
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={handleIncreaseQuantity}>
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
           </View>
@@ -145,14 +168,18 @@ const ProductDetailPage = ({ route }) => {
         <View style={styles.productDetails}>
           <Text style={styles.Head}>Product Description:</Text>
           <Text style={styles.regularText}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac ligula ac urna posuere mollis.
-            Nullam condimentum tellus nec magna iaculis, sit amet mollis ex lacinia. Phasellus eget leo 
-            ut ligula iaculis venenatis. Sed faucibus enim ut lacus ultricies aliquet. Suspendisse potenti.
-            Morbi malesuada lacus non magna auctor, at tristique elit interdum. Cras sit amet maximus lorem.
-            Proin ac magna scelerisque, tincidunt mauris id, consequat lorem. Nam sed neque nec risus 
-            lacinia tincidunt. Sed a odio luctus, tincidunt nunc eget, ultricies nunc. Aenean suscipit, 
-            sapien quis fermentum pellentesque, turpis ipsum finibus sem, eget vehicula justo ante quis leo.
-            Duis ut erat leo. Nullam ut quam risus. Quisque nec metus eu lectus rutrum ultricies. 
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac
+            ligula ac urna posuere mollis. Nullam condimentum tellus nec magna
+            iaculis, sit amet mollis ex lacinia. Phasellus eget leo ut ligula
+            iaculis venenatis. Sed faucibus enim ut lacus ultricies aliquet.
+            Suspendisse potenti. Morbi malesuada lacus non magna auctor, at
+            tristique elit interdum. Cras sit amet maximus lorem. Proin ac magna
+            scelerisque, tincidunt mauris id, consequat lorem. Nam sed neque nec
+            risus lacinia tincidunt. Sed a odio luctus, tincidunt nunc eget,
+            ultricies nunc. Aenean suscipit, sapien quis fermentum pellentesque,
+            turpis ipsum finibus sem, eget vehicula justo ante quis leo. Duis ut
+            erat leo. Nullam ut quam risus. Quisque nec metus eu lectus rutrum
+            ultricies.
           </Text>
         </View>
 
@@ -172,23 +199,25 @@ const ProductDetailPage = ({ route }) => {
         <TouchableOpacity style={styles.addToCartButton}>
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
-
       </View>
     </ScrollView>
   );
 };
 
-const ColorButton = ({ color, selectedColor, onPress }) => {
+const ColorButton = ({color, selectedColor, onPress}) => {
   return (
     <TouchableOpacity
       style={[
         styles.colorButton,
-        { backgroundColor: selectedColor === color ? colors.main : '#FFFFFF' },
+        {backgroundColor: selectedColor === color ? colors.main : '#FFFFFF'},
         selectedColor === color ? styles.selectedButton : null,
       ]}
-      onPress={onPress}
-    >
-      <Text style={[styles.colorButtonText, { color: selectedColor === color ? 'white' : colors.main }]}>
+      onPress={onPress}>
+      <Text
+        style={[
+          styles.colorButtonText,
+          {color: selectedColor === color ? 'white' : colors.main},
+        ]}>
         {color}
       </Text>
     </TouchableOpacity>
@@ -314,13 +343,11 @@ const styles = StyleSheet.create({
     height: 60,
     resizeMode: 'contain',
   },
-  Head:{
+  Head: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
     color: colors.TextBlack,
-
-  
   },
   colorSelectionContainer: {
     flexDirection: 'row',
@@ -341,7 +368,7 @@ const styles = StyleSheet.create({
   selectedButton: {
     backgroundColor: colors.main,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -380,7 +407,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
-    
   },
   quantityNumber: {
     fontSize: 18,
@@ -391,7 +417,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'regular',
     color: colors.TextBlack,
-    
+
     marginBottom: 10,
   },
   specificationTable: {

@@ -7,7 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
 const ProfileScreen = ({navigation}) => {
   const options = [
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-   
+
     paddingTop: 20,
   },
   profileContainer: {
@@ -88,8 +88,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
     marginBottom: 20,
-    marginLeft: 5 ,
-    marginRight: 5 ,
+    marginLeft: 5,
+    marginRight: 5,
   },
   profileImage: {
     width: 80,
@@ -99,16 +99,15 @@ const styles = StyleSheet.create({
   },
   profileTextContainer: {
     flex: 1,
-    
   },
   nameText: {
     fontSize: 24,
-    fontWeight: '600', 
+    fontWeight: '600',
     color: colors.TextBlack,
   },
   newText: {
     fontSize: 14,
-    fontWeight: '600', 
+    fontWeight: '600',
     marginTop: 5,
     color: colors.TextBlack,
   },
@@ -134,8 +133,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
     marginBottom: 10,
-    marginLeft: 5 ,
-    marginRight: 5 ,
+    marginLeft: 5,
+    marginRight: 5,
   },
   optionIcon: {
     width: 40,

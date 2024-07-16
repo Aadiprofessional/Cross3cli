@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  Image,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { useNavigation } from '@react-navigation/native'; 
+import {useNavigation} from '@react-navigation/native';
 import ProductComponent from '../components/ProductComponent';
 import SearchResultsScreen from './SearchResultsScreen';
 
@@ -12,33 +19,51 @@ const SearchScreen = () => {
   const [openSort, setOpenSort] = useState(false);
   const [sortValue, setSortValue] = useState(null);
   const [sortItems, setSortItems] = useState([
-    { label: 'Low to High', value: 'low_to_high' },
-    { label: 'High to Low', value: 'high_to_low' },
-    { label: 'Newest', value: 'newest' },
+    {label: 'Low to High', value: 'low_to_high'},
+    {label: 'High to Low', value: 'high_to_low'},
+    {label: 'Newest', value: 'newest'},
   ]);
 
   const [openFilter, setOpenFilter] = useState(false);
   const [filterValue, setFilterValue] = useState(null);
   const [filterItems, setFilterItems] = useState([
-    { label: 'Category 1', value: 'category1' },
-    { label: 'Category 2', value: 'category2' },
-    { label: 'Category 3', value: 'category3' },
+    {label: 'Category 1', value: 'category1'},
+    {label: 'Category 2', value: 'category2'},
+    {label: 'Category 3', value: 'category3'},
   ]);
 
   const products = [
-    { id: 1, productName: 'Product 1', imageSource: require('../assets/product2.png'), description: 'Product 1 Description', price: '$100' },
-    { id: 2, productName: 'Product 2', imageSource: require('../assets/product2.png'), description: 'Product 2 Description', price: '$150' },
-    { id: 3, productName: 'Product 3', imageSource: require('../assets/product2.png'), description: 'Product 3 Description', price: '$200' },
+    {
+      id: 1,
+      productName: 'Product 1',
+      imageSource: require('../assets/product2.png'),
+      description: 'Product 1 Description',
+      price: '$100',
+    },
+    {
+      id: 2,
+      productName: 'Product 2',
+      imageSource: require('../assets/product2.png'),
+      description: 'Product 2 Description',
+      price: '$150',
+    },
+    {
+      id: 3,
+      productName: 'Product 3',
+      imageSource: require('../assets/product2.png'),
+      description: 'Product 3 Description',
+      price: '$200',
+    },
   ];
 
   const handleSearch = () => {
-
     const filteredProducts = products.filter(product =>
-      product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+      product.productName.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
-
-    navigation.navigate('SearchResultsScreen', { searchResults: filteredProducts });
+    navigation.navigate('SearchResultsScreen', {
+      searchResults: filteredProducts,
+    });
   };
 
   return (
@@ -69,8 +94,13 @@ const SearchScreen = () => {
             style={styles.smallButton}
             dropDownContainerStyle={styles.smallDropDownContainer}
             textStyle={styles.buttonText}
-            ArrowDownIconComponent={({ style }) => (
-              <Icon name="chevron-down" size={16} color="#484848" style={style} />
+            ArrowDownIconComponent={({style}) => (
+              <Icon
+                name="chevron-down"
+                size={16}
+                color="#484848"
+                style={style}
+              />
             )}
           />
         </View>
@@ -86,8 +116,13 @@ const SearchScreen = () => {
             style={styles.smallButton}
             dropDownContainerStyle={styles.smallDropDownContainer}
             textStyle={styles.buttonText}
-            ArrowDownIconComponent={({ style }) => (
-              <Icon name="chevron-down" size={16} color="#484848" style={style} />
+            ArrowDownIconComponent={({style}) => (
+              <Icon
+                name="chevron-down"
+                size={16}
+                color="#484848"
+                style={style}
+              />
             )}
           />
         </View>

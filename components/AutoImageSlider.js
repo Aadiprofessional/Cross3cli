@@ -75,10 +75,7 @@ const AutoImageSlider = () => {
         {images.map((_, index) => (
           <View
             key={index}
-            style={[
-              styles.dot,
-              index === currentIndex - 1 && styles.activeDot,
-            ]}
+            style={[styles.dot, index === currentIndex - 1 && styles.activeDot]}
           />
         ))}
       </View>

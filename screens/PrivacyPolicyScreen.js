@@ -1,19 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../styles/color';
+import {View, Text, StyleSheet} from 'react-native';
+import {colors} from '../styles/color';
 
 const PrivacyPolicyScreen = () => {
   return (
     <View style={styles.container}>
-
       <View style={styles.header}>
-
         <Text style={styles.headerTitle}>Privacy Policy</Text>
       </View>
 
-
       <View style={styles.content}>
-
         <Text>Privacy Policy content goes here.</Text>
       </View>
     </View>

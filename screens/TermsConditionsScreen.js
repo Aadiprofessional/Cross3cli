@@ -1,13 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../styles/color';
+import {View, Text, StyleSheet} from 'react-native';
+import {colors} from '../styles/color';
 
 const TermsConditionsScreen = () => {
   return (
     <View style={styles.container}>
-
       <View style={styles.header}>
-
         <Text style={styles.headerTitle}>Terms and Conditions</Text>
       </View>
 

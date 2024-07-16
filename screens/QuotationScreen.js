@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { colors } from '../styles/color';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {colors} from '../styles/color';
 import CartItem from '../components/CartItem';
 
 const QuotationScreen = () => {
   const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Product A', price: 19.99, quantity: 1 },
-    { id: 2, name: 'Product B', price: 24.99, quantity: 1 },
-    { id: 3, name: 'Product C', price: 14.99, quantity: 1 },
+    {id: 1, name: 'Product A', price: 19.99, quantity: 1},
+    {id: 2, name: 'Product B', price: 24.99, quantity: 1},
+    {id: 3, name: 'Product C', price: 14.99, quantity: 1},
   ]);
 
   const navigation = useNavigation();
 
   const updateCartItemQuantity = (itemId, newQuantity) => {
     const updatedItems = cartItems.map(item =>
-      item.id === itemId ? { ...item, quantity: newQuantity } : item
+      item.id === itemId ? {...item, quantity: newQuantity} : item,
     );
     setCartItems(updatedItems);
   };
@@ -25,15 +31,18 @@ const QuotationScreen = () => {
   };
 
   const handlePlaceOrder = () => {
-    const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    navigation.navigate('OrderSummary', { cartItems, totalAmount });
+    const totalAmount = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    navigation.navigate('OrderSummary', {cartItems, totalAmount});
   };
 
   const handleCheckout = () => {
     console.log('Checkout button pressed');
   };
 
-  const handleRemoveItem = (itemId) => {
+  const handleRemoveItem = itemId => {
     const updatedItems = cartItems.filter(item => item.id !== itemId);
     setCartItems(updatedItems);
   };
@@ -44,12 +53,18 @@ const QuotationScreen = () => {
         <TouchableOpacity
           style={[styles.headerButton, styles.quotesButton]}
           onPress={handleGetQuotation}>
-          <Text style={[styles.headerButtonText, { color: '#fff' }]}>Quotes</Text>
+          <Text style={[styles.headerButtonText, {color: '#fff'}]}>Quotes</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.headerButton, styles.ordersButton,{color:'#00000064'}]}
+          style={[
+            styles.headerButton,
+            styles.ordersButton,
+            {color: '#00000064'},
+          ]}
           onPress={handlePlaceOrder}>
-          <Text style={[styles.headerButtonText, { color: '#00000070' }]}>Orders</Text>
+          <Text style={[styles.headerButtonText, {color: '#00000070'}]}>
+            Orders
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -66,7 +81,7 @@ const QuotationScreen = () => {
           <View style={styles.row}>
             <Text style={styles.label}>Status:</Text>
           </View>
-          <Text style={[styles.value, { color: '#F59F13' }]}>Pending</Text>
+          <Text style={[styles.value, {color: '#F59F13'}]}>Pending</Text>
 
           {cartItems.map(item => (
             <CartItem
@@ -81,9 +96,9 @@ const QuotationScreen = () => {
           ))}
 
           <TouchableOpacity
-            style={[styles.checkoutButton, { backgroundColor: colors.main }]}
+            style={[styles.checkoutButton, {backgroundColor: colors.main}]}
             onPress={handleCheckout}>
-            <Text style={[styles.buttonText, { color: '#fff' }]}>Checkout</Text>
+            <Text style={[styles.buttonText, {color: '#fff'}]}>Checkout</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -101,12 +116,12 @@ const QuotationScreen = () => {
           <View style={styles.row}>
             <Text style={styles.label}>Status:</Text>
           </View>
-          <Text style={[styles.value, { color: '#F59F13' }]}>Pending</Text>
+          <Text style={[styles.value, {color: '#F59F13'}]}>Pending</Text>
 
           <TouchableOpacity
-            style={[styles.checkoutButton, { backgroundColor: colors.main }]}
+            style={[styles.checkoutButton, {backgroundColor: colors.main}]}
             onPress={handleCheckout}>
-            <Text style={[styles.buttonText, { color: '#fff' }]}>Checkout</Text>
+            <Text style={[styles.buttonText, {color: '#fff'}]}>Checkout</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -133,7 +148,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '45%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,
@@ -196,7 +211,7 @@ const styles = StyleSheet.create({
   },
   shadow: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,

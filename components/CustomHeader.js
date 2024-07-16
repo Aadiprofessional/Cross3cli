@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { colors } from '../styles/color';
+import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {colors} from '../styles/color';
 
 interface CustomHeaderProps {
   toggleNavBar: () => void;
 }
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
   const navigation = useNavigation();
   const route = useRoute();
 
@@ -26,7 +26,10 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.centerLogo}>
-        <Image source={require('../assets/logo.png')} style={styles.logoImage} />
+        <Image
+          source={require('../assets/logo.png')}
+          style={styles.logoImage}
+        />
       </View>
       <View style={styles.rightIcons}>
         <TouchableOpacity onPress={handleSearchPress}>

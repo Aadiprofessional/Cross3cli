@@ -1,42 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 import CartItem from '../components/CartItem';
-import { colors } from '../styles/color';
-import { sizes } from '../styles/size';
+import {colors} from '../styles/color';
+import {sizes} from '../styles/size';
 
-const OrderSummaryScreen = ({ route, navigation }) => {
-  const { cartItems: initialCartItems, totalAmount: initialTotalAmount } = route.params;
+const OrderSummaryScreen = ({route, navigation}) => {
+  const {cartItems: initialCartItems, totalAmount: initialTotalAmount} =
+    route.params;
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
 
   useEffect(() => {
-    const newTotalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const newTotalAmount = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
     setTotalAmount(newTotalAmount);
   }, [cartItems]);
 
   const handleUpdateQuantity = (id, quantity) => {
-    setCartItems((prevItems) => {
-      const updatedItems = prevItems.map((item) =>
-        item.id === id ? { ...item, quantity } : item
+    setCartItems(prevItems => {
+      const updatedItems = prevItems.map(item =>
+        item.id === id ? {...item, quantity} : item,
       );
-      return updatedItems.filter((item) => item.quantity > 0);
+      return updatedItems.filter(item => item.quantity > 0);
     });
   };
 
-  const handleRemoveItem = (id) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  const handleRemoveItem = id => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
   const handleApplyCoupon = () => {
-
     console.log(`Applying coupon code: ${couponCode}`);
 
     setCouponCode('');
   };
 
   const handleCheckout = () => {
-    navigation.navigate('CheckoutScreen', { cartItems, totalAmount });
+    navigation.navigate('CheckoutScreen', {cartItems, totalAmount});
   };
 
   return (
@@ -57,7 +67,9 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         </View>
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total:</Text>
-          <Text style={styles.totalValue}>${(totalAmount + 10 - 5).toFixed(2)}</Text>
+          <Text style={styles.totalValue}>
+            ${(totalAmount + 10 - 5).toFixed(2)}
+          </Text>
         </View>
       </View>
 
@@ -72,8 +84,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           />
           <TouchableOpacity
             style={styles.applyButton}
-            onPress={handleApplyCoupon}
-          >
+            onPress={handleApplyCoupon}>
             <Text style={styles.applyButtonText}>Apply</Text>
           </TouchableOpacity>
         </View>
@@ -81,9 +92,15 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         <View style={styles.couponSection}>
           <Text style={styles.applicableCoupons}>Applicable coupons</Text>
           <Text style={styles.applicableText}>
-            <Text style={{ color: colors.main, fontWeight: 'bold' }}>ABCDEF</Text>{'\n'}
-            <Text style={{ fontSize: 14 }}>Get 30% off on minimum purchase of ₹2500</Text>{'\n'}
-            <Text style={{ fontSize: 12 }}>Applicable Only on electronics products. </Text>
+            <Text style={{color: colors.main, fontWeight: 'bold'}}>ABCDEF</Text>
+            {'\n'}
+            <Text style={{fontSize: 14}}>
+              Get 30% off on minimum purchase of ₹2500
+            </Text>
+            {'\n'}
+            <Text style={{fontSize: 12}}>
+              Applicable Only on electronics products.{' '}
+            </Text>
           </Text>
           <TouchableOpacity style={styles.applyTextButton}>
             <Text style={styles.applyTextButtonText}>Apply</Text>
@@ -94,9 +111,13 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
         <View style={styles.couponSection}>
           <Text style={styles.applicableText}>
-            <Text style={{ color: colors.main, fontWeight: 'bold' }}>GHIJKL</Text>{'\n'}
-            <Text style={{ fontSize: 14 }}>Get 20% off on all electronics</Text>{'\n'}
-            <Text style={{ fontSize: 12 }}>Applicable Only on selected electronics items.</Text>
+            <Text style={{color: colors.main, fontWeight: 'bold'}}>GHIJKL</Text>
+            {'\n'}
+            <Text style={{fontSize: 14}}>Get 20% off on all electronics</Text>
+            {'\n'}
+            <Text style={{fontSize: 12}}>
+              Applicable Only on selected electronics items.
+            </Text>
           </Text>
           <TouchableOpacity style={styles.applyTextButton}>
             <Text style={styles.applyTextButtonText}>Apply</Text>
@@ -108,8 +129,8 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
       <FlatList
         data={cartItems}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
+        keyExtractor={item => item.id.toString()}
+        renderItem={({item}) => (
           <CartItem
             id={item.id}
             name={item.name}
@@ -123,7 +144,9 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       />
 
       <View style={styles.checkoutContainer}>
-        <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+        <TouchableOpacity
+          style={styles.checkoutButton}
+          onPress={handleCheckout}>
           <Text style={styles.checkoutButtonText}>Checkout</Text>
         </TouchableOpacity>
       </View>
@@ -143,7 +166,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,

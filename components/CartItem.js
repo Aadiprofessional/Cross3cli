@@ -1,8 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { colors } from '../styles/color';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {colors} from '../styles/color';
 
-const CartItem = ({ id, name, price, quantity, onUpdateQuantity, onRemoveItem }) => {
+const CartItem = ({
+  id,
+  name,
+  price,
+  quantity,
+  onUpdateQuantity,
+  onRemoveItem,
+}) => {
   const [itemQuantity, setItemQuantity] = useState(quantity);
   const [selectedColor, setSelectedColor] = useState(colors.main); // Default color
 
@@ -26,9 +33,8 @@ const CartItem = ({ id, name, price, quantity, onUpdateQuantity, onRemoveItem })
     }
   };
 
-  const handleColorChange = (color) => {
+  const handleColorChange = color => {
     setSelectedColor(color);
-
   };
 
   return (
@@ -42,9 +48,11 @@ const CartItem = ({ id, name, price, quantity, onUpdateQuantity, onRemoveItem })
       </View>
       <View style={styles.productDetails}>
         <Text style={styles.productName}>{name}</Text>
-        <Text style={styles.productPrice}>${(price * itemQuantity).toFixed(2)}</Text>
+        <Text style={styles.productPrice}>
+          ${(price * itemQuantity).toFixed(2)}
+        </Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, { backgroundColor: selectedColor }]}>
+          <View style={[styles.itemColor, {backgroundColor: selectedColor}]}>
             <Text style={styles.itemColorText}>Color</Text>
           </View>
         </View>
@@ -75,7 +83,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,

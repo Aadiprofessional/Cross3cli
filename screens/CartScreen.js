@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { colors } from '../styles/color';
+import React, {useState} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {colors} from '../styles/color';
 import CartItem from '../components/CartItem';
 
 const CartScreen = () => {
   const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Product A', price: 19.99, quantity: 1 },
-    { id: 2, name: 'Product B', price: 24.99, quantity: 1 },
-    { id: 3, name: 'Product C', price: 14.99, quantity: 1 },
+    {id: 1, name: 'Product A', price: 19.99, quantity: 1},
+    {id: 2, name: 'Product B', price: 24.99, quantity: 1},
+    {id: 3, name: 'Product C', price: 14.99, quantity: 1},
   ]);
 
   const navigation = useNavigation();
 
   const updateCartItemQuantity = (itemId, newQuantity) => {
     const updatedItems = cartItems.map(item =>
-      item.id === itemId ? { ...item, quantity: newQuantity } : item
+      item.id === itemId ? {...item, quantity: newQuantity} : item,
     );
     setCartItems(updatedItems);
   };
@@ -25,11 +25,14 @@ const CartScreen = () => {
   };
 
   const handlePlaceOrder = () => {
-    const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    navigation.navigate('OrderSummary', { cartItems, totalAmount });
+    const totalAmount = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    navigation.navigate('OrderSummary', {cartItems, totalAmount});
   };
 
-  const handleRemoveItem = (itemId) => {
+  const handleRemoveItem = itemId => {
     const updatedItems = cartItems.filter(item => item.id !== itemId);
     setCartItems(updatedItems);
   };
@@ -44,7 +47,10 @@ const CartScreen = () => {
         <View style={styles.headerRight}>
           <Text style={styles.subtotalText}>Subtotal:</Text>
           <Text style={styles.totalAmountText}>
-            ${cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+            $
+            {cartItems
+              .reduce((sum, item) => sum + item.price * item.quantity, 0)
+              .toFixed(2)}
           </Text>
         </View>
       </View>
@@ -63,12 +69,12 @@ const CartScreen = () => {
       </View>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: colors.second }]}
+          style={[styles.button, {backgroundColor: colors.second}]}
           onPress={handleGetQuotation}>
           <Text style={styles.buttonText}>Get Quotation</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: colors.main }]}
+          style={[styles.button, {backgroundColor: colors.main}]}
           onPress={handlePlaceOrder}>
           <Text style={styles.buttonText}>Place Order</Text>
         </TouchableOpacity>

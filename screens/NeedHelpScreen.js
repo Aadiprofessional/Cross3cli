@@ -1,7 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { colors } from '../styles/color';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {colors} from '../styles/color';
 
 const NeedHelpScreen = () => {
   const navigation = useNavigation();
@@ -23,10 +30,12 @@ const NeedHelpScreen = () => {
 
   return (
     <View style={styles.container}>
-  
-      <View style={[styles.header, { backgroundColor: colors.main }]}>
+      <View style={[styles.header, {backgroundColor: colors.main}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image source={require('../assets/back.png')} style={styles.backIcon} />
+          <Image
+            source={require('../assets/back.png')}
+            style={styles.backIcon}
+          />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Contact us</Text>
       </View>
@@ -34,7 +43,9 @@ const NeedHelpScreen = () => {
       <TouchableOpacity style={styles.rectangle} onPress={handleWhatsApp}>
         <Image source={require('../assets/whatsapp.png')} style={styles.icon} />
         <View style={styles.textContainer}>
-          <Text style={[styles.mediumText, { color: colors.main }]}>WhatsApp</Text>
+          <Text style={[styles.mediumText, {color: colors.main}]}>
+            WhatsApp
+          </Text>
           <Text style={styles.regularText}>Click the Chat with our staffs</Text>
         </View>
       </TouchableOpacity>
@@ -42,7 +53,7 @@ const NeedHelpScreen = () => {
       <TouchableOpacity style={styles.rectangle} onPress={handleCall}>
         <Image source={require('../assets/call.png')} style={styles.icon} />
         <View style={styles.textContainer}>
-          <Text style={[styles.mediumText, { color: colors.main }]}>Call</Text>
+          <Text style={[styles.mediumText, {color: colors.main}]}>Call</Text>
           <Text style={styles.regularText}>Click the Chat with our staffs</Text>
         </View>
       </TouchableOpacity>
@@ -50,7 +61,7 @@ const NeedHelpScreen = () => {
       <TouchableOpacity style={styles.rectangle} onPress={handleMail}>
         <Image source={require('../assets/mail.png')} style={styles.icon} />
         <View style={styles.textContainer}>
-          <Text style={[styles.mediumText, { color: colors.main }]}>Mail</Text>
+          <Text style={[styles.mediumText, {color: colors.main}]}>Mail</Text>
           <Text style={styles.regularText}>Click the Chat with our staffs</Text>
         </View>
       </TouchableOpacity>
@@ -62,7 +73,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    
   },
   header: {
     flexDirection: 'row',
@@ -87,7 +97,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,

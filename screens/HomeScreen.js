@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, Text, Image, TouchableOpacity, Animated, TouchableWithoutFeedback, Linking } from 'react-native';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import React, {useState} from 'react';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  Image,
+  TouchableOpacity,
+  Animated,
+  TouchableWithoutFeedback,
+  Linking,
+} from 'react-native';
+import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomHeader from '../components/CustomHeader';
 import AutoImageSlider from '../components/AutoImageSlider';
 import HelpBox from '../components/HelpBox';
 import Categories from '../components/Categories';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 import AutoImageSlider2 from '../components/AutoImageSlider2';
 import BestDeals from '../components/BestDeals';
 import LatestProducts from '../components/LatestProducts';
@@ -27,7 +37,7 @@ const HomeContent = () => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1}}>
       <ScrollView style={styles.container}>
         <AutoImageSlider />
         <View style={styles.backgroundContainer}>
@@ -50,9 +60,14 @@ const HomeContent = () => {
           <Text style={styles.crossBee}>CrossBee</Text>
         </View>
       </ScrollView>
-      <TouchableOpacity style={styles.whatsappButton} onPress={handleWhatsAppPress}>
+      <TouchableOpacity
+        style={styles.whatsappButton}
+        onPress={handleWhatsAppPress}>
         <View style={styles.whatsappIcon}>
-          <Image source={require('../assets/whatsapp.png')} style={styles.whatsappIconImage} />
+          <Image
+            source={require('../assets/whatsapp.png')}
+            style={styles.whatsappIconImage}
+          />
         </View>
       </TouchableOpacity>
     </View>
@@ -91,7 +106,11 @@ const HomeScreen = () => {
       {isNavBarVisible && (
         <TouchableWithoutFeedback onPress={handleOutsidePress}>
           <View style={styles.overlay}>
-            <Animated.View style={[styles.navContainer, { transform: [{ translateX: slideAnim }] }]}>
+            <Animated.View
+              style={[
+                styles.navContainer,
+                {transform: [{translateX: slideAnim}]},
+              ]}>
               <LeftNavBar toggleNavBar={toggleNavBar} />
             </Animated.View>
           </View>
@@ -103,13 +122,14 @@ const HomeScreen = () => {
           initialRouteName="HomeContent"
           activeColor={colors.main}
           inactiveColor="#8A8A8A"
-          barStyle={{ backgroundColor: '#FFFFFF' }}
-        >
+          barStyle={{backgroundColor: '#FFFFFF'}}>
           <Tab.Screen
             name="HomeContent"
             component={HomeContent}
             options={{
-              tabBarIcon: ({ color }) => <Icon name="home-outline" color={color} size={22} />,
+              tabBarIcon: ({color}) => (
+                <Icon name="home-outline" color={color} size={22} />
+              ),
               tabBarLabel: 'Home',
             }}
           />
@@ -117,7 +137,9 @@ const HomeScreen = () => {
             name="Quotes"
             component={QuotesScreen}
             options={{
-              tabBarIcon: ({ color }) => <Icon name="document-outline" color={color} size={22} />,
+              tabBarIcon: ({color}) => (
+                <Icon name="document-outline" color={color} size={22} />
+              ),
               tabBarLabel: 'Quotes',
             }}
           />
@@ -125,7 +147,9 @@ const HomeScreen = () => {
             name="Cart"
             component={CartScreen}
             options={{
-              tabBarIcon: ({ color }) => <Icon name="cart-outline" color={color} size={22} />,
+              tabBarIcon: ({color}) => (
+                <Icon name="cart-outline" color={color} size={22} />
+              ),
               tabBarLabel: 'Cart',
             }}
           />
@@ -133,7 +157,10 @@ const HomeScreen = () => {
             name="Profile"
             component={ProfileScreen}
             options={{
-              tabBarIcon: ({ color }) => <Icon name="person-outline" color={color} size={22} />,
+              // eslint-disable-next-line react/no-unstable-nested-components
+              tabBarIcon: ({color}) => (
+                <Icon name="person-outline" color={color} size={22} />
+              ),
               tabBarLabel: 'Profile',
             }}
           />
@@ -238,7 +265,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   whatsappIcon: {
-    width:60,
+    width: 60,
     height: 60,
     borderRadius: 30,
     backgroundColor: '#25D366',
