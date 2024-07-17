@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';
@@ -32,14 +32,14 @@ const CartScreen = () => {
         <View style={styles.headerRight}>
           <Text style={styles.subtotalText}>Subtotal:</Text>
           <Text style={styles.totalAmountText}>
-           ₹
+            ₹
             {cartItems
               .reduce((sum, item) => sum + item.price * item.quantity, 0)
               .toFixed(2)}
           </Text>
         </View>
       </View>
-      <View style={styles.cartItemsContainer}>
+      <ScrollView style={styles.cartItemsContainer}>
         {cartItems.map((item) => (
           <CartItem
             key={item.id}
@@ -48,8 +48,8 @@ const CartScreen = () => {
             onRemoveItem={removeCartItem}
           />
         ))}
-        <WhatsAppButton />
-      </View>
+        
+      </ScrollView>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={[styles.button, { backgroundColor: colors.second }]}

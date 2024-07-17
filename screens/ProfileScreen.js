@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {colors} from '../styles/color';
+import WhatsAppButton from '../components/WhatsAppButton';
 
 const ProfileScreen = ({navigation}) => {
   const options = [
@@ -65,6 +66,7 @@ const ProfileScreen = ({navigation}) => {
           <Text style={styles.optionText}>{option.text}</Text>
         </TouchableOpacity>
       ))}
+      
     </ScrollView>
   );
 };

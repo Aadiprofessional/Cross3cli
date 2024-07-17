@@ -1,19 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import CartItem from '../components/CartItem';
-import {colors} from '../styles/color';
-import {sizes} from '../styles/size';
+import { colors } from '../styles/color';
+import { sizes } from '../styles/size';
 
-const OrderSummaryScreen = ({route, navigation}) => {
-  const {cartItems: initialCartItems, totalAmount: initialTotalAmount} =
-    route.params;
+const OrderSummaryScreen = ({ route, navigation }) => {
+  const { cartItems: initialCartItems, totalAmount: initialTotalAmount } = route.params;
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
@@ -29,7 +21,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const handleUpdateQuantity = (id, quantity) => {
     setCartItems(prevItems => {
       const updatedItems = prevItems.map(item =>
-        item.id === id ? {...item, quantity} : item,
+        item.id === id ? { ...item, quantity } : item,
       );
       return updatedItems.filter(item => item.quantity > 0);
     });
@@ -46,7 +38,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
   };
 
   const handleCheckout = () => {
-    navigation.navigate('CheckoutScreen', {cartItems, totalAmount});
+    navigation.navigate('CheckoutScreen', { cartItems, totalAmount });
   };
 
   return (
@@ -92,13 +84,13 @@ const OrderSummaryScreen = ({route, navigation}) => {
         <View style={styles.couponSection}>
           <Text style={styles.applicableCoupons}>Applicable coupons</Text>
           <Text style={styles.applicableText}>
-            <Text style={{color: colors.main, fontWeight: 'bold'}}>ABCDEF</Text>
+            <Text style={{ color: colors.main, fontWeight: 'bold' }}>ABCDEF</Text>
             {'\n'}
-            <Text style={{fontSize: 14}}>
+            <Text style={{ fontSize: 14 }}>
               Get 30% off on minimum purchase of ₹2500
             </Text>
             {'\n'}
-            <Text style={{fontSize: 12}}>
+            <Text style={{ fontSize: 12 }}>
               Applicable Only on electronics products.{' '}
             </Text>
           </Text>
@@ -111,11 +103,11 @@ const OrderSummaryScreen = ({route, navigation}) => {
 
         <View style={styles.couponSection}>
           <Text style={styles.applicableText}>
-            <Text style={{color: colors.main, fontWeight: 'bold'}}>GHIJKL</Text>
+            <Text style={{ color: colors.main, fontWeight: 'bold' }}>GHIJKL</Text>
             {'\n'}
-            <Text style={{fontSize: 14}}>Get 20% off on all electronics</Text>
+            <Text style={{ fontSize: 14 }}>Get 20% off on all electronics</Text>
             {'\n'}
-            <Text style={{fontSize: 12}}>
+            <Text style={{ fontSize: 12 }}>
               Applicable Only on selected electronics items.
             </Text>
           </Text>
@@ -130,12 +122,9 @@ const OrderSummaryScreen = ({route, navigation}) => {
       <FlatList
         data={cartItems}
         keyExtractor={item => item.id.toString()}
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <CartItem
-            id={item.id}
-            name={item.name}
-            price={item.price}
-            quantity={item.quantity}
+            item={item}
             onUpdateQuantity={handleUpdateQuantity}
             onRemoveItem={handleRemoveItem}
           />
@@ -166,7 +155,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -276,7 +265,7 @@ const styles = StyleSheet.create({
     width: '90%',
     padding: sizes.padding,
     borderRadius: sizes.borderRadius,
-    backgroundColor: colors.buttonBackground,
+    backgroundColor: colors.main,
     alignItems: 'center',
   },
   checkoutButtonText: {

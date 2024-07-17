@@ -35,7 +35,6 @@ const HomeContent = () => {
           <Text style={styles.crossBee}>CrossBee</Text>
         </View>
       </ScrollView>
-      <WhatsAppButton />
     </View>
   );
 };

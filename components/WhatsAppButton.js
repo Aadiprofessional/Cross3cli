@@ -22,7 +22,7 @@ const WhatsAppButton = () => {
 const styles = StyleSheet.create({
   whatsappButton: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 90,
     right: 15,
     zIndex: 10,
   },

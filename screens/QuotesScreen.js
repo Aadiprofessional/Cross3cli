@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {colors} from '../styles/color';
+import WhatsAppButton from '../components/WhatsAppButton';
 
 const QuotesScreen = () => {
   const navigation = useNavigation();

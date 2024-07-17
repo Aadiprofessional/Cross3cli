@@ -18,6 +18,7 @@ import QuotesScreen from './QuotesScreen';
 import LeftNavBar from '../components/LeftNavBar';
 import HomeContent from './HomeContent';
 
+
 const Tab = createMaterialBottomTabNavigator();
 
 const HomeScreen = () => {
@@ -112,7 +113,7 @@ const HomeScreen = () => {
             }}
           />
         </Tab.Navigator>
-        
+        <WhatsAppButton />
       </View>
     </View>
   );

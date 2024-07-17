@@ -45,8 +45,8 @@ const CartItem = ({
           ₹{(price * itemQuantity).toFixed(2)}
         </Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, { backgroundColor: color }]}>
-            <Text style={styles.itemColorText}>Color</Text>
+          <View style={[styles.itemColor, {backgroundColor: colors.main}]}>
+            <Text style={styles.itemColorText}>{color}</Text>
           </View>
         </View>
       </View>
@@ -120,11 +120,14 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 5,
     marginRight: 10,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   itemColorText: {
     fontSize: 14,
     textAlign: 'center',
-    color: colors.background,
+    color: '#ffffff',
   },
   quantityContainer: {
     flexDirection: 'row',
