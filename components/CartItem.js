@@ -1,17 +1,14 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import {colors} from '../styles/color';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { colors } from '../styles/color';
 
 const CartItem = ({
-  id,
-  name,
-  price,
-  quantity,
+  item,
   onUpdateQuantity,
   onRemoveItem,
 }) => {
+  const { cartId, name, price, quantity, color, image } = item;
   const [itemQuantity, setItemQuantity] = useState(quantity);
-  const [selectedColor, setSelectedColor] = useState(colors.main); // Default color
 
   useEffect(() => {
     setItemQuantity(quantity);
@@ -20,28 +17,24 @@ const CartItem = ({
   const handleIncreaseQuantity = () => {
     const newQuantity = itemQuantity + 1;
     setItemQuantity(newQuantity);
-    onUpdateQuantity(id, newQuantity);
+    onUpdateQuantity(cartId, newQuantity);
   };
 
   const handleDecreaseQuantity = () => {
     const newQuantity = itemQuantity - 1;
     setItemQuantity(newQuantity);
-    onUpdateQuantity(id, newQuantity);
+    onUpdateQuantity(cartId, newQuantity);
 
     if (newQuantity === 0) {
-      onRemoveItem(id);
+      onRemoveItem(cartId);
     }
-  };
-
-  const handleColorChange = color => {
-    setSelectedColor(color);
   };
 
   return (
     <View style={styles.cartItemContainer}>
       <View style={styles.productImageContainer}>
         <Image
-          source={require('../assets/product2.png')}
+          source={image} // Assuming image is passed correctly from the CartScreen
           style={styles.productImage}
           resizeMode="cover"
         />
@@ -49,10 +42,10 @@ const CartItem = ({
       <View style={styles.productDetails}>
         <Text style={styles.productName}>{name}</Text>
         <Text style={styles.productPrice}>
-          ${(price * itemQuantity).toFixed(2)}
+          ₹{(price * itemQuantity).toFixed(2)}
         </Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, {backgroundColor: selectedColor}]}>
+          <View style={[styles.itemColor, { backgroundColor: color }]}>
             <Text style={styles.itemColorText}>Color</Text>
           </View>
         </View>
@@ -60,13 +53,15 @@ const CartItem = ({
       <View style={styles.quantityContainer}>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={handleDecreaseQuantity}>
+          onPress={handleDecreaseQuantity}
+        >
           <Text style={styles.quantityButtonText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.quantityText}>{itemQuantity}</Text>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={handleIncreaseQuantity}>
+          onPress={handleIncreaseQuantity}
+        >
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
       </View>
@@ -83,7 +78,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,

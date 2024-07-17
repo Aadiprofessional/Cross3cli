@@ -18,6 +18,7 @@ import QuotationScreen from './screens/QuotationScreen';
 import SearchResultsScreen from './screens/SearchResultsScreen';
 import { colors } from './styles/color';
 import LeftNavBar from './components/LeftNavBar';
+import { CartProvider } from './components/CartContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ const App = () => {
   };
 
   return (
+    <CartProvider>
     <NavigationContainer>
       <Stack.Navigator initialRouteName={isLoggedIn ? 'Home' : 'Login'}>
         <Stack.Screen
@@ -116,6 +118,11 @@ const App = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
+          name="CartScreen"
+          component={CartScreen}
+          options={{ title: 'Cart' }}
+        />
+        <Stack.Screen
           name="Profile"
           component={ProfileScreen}
           options={{ headerShown: false }}
@@ -166,6 +173,8 @@ const App = () => {
 
       {isNavBarVisible && <LeftNavBar toggleNavBar={toggleNavBar} />}
     </NavigationContainer>
+    
+    </CartProvider>
   );
 };
 

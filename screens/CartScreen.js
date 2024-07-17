@@ -1,24 +1,14 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {colors} from '../styles/color';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';
+import WhatsAppButton from '../components/WhatsAppButton';
+import { useCart } from '../components/CartContext'; // Assuming you have a CartContext for managing cart items
 
 const CartScreen = () => {
-  const [cartItems, setCartItems] = useState([
-    {id: 1, name: 'Product A', price: 19.99, quantity: 1},
-    {id: 2, name: 'Product B', price: 24.99, quantity: 1},
-    {id: 3, name: 'Product C', price: 14.99, quantity: 1},
-  ]);
-
+  const { cartItems, updateCartItemQuantity, removeCartItem } = useCart(); // Using cart items from CartContext
   const navigation = useNavigation();
-
-  const updateCartItemQuantity = (itemId, newQuantity) => {
-    const updatedItems = cartItems.map(item =>
-      item.id === itemId ? {...item, quantity: newQuantity} : item,
-    );
-    setCartItems(updatedItems);
-  };
 
   const handleGetQuotation = () => {
     navigation.navigate('Quotation');
@@ -27,14 +17,9 @@ const CartScreen = () => {
   const handlePlaceOrder = () => {
     const totalAmount = cartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
-      0,
+      0
     );
-    navigation.navigate('OrderSummary', {cartItems, totalAmount});
-  };
-
-  const handleRemoveItem = itemId => {
-    const updatedItems = cartItems.filter(item => item.id !== itemId);
-    setCartItems(updatedItems);
+    navigation.navigate('OrderSummary', { cartItems, totalAmount });
   };
 
   return (
@@ -47,7 +32,7 @@ const CartScreen = () => {
         <View style={styles.headerRight}>
           <Text style={styles.subtotalText}>Subtotal:</Text>
           <Text style={styles.totalAmountText}>
-            $
+           ₹
             {cartItems
               .reduce((sum, item) => sum + item.price * item.quantity, 0)
               .toFixed(2)}
@@ -55,27 +40,27 @@ const CartScreen = () => {
         </View>
       </View>
       <View style={styles.cartItemsContainer}>
-        {cartItems.map(item => (
+        {cartItems.map((item) => (
           <CartItem
             key={item.id}
-            id={item.id}
-            name={item.name}
-            price={item.price}
-            quantity={item.quantity}
+            item={item} // Pass the entire item object to CartItem
             onUpdateQuantity={updateCartItemQuantity}
-            onRemoveItem={handleRemoveItem}
+            onRemoveItem={removeCartItem}
           />
         ))}
+        <WhatsAppButton />
       </View>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={[styles.button, {backgroundColor: colors.second}]}
-          onPress={handleGetQuotation}>
+          style={[styles.button, { backgroundColor: colors.second }]}
+          onPress={handleGetQuotation}
+        >
           <Text style={styles.buttonText}>Get Quotation</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, {backgroundColor: colors.main}]}
-          onPress={handlePlaceOrder}>
+          style={[styles.button, { backgroundColor: colors.main }]}
+          onPress={handlePlaceOrder}
+        >
           <Text style={styles.buttonText}>Place Order</Text>
         </TouchableOpacity>
       </View>

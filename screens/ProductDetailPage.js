@@ -1,100 +1,90 @@
-import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  ScrollView,
-  TouchableOpacity,
-  Linking,
-} from 'react-native';
-import {colors} from '../styles/color'; // Assuming you have defined colors elsewhere
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { colors } from '../styles/color'; // Assuming you have defined colors elsewhere
+import { products } from '../data/productData'; // Import your products data
+import { useCart } from '../components/CartContext'; // Import CartContext for managing cart items
+import WhatsAppButton from '../components/WhatsAppButton';
+import WhatsAppButton2 from '../components/WhatsAppButton2';
 
-const ProductDetailPage = ({route}) => {
-  const {productName, imageSource, description, price} = route.params;
+const ProductDetailPage = ({ route }) => {
+  const { productId } = route.params;
+  const { addToCart } = useCart(); // Using addToCart function from CartContext
+  const product = products.find(item => item.id === productId);
 
-  const productImages = [
-    require('../assets/product2.png'),
-    require('../assets/product2.png'),
-    require('../assets/product2.png'),
-  ];
+  if (!product) {
+    return (
+      <View style={styles.container}>
+        <Text>Product not found!</Text>
+      </View>
+    );
+  }
+
+  const { productName, mainImage, description, price, colorsAvailable, specifications, deliveryTime } = product;
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedColor, setSelectedColor] = useState(colorsAvailable[0]); // Default to the first color
   const [quantity, setQuantity] = useState(1);
 
   const handlePrevious = () => {
-    setActiveIndex(
-      activeIndex === 0 ? productImages.length - 1 : activeIndex - 1,
-    );
+    setActiveIndex(activeIndex === 0 ? product.images[selectedColor].length - 1 : activeIndex - 1);
   };
 
   const handleNext = () => {
-    setActiveIndex(
-      activeIndex === productImages.length - 1 ? 0 : activeIndex + 1,
-    );
+    setActiveIndex(activeIndex === product.images[selectedColor].length - 1 ? 0 : activeIndex + 1);
   };
 
   const handleCall = () => {
-    const phoneNumber = '9289881135';
+    const phoneNumber = '9289881135'; // Replace with your phone number
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleColorSelect = color => {
+  const handleColorSelect = (color) => {
     setSelectedColor(color);
+    setActiveIndex(0); // Reset index when changing color
   };
 
   const handleIncreaseQuantity = () => {
     setQuantity(quantity + 1);
   };
-  
+
   const handleDecreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
     }
   };
 
+  const handleAddToCart = () => {
+    const newItem = {
+      id: product.id,
+      name: productName,
+      price: price,
+      quantity: quantity,
+      color: selectedColor,
+      image: product.images[selectedColor][activeIndex],
+    };
+    addToCart(newItem); // Add item to cart using addToCart function from CartContext
+    // Optionally, you can show a confirmation or navigate to the cart screen
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
       <View style={styles.container}>
         <View style={styles.imageContainer}>
-          <ScrollView
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onScroll={event => {
-              const contentOffsetX = event.nativeEvent.contentOffset.x;
-              const index = Math.floor(
-                contentOffsetX / styles.imageContainer.width,
-              );
-              setActiveIndex(index);
-            }}>
-            {productImages.map((img, index) => (
-              <Image key={index} source={img} style={styles.image} />
-            ))}
-          </ScrollView>
-
-          <TouchableOpacity
-            style={[styles.arrowButton, {left: 10}]}
-            onPress={handlePrevious}>
-            <Text style={styles.arrowText}>{'<'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.arrowButton, {right: 10}]}
-            onPress={handleNext}>
-            <Text style={styles.arrowText}>{'>'}</Text>
-          </TouchableOpacity>
-          <View style={styles.dotContainer}>
-            {productImages.map((img, index) => (
+          <Image source={product.images[selectedColor][activeIndex]} style={styles.image} />
+          <View style={styles.pagination}>
+            {product.images[selectedColor].map((_, index) => (
               <View
                 key={index}
-                style={[
-                  styles.dot,
-                  index === activeIndex ? styles.activeDot : null,
-                ]}
+                style={[styles.dot, index === activeIndex && styles.activeDot]}
               />
             ))}
           </View>
+          <TouchableOpacity style={[styles.arrowButton, { left: 10 }]} onPress={handlePrevious}>
+            <Text style={styles.arrowText}>{'<'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.arrowButton, { right: 10 }]} onPress={handleNext}>
+            <Text style={styles.arrowText}>{'>'}</Text>
+          </TouchableOpacity>
 
           <View style={styles.truckIcon}>
             <Image
@@ -102,9 +92,8 @@ const ProductDetailPage = ({route}) => {
               style={styles.truckImage}
             />
           </View>
-
           <View style={styles.truckTextContainer}>
-            <Text style={styles.truckText}>Shipping Within 12 Days</Text>
+            <Text style={styles.truckText}>{deliveryTime}</Text>
           </View>
         </View>
 
@@ -112,54 +101,39 @@ const ProductDetailPage = ({route}) => {
           <Text style={styles.title}>{productName}</Text>
           <Text style={styles.descriptionText}>Description: {description}</Text>
           <View style={styles.priceContainer}>
-            <Text style={styles.priceText}>Price: {price}</Text>
+            <Text style={styles.priceText}>Price: ₹{price}</Text>
             <TouchableOpacity onPress={handleCall}>
               <Image
                 source={require('../assets/call.png')}
                 style={styles.callIcon}
               />
             </TouchableOpacity>
+            <WhatsAppButton2 />
           </View>
         </View>
 
         <View style={styles.productDetails}>
-          <Text style={styles.Head}>Colour:</Text>
-          <View style={styles.colorSelectionContainer}>
-            <ColorButton
-              color="Black"
-              selectedColor={selectedColor}
-              onPress={() => handleColorSelect('Black')}
-            />
-            <ColorButton
-              color="Blue"
-              selectedColor={selectedColor}
-              onPress={() => handleColorSelect('Blue')}
-            />
-            <ColorButton
-              color="Red"
-              selectedColor={selectedColor}
-              onPress={() => handleColorSelect('Red')}
-            />
-            <ColorButton
-              color="Green"
-              selectedColor={selectedColor}
-              onPress={() => handleColorSelect('Green')}
-            />
-          </View>
+          <Text style={styles.Head}>Color:</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.colorScrollContainer}>
+            {colorsAvailable.map((color, index) => (
+              <ColorButton
+                key={index}
+                color={color}
+                selectedColor={selectedColor}
+                onPress={() => handleColorSelect(color)}
+              />
+            ))}
+          </ScrollView>
         </View>
 
         <View style={styles.quantityContainer}>
           <Text style={styles.quantityText}>Quantity:</Text>
           <View style={styles.quantityControl}>
-            <TouchableOpacity
-              style={styles.quantityButton}
-              onPress={handleDecreaseQuantity}>
+            <TouchableOpacity style={styles.quantityButton} onPress={handleDecreaseQuantity}>
               <Text style={styles.quantityButtonText}>-</Text>
             </TouchableOpacity>
             <Text style={styles.quantityNumber}>{quantity}</Text>
-            <TouchableOpacity
-              style={styles.quantityButton}
-              onPress={handleIncreaseQuantity}>
+            <TouchableOpacity style={styles.quantityButton} onPress={handleIncreaseQuantity}>
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
           </View>
@@ -167,57 +141,44 @@ const ProductDetailPage = ({route}) => {
 
         <View style={styles.productDetails}>
           <Text style={styles.Head}>Product Description:</Text>
-          <Text style={styles.regularText}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac
-            ligula ac urna posuere mollis. Nullam condimentum tellus nec magna
-            iaculis, sit amet mollis ex lacinia. Phasellus eget leo ut ligula
-            iaculis venenatis. Sed faucibus enim ut lacus ultricies aliquet.
-            Suspendisse potenti. Morbi malesuada lacus non magna auctor, at
-            tristique elit interdum. Cras sit amet maximus lorem. Proin ac magna
-            scelerisque, tincidunt mauris id, consequat lorem. Nam sed neque nec
-            risus lacinia tincidunt. Sed a odio luctus, tincidunt nunc eget,
-            ultricies nunc. Aenean suscipit, sapien quis fermentum pellentesque,
-            turpis ipsum finibus sem, eget vehicula justo ante quis leo. Duis ut
-            erat leo. Nullam ut quam risus. Quisque nec metus eu lectus rutrum
-            ultricies.
-          </Text>
+          <Text style={styles.regularText}>{description}</Text>
         </View>
 
         <View style={styles.productDetails}>
           <Text style={styles.Head}>Product Specifications:</Text>
           <View style={styles.specificationTable}>
-            <View style={[styles.specRow, styles.firstRow]}>
-              <Text style={styles.specLabel}>Material:</Text>
-              <Text style={styles.specValue}>Cotton</Text>
-            </View>
-            <View style={[styles.specRow, styles.secondRow]}>
-              <Text style={styles.specLabel}>Size:</Text>
-              <Text style={styles.specValue}>Medium</Text>
-            </View>
+            {specifications.map((spec, index) => (
+              <View key={index} style={[styles.specRow, index % 2 === 0 ? styles.firstRow : styles.secondRow]}>
+                <Text style={styles.specLabel}>{spec.label}</Text>
+                <Text style={styles.specValue}>{spec.value}</Text>
+              </View>
+            ))}
           </View>
+          
         </View>
-        <TouchableOpacity style={styles.addToCartButton}>
+
+        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
+        
       </View>
+      
     </ScrollView>
+    
   );
 };
 
-const ColorButton = ({color, selectedColor, onPress}) => {
+const ColorButton = ({ color, selectedColor, onPress }) => {
   return (
     <TouchableOpacity
       style={[
         styles.colorButton,
-        {backgroundColor: selectedColor === color ? colors.main : '#FFFFFF'},
+        { backgroundColor: selectedColor === color ? colors.main : '#FFFFFF' },
         selectedColor === color ? styles.selectedButton : null,
       ]}
-      onPress={onPress}>
-      <Text
-        style={[
-          styles.colorButtonText,
-          {color: selectedColor === color ? 'white' : colors.main},
-        ]}>
+      onPress={onPress}
+    >
+      <Text style={[styles.colorButtonText, { color: selectedColor === color ? 'white' : colors.main }]}>
         {color}
       </Text>
     </TouchableOpacity>
@@ -228,30 +189,30 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'flex-start',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingTop: 20,
-    marginRight: -40,
   },
   container: {
     width: '100%',
   },
   imageContainer: {
-    width: '90%',
+    width: '100%',
     aspectRatio: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 5,
     overflow: 'hidden',
     marginBottom: 20,
     position: 'relative',
-    borderWidth: 0.1,
-    borderColor: '#474747',
+    borderWidth: 1, // Adding a stroke
+    borderColor: '#B3B3B39D', // Stroke color
   },
   image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+    width: '85%',
+    height: '85%',
+    resizeMode: 'contain', // Adjusts the image to fit inside the container
+    alignSelf: 'center', // Center the image horizontally
+    margin: '5%', // Adds space around the image
   },
   arrowButton: {
     position: 'absolute',
@@ -264,36 +225,33 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 30,
   },
-  dotContainer: {
+  pagination: {
+    position: 'absolute',
+    bottom: 5,
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: 10,
     width: '100%',
+    paddingVertical: 5,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#C4C4C4',
+    backgroundColor: '#A7A7A7',
     marginHorizontal: 5,
   },
   activeDot: {
-    width: 12,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.second,
+    width: 16,
+    backgroundColor: '#316487',
+  },
+  productDetails: {
+    width: '90%',
+    marginTop: 20,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
-    color: colors.TextBlack,
-  },
-  productDetails: {
-    width: '90%',
-    marginTop: 20,
     color: colors.TextBlack,
   },
   descriptionText: {
@@ -310,6 +268,114 @@ const styles = StyleSheet.create({
   priceText: {
     fontSize: 24,
     color: colors.TextBlack,
+  },
+  Head: {
+    fontSize: 20,
+    color: colors.TextBlack,
+    fontWeight: 'bold',
+  },
+  colorScrollContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  colorButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: colors.main,
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginRight: 10,
+  },
+  selectedButton: {
+    backgroundColor: colors.main,
+    borderWidth: 1,
+    borderColor: colors.main,
+  },
+  colorButtonText: {
+    fontSize: 16,
+    color: colors.main,
+    fontWeight: 'bold',
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  quantityText: {
+    fontSize: 18,
+    color: colors.TextBlack,
+  },
+  quantityControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  quantityButton: {
+    backgroundColor: colors.main,
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  quantityButtonText: {
+    fontSize: 18,
+    color: '#fff',
+  },
+  quantityNumber: {
+    fontSize: 18,
+    marginHorizontal: 10,
+    color: colors.TextBlack,
+  },
+  regularText: {
+    fontSize: 16,
+    color: colors.TextBlack,
+  },
+  specificationTable: {
+    marginTop: 10,
+  },
+  specRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 5,
+    backgroundColor: 'rgba(120, 120, 120, 0.3)',
+    borderWidth: 1,
+    borderColor: 'rgba(120, 120, 120, 0.3)',
+    marginBottom: 5,
+  },
+  firstRow: {
+    backgroundColor: '#F5F5F5', // Alternate row color
+  },
+  secondRow: {
+    backgroundColor: '#CFCECE9C', // Default row color
+  },
+  specLabel: {
+    fontSize: 16,
+    color: colors.TextBlack,
+    fontWeight: 'bold',
+  },
+  specValue: {
+    flex: 1,
+    textAlign: 'right',
+    color: colors.TextBlack,
+  },
+  addToCartButton: {
+    backgroundColor: colors.main,
+    marginTop: 20,
+    borderRadius: 10,
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  addToCartText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   truckIcon: {
     position: 'absolute',
@@ -330,7 +396,6 @@ const styles = StyleSheet.create({
     left: 50,
     paddingHorizontal: 10,
     paddingVertical: 5,
-
     borderRadius: 10,
   },
   truckText: {
@@ -339,127 +404,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   callIcon: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain',
-  },
-  Head: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: colors.TextBlack,
-  },
-  colorSelectionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    width: '90%',
-  },
-  colorButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.main,
-    backgroundColor: '#FFFFFF',
-    elevation: 5,
-    marginRight: 5,
-  },
-  selectedButton: {
-    backgroundColor: colors.main,
-    shadowColor: '#000000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-  colorButtonText: {
-    fontSize: 12,
-    fontWeight: 'regular',
-    textAlign: 'center',
-  },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    width: '90%',
-  },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginRight: 10,
-    color: colors.TextBlack,
-  },
-  quantityControl: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  quantityButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: colors.main,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  quantityButtonText: {
-    color: 'white',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  quantityNumber: {
-    fontSize: 18,
-    marginHorizontal: 10,
-    color: colors.TextBlack,
-  },
-  regularText: {
-    fontSize: 12,
-    fontWeight: 'regular',
-    color: colors.TextBlack,
-
-    marginBottom: 10,
-  },
-  specificationTable: {
-    marginTop: 10,
-  },
-  specRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 5,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  firstRow: {
-    backgroundColor: '#FFFFFF',
-  },
-  secondRow: {
-    backgroundColor: '#D9D9D9',
-  },
-  specLabel: {
-    fontWeight: 'bold',
-    color: colors.TextBlack,
-  },
-  specValue: {
-    flex: 1,
-    textAlign: 'right',
-    color: colors.TextBlack,
-  },
-  addToCartButton: {
-    backgroundColor: colors.main,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 10,
-    marginTop: 20,
-    width: '90%',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  addToCartText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
+    width: 65,
+    height: 65,
+    marginRight: -40,
   },
 });
 

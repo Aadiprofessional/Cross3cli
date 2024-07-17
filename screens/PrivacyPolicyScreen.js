@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {colors} from '../styles/color';
+import WhatsAppButton from '../components/WhatsAppButton';
 
 const PrivacyPolicyScreen = () => {
   return (
@@ -11,6 +12,7 @@ const PrivacyPolicyScreen = () => {
 
       <View style={styles.content}>
         <Text>Privacy Policy content goes here.</Text>
+        <WhatsAppButton />
       </View>
     </View>
   );

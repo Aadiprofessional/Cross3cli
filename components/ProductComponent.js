@@ -1,24 +1,20 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '../styles/color';
+import { colors } from '../styles/color'; // Assuming you have defined colors elsewhere
 
-const ProductComponent = ({ imageSource, description, price }) => {
+const ProductComponent = ({ id, mainImage, description, price }) => {
   const navigation = useNavigation();
 
   const handlePress = () => {
-    navigation.navigate('ProductDetailPage', { imageSource, description, price });
+    console.log(`Navigating to ProductDetailPage with productId: ${id}`);
+    navigation.navigate('ProductDetailPage', { productId: id });
   };
 
   return (
     <TouchableOpacity style={styles.productContainer} onPress={handlePress}>
       <View style={styles.productContent}>
-        <View style={styles.productImageContainer}>
-          <View style={styles.productImage}>
-            <Icon name={imageSource} size={40} color="#484848" />
-          </View>
-        </View>
+        <Image source={mainImage} style={styles.productImage} />
         <Text style={styles.productDescription} numberOfLines={2}>
           {description}
         </Text>
@@ -34,33 +30,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   productContent: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#f0f0f0',
     borderRadius: 10,
     padding: 10,
     alignItems: 'center',
   },
-  productImageContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    width: 80,
-    height: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
   productImage: {
-    width: 40,
-    height: 40,
+    width: 120,
+    height: 120,
+    marginBottom: 10,
+    resizeMode: 'cover',
   },
   productDescription: {
-    fontSize: 12,
-    color: colors.black,
+    fontSize: 14,
+    color: colors.TextBlack,
     textAlign: 'center',
     marginBottom: 5,
   },
   productPrice: {
-    fontSize: 14,
-    color: colors.black,
+    fontSize: 16,
+    color: colors.TextBlack,
     textAlign: 'center',
   },
 });
