@@ -19,6 +19,7 @@ import SearchResultsScreen from './screens/SearchResultsScreen';
 import { colors } from './styles/color';
 import LeftNavBar from './components/LeftNavBar';
 import { CartProvider } from './components/CartContext';
+import InvoiceScreen from './screens/InvoiceScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -155,6 +156,7 @@ const App = () => {
             },
           }}
         />
+        <Stack.Screen name="InvoiceScreen" component={InvoiceScreen} />
         <Stack.Screen
           name="Quotation"
           component={QuotationScreen}
@@ -169,6 +171,7 @@ const App = () => {
             },
           }}
         />
+        
       </Stack.Navigator>
 
       {isNavBarVisible && <LeftNavBar toggleNavBar={toggleNavBar} />}

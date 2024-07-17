@@ -9,14 +9,27 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
+  const [useRewardPoints, setUseRewardPoints] = useState(false); // State for reward points toggle
+
+  const shippingCharges = 10.00;
+  const additionalDiscount = 5.00;
+  const rewardPointsPrice = 5.00; // Price per reward point deduction
 
   useEffect(() => {
-    const newTotalAmount = cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
+    // Calculate total amount with or without reward points deduction
+    const newTotalAmount = calculateTotalAmount();
     setTotalAmount(newTotalAmount);
-  }, [cartItems]);
+  }, [cartItems, useRewardPoints]);
+
+  const calculateTotalAmount = () => {
+    let amount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    if (useRewardPoints) {
+      amount -= rewardPointsPrice;
+    }
+   
+    amount -= additionalDiscount;
+    return amount;
+  };
 
   const handleUpdateQuantity = (id, quantity) => {
     setCartItems(prevItems => {
@@ -33,13 +46,17 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
   const handleApplyCoupon = () => {
     console.log(`Applying coupon code: ${couponCode}`);
-
     setCouponCode('');
   };
 
-  const handleCheckout = () => {
-    navigation.navigate('CheckoutScreen', { cartItems, totalAmount });
+  const handleToggleRewardPoints = () => {
+    setUseRewardPoints(prev => !prev);
   };
+
+  const handleCheckout = () => {
+    navigation.navigate('InvoiceScreen', { invoiceData: { totalAmount } });
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -51,7 +68,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       <View style={styles.summaryContainer}>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Shipping Charges:</Text>
-          <Text style={styles.summaryValue}>$10.00</Text>
+          <Text style={styles.summaryValue}>10.00</Text>
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Additional Discount:</Text>
@@ -64,6 +81,13 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           </Text>
         </View>
       </View>
+
+      <TouchableOpacity style={styles.rewardPointsToggle} onPress={handleToggleRewardPoints}>
+        <Text style={styles.rewardPointsText}>
+          Use Reward Points (-${rewardPointsPrice.toFixed(2)})
+        </Text>
+        <View style={[styles.checkbox, useRewardPoints ? styles.checked : null]} />
+      </TouchableOpacity>
 
       <View style={styles.couponContainer}>
         <View style={styles.inputContainer}>
@@ -84,15 +108,9 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         <View style={styles.couponSection}>
           <Text style={styles.applicableCoupons}>Applicable coupons</Text>
           <Text style={styles.applicableText}>
-            <Text style={{ color: colors.main, fontWeight: 'bold' }}>ABCDEF</Text>
-            {'\n'}
-            <Text style={{ fontSize: 14 }}>
-              Get 30% off on minimum purchase of ₹2500
-            </Text>
-            {'\n'}
-            <Text style={{ fontSize: 12 }}>
-              Applicable Only on electronics products.{' '}
-            </Text>
+            <Text style={{ color: colors.main, fontWeight: 'bold' }}>ABCDEF</Text>{'\n'}
+            Get 30% off on minimum purchase of ₹2500{'\n'}
+            Applicable Only on electronics products.
           </Text>
           <TouchableOpacity style={styles.applyTextButton}>
             <Text style={styles.applyTextButtonText}>Apply</Text>
@@ -103,13 +121,9 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
         <View style={styles.couponSection}>
           <Text style={styles.applicableText}>
-            <Text style={{ color: colors.main, fontWeight: 'bold' }}>GHIJKL</Text>
-            {'\n'}
-            <Text style={{ fontSize: 14 }}>Get 20% off on all electronics</Text>
-            {'\n'}
-            <Text style={{ fontSize: 12 }}>
-              Applicable Only on selected electronics items.
-            </Text>
+            <Text style={{ color: colors.main, fontWeight: 'bold' }}>GHIJKL</Text>{'\n'}
+            Get 20% off on all electronics{'\n'}
+            Applicable Only on selected electronics items.
           </Text>
           <TouchableOpacity style={styles.applyTextButton}>
             <Text style={styles.applyTextButtonText}>Apply</Text>
@@ -281,6 +295,29 @@ const styles = StyleSheet.create({
   },
   couponSection: {
     marginBottom: 10,
+  },
+  rewardPointsToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+    paddingHorizontal: 15,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 1,
+    borderRadius: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    borderColor: colors.main,
+  },
+  checked: {
+    backgroundColor: colors.main,
+  },
+  rewardPointsText: {
+    fontSize: 16,
+    color: colors.TextBlack,
   },
 });
 
