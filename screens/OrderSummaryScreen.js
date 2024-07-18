@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Alert } from 'react-native';
 import CartItem from '../components/CartItem';
 import { colors } from '../styles/color';
 import { sizes } from '../styles/size';
+import { data } from '../data/data';
 
 const OrderSummaryScreen = ({ route, navigation }) => {
   const { cartItems: initialCartItems, totalAmount: initialTotalAmount } = route.params;
@@ -10,24 +11,23 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
   const [useRewardPoints, setUseRewardPoints] = useState(false); // State for reward points toggle
-
-  const shippingCharges = 10.00;
-  const additionalDiscount = 5.00;
-  const rewardPointsPrice = 5.00; // Price per reward point deduction
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   useEffect(() => {
-    // Calculate total amount with or without reward points deduction
+    // Calculate total amount with or without reward points deduction and coupon
     const newTotalAmount = calculateTotalAmount();
     setTotalAmount(newTotalAmount);
-  }, [cartItems, useRewardPoints]);
+  }, [cartItems, useRewardPoints, appliedCoupon]);
 
   const calculateTotalAmount = () => {
     let amount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     if (useRewardPoints) {
-      amount -= rewardPointsPrice;
+      amount -= data.rewardPointsPrice;
     }
-   
-    amount -= additionalDiscount;
+    if (appliedCoupon) {
+      amount -= (amount * appliedCoupon.value) / 100;
+    }
+    amount += data.shippingCharges - data.additionalDiscount;
     return amount;
   };
 
@@ -45,7 +45,13 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   };
 
   const handleApplyCoupon = () => {
-    console.log(`Applying coupon code: ${couponCode}`);
+    const coupon = data.coupons.find(c => c.code === couponCode);
+    if (coupon) {
+      setAppliedCoupon(coupon);
+      Alert.alert('Coupon applied', 'Coupon applied successfully!');
+    } else {
+      Alert.alert('Invalid coupon', 'Please enter a valid coupon code.');
+    }
     setCouponCode('');
   };
 
@@ -54,37 +60,42 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   };
 
   const handleCheckout = () => {
-    navigation.navigate('InvoiceScreen', { invoiceData: { totalAmount } });
+    const invoiceData = {
+      totalAmount,
+      shippingCharges: data.shippingCharges,
+      additionalDiscount: data.additionalDiscount,
+      rewardPointsPrice: useRewardPoints ? data.rewardPointsPrice : 0,
+      appliedCoupon: appliedCoupon ? appliedCoupon.value : 0,
+      cartItems,
+    };
+    navigation.navigate('InvoiceScreen', { invoiceData });
   };
-  
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.itemCount}>{cartItems.length} items:</Text>
-        <Text style={styles.subtotal}>${totalAmount.toFixed(2)}</Text>
+        <Text style={styles.subtotal}>₹{totalAmount.toFixed(2)}</Text>
       </View>
 
       <View style={styles.summaryContainer}>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Shipping Charges:</Text>
-          <Text style={styles.summaryValue}>10.00</Text>
+          <Text style={styles.summaryValue}>₹{data.shippingCharges.toFixed(2)}</Text>
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Additional Discount:</Text>
-          <Text style={styles.summaryValue}>$5.00</Text>
+          <Text style={styles.summaryValue}>₹{data.additionalDiscount.toFixed(2)}</Text>
         </View>
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Total:</Text>
-          <Text style={styles.totalValue}>
-            ${(totalAmount + 10 - 5).toFixed(2)}
-          </Text>
+          <Text style={styles.totalValue}>₹{totalAmount.toFixed(2)}</Text>
         </View>
       </View>
 
       <TouchableOpacity style={styles.rewardPointsToggle} onPress={handleToggleRewardPoints}>
         <Text style={styles.rewardPointsText}>
-          Use Reward Points (-${rewardPointsPrice.toFixed(2)})
+          Use Reward Points (-₹{data.rewardPointsPrice.toFixed(2)})
         </Text>
         <View style={[styles.checkbox, useRewardPoints ? styles.checked : null]} />
       </TouchableOpacity>
@@ -107,31 +118,20 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
         <View style={styles.couponSection}>
           <Text style={styles.applicableCoupons}>Applicable coupons</Text>
-          <Text style={styles.applicableText}>
-            <Text style={{ color: colors.main, fontWeight: 'bold' }}>ABCDEF</Text>{'\n'}
-            Get 30% off on minimum purchase of ₹2500{'\n'}
-            Applicable Only on electronics products.
-          </Text>
-          <TouchableOpacity style={styles.applyTextButton}>
-            <Text style={styles.applyTextButtonText}>Apply</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.separator} />
-
-        <View style={styles.couponSection}>
-          <Text style={styles.applicableText}>
-            <Text style={{ color: colors.main, fontWeight: 'bold' }}>GHIJKL</Text>{'\n'}
-            Get 20% off on all electronics{'\n'}
-            Applicable Only on selected electronics items.
-          </Text>
-          <TouchableOpacity style={styles.applyTextButton}>
-            <Text style={styles.applyTextButtonText}>Apply</Text>
-          </TouchableOpacity>
+          {data.coupons.map((coupon, index) => (
+            <View key={index} style={styles.couponSection}>
+              <Text style={styles.applicableText}>
+                <Text style={{ color: colors.main, fontWeight: 'bold' }}>{coupon.code}</Text>{'\n'}
+                {coupon.text}
+              </Text>
+              <TouchableOpacity style={styles.applyTextButton} onPress={() => setCouponCode(coupon.code)}>
+                <Text style={styles.applyTextButtonText}>Apply</Text>
+              </TouchableOpacity>
+              {index < data.coupons.length - 1 && <View style={styles.separator} />}
+            </View>
+          ))}
         </View>
       </View>
-
-      <View style={styles.separator} />
 
       <FlatList
         data={cartItems}
@@ -322,3 +322,4 @@ const styles = StyleSheet.create({
 });
 
 export default OrderSummaryScreen;
+

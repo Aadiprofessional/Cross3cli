@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Linking } 
 import { colors } from '../styles/color'; // Assuming you have defined colors elsewhere
 import { products } from '../data/productData'; // Import your products data
 import { useCart } from '../components/CartContext'; // Import CartContext for managing cart items
-import WhatsAppButton from '../components/WhatsAppButton';
+
 import WhatsAppButton2 from '../components/WhatsAppButton2';
+
 
 const ProductDetailPage = ({ route }) => {
   const { productId } = route.params;
@@ -67,6 +68,7 @@ const ProductDetailPage = ({ route }) => {
   };
 
   return (
+    <View>
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
       <View style={styles.container}>
         <View style={styles.imageContainer}>
@@ -108,7 +110,6 @@ const ProductDetailPage = ({ route }) => {
                 style={styles.callIcon}
               />
             </TouchableOpacity>
-            <WhatsAppButton2 />
           </View>
         </View>
 
@@ -164,7 +165,8 @@ const ProductDetailPage = ({ route }) => {
       </View>
       
     </ScrollView>
-    
+    <WhatsAppButton2/>
+    </View>
   );
 };
 
@@ -406,7 +408,7 @@ const styles = StyleSheet.create({
   callIcon: {
     width: 65,
     height: 65,
-    marginRight: -40,
+    marginRight: -20,
   },
 });
 

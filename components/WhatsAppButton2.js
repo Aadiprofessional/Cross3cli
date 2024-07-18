@@ -22,22 +22,22 @@ const WhatsAppButton2 = () => {
 const styles = StyleSheet.create({
   whatsappButton: {
     position: 'absolute',
-    bottom: 8,
-    right: 25,
+    bottom:50,
+    right: 15,
     zIndex: 10,
   },
   whatsappIcon: {
     width: 60,
     height: 60,
     borderRadius: 30,
-   
+    backgroundColor: '#25D366',
     alignItems: 'center',
     justifyContent: 'center',
-    
+    elevation: 5,
   },
   whatsappIconImage: {
-    width: 60,
-    height: 60,
+    width: 40,
+    height: 40,
   },
 });
 

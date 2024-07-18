@@ -156,19 +156,19 @@ const App = () => {
             },
           }}
         />
-        <Stack.Screen name="InvoiceScreen" component={InvoiceScreen} />
+        
         <Stack.Screen
-          name="Quotation"
-          component={QuotationScreen}
-          options={{
-            title: 'Quotation Screen',
-            headerStyle: {
-              backgroundColor: colors.main,
+          name="InvoiceScreen"
+          component={InvoiceScreen}
+            options={{
+              title: 'Invoice Screen',
+              headerStyle: {
+                backgroundColor: colors.main,
             },
-            headerTintColor: '#fff',
-            headerTitleStyle: {
-              fontWeight: 'bold', 
-            },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
           }}
         />
         

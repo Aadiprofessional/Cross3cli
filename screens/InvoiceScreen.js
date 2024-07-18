@@ -1,79 +1,192 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { PDFDocument, PDFPage, PDFText } from 'react-native-pdf-lib';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, PermissionsAndroid, Platform } from 'react-native';
 import RNFS from 'react-native-fs';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import FileViewer from 'react-native-file-viewer';
+import { colors } from '../styles/color';
 
 const InvoiceScreen = ({ route }) => {
   const { invoiceData } = route.params;
+  const [pdfPath, setPdfPath] = useState('');
 
-  const generateInvoicePDF = async () => {
-    try {
-      const pdfDoc = await PDFDocument.create();
-      const page = pdfDoc.addPage([400, 600]);
-
-      const invoiceContent = `
-        Invoice
-        ----------
-        Total Amount: $${invoiceData.totalAmount.toFixed(2)}
-        Shipping Charges: $10.00
-        Additional Discount: $5.00
-        ----------------------
-        Final Total: $${(invoiceData.totalAmount + 10 - 5).toFixed(2)}
-      `;
-
-      const { width, height } = page.getSize();
-      await page.drawText(invoiceContent, {
-        x: 50,
-        y: height - 50,
-        size: 20,
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      requestStoragePermission().then(() => {
+        generatePdf();
       });
+    } else {
+      generatePdf();
+    }
+  }, [invoiceData]);
 
-      const pdfBytes = await pdfDoc.save();
-      const invoicePath = `${RNFS.DocumentDirectoryPath}/invoice_${Date.now()}.pdf`;
-      await RNFS.writeFile(invoicePath, pdfBytes, 'base64');
-
-      return invoicePath;
-    } catch (error) {
-      console.error('Failed to generate invoice:', error);
-      throw error;
+  const requestStoragePermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission Required',
+          message: 'This app needs access to your storage to download the PDF',
+        },
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn(err);
+      return false;
     }
   };
 
-  const handleDownloadPDF = async () => {
+  const generatePdf = async () => {
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .title { font-size: 24px; font-weight: bold; }
+            .logo { width: 100px; height: 100px; margin-bottom: 20px; }
+            .section { margin-bottom: 20px; }
+            .subtitle { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+            .table { width: 100%; }
+            .tableRow { display: flex; justify-content: space-between; padding: 5px 0; }
+            .tableData { font-size: 16px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <img src="file:///android_asset/logo.png" alt="Logo" class="logo" />
+            <div class="title">INVOICE</div>
+          </div>
+          <div class="section">
+            <div class="subtitle">Total Amount: ₹${invoiceData.totalAmount.toFixed(2)}</div>
+            <div class="subtitle">Shipping Charges: ₹${invoiceData.shippingCharges.toFixed(2)}</div>
+            <div class="subtitle">Additional Discount: ₹${invoiceData.additionalDiscount.toFixed(2)}</div>
+          </div>
+          <div class="section">
+            <div class="subtitle">Items</div>
+            <div class="table">
+              ${invoiceData.cartItems.map(item => `
+                <div class="tableRow">
+                  <div class="tableData">${item.name}</div>
+                  <div class="tableData">${item.quantity}</div>
+                  <div class="tableData">₹${(item.price * item.quantity).toFixed(2)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    const options = {
+      html: htmlContent,
+      fileName: 'invoice',
+      directory: 'Documents',
+    };
+
     try {
-      const invoicePath = await generateInvoicePDF();
-      Alert.alert('Invoice Generated', `Invoice saved at: ${invoicePath}`);
+      const pdf = await RNHTMLtoPDF.convert(options);
+      const newFilePath = `${RNFS.DownloadDirectoryPath}/invoice.pdf`;
+      await RNFS.moveFile(pdf.filePath, newFilePath);
+      setPdfPath(newFilePath);
+      Alert.alert('Success', `PDF generated successfully at: ${newFilePath}`);
     } catch (error) {
-      console.error('Error generating invoice:', error);
-      Alert.alert('Error', 'Failed to generate invoice. Please try again.');
+      Alert.alert('Error', `Failed to generate the PDF. ${error.message}`);
+    }
+  };
+
+  const downloadPdf = async () => {
+    if (pdfPath) {
+      try {
+        await FileViewer.open(pdfPath);
+      } catch (error) {
+        Alert.alert('Error', `Cannot open PDF: ${error.message}`);
+      }
+    } else {
+      Alert.alert('Error', 'Failed to generate the PDF.');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Invoice Screen</Text>
-      <TouchableOpacity style={styles.downloadButton} onPress={handleDownloadPDF}>
-        <Text style={styles.downloadButtonText}>Download PDF</Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>INVOICE</Text>
+        <Image
+          source={require('../assets/logo.png') } // Replace with your logo URL
+          style={styles.logo}
+        />
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.subtitle}>Total Amount: ₹{invoiceData.totalAmount.toFixed(2)}</Text>
+        <Text style={styles.subtitle}>Shipping Charges: ₹{invoiceData.shippingCharges.toFixed(2)}</Text>
+        <Text style={styles.subtitle}>Additional Discount: ₹{invoiceData.additionalDiscount.toFixed(2)}</Text>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.subtitle}>Items</Text>
+        {invoiceData.cartItems.map((item, index) => (
+          <View key={index} style={styles.tableRow}>
+            <Text style={styles.tableData}>{item.name}</Text>
+            <Text style={styles.tableData}>{item.quantity}</Text>
+            <Text style={styles.tableData}>₹{(item.price * item.quantity).toFixed(2)}</Text>
+          </View>
+        ))}
+      </View>
+
+      <TouchableOpacity style={styles.downloadButton} onPress={downloadPdf}>
+        <Text style={styles.downloadButtonText}>Download Invoice PDF</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  header: {
     alignItems: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  logo: {
+    alignItems: 'right',
+    width: 150,
+    height: 40,
+    marginBottom: 20,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 5,
+  },
+  tableData: {
+    fontSize: 16,
   },
   downloadButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#007bff',
+    alignItems: 'center',
+    paddingVertical: 10,
+    backgroundColor: colors.main ,
     borderRadius: 5,
+    marginTop: 20,
   },
   downloadButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
