@@ -18,6 +18,11 @@ const ProfileScreen = ({navigation}) => {
       screen: 'RegisterCompanyScreen',
     },
     {
+      icon: require('../assets/logo5.png'),
+      text: 'Reward Points',
+      screen: 'RegisterCompanyScreen',
+    },
+    {
       icon: require('../assets/icon2.png'),
       text: 'Terms and Condition',
       screen: 'TermsConditionsScreen',
@@ -37,6 +42,7 @@ const ProfileScreen = ({navigation}) => {
       text: 'Log out',
       screen: 'LoginScreen',
     },
+ 
   ];
 
   return (

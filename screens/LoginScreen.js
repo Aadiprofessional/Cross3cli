@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,79 +6,134 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import {colors} from '../styles/color';
-import {sizes} from '../styles/size';
+import { colors } from '../styles/color';
+import { sizes } from '../styles/size';
 
-const LoginScreen = ({navigation}) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const LoginScreen = ({ navigation }) => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [otp, setOtp] = useState(new Array(6).fill(''));
+  const [showOtp, setShowOtp] = useState(false);
+  const otpInputs = useRef([]);
+
+  const handlePhoneNumberChange = (value) => {
+    // Limit input to 10 digits and only allow numeric input
+    const formattedValue = value.replace(/[^\d]/g, '').slice(0, 10);
+    setPhoneNumber(formattedValue);
+  };
+
+  const handleGetOtp = () => {
+    setShowOtp(true);
+    // Focus on the first OTP input block
+    if (otpInputs.current[0]) {
+      otpInputs.current[0].focus();
+    }
+  };
+
+  const handleOtpChange = (value, index) => {
+    const newOtp = [...otp];
+    newOtp[index] = value;
+    setOtp(newOtp);
+
+    if (value && index < otpInputs.current.length - 1) {
+      otpInputs.current[index + 1].focus();
+    }
+  };
 
   const handleLogin = () => {
+    // Handle OTP verification logic here
     navigation.replace('Home');
   };
 
-  const handleGuestLogin = () => {
-    navigation.replace('Home');
+  const handleResendOtp = () => {
+    // Handle OTP resend logic here
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <Image
         source={require('../assets/login_top.png')}
         style={styles.topImage}
       />
-      <Image source={require('../assets/logo.png')} style={styles.logo} />
-      <Text style={styles.welcomeText}>Welcome to Cross Bee</Text>
-      <Text style={styles.label}>Email Id</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter the Email id"
-        placeholderTextColor={colors.inputPlaceholder}
-        value={email}
-        onChangeText={setEmail}
-        cursorColor={colors.buttonBackground}
-      />
-      <Text style={styles.label}>Password</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter the Password"
-        placeholderTextColor={colors.inputPlaceholder}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        cursorColor={colors.buttonBackground}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log in</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.googleButton}>
-        <View style={styles.googleButtonContent}>
-          <Image
-            source={require('../assets/google_logo.png')}
-            style={styles.googleLogo}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        <Text style={styles.welcomeText}>Welcome to Cross Bee</Text>
+        <Text style={styles.label}>Phone Number</Text>
+        <View style={styles.phoneInputContainer}>
+          <Text style={styles.phonePrefix}>+91</Text>
+          <TextInput
+            style={styles.phoneInput}
+            placeholder="Enter your phone number"
+            placeholderTextColor={colors.inputPlaceholder}
+            value={phoneNumber}
+            onChangeText={handlePhoneNumberChange}
+            keyboardType="phone-pad"
+            maxLength={10}
+            cursorColor={colors.buttonBackground}
           />
-          <Text style={styles.googleButtonText}>Log in with Google</Text>
         </View>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.guestButton} onPress={handleGuestLogin}>
-        <Text style={styles.guestButtonText}>Log in as Guest User</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleGetOtp}>
+          <Text style={styles.buttonText}>Get OTP</Text>
+        </TouchableOpacity>
+        {showOtp && (
+          <>
+            <Text style={styles.label}>Enter OTP</Text>
+            <View style={styles.otpContainer}>
+              {otp.map((digit, index) => (
+                <TextInput
+                  key={index}
+                  ref={(el) => (otpInputs.current[index] = el)}
+                  style={[
+                    styles.otpInput,
+                    {
+                      borderColor: otp[index]
+                        ? colors.main
+                        : colors.inputPlaceholder,
+                    },
+                  ]}
+                  value={digit}
+                  onChangeText={(value) => handleOtpChange(value, index)}
+                  keyboardType="number-pad"
+                  maxLength={1}
+                  cursorColor={colors.main}
+                />
+              ))}
+            </View>
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Verify OTP</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleResendOtp}>
+              <Text style={styles.resendButtonText}>Resend OTP</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     backgroundColor: colors.background,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 20, // Adjust as needed
   },
   topImage: {
     width: '100%',
     height: sizes.topImageHeight,
     resizeMode: 'contain',
-    marginTop: -23,
+    marginTop: -25, // Adjust as needed
   },
   logo: {
     width: sizes.logoWidth,
@@ -101,14 +156,23 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: colors.textPrimary,
   },
-  input: {
+  phoneInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     width: '80%',
-    padding: sizes.padding,
-    marginVertical: sizes.marginVertical,
-    borderRadius: sizes.borderRadius,
     backgroundColor: colors.inputBackground,
+    borderRadius: sizes.borderRadius,
+    paddingHorizontal: sizes.padding,
+    marginVertical: sizes.marginVertical,
+  },
+  phonePrefix: {
     fontSize: sizes.inputFontSize,
-    fontWeight: '400',
+    color: colors.textPrimary,
+    marginRight: 10,
+  },
+  phoneInput: {
+    flex: 1,
+    fontSize: sizes.inputFontSize,
     color: colors.textPrimary,
   },
   button: {
@@ -124,42 +188,28 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.background,
   },
-  googleButton: {
-    width: '80%',
-    padding: sizes.padding,
-    marginTop: sizes.marginMax * 5,
-    borderRadius: sizes.borderRadius,
-    borderWidth: 1,
-    borderColor: '#333333',
-    alignItems: 'center',
-  },
-  googleButtonContent: {
+  otpContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  googleButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333333',
-    marginLeft: 10,
-  },
-  googleLogo: {
-    width: 24,
-    height: 24,
-  },
-  guestButton: {
+    justifyContent: 'space-between',
     width: '80%',
-    padding: sizes.padding,
-    marginTop: sizes.marginMax,
-    borderRadius: sizes.borderRadius,
-    borderWidth: 1,
-    borderColor: '#333333',
-    alignItems: 'center',
+    marginVertical: sizes.marginVertical,
   },
-  guestButtonText: {
+  otpInput: {
+    width: '15%',
+    padding: sizes.padding,
+    borderRadius: sizes.borderRadius,
+    backgroundColor: colors.inputBackground,
+    fontSize: sizes.inputFontSize,
+    fontWeight: '400',
+    color: colors.textPrimary,
+    borderWidth: 1,
+    textAlign: 'center',
+  },
+  resendButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333333',
+    color: colors.second,
+    marginTop: sizes.marginVertical,
   },
 });
 

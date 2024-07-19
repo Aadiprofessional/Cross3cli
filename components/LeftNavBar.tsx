@@ -1,4 +1,3 @@
-// LeftNavBar.tsx
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -38,8 +37,8 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     toggleNavBar();
   };
 
-  const navigateToSubCategory = (subcategory: string) => {
-    navigation.navigate('SubCategoryScreen', { subcategory });
+  const navigateToSubCategory = (subsubcategory: string) => {
+    navigation.navigate('SubCategoryScreen', { subcategory: subsubcategory });
     toggleNavBar();
   };
 
@@ -87,6 +86,11 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
           )}
         </TouchableOpacity>
         {isExpanded && subcategories && renderSubCategoryItem(subcategories)}
+        {name === 'Books' && (
+          <TouchableOpacity style={styles.navItem} onPress={() => navigateToSubCategory('All Categories')}>
+            <Text style={styles.navText}>All Categories</Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   };

@@ -14,6 +14,9 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
   const handleSearchPress = () => {
     navigation.navigate('SearchScreen');
   };
+  const handleProfilePress = () => {
+    navigation.navigate('Profile');
+  };
   if (route.name !== 'Home') {
     return null;
   }
@@ -35,7 +38,12 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
         <TouchableOpacity onPress={handleSearchPress}>
           <Image source={require('../assets/search.png')} style={styles.icon} />
         </TouchableOpacity>
-        <Image source={require('../assets/profile.png')} style={styles.icon} />
+        <TouchableOpacity onPress={handleProfilePress}>
+          <Image
+            source={require('../assets/profile.png')}
+            style={styles.icon}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );

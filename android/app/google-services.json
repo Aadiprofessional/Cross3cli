@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "331668531059",
+    "project_id": "crossbee-1f64f",
+    "storage_bucket": "crossbee-1f64f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331668531059:android:8643f60dda213746cb8706",
+        "android_client_info": {
+          "package_name": "com.crossbee"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpDqImFLQ3iK384-4LAP00PdLSInM2Ujk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

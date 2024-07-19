@@ -1,31 +1,29 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import {colors} from '../styles/color';
-
-const deals = [
-  {id: 1, title: 'Product 3', image: require('../assets/product.png')},
-  {id: 2, title: 'Product 4', image: require('../assets/product.png')},
-];
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { colors } from '../styles/color';
+import ProductComponent from './ProductComponent'; // Import the ProductComponent
+import { products } from '../data/productData'; // Ensure you have the correct path for productData
 
 const UpcomingProducts = () => {
-  const handleDealPress = dealId => {
+  const handleDealPress = (dealId) => {
     console.log(`Clicked on deal ${dealId}`);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Upcoming Products</Text>
-      <View style={styles.dealsContainer}>
-        {deals.map(deal => (
-          <TouchableOpacity
-            key={deal.id}
-            style={[styles.dealContainer, {backgroundColor: colors.primary}]}
-            onPress={() => handleDealPress(deal.id)}>
-            <Text style={styles.dealText}>{deal.title}</Text>
-            <Image source={deal.image} style={styles.dealImage} />
-          </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.productList}>
+        {products && products.map(product => (
+          <ProductComponent
+            key={product.id}
+            id={product.id}
+            productName={product.productName} // Pass necessary props to ProductComponent
+            description={product.description}
+            price={product.price}
+            mainImage={product.mainImage} // Ensure this matches your product structure
+          />
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 };
@@ -44,36 +42,11 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: colors.TextBlack,
   },
-  dealsContainer: {
+  productList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginTop: 10,
-  },
-  dealContainer: {
-    width: '48%',
-    height: 200,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  dealText: {
-    fontSize: 16,
-    color: '#000',
-    textAlign: 'left',
-    marginBottom: 10,
-  },
-  dealImage: {
-    width: 120,
-    height: 120,
-    resizeMode: 'contain',
   },
 });
 

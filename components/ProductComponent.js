@@ -34,9 +34,6 @@ const ProductComponent = ({ id }) => {
         <Text style={styles.productName} numberOfLines={1}>
           {productName}
         </Text>
-        <Text style={styles.productDescription} numberOfLines={2}>
-          {description}
-        </Text>
         <Text style={styles.productPrice}>₹{price}</Text>
       </View>
     </TouchableOpacity>
@@ -45,7 +42,7 @@ const ProductComponent = ({ id }) => {
 
 const styles = StyleSheet.create({
   productContainer: {
-    width: '50%',
+    width: '48%',
     aspectRatio: 1, // Ensure a square aspect ratio
     marginBottom: 20,
     backgroundColor: colors.primary,
