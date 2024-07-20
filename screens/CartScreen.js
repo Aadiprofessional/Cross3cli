@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';
-import WhatsAppButton from '../components/WhatsAppButton';
 import { useCart } from '../components/CartContext'; // Assuming you have a CartContext for managing cart items
 
 const CartScreen = () => {
@@ -42,13 +41,12 @@ const CartScreen = () => {
       <ScrollView style={styles.cartItemsContainer}>
         {cartItems.map((item) => (
           <CartItem
-            key={item.id}
+            key={item.cartId} // Using cartId instead of item.id
             item={item} // Pass the entire item object to CartItem
             onUpdateQuantity={updateCartItemQuantity}
             onRemoveItem={removeCartItem}
           />
         ))}
-        
       </ScrollView>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
@@ -122,6 +120,7 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
+    
   },
   buttonText: {
     fontSize: 18,

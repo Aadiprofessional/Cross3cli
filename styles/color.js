@@ -10,4 +10,5 @@ export const colors = {
   black : '#000000',
   TextBlack: '#181818',
   placeholder : '#787878',
+  TextWhite : '#ffffff'
 };

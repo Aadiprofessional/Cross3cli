@@ -4,7 +4,8 @@ import CartItem from '../components/CartItem';
 import { colors } from '../styles/color';
 import { sizes } from '../styles/size';
 import { data } from '../data/data';
-
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 const OrderSummaryScreen = ({ route, navigation }) => {
   const { cartItems: initialCartItems, totalAmount: initialTotalAmount } = route.params;
   const [cartItems, setCartItems] = useState(initialCartItems);
@@ -59,16 +60,29 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     setUseRewardPoints(prev => !prev);
   };
 
-  const handleCheckout = () => {
-    const invoiceData = {
-      totalAmount,
-      shippingCharges: data.shippingCharges,
-      additionalDiscount: data.additionalDiscount,
-      rewardPointsPrice: useRewardPoints ? data.rewardPointsPrice : 0,
-      appliedCoupon: appliedCoupon ? appliedCoupon.value : 0,
-      cartItems,
-    };
-    navigation.navigate('InvoiceScreen', { invoiceData });
+  const handleCheckout = async () => {
+    try {
+      const userId = auth().currentUser.uid; // Retrieve actual user ID
+      const orderData = {
+        totalAmount,
+        shippingCharges: data.shippingCharges,
+        additionalDiscount: data.additionalDiscount,
+        rewardPointsPrice: useRewardPoints ? data.rewardPointsPrice : 0,
+        appliedCoupon: appliedCoupon ? appliedCoupon.value : 0,
+        cartItems,
+        userId,
+        timestamp: firestore.FieldValue.serverTimestamp(), // To track when the order was placed
+      };
+
+      // Add order data to Firestore
+      await firestore().collection('orders').add(orderData);
+
+      // Navigate to the invoice screen with order data
+      navigation.navigate('InvoiceScreen', { invoiceData: orderData });
+    } catch (error) {
+      console.error('Error saving order data: ', error);
+      Alert.alert('Error', 'There was an issue processing your order. Please try again.');
+    }
   };
 
   return (
@@ -229,23 +243,30 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
   },
   itemCount: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: 'bold',
     color: colors.TextBlack,
   },
   subtotal: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: 'bold',
     color: colors.TextBlack,
   },
-  cartItemsContainer: {
-    flexGrow: 1,
-  },
   summaryContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 15,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 5,
+    marginBottom: 10,
   },
   summaryLabel: {
     fontSize: 16,
@@ -259,7 +280,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 10,
-    color: colors.TextBlack,
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    paddingTop: 10,
   },
   totalLabel: {
     fontSize: 18,
@@ -271,55 +294,51 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.TextBlack,
   },
-  checkoutContainer: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  checkoutButton: {
-    width: '90%',
-    padding: sizes.padding,
-    borderRadius: sizes.borderRadius,
-    backgroundColor: colors.main,
-    alignItems: 'center',
-  },
-  checkoutButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#DDD',
-    marginVertical: 10,
-  },
-  couponSection: {
-    marginBottom: 10,
-  },
   rewardPointsToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
-    paddingHorizontal: 15,
+    marginBottom: 20,
+  },
+  rewardPointsText: {
+    fontSize: 16,
+    color: colors.TextBlack,
+    flex: 1,
   },
   checkbox: {
     width: 20,
     height: 20,
+    borderRadius: 4,
     borderWidth: 1,
-    borderRadius: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 10,
     borderColor: colors.main,
   },
   checked: {
     backgroundColor: colors.main,
   },
-  rewardPointsText: {
-    fontSize: 16,
-    color: colors.TextBlack,
+  couponSection: {
+    marginBottom: 10,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#ddd',
+    marginVertical: 10,
+  },
+  cartItemsContainer: {
+    marginBottom: 20,
+  },
+  checkoutContainer: {
+    padding: 15,
+  },
+  checkoutButton: {
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  checkoutButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 });
 
 export default OrderSummaryScreen;
-

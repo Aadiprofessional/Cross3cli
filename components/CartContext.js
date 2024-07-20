@@ -1,4 +1,6 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 const CartContext = createContext();
 
@@ -6,24 +8,34 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
-  const [nextItemId, setNextItemId] = useState(1); // State for generating unique temporary IDs
+  const user = auth().currentUser; // Get the currently logged-in user
+  const cartRef = firestore().collection('users').doc(user?.uid).collection('cart');
 
-  const addToCart = (item) => {
-    const newItem = { ...item, cartId: nextItemId }; // Assigning temporary ID
-    setCartItems((prevItems) => [...prevItems, newItem]);
-    setNextItemId(nextItemId + 1); // Incrementing for the next item
+  useEffect(() => {
+    const unsubscribe = cartRef.onSnapshot(snapshot => {
+      const items = snapshot.docs.map(doc => ({ cartId: doc.id, ...doc.data() }));
+      setCartItems(items);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const addToCart = async (item) => {
+    await cartRef.add(item); // Add item to Firestore
   };
 
-  const updateCartItemQuantity = (cartId, newQuantity) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.cartId === cartId ? { ...item, quantity: newQuantity } : item
-      )
-    );
+  const updateCartItemQuantity = async (cartId, newQuantity) => {
+    const itemRef = cartRef.doc(cartId);
+    if (newQuantity < 1) {
+      await itemRef.delete();
+    } else {
+      await itemRef.update({ quantity: newQuantity });
+    }
   };
 
-  const removeCartItem = (cartId) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.cartId !== cartId));
+  const removeCartItem = async (cartId) => {
+    const itemRef = cartRef.doc(cartId);
+    await itemRef.delete();
   };
 
   return (

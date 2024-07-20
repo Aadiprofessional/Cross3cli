@@ -6,11 +6,12 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
-import {colors} from '../styles/color';
-import WhatsAppButton from '../components/WhatsAppButton';
+import { colors } from '../styles/color';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   const options = [
     {
       icon: require('../assets/icon1.png'),
@@ -40,10 +41,27 @@ const ProfileScreen = ({navigation}) => {
     {
       icon: require('../assets/icon5.png'),
       text: 'Log out',
-      screen: 'LoginScreen',
+      screen: '', // No direct screen for logout
     },
- 
   ];
+
+  const handleLogout = async () => {
+    try {
+      // Clear authentication data or session data
+      await AsyncStorage.removeItem('loggedIn');
+      await AsyncStorage.removeItem('userData'); // Example: Clear other user data
+
+      // Clear the navigation stack and navigate to OTPVerificationScreen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'OTPVerification' }],
+      });
+
+      Alert.alert('Logged Out', 'You have been successfully logged out.');
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -67,12 +85,17 @@ const ProfileScreen = ({navigation}) => {
         <TouchableOpacity
           key={index}
           style={styles.optionContainer}
-          onPress={() => navigation.navigate(option.screen)}>
+          onPress={() => {
+            if (option.text === 'Log out') {
+              handleLogout();
+            } else {
+              navigation.navigate(option.screen);
+            }
+          }}>
           <Image source={option.icon} style={styles.optionIcon} />
           <Text style={styles.optionText}>{option.text}</Text>
         </TouchableOpacity>
       ))}
-      
     </ScrollView>
   );
 };
@@ -81,7 +104,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-
     paddingTop: 20,
   },
   profileContainer: {
@@ -91,7 +113,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -136,7 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,

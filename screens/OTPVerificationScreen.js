@@ -15,14 +15,17 @@ import auth from '@react-native-firebase/auth';
 import { colors } from '../styles/color';
 import { sizes } from '../styles/size';
 
-const OTPVerificationScreen = ({ navigation }) => {
+const OTPVerificationScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [confirmResult, setConfirmResult] = useState(null);
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const textInputRefs = useRef([
-    React.createRef(), React.createRef(), React.createRef(), React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
+    React.createRef(),
     React.createRef(), React.createRef()
   ]);
 
@@ -135,11 +138,14 @@ const OTPVerificationScreen = ({ navigation }) => {
                 <TextInput
                   key={index}
                   ref={ref}
-                  style={[styles.otpInput, code[index] ? styles.activeOtpInput : {}]}
+                  style={[
+                    styles.otpInput,
+                    code[index] ? styles.activeOtpInput : {},
+                  ]}
                   keyboardType="numeric"
                   maxLength={1}
                   value={code[index]}
-                  onChangeText={(text) => handleChangeText(text, index)}
+                  onChangeText={text => handleChangeText(text, index)}
                   cursorColor={colors.buttonBackground}
                   placeholderTextColor={colors.placeholder}
                 />
@@ -290,7 +296,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   resendButton: {
-   
+    // Add styles for resend button if needed
   },
   resendButtonText: {
     fontSize: sizes.inputFontSize,

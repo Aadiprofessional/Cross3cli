@@ -23,10 +23,10 @@ const CartItem = ({
   const handleDecreaseQuantity = () => {
     const newQuantity = itemQuantity - 1;
     setItemQuantity(newQuantity);
-    onUpdateQuantity(cartId, newQuantity);
-
-    if (newQuantity === 0) {
+    if (newQuantity < 1) {
       onRemoveItem(cartId);
+    } else {
+      onUpdateQuantity(cartId, newQuantity);
     }
   };
 
@@ -36,7 +36,7 @@ const CartItem = ({
         <Image
           source={image} // Assuming image is passed correctly from the CartScreen
           style={styles.productImage}
-          resizeMode="cover"
+          resizeMode="contain"
         />
       </View>
       <View style={styles.productDetails}>
@@ -45,7 +45,7 @@ const CartItem = ({
           ₹{(price * itemQuantity).toFixed(2)}
         </Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, {backgroundColor: colors.main}]}>
+          <View style={[styles.itemColor, { backgroundColor: colors.main }]}>
             <Text style={styles.itemColorText}>{color}</Text>
           </View>
         </View>
@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   productImage: {
-    width: '80%',
-    height: '80%',
+    width: '100%',
+    height: '100%',
     borderRadius: 10,
   },
   productDetails: {
@@ -113,45 +113,41 @@ const styles = StyleSheet.create({
   },
   itemColorContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 5,
   },
   itemColor: {
-    width: 40,
-    height: 20,
+    padding: 5,
     borderRadius: 5,
-    marginRight: 10,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.GrayLight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   itemColorText: {
-    fontSize: 14,
-    textAlign: 'center',
-    color: '#ffffff',
+    color: colors.TextWhite,
+    fontWeight: 'bold',
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 'auto',
   },
   quantityButton: {
     backgroundColor: colors.main,
-    borderRadius: 15,
     width: 30,
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 10,
+    borderRadius: 15,
   },
   quantityButtonText: {
     fontSize: 18,
     color: '#fff',
+    fontWeight: 'bold',
   },
   quantityText: {
     fontSize: 18,
-    marginLeft: 10,
-    marginRight: 10,
     color: colors.TextBlack,
+    marginHorizontal: 10,
   },
 });
 

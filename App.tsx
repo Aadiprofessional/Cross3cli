@@ -17,11 +17,18 @@ import SubCategoryScreen from './screens/SubCategoryScreen';
 import OrderSummaryScreen from './screens/OrderSummaryScreen';
 import QuotationScreen from './screens/QuotationScreen';
 import SearchResultsScreen from './screens/SearchResultsScreen';
+import InvoiceScreen from './screens/InvoiceScreen';
+import OTPVerificationScreen from './screens/OTPVerificationScreen';
 import { colors } from './styles/color';
 import LeftNavBar from './components/LeftNavBar';
 import { CartProvider } from './components/CartContext';
-import InvoiceScreen from './screens/InvoiceScreen';
-import OTPVerificationScreen from './screens/OTPVerificationScreen';
+import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/app';
+
+// Initialize Firebase if it hasn't been initialized already
+if (!firebase.apps.length) {
+  firebase.initializeApp();
+}
 
 const Stack = createNativeStackNavigator();
 
@@ -65,13 +72,9 @@ const App = () => {
             component={SearchScreen}
             options={{
               title: 'Search',
-              headerStyle: {
-                backgroundColor: colors.main,
-              },
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
+              headerTitleStyle: { fontWeight: 'bold' },
             }}
           />
           <Stack.Screen
@@ -79,13 +82,9 @@ const App = () => {
             component={SearchResultsScreen}
             options={{
               title: 'Search Results',
-              headerStyle: {
-                backgroundColor: colors.main,
-              },
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
+              headerTitleStyle: { fontWeight: 'bold' },
             }}
           />
           <Stack.Screen
@@ -93,13 +92,9 @@ const App = () => {
             component={ProductDetailPage}
             options={{
               title: 'Product Detail',
-              headerStyle: {
-                backgroundColor: colors.main,
-              },
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
+              headerTitleStyle: { fontWeight: 'bold' },
             }}
           />
           <Stack.Screen
@@ -125,11 +120,6 @@ const App = () => {
           <Stack.Screen
             name="Cart"
             component={CartScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="CartScreen"
-            component={CartScreen}
             options={{ title: 'Cart' }}
           />
           <Stack.Screen
@@ -142,13 +132,9 @@ const App = () => {
             component={SubCategoryScreen}
             options={{
               title: 'Subcategory',
-              headerStyle: {
-                backgroundColor: colors.main,
-              },
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
+              headerTitleStyle: { fontWeight: 'bold' },
             }}
           />
           <Stack.Screen
@@ -156,13 +142,9 @@ const App = () => {
             component={OrderSummaryScreen}
             options={{
               title: 'Order Summary',
-              headerStyle: {
-                backgroundColor: colors.main,
-              },
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
+              headerTitleStyle: { fontWeight: 'bold' },
             }}
           />
           <Stack.Screen
@@ -170,13 +152,9 @@ const App = () => {
             component={InvoiceScreen}
             options={{
               title: 'Invoice Screen',
-              headerStyle: {
-                backgroundColor: colors.main,
-              },
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
+              headerTitleStyle: { fontWeight: 'bold' },
             }}
           />
         </Stack.Navigator>
