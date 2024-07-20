@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, ScrollView } from 'react-native';
+import { View, TextInput, StyleSheet, ScrollView, FlatList, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useNavigation } from '@react-navigation/native';
@@ -11,6 +11,7 @@ const SearchScreen = () => {
 
   // State variables
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [openSort, setOpenSort] = useState(false);
   const [sortValue, setSortValue] = useState(null);
   const [sortItems, setSortItems] = useState([
@@ -30,10 +31,10 @@ const SearchScreen = () => {
   // Handle search functionality
   const handleSearch = () => {
     const filteredProducts = products.filter(product =>
-      product.description.toLowerCase().includes(searchQuery.toLowerCase())
+      product.productName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    navigation.navigate('SearchResultsScreen', { searchResults: filteredProducts });
+    setSearchResults(filteredProducts);
   };
 
   return (
@@ -93,15 +94,33 @@ const SearchScreen = () => {
 
       {/* Product list */}
       <ScrollView contentContainerStyle={styles.productList}>
-        {products && products.map(product => (
-          <ProductComponent
-            key={product.id}
-            id={product.id}
-            description={product.description}
-            price={product.price}
-            imageSource={product.images[0]} // Assuming images are properly structured
-          />
-        ))}
+        {searchQuery.length > 0 ? (
+          searchResults.length > 0 ? (
+            searchResults.map(product => (
+              <ProductComponent
+                key={product.id}
+                id={product.id}
+                description={product.description}
+                price={product.price}
+                imageSource={product.images[0]} // Assuming images are properly structured
+              />
+            ))
+          ) : (
+            <View style={styles.noResultsContainer}>
+              <Text style={styles.noResultsText}>Product not found</Text>
+            </View>
+          )
+        ) : (
+          products.map(product => (
+            <ProductComponent
+              key={product.id}
+              id={product.id}
+              description={product.description}
+              price={product.price}
+              imageSource={product.images[0]} // Assuming images are properly structured
+            />
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -160,6 +179,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+  },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noResultsText: {
+    fontSize: 18,
+    color: '#484848',
   },
 });
 
