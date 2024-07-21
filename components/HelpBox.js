@@ -80,8 +80,9 @@ const styles = StyleSheet.create({
   icon: {
     width: 48,
     height: 48,
-    marginLeft: -15,
-    padding: 10,
+    marginLeft: -5,
+    marginRight: 5,
+   
   },
 });
 

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { colors } from '../styles/color';
+import { useNavigation } from '@react-navigation/native';
 
 const CartItem = ({
   item,
   onUpdateQuantity,
   onRemoveItem,
 }) => {
-  const { cartId, name, price, quantity, color, image } = item;
+  const { cartId, name, price, quantity, color, image, productId } = item; // Assuming productId is available in item
   const [itemQuantity, setItemQuantity] = useState(quantity);
+  const navigation = useNavigation(); // Use navigation hook
 
   useEffect(() => {
     setItemQuantity(quantity);
@@ -30,15 +32,23 @@ const CartItem = ({
     }
   };
 
+  const handleImagePress = () => {
+    // Navigate to ProductDetailPage, passing the productId
+    navigation.navigate('ProductDetailPage', { productId });
+  };
+
   return (
     <View style={styles.cartItemContainer}>
-      <View style={styles.productImageContainer}>
+      <TouchableOpacity
+        style={styles.productImageContainer}
+        onPress={handleImagePress} // Handle image press
+      >
         <Image
           source={image} // Assuming image is passed correctly from the CartScreen
           style={styles.productImage}
           resizeMode="contain"
         />
-      </View>
+      </TouchableOpacity>
       <View style={styles.productDetails}>
         <Text style={styles.productName}>{name}</Text>
         <Text style={styles.productPrice}>

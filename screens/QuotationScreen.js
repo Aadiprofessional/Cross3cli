@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'rea
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import QuotationItem from '../components/QuotationItem';
+import { colors } from '../styles/color';
 
 const QuotationScreen = ({ navigation }) => {
   const [quotations, setQuotations] = useState([]);
@@ -115,6 +116,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: colors.TextBlack,
   },
   checkoutButton: {
     backgroundColor: colors.main,

@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: colors.TextBlack,
   },
   logo: {
     alignItems: 'right',
@@ -167,6 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: colors.TextBlack,
   },
   tableRow: {
     flexDirection: 'row',

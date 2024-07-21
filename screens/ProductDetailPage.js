@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Linking, Animated } from 'react-native'; // Import Animated from react-native
 import { colors } from '../styles/color'; // Assuming you have defined colors elsewhere
 import { products } from '../data/productData'; // Import your products data
 import { useCart } from '../components/CartContext'; // Import CartContext for managing cart items
 
 import WhatsAppButton2 from '../components/WhatsAppButton2';
 
-
 const ProductDetailPage = ({ route }) => {
   const { productId } = route.params;
   const { addToCart } = useCart(); // Using addToCart function from CartContext
   const product = products.find(item => item.id === productId);
-
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(0));
+  
   if (!product) {
     return (
       <View style={styles.container}>
@@ -54,6 +55,25 @@ const ProductDetailPage = ({ route }) => {
     }
   };
 
+  const showAlert = () => {
+    setAlertVisible(true);
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => {
+      setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }).start(() => {
+          setAlertVisible(false);
+        });
+      }, 2000); // Adjust the duration as needed
+    });
+  };
+
   const handleAddToCart = () => {
     const newItem = {
       id: product.id,
@@ -64,108 +84,113 @@ const ProductDetailPage = ({ route }) => {
       image: product.images[selectedColor][activeIndex],
     };
     addToCart(newItem); // Add item to cart using addToCart function from CartContext
-    // Optionally, you can show a confirmation or navigate to the cart screen
+    showAlert(); // Show alert after adding item to cart
   };
 
   return (
     <View>
-    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-      <View style={styles.container}>
-        <View style={styles.imageContainer}>
-          <Image source={product.images[selectedColor][activeIndex]} style={styles.image} />
-          <View style={styles.pagination}>
-            {product.images[selectedColor].map((_, index) => (
-              <View
-                key={index}
-                style={[styles.dot, index === activeIndex && styles.activeDot]}
-              />
-            ))}
-          </View>
-          <TouchableOpacity style={[styles.arrowButton, { left: 10 }]} onPress={handlePrevious}>
-            <Text style={styles.arrowText}>{'<'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.arrowButton, { right: 10 }]} onPress={handleNext}>
-            <Text style={styles.arrowText}>{'>'}</Text>
-          </TouchableOpacity>
+      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        <View style={styles.container}>
+          <View style={styles.imageContainer}>
+            <Image source={product.images[selectedColor][activeIndex]} style={styles.image} />
+            <View style={styles.pagination}>
+              {product.images[selectedColor].map((_, index) => (
+                <View
+                  key={index}
+                  style={[styles.dot, index === activeIndex && styles.activeDot]}
+                />
+              ))}
+            </View>
+            <TouchableOpacity style={[styles.arrowButton, { left: 10 }]} onPress={handlePrevious}>
+              <Text style={styles.arrowText}>{'<'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.arrowButton, { right: 10 }]} onPress={handleNext}>
+              <Text style={styles.arrowText}>{'>'}</Text>
+            </TouchableOpacity>
 
-          <View style={styles.truckIcon}>
-            <Image
-              source={require('../assets/truck.png')}
-              style={styles.truckImage}
-            />
-          </View>
-          <View style={styles.truckTextContainer}>
-            <Text style={styles.truckText}>{deliveryTime}</Text>
-          </View>
-        </View>
-
-        <View style={styles.productDetails}>
-          <Text style={styles.title}>{productName}</Text>
-          <Text style={styles.descriptionText}>Description: {description}</Text>
-          <View style={styles.priceContainer}>
-            <Text style={styles.priceText}>Price: ₹{price}</Text>
-            <TouchableOpacity onPress={handleCall}>
+            <View style={styles.truckIcon}>
               <Image
-                source={require('../assets/call.png')}
-                style={styles.callIcon}
+                source={require('../assets/truck.png')}
+                style={styles.truckImage}
               />
-            </TouchableOpacity>
+            </View>
+            <View style={styles.truckTextContainer}>
+              <Text style={styles.truckText}>{deliveryTime}</Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.productDetails}>
-          <Text style={styles.Head}>Color:</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.colorScrollContainer}>
-            {colorsAvailable.map((color, index) => (
-              <ColorButton
-                key={index}
-                color={color}
-                selectedColor={selectedColor}
-                onPress={() => handleColorSelect(color)}
-              />
-            ))}
-          </ScrollView>
-        </View>
-
-        <View style={styles.quantityContainer}>
-          <Text style={styles.quantityText}>Quantity:</Text>
-          <View style={styles.quantityControl}>
-            <TouchableOpacity style={styles.quantityButton} onPress={handleDecreaseQuantity}>
-              <Text style={styles.quantityButtonText}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.quantityNumber}>{quantity}</Text>
-            <TouchableOpacity style={styles.quantityButton} onPress={handleIncreaseQuantity}>
-              <Text style={styles.quantityButtonText}>+</Text>
-            </TouchableOpacity>
+          <View style={styles.productDetails}>
+            <Text style={styles.title}>{productName}</Text>
+            <Text style={styles.descriptionText}>Description: {description}</Text>
+            <View style={styles.priceContainer}>
+              <Text style={styles.priceText}>Price: ₹{price}</Text>
+              <TouchableOpacity onPress={handleCall}>
+                <Image
+                  source={require('../assets/call.png')}
+                  style={styles.callIcon}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.productDetails}>
-          <Text style={styles.Head}>Product Description:</Text>
-          <Text style={styles.regularText}>{description}</Text>
-        </View>
-
-        <View style={styles.productDetails}>
-          <Text style={styles.Head}>Product Specifications:</Text>
-          <View style={styles.specificationTable}>
-            {specifications.map((spec, index) => (
-              <View key={index} style={[styles.specRow, index % 2 === 0 ? styles.firstRow : styles.secondRow]}>
-                <Text style={styles.specLabel}>{spec.label}</Text>
-                <Text style={styles.specValue}>{spec.value}</Text>
-              </View>
-            ))}
+          <View style={styles.productDetails}>
+            <Text style={styles.Head}>Color:</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.colorScrollContainer}>
+              {colorsAvailable.map((color, index) => (
+                <ColorButton
+                  key={index}
+                  color={color}
+                  selectedColor={selectedColor}
+                  onPress={() => handleColorSelect(color)}
+                />
+              ))}
+            </ScrollView>
           </View>
-          
-        </View>
 
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-          <Text style={styles.addToCartText}>Add to Cart</Text>
-        </TouchableOpacity>
-        
-      </View>
-      
-    </ScrollView>
-    <WhatsAppButton2/>
+          <View style={styles.quantityContainer}>
+            <Text style={styles.quantityText}>Quantity:</Text>
+            <View style={styles.quantityControl}>
+              <TouchableOpacity style={styles.quantityButton} onPress={handleDecreaseQuantity}>
+                <Text style={styles.quantityButtonText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.quantityNumber}>{quantity}</Text>
+              <TouchableOpacity style={styles.quantityButton} onPress={handleIncreaseQuantity}>
+                <Text style={styles.quantityButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.productDetails}>
+            <Text style={styles.Head}>Product Description:</Text>
+            <Text style={styles.regularText}>{description}</Text>
+          </View>
+
+          <View style={styles.productDetails}>
+            <Text style={styles.Head}>Product Specifications:</Text>
+            <View style={styles.specificationTable}>
+              {specifications.map((spec, index) => (
+                <View key={index} style={[styles.specRow, index % 2 === 0 ? styles.firstRow : styles.secondRow]}>
+                  <Text style={styles.specLabel}>{spec.label}</Text>
+                  <Text style={styles.specValue}>{spec.value}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+            <Text style={styles.addToCartText}>Add to Cart</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      {alertVisible && (
+        <Animated.View style={[styles.alertContainer, { opacity: fadeAnim }]}>
+          <Image source={require('../assets/alert.png')} style={styles.alertIcon} />
+          <Text style={styles.alertText}>Item added to cart</Text>
+        </Animated.View>
+      )}
+
+      <WhatsAppButton2 />
     </View>
   );
 };
@@ -369,15 +394,37 @@ const styles = StyleSheet.create({
   },
   addToCartButton: {
     backgroundColor: colors.main,
-    marginTop: 20,
-    borderRadius: 10,
     paddingVertical: 15,
+    borderRadius: 5,
     alignItems: 'center',
+    marginBottom: 30,
+    marginHorizontal: 20,
   },
   addToCartText: {
-    fontSize: 20,
+    color: 'white',
     fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 18,
+  },
+  alertContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: '#333333',
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  alertIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
+  alertText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   truckIcon: {
     position: 'absolute',
