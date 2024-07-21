@@ -138,6 +138,16 @@ const App = () => {
             }}
           />
           <Stack.Screen
+            name="Quotation"
+            component={QuotationScreen}
+            options={{
+              title: 'Quotation Screen',
+              headerStyle: { backgroundColor: colors.main },
+              headerTintColor: '#fff',
+              headerTitleStyle: { fontWeight: 'bold' },
+            }}
+          />
+          <Stack.Screen
             name="OrderSummary"
             component={OrderSummaryScreen}
             options={{

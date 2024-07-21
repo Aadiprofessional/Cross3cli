@@ -1,16 +1,40 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useCart } from '../components/CartContext'; // Adjust this import if necessary
+import firestore from '@react-native-firebase/firestore';
 import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';
-import { useCart } from '../components/CartContext'; // Assuming you have a CartContext for managing cart items
+import auth from '@react-native-firebase/auth';
 
 const CartScreen = () => {
-  const { cartItems, updateCartItemQuantity, removeCartItem } = useCart(); // Using cart items from CartContext
+  const { cartItems, updateCartItemQuantity, removeCartItem } = useCart(); // Assuming CartContext is used
   const navigation = useNavigation();
 
-  const handleGetQuotation = () => {
-    navigation.navigate('Quotation');
+  const handleGetQuotation = async () => {
+    try {
+      const user = auth().currentUser; // Ensure auth is imported and initialized
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+
+      const cartRef = firestore().collection('users').doc(user.uid).collection('Quotation');
+      const newQuotationRef = cartRef.doc(); // Create a new document reference
+
+      const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const quotationData = {
+        items: cartItems,
+        totalAmount,
+        timestamp: firestore.FieldValue.serverTimestamp(),
+      };
+
+      await newQuotationRef.set(quotationData);
+
+      navigation.navigate('Quotation'); // Navigate to Quotation screen after saving
+    } catch (error) {
+      console.error('Error saving quotation: ', error);
+    }
   };
 
   const handlePlaceOrder = () => {
@@ -31,18 +55,15 @@ const CartScreen = () => {
         <View style={styles.headerRight}>
           <Text style={styles.subtotalText}>Subtotal:</Text>
           <Text style={styles.totalAmountText}>
-            ₹
-            {cartItems
-              .reduce((sum, item) => sum + item.price * item.quantity, 0)
-              .toFixed(2)}
+            ₹{cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
           </Text>
         </View>
       </View>
       <ScrollView style={styles.cartItemsContainer}>
-        {cartItems.map((item) => (
+        {cartItems.map(item => (
           <CartItem
-            key={item.cartId} // Using cartId instead of item.id
-            item={item} // Pass the entire item object to CartItem
+            key={item.cartId}
+            item={item}
             onUpdateQuantity={updateCartItemQuantity}
             onRemoveItem={removeCartItem}
           />
@@ -120,7 +141,6 @@ const styles = StyleSheet.create({
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    
   },
   buttonText: {
     fontSize: 18,
