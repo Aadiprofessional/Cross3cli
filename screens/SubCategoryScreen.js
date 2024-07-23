@@ -7,37 +7,38 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {colors} from '../styles/color';
+import { useNavigation } from '@react-navigation/native';
+import { colors } from '../styles/color';
 
 const products = [
-  {id: 1, name: 'Product 1', image: require('../assets/product.png')},
-  {id: 2, name: 'Product 2', image: require('../assets/product.png')},
-  {id: 3, name: 'Product 3', image: require('../assets/product.png')},
-  {id: 4, name: 'Product 4', image: require('../assets/product.png')},
-  {id: 5, name: 'Product 5', image: require('../assets/product.png')},
-  {id: 6, name: 'Product 6', image: require('../assets/product.png')},
-  {id: 7, name: 'Product 7', image: require('../assets/product.png')},
-  {id: 8, name: 'Product 8', image: require('../assets/product.png')},
-  {id: 9, name: 'Product 9', image: require('../assets/product.png')},
+  { id: 1, name: 'Product 1', image: require('../assets/product.png') },
+  { id: 2, name: 'Product 2', image: require('../assets/product.png') },
+  { id: 3, name: 'Product 3', image: require('../assets/product.png') },
+  { id: 4, name: 'Product 4', image: require('../assets/product.png') },
+  { id: 5, name: 'Product 5', image: require('../assets/product.png') },
+  { id: 6, name: 'Product 6', image: require('../assets/product.png') },
+  { id: 7, name: 'Product 7', image: require('../assets/product.png') },
+  { id: 8, name: 'Product 8', image: require('../assets/product.png') },
+  { id: 9, name: 'Product 9', image: require('../assets/product.png') },
 ];
 
-const SubCategoryScreen = ({route}: {route: any}) => {
-  const {subcategory} = route.params;
+const SubCategoryScreen = ({ route }: { route: any }) => {
+  const { subcategory } = route.params || {};
   const navigation = useNavigation();
 
   const navigateToProductDetail = (productId: number) => {
-    navigation.navigate('ProductDetailPage', {productId});
+    navigation.navigate('ProductDetailPage', { productId });
   };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        {products.map(product => (
+        {products.map((product) => (
           <TouchableOpacity
             key={product.id}
             style={styles.productItem}
-            onPress={() => navigateToProductDetail(product.id)}>
+            onPress={() => navigateToProductDetail(product.id)}
+          >
             <View style={styles.productImageContainer}>
               <Image source={product.image} style={styles.productImage} />
             </View>

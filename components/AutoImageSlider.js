@@ -26,7 +26,7 @@ const AutoImageSlider = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex(current => (current === images.length ? 1 : current + 1));
-    }, 3000);
+    }, 7000);
     return () => clearInterval(interval);
   }, [images.length]);
 

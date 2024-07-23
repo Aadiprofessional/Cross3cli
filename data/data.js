@@ -1,6 +1,6 @@
 export const data = {
-    shippingCharges: 10.00,
-    additionalDiscount: 5.00,
+    shippingCharges: 100.00,
+    additionalDiscount: 50.00,
     rewardPointsPrice: 6.00,
     coupons: [
       {

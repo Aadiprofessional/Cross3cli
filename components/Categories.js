@@ -1,52 +1,40 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import CategoryItem from './CategoryItem';
 import { colors } from '../styles/color';
 
 const categories = [
-  { id: 1, name: 'Category', image: require('../assets/Categories.png') },
-  { id: 2, name: 'Category', image: require('../assets/Categories.png') },
-  { id: 3, name: 'Category', image: require('../assets/Categories.png') },
-  { id: 4, name: 'Category', image: require('../assets/Categories.png') },
+  { id: 1, name: 'Electronics', image: require('../assets/Categories.png'), screen: 'SubCategoryScreen' },
+  { id: 2, name: 'Stationary', image: require('../assets/Categories3.png'), screen: 'SubCategoryScreen' },
+  { id: 3, name: 'Tools', image: require('../assets/Categories2.png'), screen: 'SubCategoryScreen' },
+  { id: 4, name: 'Furniture', image: require('../assets/Categories4.png'), screen: 'SubCategoryScreen' },
+  { id: 5, name: 'All Categories', image: require('../assets/Categories5.png'), screen: 'SubCategoryScreen' },
 ];
 
-const Categories = ({ toggleNavBar }) => {
+const Categories = () => {
   const navigation = useNavigation();
 
-  const handleCategoryPress = (categoryName) => {
-    navigation.navigate('SubCategoryScreen', { subcategory: categoryName });
-    toggleNavBar(); // Close the left navigation bar after navigation
-  };
-
-  const navigateToSubCategory = () => {
-    navigation.navigate('SubCategoryScreen');
+  const handleCategoryPress = (screen) => {
+    navigation.navigate(screen);
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Categories</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.scrollView}
-      >
-        {categories.map(category => (
+      <View style={styles.categoriesContainer}>
+        {categories.map((category) => (
           <TouchableOpacity
             key={category.id}
-            onPress={() => handleCategoryPress(category.name)}
+            onPress={() => handleCategoryPress(category.screen)}
+            style={styles.categoryItem}
           >
-            <CategoryItem name={category.name} image={category.image} />
+            <View style={styles.circle}>
+              <Image source={category.image} style={styles.image} />
+            </View>
+            <Text style={styles.text}>{category.name}</Text>
           </TouchableOpacity>
         ))}
-        <TouchableOpacity onPress={() => navigateToSubCategory('All Categories')}>
-          <CategoryItem
-            key={categories.length + 1}
-            name="All Category"
-            image={require('../assets/AllCategories.png')}
-          />
-        </TouchableOpacity>
-      </ScrollView>
+      </View>
     </View>
   );
 };
@@ -55,7 +43,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 0,
     backgroundColor: '#fff',
-    marginBottom: 1,
+    marginBottom: 10,
   },
   title: {
     fontSize: 20,
@@ -64,8 +52,32 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
     marginLeft: 15,
   },
-  scrollView: {
+  categoriesContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  categoryItem: {
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  circle: {
+    width: 50,
+    height: 50,
+    borderRadius: 35,
+    backgroundColor: '#FFE8C4',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: 35,
+    height: 35,
+  },
+  text: {
+    marginTop: 5,
+    fontSize: 12,
+    color: colors.TextBlack,
   },
 });
 

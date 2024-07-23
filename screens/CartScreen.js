@@ -1,7 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useCart } from '../components/CartContext'; // Adjust this import if necessary
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {useCart} from '../components/CartContext'; // Adjust this import if necessary
 import firestore from '@react-native-firebase/firestore';
 import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';

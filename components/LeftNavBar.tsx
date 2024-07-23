@@ -100,7 +100,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       <View style={styles.categoriesHeader}>
         <Text style={styles.categoriesHeaderText}>Categories</Text>
         <TouchableOpacity onPress={toggleNavBar}>
-          <Text style={styles.backText}>{'<'}</Text>
+          <Icon name="close" size={32} color={colors.inputPlaceholder} style={styles.backIcon} />
         </TouchableOpacity>
       </View>
       {categories.map((category) => renderCategoryItem(category))}
@@ -171,11 +171,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.main,
   },
-  backText: {
-    fontSize: 34,
-    fontWeight: '500',
-    color: colors.main,
-    marginRight: 10,
+  backIcon: {
+    marginRight: 2,
   },
 });
 

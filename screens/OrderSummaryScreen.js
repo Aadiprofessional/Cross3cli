@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
 import CartItem from '../components/CartItem';
 import { colors } from '../styles/color';
 import { sizes } from '../styles/size';
 import { data } from '../data/data';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import CheckBox from '@react-native-community/checkbox';
+
 const OrderSummaryScreen = ({ route, navigation }) => {
   const { cartItems: initialCartItems, totalAmount: initialTotalAmount } = route.params;
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
-  const [useRewardPoints, setUseRewardPoints] = useState(false); // State for reward points toggle
+  const [useRewardPoints, setUseRewardPoints] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   useEffect(() => {
-    // Calculate total amount with or without reward points deduction and coupon
     const newTotalAmount = calculateTotalAmount();
     setTotalAmount(newTotalAmount);
   }, [cartItems, useRewardPoints, appliedCoupon]);
@@ -30,6 +31,14 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     }
     amount += data.shippingCharges - data.additionalDiscount;
     return amount;
+  };
+
+  const calculateSubtotal = () => {
+    let subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    if (appliedCoupon) {
+      subtotal -= (subtotal * appliedCoupon.value) / 100;
+    }
+    return subtotal;
   };
 
   const handleUpdateQuantity = (id, quantity) => {
@@ -56,13 +65,18 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     setCouponCode('');
   };
 
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    Alert.alert('Coupon removed', 'Coupon has been removed.');
+  };
+
   const handleToggleRewardPoints = () => {
     setUseRewardPoints(prev => !prev);
   };
 
   const handleCheckout = async () => {
     try {
-      const userId = auth().currentUser.uid; // Retrieve actual user ID
+      const userId = auth().currentUser.uid;
       const orderData = {
         totalAmount,
         shippingCharges: data.shippingCharges,
@@ -71,13 +85,10 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         appliedCoupon: appliedCoupon ? appliedCoupon.value : 0,
         cartItems,
         userId,
-        timestamp: firestore.FieldValue.serverTimestamp(), // To track when the order was placed
+        timestamp: firestore.FieldValue.serverTimestamp(),
       };
 
-      // Add order data to Firestore
       await firestore().collection('orders').add(orderData);
-
-      // Navigate to the invoice screen with order data
       navigation.navigate('InvoiceScreen', { invoiceData: orderData });
     } catch (error) {
       console.error('Error saving order data: ', error);
@@ -87,79 +98,107 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.itemCount}>{cartItems.length} items:</Text>
-        <Text style={styles.subtotal}>₹{totalAmount.toFixed(2)}</Text>
-      </View>
-
-      <View style={styles.summaryContainer}>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Shipping Charges:</Text>
-          <Text style={styles.summaryValue}>₹{data.shippingCharges.toFixed(2)}</Text>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <View style={styles.header}>
+          <Text style={styles.itemCount}>{cartItems.length} items:</Text>
+          <Text style={styles.subtotal}>₹{calculateSubtotal().toFixed(2)}</Text>
         </View>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Additional Discount:</Text>
-          <Text style={styles.summaryValue}>₹{data.additionalDiscount.toFixed(2)}</Text>
-        </View>
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total:</Text>
-          <Text style={styles.totalValue}>₹{totalAmount.toFixed(2)}</Text>
-        </View>
-      </View>
-
-      <TouchableOpacity style={styles.rewardPointsToggle} onPress={handleToggleRewardPoints}>
-        <Text style={styles.rewardPointsText}>
-          Use Reward Points (-₹{data.rewardPointsPrice.toFixed(2)})
-        </Text>
-        <View style={[styles.checkbox, useRewardPoints ? styles.checked : null]} />
-      </TouchableOpacity>
-
-      <View style={styles.couponContainer}>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter the coupon code"
-            placeholderTextColor="rgba(120, 120, 120, 0.3)"
-            value={couponCode}
-            onChangeText={setCouponCode}
-          />
-          <TouchableOpacity
-            style={styles.applyButton}
-            onPress={handleApplyCoupon}>
-            <Text style={styles.applyButtonText}>Apply</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.couponSection}>
-          <Text style={styles.applicableCoupons}>Applicable coupons</Text>
-          {data.coupons.map((coupon, index) => (
-            <View key={index} style={styles.couponSection}>
-              <Text style={styles.applicableText}>
-                <Text style={{ color: colors.main, fontWeight: 'bold' }}>{coupon.code}</Text>{'\n'}
-                {coupon.text}
-              </Text>
-              <TouchableOpacity style={styles.applyTextButton} onPress={() => setCouponCode(coupon.code)}>
-                <Text style={styles.applyTextButtonText}>Apply</Text>
-              </TouchableOpacity>
-              {index < data.coupons.length - 1 && <View style={styles.separator} />}
+        <View style={styles.summaryContainer}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Shipping Charges:</Text>
+            <Text style={styles.summaryValue}>₹{data.shippingCharges.toFixed(2)}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Additional Discount:</Text>
+            <Text style={styles.summaryValue}>-₹{data.additionalDiscount.toFixed(2)}</Text>
+          </View>
+          {appliedCoupon && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Coupon Discount:</Text>
+              <Text style={styles.couponDiscount}>-₹{(calculateSubtotal() * appliedCoupon.value / 100).toFixed(2)}</Text>
             </View>
-          ))}
+          )}
+          {useRewardPoints && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Reward Points Discount:</Text>
+              <Text style={styles.couponDiscount}>-₹{data.rewardPointsPrice.toFixed(2)}</Text>
+            </View>
+          )}
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total:</Text>
+            <Text style={styles.totalValue}>₹{totalAmount.toFixed(2)}</Text>
+          </View>
         </View>
-      </View>
 
-      <FlatList
-        data={cartItems}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item }) => (
+        <TouchableOpacity style={styles.rewardPointsToggle} onPress={handleToggleRewardPoints}>
+          <Text style={styles.rewardPointsText}>
+            Use Reward Points (-₹{data.rewardPointsPrice.toFixed(2)})
+          </Text>
+          <CheckBox
+            value={useRewardPoints}
+            onValueChange={handleToggleRewardPoints}
+            boxType='square'
+            tintColors={{ true: colors.main, false: '#dcdcdc' }}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.couponContainer}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter the coupon code"
+              placeholderTextColor="rgba(120, 120, 120, 0.3)"
+              value={couponCode}
+              onChangeText={setCouponCode}
+            />
+            <TouchableOpacity
+              style={styles.applyButton}
+              onPress={handleApplyCoupon}>
+              <Text style={styles.applyButtonText}>Apply</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.couponSection}>
+            <Text style={styles.applicableCoupons}>Applicable coupons</Text>
+            {data.coupons.map((coupon, index) => (
+              <View key={index} style={styles.couponItem}>
+                <Text style={styles.applicableText}>
+                  <Text style={{ color: colors.main, fontWeight: 'bold' }}>{coupon.code}</Text>{'\n'}
+                  {coupon.text}
+                </Text>
+                <TouchableOpacity
+                  style={styles.applyTextButton}
+                  onPress={() => {
+                    setAppliedCoupon(coupon);
+                    Alert.alert('Coupon applied', `Coupon ${coupon.code} applied successfully!`);
+                  }}>
+                  <Text style={styles.applyTextButtonText}>Apply</Text>
+                </TouchableOpacity>
+                {index < data.coupons.length - 1 && <View style={styles.separator} />}
+              </View>
+            ))}
+          </View>
+
+          {appliedCoupon && (
+            <TouchableOpacity
+              style={styles.removeCouponButton}
+              onPress={handleRemoveCoupon}>
+              <Text style={styles.removeCouponButtonText}>Remove Coupon</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Render the list of cart items */}
+        {cartItems.map(item => (
           <CartItem
+            key={item.id}
             item={item}
             onUpdateQuantity={handleUpdateQuantity}
             onRemoveItem={handleRemoveItem}
           />
-        )}
-        contentContainerStyle={styles.cartItemsContainer}
-      />
+        ))}
 
+      </ScrollView>
       <View style={styles.checkoutContainer}>
         <TouchableOpacity
           style={styles.checkoutButton}
@@ -175,7 +214,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    padding: 5,
+  },
+  scrollViewContent: {
+    paddingBottom: 80, // Space for the checkout button
   },
   couponContainer: {
     backgroundColor: '#FFFFFF',
@@ -214,13 +255,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   applicableCoupons: {
-    fontSize: 16,
+    fontSize: sizes.body,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 10,
     color: colors.TextBlack,
   },
   applicableText: {
-    fontSize: 14,
+    fontSize: sizes.body,
     color: '#000',
   },
   applyTextButton: {
@@ -235,6 +276,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  removeCouponButton: {
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    paddingVertical: 10,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  removeCouponButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+    marginVertical: 10,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -243,12 +300,11 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
   },
   itemCount: {
-    fontSize: 18,
+    fontSize: sizes.body,
     fontWeight: 'bold',
-    color: colors.TextBlack,
   },
   subtotal: {
-    fontSize: 18,
+    fontSize: sizes.body,
     fontWeight: 'bold',
     color: colors.TextBlack,
   },
@@ -266,28 +322,32 @@ const styles = StyleSheet.create({
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginVertical: 5,
   },
   summaryLabel: {
-    fontSize: 16,
-    color: colors.TextBlack,
+    fontSize: sizes.body,
+    color: '#333',
   },
   summaryValue: {
-    fontSize: 16,
-    color: colors.TextBlack,
+    fontSize: sizes.body,
+    color: '#333',
+  },
+  couponDiscount: {
+    fontSize: sizes.body,
+    color: colors.Green,
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: '#ddd',
     paddingTop: 10,
   },
   totalLabel: {
-    fontSize: 18,
+    fontSize: sizes.body,
     fontWeight: 'bold',
-    color: colors.TextBlack,
+    color: '#333',
   },
   totalValue: {
     fontSize: 18,
@@ -297,36 +357,28 @@ const styles = StyleSheet.create({
   rewardPointsToggle: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginVertical: 10,
   },
   rewardPointsText: {
-    fontSize: 16,
-    color: colors.TextBlack,
+    fontSize: sizes.body,
     flex: 1,
   },
   checkbox: {
     width: 20,
     height: 20,
-    borderRadius: 4,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: colors.main,
+    marginLeft: 10,
   },
   checked: {
     backgroundColor: colors.main,
   },
-  couponSection: {
-    marginBottom: 10,
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#ddd',
-    marginVertical: 10,
-  },
-  cartItemsContainer: {
-    marginBottom: 20,
-  },
   checkoutContainer: {
-    padding: 15,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
   },
   checkoutButton: {
     backgroundColor: colors.main,
@@ -337,7 +389,7 @@ const styles = StyleSheet.create({
   checkoutButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: sizes.body,
   },
 });
 

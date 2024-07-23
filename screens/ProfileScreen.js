@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,17 +10,27 @@ import {
 } from 'react-native';
 import { colors } from '../styles/color';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { data } from '../data/data'; // Adjust the path accordingly
 
 const ProfileScreen = ({ navigation }) => {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const rewardPoints = 100; // Replace this with the actual reward points you have
+
+  useEffect(() => {
+    const fetchPhoneNumber = async () => {
+      const savedPhoneNumber = await AsyncStorage.getItem('phoneNumber');
+      setPhoneNumber(savedPhoneNumber || 'N/A');
+    };
+
+    fetchPhoneNumber();
+  }, []);
+
+  const rewardPointsValue = data.rewardPointsPrice;
+
   const options = [
     {
       icon: require('../assets/icon1.png'),
       text: 'Register your Company',
-      screen: 'RegisterCompanyScreen',
-    },
-    {
-      icon: require('../assets/logo5.png'),
-      text: 'Reward Points',
       screen: 'RegisterCompanyScreen',
     },
     {
@@ -47,16 +57,13 @@ const ProfileScreen = ({ navigation }) => {
 
   const handleLogout = async () => {
     try {
-      // Clear authentication data or session data
       await AsyncStorage.removeItem('loggedIn');
-      await AsyncStorage.removeItem('userData'); // Example: Clear other user data
-
+      await AsyncStorage.removeItem('phoneNumber'); // Clear phone number
       // Clear the navigation stack and navigate to OTPVerificationScreen
       navigation.reset({
         index: 0,
         routes: [{ name: 'OTPVerification' }],
       });
-
       Alert.alert('Logged Out', 'You have been successfully logged out.');
     } catch (error) {
       console.error('Logout failed', error);
@@ -73,7 +80,12 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.profileTextContainer}>
           <Text style={styles.nameText}>Your Name</Text>
           <Text style={styles.newText}>Mobile:</Text>
-          <Text style={styles.mobileText}>+91 0504353435</Text>
+          <Text style={styles.mobileText}>
+            {phoneNumber ? `+91 ${phoneNumber}` : 'N/A'}
+          </Text>
+          <Text style={styles.rewardPointsText}>
+            Reward Points: {rewardPoints} ({rewardPointsValue.toFixed(2)} INR)
+          </Text>
         </View>
         <Image
           source={require('../assets/profile2.png')}
@@ -91,7 +103,8 @@ const ProfileScreen = ({ navigation }) => {
             } else {
               navigation.navigate(option.screen);
             }
-          }}>
+          }}
+        >
           <Image source={option.icon} style={styles.optionIcon} />
           <Text style={styles.optionText}>{option.text}</Text>
         </TouchableOpacity>
@@ -145,6 +158,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginTop: 5,
+    color: colors.TextBlack,
+  },
+  rewardPointsText: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 10,
     color: colors.TextBlack,
   },
   profileImage2: {

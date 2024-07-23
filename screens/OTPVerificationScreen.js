@@ -73,6 +73,7 @@ const OTPVerificationScreen = ({navigation}) => {
       const completeCode = code.join('');
       await confirmResult.confirm(completeCode);
       await AsyncStorage.setItem('loggedIn', 'true');
+      await AsyncStorage.setItem('phoneNumber', phoneNumber); 
       console.log('Phone number verified!');
       navigation.replace('Home');
     } catch (error) {

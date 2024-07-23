@@ -49,11 +49,11 @@ const styles = StyleSheet.create({
   },
   topHalf: {
     backgroundColor: colors.main,
-    height: '2%',
+    height: '5%',
   },
   bottomHalf: {
     backgroundColor: '#FFFFFF',
-    height: '2%',
+    height: '5%',
   },
   helpBox: {
     marginBottom: 0,
