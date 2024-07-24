@@ -81,8 +81,10 @@ yarn ios
    3. User Management: Manage user information and permissions.
 
 # Video
-Watch the video below to see CrossBee in action:
-[![Watch the video](assets/logo-youtube.png)](https://youtu.be/HJFZeRm-dps)
+Watch the video below to see CrossBee in action: <a href="https://youtu.be/HJFZeRm-dps">
+  <img src="assets/logo-youtube.png" alt="Watch the video" width="300" />
+</a>
+
 
 
 # APK
