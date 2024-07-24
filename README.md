@@ -82,7 +82,7 @@ yarn ios
 
 # Video
 Watch the video below to see CrossBee in action: <a href="https://youtu.be/HJFZeRm-dps">
-  <img src="assets/logo-youtube.png" alt="Watch the video" width="300" />
+  <img src="assets/logo-youtube.png" alt="Watch the video" width="30" />
 </a>
 
 
