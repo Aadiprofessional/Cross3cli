@@ -82,20 +82,20 @@ yarn ios
 
 # Video
 Watch the video below to see CrossBee in action:
-[![Watch the video](https://img.youtube.com/vi/yourvideoid/0.jpg)](https://youtu.be/HJFZeRm-dps)
+[![Watch the video](assets/logo-youtube.png)](https://youtu.be/HJFZeRm-dps)
 
 
 # APK
 Download the APK file for Android:
 
-[📥 Download CrossBee APK](android/app/build/outputs/apk/release/app-release.apk)
+[📥 Download CrossBee APK](https://drive.google.com/file/d/1Gu4JJwH1xhE8gOmC7OK_-mBAcpK5PVWd/view?usp=sharing)
 
 # ⚙️ Tech Stack
-Frontend: React Native
-Backend: Node.js
-Database: Firebase Firestore
-Authentication: Firebase Auth
-Storage: Firebase Storage
+ - Frontend: React Native
+ - Backend: Node.js
+ - Database: Firebase Firestore
+ - Authentication: Firebase Auth
+ - Storage: Firebase Storage
 
 # 🤝 Contributing
 We welcome contributions! Please read our Contributing Guidelines for more details.
