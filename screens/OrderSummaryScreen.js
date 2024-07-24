@@ -302,6 +302,7 @@ const styles = StyleSheet.create({
   itemCount: {
     fontSize: sizes.body,
     fontWeight: 'bold',
+    color: colors.TextBlack,
   },
   subtotal: {
     fontSize: sizes.body,
@@ -360,8 +361,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   rewardPointsText: {
+    marginLeft:20,
     fontSize: sizes.body,
     flex: 1,
+    color: colors.TextBlack,
   },
   checkbox: {
     width: 20,
@@ -370,6 +373,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.main,
     marginLeft: 10,
+    
   },
   checked: {
     backgroundColor: colors.main,

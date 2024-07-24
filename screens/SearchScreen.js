@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
-import { View, TextInput, StyleSheet, ScrollView, FlatList, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TextInput, StyleSheet, ScrollView, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { useNavigation } from '@react-navigation/native';
 import ProductComponent from '../components/ProductComponent';
 import { products } from '../data/productData'; // Ensure correct import path and structure
 
 const SearchScreen = () => {
-  const navigation = useNavigation();
-
-  // State variables
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [sortedResults, setSortedResults] = useState([]);
   const [openSort, setOpenSort] = useState(false);
   const [sortValue, setSortValue] = useState(null);
   const [sortItems, setSortItems] = useState([
@@ -29,13 +26,38 @@ const SearchScreen = () => {
   ]);
 
   // Handle search functionality
-  const handleSearch = () => {
-    const filteredProducts = products.filter(product =>
+  useEffect(() => {
+    let filteredProducts = products.filter(product =>
       product.productName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    if (filterValue) {
+      filteredProducts = filteredProducts.filter(product =>
+        product.category === filterValue
+      );
+    }
+
     setSearchResults(filteredProducts);
-  };
+  }, [searchQuery, filterValue]);
+
+  // Handle sorting functionality
+  useEffect(() => {
+    const sortProducts = () => {
+      let sortedProducts = [...searchResults];
+
+      if (sortValue === 'low_to_high') {
+        sortedProducts.sort((a, b) => a.price - b.price);
+      } else if (sortValue === 'high_to_low') {
+        sortedProducts.sort((a, b) => b.price - a.price);
+      } else if (sortValue === 'newest') {
+        sortedProducts.sort((a, b) => b.dateAdded - a.dateAdded); // Assuming 'dateAdded' is a timestamp
+      }
+
+      setSortedResults(sortedProducts);
+    };
+
+    sortProducts();
+  }, [sortValue, searchResults]);
 
   return (
     <View style={styles.container}>
@@ -48,7 +70,7 @@ const SearchScreen = () => {
           placeholderTextColor="#484848"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearch}
+          onSubmitEditing={() => {}}
           returnKeyType="search"
           autoFocus
         />
@@ -94,24 +116,8 @@ const SearchScreen = () => {
 
       {/* Product list */}
       <ScrollView contentContainerStyle={styles.productList}>
-        {searchQuery.length > 0 ? (
-          searchResults.length > 0 ? (
-            searchResults.map(product => (
-              <ProductComponent
-                key={product.id}
-                id={product.id}
-                description={product.description}
-                price={product.price}
-                imageSource={product.images[0]} // Assuming images are properly structured
-              />
-            ))
-          ) : (
-            <View style={styles.noResultsContainer}>
-              <Text style={styles.noResultsText}>Product not found</Text>
-            </View>
-          )
-        ) : (
-          products.map(product => (
+        {sortedResults.length > 0 ? (
+          sortedResults.map(product => (
             <ProductComponent
               key={product.id}
               id={product.id}
@@ -120,6 +126,10 @@ const SearchScreen = () => {
               imageSource={product.images[0]} // Assuming images are properly structured
             />
           ))
+        ) : (
+          <View style={styles.noResultsContainer}>
+            <Text style={styles.noResultsText}>No products found</Text>
+          </View>
         )}
       </ScrollView>
     </View>

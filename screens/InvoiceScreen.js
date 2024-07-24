@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
   },
   tableData: {
     fontSize: 16,
+    color: '#333333',
   },
   downloadButton: {
     alignItems: 'center',

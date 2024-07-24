@@ -12,8 +12,14 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { colors } from '../styles/color';
 import { sizes } from '../styles/size';
+
+// Configure Google Sign-In
+GoogleSignin.configure({
+  webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com', // Your web client ID from Firebase
+});
 
 const OTPVerificationScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -26,7 +32,8 @@ const OTPVerificationScreen = ({navigation}) => {
     React.createRef(),
     React.createRef(),
     React.createRef(),
-    React.createRef(), React.createRef()
+    React.createRef(), 
+    React.createRef()
   ]);
 
   useEffect(() => {
@@ -73,7 +80,7 @@ const OTPVerificationScreen = ({navigation}) => {
       const completeCode = code.join('');
       await confirmResult.confirm(completeCode);
       await AsyncStorage.setItem('loggedIn', 'true');
-      await AsyncStorage.setItem('phoneNumber', phoneNumber); 
+      await AsyncStorage.setItem('phoneNumber', phoneNumber);
       console.log('Phone number verified!');
       navigation.replace('Home');
     } catch (error) {
@@ -94,6 +101,28 @@ const OTPVerificationScreen = ({navigation}) => {
   const resendOTP = async () => {
     if (canResend) {
       await signInWithPhoneNumber('+91' + phoneNumber);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const { idToken } = await GoogleSignin.signIn();
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      await auth().signInWithCredential(googleCredential);
+      await AsyncStorage.setItem('loggedIn', 'true');
+      console.log('User signed in with Google!');
+      navigation.replace('Home');
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        console.error('User cancelled the sign-in.');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        console.error('Sign-in is in progress.');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        console.error('Play services not available.');
+      } else {
+        console.error('Some other error happened:', error);
+      }
     }
   };
 
@@ -171,7 +200,7 @@ const OTPVerificationScreen = ({navigation}) => {
           </View>
         )}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.googleButton}>
+          <TouchableOpacity style={styles.googleButton} onPress={signInWithGoogle}>
             <View style={styles.googleButtonContent}>
               <Image
                 source={require('../assets/google_logo.png')}
@@ -308,6 +337,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: sizes.marginMax * 3, // Adjusted margin to decrease distance
   },
+
+  guestButton: {
+    width: '100%',
+    padding: sizes.padding,
+    borderRadius: sizes.borderRadius,
+    marginBottom: sizes.marginMax,
+    borderWidth: 1,
+    borderColor: '#333333',
+    alignItems: 'center',
+  },
+  guestButtonText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333333',
+  },
   googleButton: {
     width: '100%',
     padding: sizes.padding,
@@ -330,20 +374,6 @@ const styles = StyleSheet.create({
   googleLogo: {
     width: 24,
     height: 24,
-  },
-  guestButton: {
-    width: '100%',
-    padding: sizes.padding,
-    borderRadius: sizes.borderRadius,
-    marginBottom: sizes.marginMax,
-    borderWidth: 1,
-    borderColor: '#333333',
-    alignItems: 'center',
-  },
-  guestButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333333',
   },
 });
 

@@ -69,64 +69,68 @@ const InvoiceScreen2 = ({ route }) => {
 };
 
 
-  const generatePdf = async (data) => {
-    const htmlContent = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; }
-            .header { text-align: center; margin-bottom: 20px; }
-            .title { font-size: 24px; font-weight: bold; }
-            .logo { width: 100px; height: 100px; margin-bottom: 20px; }
-            .section { margin-bottom: 20px; }
-            .subtitle { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-            .table { width: 100%; }
-            .tableRow { display: flex; justify-content: space-between; padding: 5px 0; }
-            .tableData { font-size: 16px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <img src="file:///android_asset/logo.png" alt="Logo" class="logo" />
-            <div class="title">INVOICE</div>
-          </div>
-          <div class="section">
-            <div class="subtitle">Total Amount: ₹${data.totalAmount.toFixed(2)}</div>
-            <div class="subtitle">Shipping Charges: ₹${data.shippingCharges.toFixed(2)}</div>
-            <div class="subtitle">Additional Discount: ₹${data.additionalDiscount.toFixed(2)}</div>
-          </div>
-          <div class="section">
-            <div class="subtitle">Items</div>
-            <div class="table">
-              ${data.cartItems.map(item => `
+const generatePdf = async (data) => {
+  const htmlContent = `
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          .header { text-align: center; margin-bottom: 20px; }
+          .title { font-size: 24px; font-weight: bold; }
+          .logo { width: 100px; height: 100px; margin-bottom: 20px; }
+          .section { margin-bottom: 20px; }
+          .subtitle { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+          .table { width: 100%; }
+          .tableRow { display: flex; justify-content: space-between; padding: 5px 0; }
+          .tableData { font-size: 16px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <img src="file:///android_asset/logo.png" alt="Logo" class="logo" />
+          <div class="title">INVOICE</div>
+        </div>
+        <div class="section">
+          <div class="subtitle">Total Amount: ₹${data.totalAmount ? data.totalAmount.toFixed(2) : 'N/A'}</div>
+          <div class="subtitle">Shipping Charges: ₹${data.shippingCharges ? data.shippingCharges.toFixed(2) : 'N/A'}</div>
+          <div class="subtitle">Additional Discount: ₹${data.additionalDiscount ? data.additionalDiscount.toFixed(2) : 'N/A'}</div>
+        </div>
+        <div class="section">
+          <div class="subtitle">Items</div>
+          <div class="table">
+            ${data.cartItems && data.cartItems.length > 0
+              ? data.cartItems.map(item => `
                 <div class="tableRow">
                   <div class="tableData">${item.name}</div>
                   <div class="tableData">${item.quantity}</div>
                   <div class="tableData">₹${(item.price * item.quantity).toFixed(2)}</div>
                 </div>
-              `).join('')}
-            </div>
+              `).join('')
+              : '<div class="tableRow"><div class="tableData">No items</div></div>'
+            }
           </div>
-        </body>
-      </html>
-    `;
+        </div>
+      </body>
+    </html>
+  `;
 
-    const options = {
-      html: htmlContent,
-      fileName: 'invoice',
-      directory: 'Documents',
-    };
-
-    try {
-      const pdf = await RNHTMLtoPDF.convert(options);
-      const newFilePath = `${RNFS.DownloadDirectoryPath}/invoice.pdf`;
-      await RNFS.moveFile(pdf.filePath, newFilePath);
-      setPdfPath(newFilePath);
-      Alert.alert('Success', `PDF generated successfully at: ${newFilePath}`);
-    } catch (error) {
-      Alert.alert('Error', `Failed to generate the PDF. ${error.message}`);
-    }
+  const options = {
+    html: htmlContent,
+    fileName: 'invoice',
+    directory: 'Documents', // Ensure this directory is correct
   };
+
+  try {
+    const pdf = await RNHTMLtoPDF.convert(options);
+    const newFilePath = `${RNFS.DocumentDirectoryPath}/invoice.pdf`; // Use DocumentDirectoryPath
+    await RNFS.moveFile(pdf.filePath, newFilePath);
+    setPdfPath(newFilePath);
+    Alert.alert('Success', `PDF generated successfully at: ${newFilePath}`);
+  } catch (error) {
+    Alert.alert('Error', `Failed to generate the PDF. ${error.message}`);
+  }
+};
+
 
   const downloadPdf = async () => {
     if (pdfPath) {
@@ -218,6 +222,7 @@ const styles = StyleSheet.create({
   },
   tableData: {
     fontSize: 16,
+    color: '#333333',
   },
   downloadButton: {
     alignItems: 'center',

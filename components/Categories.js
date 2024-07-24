@@ -63,20 +63,21 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   circle: {
-    width: 50,
-    height: 50,
+    width: 65,
+    height: 65,
     borderRadius: 35,
     backgroundColor: '#FFE8C4',
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    width: 35,
-    height: 35,
+    width: 40,
+    height: 40,
   },
   text: {
     marginTop: 5,
-    fontSize: 12,
+    fontSize: 10,
+    fontWeight: '600',
     color: colors.TextBlack,
   },
 });
