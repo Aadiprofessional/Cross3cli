@@ -1,26 +1,43 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using # 📦 **CrossBee B2B App**
 
-# Getting Started
+**CrossBee** is a powerful B2B application designed to streamline product ordering in large quantities. With features such as authentication, cart management, order management, and more, CrossBee ensures a smooth and efficient shopping experience for businesses.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+![CrossBee Banner](assets/logo.png)
 
-## Step 1: Start the Metro Server
+## 🌟 **Features**
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+- 🔒 **User Authentication**: Secure sign-up and login using Firebase.
+- 🛒 **Cart Management**: Add, remove, and update items in the cart.
+- 🧾 **Order Management**: Place orders with applied coupons and reward points.
+- 📝 **Quotation Management**: Manage and convert quotations to orders.
+- 👤 **Profile Management**: Maintain user profiles and order histories.
+- 🔍 **Product Search**: Efficiently search for products with sorting and filtering options.
+- 💰 **Reward Points**: Earn and redeem reward points for orders.
+- 🛠️ **Admin Features**: Separate app for owners to manage products, orders, and users.
 
-To start Metro, run the following command from the _root_ of your React Native project:
+## 🚀 **Installation**
+
+### **Prerequisites**
+
+- Node.js
+- npm or yarn
+- React Native CLI
+- Firebase account
+
+### **Clone the Repository**
 
 ```bash
-# using npm
-npm start
+git clone https://github.com/yourusername/crossbee.git
+cd crossbee
 
-# OR using Yarn
-yarn start
-```
+## Step 1: Install Dependencies
+
+npm install
+# or
+yarn install
+
 
 ## Step 2: Start your Application
-
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
 
 ### For Android
 
@@ -42,38 +59,50 @@ npm run ios
 yarn ios
 ```
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+# Configure Firebase
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+   1. Create a Firebase project.
+   2. Enable Firebase Authentication, Firestore, and Storage.
+   3. Download the google-services.json file for Android and GoogleService-Info.plist file for iOS.
+   4. Place the google-services.json in the android/app directory.
+   5. Place the GoogleService-Info.plist in the ios/ directory.
 
-## Step 3: Modifying your App
+# 📱 Usage
+ User App
+   1. Sign Up / Login: Create an account or log in with existing credentials.
+   2. Browse Products: Use the search functionality to find products. Sort and filter as needed.
+   3. Add to Cart: Add desired products to your cart.
+   4. Apply Coupon: Apply available coupons to your cart.
+   5. Place Order: Confirm your cart and place an order using reward points if available.
+   6. Order History: View your past orders in the profile section.
+ Owner App
+   1. Manage Products: Add, update, or remove products.
+   2. Manage Orders: View and process orders.
+   3. User Management: Manage user information and permissions.
 
-Now that you have successfully run the app, let's modify it.
+# Video
+Watch the video below to see CrossBee in action:
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
 
-## Congratulations! :tada:
+# APK
+Download the APK file for Android:
 
-You've successfully run and modified your React Native App. :partying_face:
+📥 Download CrossBee APK
 
-### Now what?
+# ⚙️ Tech Stack
+Frontend: React Native
+Backend: Node.js
+Database: Firebase Firestore
+Authentication: Firebase Auth
+Storage: Firebase Storage
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+# 🤝 Contributing
+We welcome contributions! Please read our Contributing Guidelines for more details.
 
-# Troubleshooting
+# 📄 License
+This project is licensed under the MIT License.
 
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+# 📧 Contact
+For any queries or feedback, please contact us at abhishek.kvoc@gmail.com 
 
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
