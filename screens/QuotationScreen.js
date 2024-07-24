@@ -17,7 +17,7 @@ const QuotationScreen = ({ navigation }) => {
         .doc(user.uid)
         .collection('Quotation');
 
-      const unsubscribe = cartRef.onSnapshot(
+      const unsubscribe = cartRef.orderBy('timestamp', 'desc').onSnapshot(
         snapshot => {
           if (snapshot) {
             const data = snapshot.docs.map(doc => ({
@@ -43,35 +43,31 @@ const QuotationScreen = ({ navigation }) => {
 
   const handleCheckout = async (quotation) => {
     try {
-      const userId = auth().currentUser.uid; // Retrieve actual user ID
-  
-      // Define the orderData object with default values
+      const userId = auth().currentUser.uid;
+
       const orderData = {
-        totalAmount: quotation.totalAmount || 0, // Default to 0 if undefined
+        totalAmount: quotation.totalAmount || 0,
         shippingCharges: quotation.shippingCharges || 0,
         additionalDiscount: quotation.additionalDiscount || 0,
         rewardPointsPrice: quotation.useRewardPoints ? (quotation.rewardPointsPrice || 0) : 0,
         appliedCoupon: quotation.appliedCoupon ? (quotation.appliedCoupon.value || 0) : 0,
-        cartItems: quotation.items || [], // Default to an empty array if undefined
+        cartItems: quotation.items || [],
         userId,
-        timestamp: firestore.FieldValue.serverTimestamp(), // To track when the order was placed
+        timestamp: firestore.FieldValue.serverTimestamp(),
       };
-  
-      console.log('Order Data:', orderData); // Log data for debugging
-  
-      // Add order data to Firestore
+
+      console.log('Order Data:', orderData);
+
       const docRef = await firestore().collection('Quotation').add(orderData);
-      
-      console.log('Order successfully saved to Firestore with ID:', docRef.id); // Log document ID
-  
-      // Navigate to the invoice screen with order data
+
+      console.log('Order successfully saved to Firestore with ID:', docRef.id);
+
       navigation.navigate('InvoiceScreen', { invoiceData: orderData });
     } catch (error) {
       console.error('Error saving order data: ', error);
       Alert.alert('Error', 'There was an issue processing your order. Please try again.');
     }
   };
-  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -83,14 +79,19 @@ const QuotationScreen = ({ navigation }) => {
             <QuotationItem
               key={item.cartId}
               item={item}
+              onUpdateQuantity={(cartId, action) => {
+                // Handle quantity update here if needed
+              }}
             />
           ))}
-          <TouchableOpacity
-            style={styles.checkoutButton}
-            onPress={() => handleCheckout(quotation)}
-          >
-            <Text style={styles.checkoutButtonText}>Checkout</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.checkoutButton}
+              onPress={() => handleCheckout(quotation)}
+            >
+              <Text style={styles.checkoutButtonText}>Checkout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       ))}
     </ScrollView>
@@ -111,6 +112,14 @@ const styles = StyleSheet.create({
   },
   quotationContainer: {
     marginBottom: 20,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: '#f9f9f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 3,
   },
   quotationTitle: {
     fontSize: 18,
@@ -118,15 +127,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: colors.TextBlack,
   },
+  buttonContainer: {
+    alignItems: 'center',
+    marginTop: 10,
+  },
   checkoutButton: {
     backgroundColor: colors.main,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
     alignItems: 'center',
-    marginTop: 10,
     width: '80%',
-    alignSelf: 'center',
   },
   checkoutButtonText: {
     color: '#fff',

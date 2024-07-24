@@ -4,73 +4,107 @@ import { useNavigation } from '@react-navigation/native';
 import { colors } from '../styles/color';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import { format } from 'date-fns';
+import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome for icons
 
 const QuotesScreen = () => {
   const navigation = useNavigation();
-  const [orderHistory, setOrderHistory] = useState([]);
+  const [quotations, setQuotations] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showOrderItems, setShowOrderItems] = useState(false); // State to track button click
-  const [activeButton, setActiveButton] = useState('quotes'); // State to track active button
+  const [activeButton, setActiveButton] = useState('quotes'); 
 
   useEffect(() => {
-    const fetchOrderHistory = async () => {
+    const fetchUserData = async () => {
       try {
         const userId = auth().currentUser.uid;
+        const quotesSnapshot = await firestore()
+          .collection('Quotation')
+          .where('userId', '==', userId)
+          .get();
+  
         const ordersSnapshot = await firestore()
           .collection('orders')
           .where('userId', '==', userId)
           .get();
-
-        const orders = ordersSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setOrderHistory(orders);
+  
+        const quotes = quotesSnapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter(item => item.timestamp)
+          .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
+  
+        const orders = ordersSnapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter(item => item.timestamp)
+          .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
+  
+        setQuotations(quotes);
+        setOrders(orders);
       } catch (error) {
-        console.error('Error fetching order history: ', error);
+        console.error('Error fetching data: ', error);
       } finally {
         setLoading(false);
       }
     };
-
-    // Fetch order history every time the screen is visited
-    const unsubscribe = navigation.addListener('focus', fetchOrderHistory);
-
-    return unsubscribe;
-  }, [navigation]);
+  
+    fetchUserData();
+  }, []);
 
   const handleStartShopping = () => {
     navigation.navigate('Home');
   };
 
   const handleGetQuotation = () => {
-    setActiveButton('quotes'); // Set active button to quotes
-    setShowOrderItems(false); // Hide order items
+    setActiveButton('quotes');
   };
 
   const handleCheckout = () => {
-    setActiveButton('orders'); // Set active button to orders
-    setShowOrderItems(true); // Show order items
+    setActiveButton('orders');
   };
+
+  const navigateToInvoice = (data) => {
+    navigation.navigate('InvoiceScreen2', { quotationId: activeButton === 'quotes' ? data.id : null, orderId: activeButton === 'orders' ? data.id : null });
+  };
+  
+  
 
   const renderOrderItem = ({ item }) => (
     <View style={styles.orderItem}>
       <Text style={styles.orderText}>Order ID: <Text style={styles.boldText}>{item.id}</Text></Text>
       <Text style={styles.orderText}>Total Amount: ₹<Text style={styles.boldText}>{item.totalAmount}</Text></Text>
+      <Text style={styles.orderText}>Time: <Text style={styles.boldText}>{format(item.timestamp.toDate(), 'MMM d, yyyy h:mm a')}</Text></Text>
       <Text style={styles.orderText}>Items:</Text>
       {item.cartItems.map(cartItem => (
         <Text key={cartItem.id} style={styles.orderText}>
           <Text style={styles.boldText}>{cartItem.name}</Text> - {cartItem.quantity} x ₹<Text style={styles.boldText}>{cartItem.price}</Text>
         </Text>
       ))}
+      <TouchableOpacity style={styles.downloadButton} onPress={() => navigateToInvoice(item)}>
+        <Icon name="download" size={20} color={colors.main} />
+      </TouchableOpacity>
     </View>
   );
-
+  
   const renderQuoteItem = ({ item }) => (
     <View style={styles.orderItem}>
       <Text style={styles.orderText}>Quote ID: <Text style={styles.boldText}>{item.id}</Text></Text>
-      <Text style={styles.orderText}>Details: <Text style={styles.boldText}>{item.details}</Text></Text>
+      <Text style={styles.orderText}>Total Amount: ₹<Text style={styles.boldText}>{item.totalAmount}</Text></Text>
+      <Text style={styles.orderText}>Time: <Text style={styles.boldText}>{format(item.timestamp.toDate(), 'MMM d, yyyy h:mm a')}</Text></Text>     
+      <Text style={styles.orderText}>Items:</Text>
+      {item.cartItems.map(cartItem => (
+        <Text key={cartItem.id} style={styles.orderText}>
+          <Text style={styles.boldText}>{cartItem.name}</Text> - {cartItem.quantity} x ₹<Text style={styles.boldText}>{cartItem.price}</Text>
+        </Text>
+      ))}
+      <TouchableOpacity style={styles.downloadButton} onPress={() => navigateToInvoice(item)}>
+        <Icon name="download" size={20} color={colors.main} />
+      </TouchableOpacity>
     </View>
   );
 
@@ -81,6 +115,8 @@ const QuotesScreen = () => {
       </View>
     );
   }
+
+  const data = activeButton === 'quotes' ? quotations : orders;
 
   return (
     <View style={styles.container}>
@@ -96,7 +132,7 @@ const QuotesScreen = () => {
           <Text style={[styles.headerButtonText, { color: activeButton === 'orders' ? '#fff' : '#00000070' }]}>Orders</Text>
         </TouchableOpacity>
       </View>
-      {(activeButton === 'quotes' && orderHistory.length === 0) || (activeButton === 'orders' && orderHistory.length === 0) ? (
+      {data.length === 0 ? (
         <>
           <Image source={require('../assets/Quotes.png')} style={styles.image} />
           <Text style={styles.noQuoteText}>No {activeButton === 'quotes' ? 'Quote' : 'Order'} yet</Text>
@@ -105,18 +141,11 @@ const QuotesScreen = () => {
             <Text style={styles.buttonText}>Start Shopping</Text>
           </TouchableOpacity>
         </>
-      ) : showOrderItems ? (
-        <FlatList
-          data={orderHistory}
-          keyExtractor={item => item.id}
-          renderItem={renderOrderItem}
-          contentContainerStyle={styles.orderList}
-        />
       ) : (
         <FlatList
-          data={orderHistory}
+          data={data}
           keyExtractor={item => item.id}
-          renderItem={renderQuoteItem}
+          renderItem={activeButton === 'quotes' ? renderQuoteItem : renderOrderItem}
           contentContainerStyle={styles.orderList}
         />
       )}
@@ -173,6 +202,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
+    position: 'relative',
   },
   orderText: {
     fontSize: 16,
@@ -213,13 +243,20 @@ const styles = StyleSheet.create({
   },
   quotesButtonActive: {
     backgroundColor: colors.main,
+    borderColor: colors.main,
   },
   ordersButtonActive: {
     backgroundColor: colors.main,
+    borderColor: colors.main,
   },
   headerButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+  },
+  downloadButton: {
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
   },
 });
 

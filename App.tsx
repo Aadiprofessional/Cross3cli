@@ -24,6 +24,7 @@ import LeftNavBar from './components/LeftNavBar';
 import { CartProvider } from './components/CartContext';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
+import InvoiceScreen2 from './screens/invoiceScreen2';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -160,6 +161,16 @@ const App = () => {
           <Stack.Screen
             name="InvoiceScreen"
             component={InvoiceScreen}
+            options={{
+              title: 'Invoice Screen',
+              headerStyle: { backgroundColor: colors.main },
+              headerTintColor: '#fff',
+              headerTitleStyle: { fontWeight: 'bold' },
+            }}
+          />
+          <Stack.Screen
+            name="InvoiceScreen2"
+            component={InvoiceScreen2}
             options={{
               title: 'Invoice Screen',
               headerStyle: { backgroundColor: colors.main },
