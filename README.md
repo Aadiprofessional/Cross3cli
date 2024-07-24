@@ -1,4 +1,4 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using # 📦 **CrossBee B2B App**
+# 📦 **CrossBee B2B App**
 
 **CrossBee** is a powerful B2B application designed to streamline product ordering in large quantities. With features such as authentication, cart management, order management, and more, CrossBee ensures a smooth and efficient shopping experience for businesses.
 
@@ -82,13 +82,13 @@ yarn ios
 
 # Video
 Watch the video below to see CrossBee in action:
-
+[![Watch the video](https://img.youtube.com/vi/yourvideoid/0.jpg)](https://youtu.be/HJFZeRm-dps)
 
 
 # APK
 Download the APK file for Android:
 
-📥 Download CrossBee APK
+[📥 Download CrossBee APK](android/app/build/outputs/apk/release/app-release.apk)
 
 # ⚙️ Tech Stack
 Frontend: React Native
