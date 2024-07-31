@@ -1,18 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Linking, Animated } from 'react-native'; // Import Animated from react-native
-import { colors } from '../styles/color'; // Assuming you have defined colors elsewhere
-import { products } from '../data/productData'; // Import your products data
-import { useCart } from '../components/CartContext'; // Import CartContext for managing cart items
-
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  Linking,
+  Animated,
+} from 'react-native';
+import firestore from '@react-native-firebase/firestore';
+import {useCart} from '../components/CartContext';
 import WhatsAppButton2 from '../components/WhatsAppButton2';
+import {colors} from '../styles/color';
 
-const ProductDetailPage = ({ route }) => {
-  const { productId } = route.params;
-  const { addToCart } = useCart(); // Using addToCart function from CartContext
-  const product = products.find(item => item.id === productId);
+const ProductDetailPage = ({route}) => {
+  const {productId} = route.params || {};
+  const {addToCart} = useCart();
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [alertVisible, setAlertVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
-  
+  const [selectedStorage, setSelectedStorage] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [sizesAvailable, setSizesAvailable] = useState([]);
+  const [colorsAvailable, setColorsAvailable] = useState([]);
+  const [quantity, setQuantity] = useState(1);
+  const [imageIndex, setImageIndex] = useState(0);
+  const [currentImages, setCurrentImages] = useState([]);
+  const [currentPrice, setCurrentPrice] = useState(null);
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      setLoading(true);
+      try {
+        const categoriesSnapshot = await firestore()
+          .collection('categories')
+          .get();
+        for (const categoryDoc of categoriesSnapshot.docs) {
+          const companiesSnapshot = await categoryDoc.ref
+            .collection('companies')
+            .get();
+          for (const companyDoc of companiesSnapshot.docs) {
+            const productDoc = await companyDoc.ref
+              .collection('products')
+              .doc(productId)
+              .get();
+            if (productDoc.exists) {
+              const productData = productDoc.data();
+              setProduct(productData);
+              setSelectedColor(productData.colorsAvailable[0]); // Set default color
+              setCurrentImages(productData.mainImage); // Set default images
+              setCurrentPrice(productData.price); // Set default price
+              return;
+            }
+          }
+        }
+        console.log('Product not found!');
+      } catch (error) {
+        console.error('Error fetching product data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (productId) {
+      fetchProductData();
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    if (selectedStorage && product) {
+      const sizes = product.storageOptions[selectedStorage]?.sizes || [];
+      setSizesAvailable(sizes);
+      setSelectedSize(null);
+      setColorsAvailable([]);
+    }
+  }, [selectedStorage, product]);
+
+  useEffect(() => {
+    if (selectedSize && selectedStorage && product) {
+      const selectedSizeMap = product.storageOptions[
+        selectedStorage
+      ]?.sizes.find(sizeMap => sizeMap[selectedSize]);
+      const colors = selectedSizeMap
+        ? selectedSizeMap[selectedSize].colors
+        : [];
+      setColorsAvailable(colors);
+    }
+  }, [selectedSize, selectedStorage, product]);
+
+  useEffect(() => {
+    if (selectedColor && product) {
+      const sizeMap = product.storageOptions[selectedStorage]?.sizes.find(
+        sizeMap => sizeMap[selectedSize]
+      );
+      const colorMap = sizeMap?.[selectedSize]?.colors.find(
+        colorMap => Object.keys(colorMap)[0] === selectedColor
+      );
+
+      if (colorMap) {
+        const colorImages = colorMap[selectedColor]?.images || [];
+        setCurrentImages(colorImages);
+        const price = colorMap[selectedColor]?.price || product.price;
+        setCurrentPrice(price);
+      } else {
+        setCurrentImages(product.mainImage); // Fallback to main images if color not found
+        setCurrentPrice(product.price);
+      }
+    }
+  }, [selectedColor, selectedSize, selectedStorage, product]);
+
+  const handlePrevious = () => {
+    setImageIndex(prevIndex => (prevIndex === 0 ? currentImages.length - 1 : prevIndex - 1));
+  };
+
+  const handleNext = () => {
+    setImageIndex(prevIndex => (prevIndex === currentImages.length - 1 ? 0 : prevIndex + 1));
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   if (!product) {
     return (
       <View style={styles.container}>
@@ -21,28 +137,47 @@ const ProductDetailPage = ({ route }) => {
     );
   }
 
-  const { productName, mainImage, description, price, colorsAvailable, specifications, deliveryTime } = product;
-
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(colorsAvailable[0]); // Default to the first color
-  const [quantity, setQuantity] = useState(1);
-
-  const handlePrevious = () => {
-    setActiveIndex(activeIndex === 0 ? product.images[selectedColor].length - 1 : activeIndex - 1);
-  };
-
-  const handleNext = () => {
-    setActiveIndex(activeIndex === product.images[selectedColor].length - 1 ? 0 : activeIndex + 1);
-  };
+  const {
+    productName,
+    description,
+    specifications,
+    deliveryTime,
+  } = product;
 
   const handleCall = () => {
-    const phoneNumber = '9289881135'; // Replace with your phone number
+    const phoneNumber = '9289881135';
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleColorSelect = (color) => {
-    setSelectedColor(color);
-    setActiveIndex(0); // Reset index when changing color
+  const handleColorSelect = colorName => {
+    setSelectedColor(colorName);
+
+    if (selectedSize && selectedStorage && product) {
+      const sizeMap = product.storageOptions[selectedStorage]?.sizes.find(
+        sizeMap => sizeMap[selectedSize]
+      );
+      const colorMap = sizeMap?.[selectedSize]?.colors.find(
+        colorMap => Object.keys(colorMap)[0] === colorName
+      );
+
+      if (colorMap) {
+        const colorImages = colorMap[colorName]?.images || [];
+        setCurrentImages(colorImages);
+        const price = colorMap[colorName]?.price || product.price;
+        setCurrentPrice(price);
+      } else {
+        setCurrentImages(product.mainImage); // Fallback to main images if color not found
+        setCurrentPrice(product.price);
+      }
+    }
+  };
+
+  const handleStorageSelect = storage => {
+    setSelectedStorage(storage);
+  };
+
+  const handleSizeSelect = size => {
+    setSelectedSize(size);
   };
 
   const handleIncreaseQuantity = () => {
@@ -70,45 +205,58 @@ const ProductDetailPage = ({ route }) => {
         }).start(() => {
           setAlertVisible(false);
         });
-      }, 2000); // Adjust the duration as needed
+      }, 2000);
     });
   };
 
   const handleAddToCart = () => {
     const newItem = {
-      id: product.id,
+      id: productId,
       name: productName,
-      price: price,
+      price: currentPrice || price,
       quantity: quantity,
       color: selectedColor,
-      image: product.images[selectedColor][activeIndex],
+      image: currentImages[0], // Defaulting to the first image of the currentImages array
     };
-    addToCart(newItem); // Add item to cart using addToCart function from CartContext
-    showAlert(); // Show alert after adding item to cart
+    addToCart(newItem);
+    showAlert();
   };
 
   return (
     <View>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <View style={styles.container}>
-          <View style={styles.imageContainer}>
-            <Image source={product.images[selectedColor][activeIndex]} style={styles.image} />
-            <View style={styles.pagination}>
-              {product.images[selectedColor].map((_, index) => (
-                <View
-                  key={index}
-                  style={[styles.dot, index === activeIndex && styles.activeDot]}
-                />
-              ))}
-            </View>
-            <TouchableOpacity style={[styles.arrowButton, { left: 10 }]} onPress={handlePrevious}>
-              <Text style={styles.arrowText}>{'<'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.arrowButton, { right: 10 }]} onPress={handleNext}>
-              <Text style={styles.arrowText}>{'>'}</Text>
-            </TouchableOpacity>
+        <View style={styles.imageContainer}>
+          {currentImages.length > 0 && (
+            <Image
+              source={{ uri: currentImages[imageIndex] }}
+              style={styles.image}
+            />
+          )}
+          <TouchableOpacity
+            style={[styles.arrowButton, { left: 10 }]}
+            onPress={handlePrevious}>
+            <Text style={styles.arrowText}>{'<'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.arrowButton, { right: 10 }]}
+            onPress={handleNext}>
+            <Text style={styles.arrowText}>{'>'}</Text>
+          </TouchableOpacity>
+          <View style={styles.pagination}>
+            {currentImages.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  index === imageIndex && styles.activeDot,
+                ]}
+              />
+            ))}
+            
+         
 
-            <View style={styles.truckIcon}>
+          </View>
+          <View style={styles.truckIcon}>
               <Image
                 source={require('../assets/truck.png')}
                 style={styles.truckImage}
@@ -117,35 +265,111 @@ const ProductDetailPage = ({ route }) => {
             <View style={styles.truckTextContainer}>
               <Text style={styles.truckText}>{deliveryTime}</Text>
             </View>
-          </View>
 
-          <View style={styles.productDetails}>
-            <Text style={styles.title}>{productName}</Text>
-            <Text style={styles.descriptionText}>Description: {description}</Text>
-            <View style={styles.priceContainer}>
-              <Text style={styles.priceText}>Price: ₹{price}</Text>
-              <TouchableOpacity onPress={handleCall}>
+        </View>
+
+        <View style={styles.productDetails}>
+          <Text style={styles.title}>{productName}</Text>
+          <Text style={styles.descriptionText}>{description}</Text>
+          <View style={styles.priceContainer}>
+          <Text style={styles.priceText}>
+            Price: ₹{currentPrice || price}
+          </Text>
+          <TouchableOpacity onPress={handleCall}>
                 <Image
                   source={require('../assets/call.png')}
                   style={styles.callIcon}
                 />
               </TouchableOpacity>
-            </View>
-          </View>
+              </View>
 
           <View style={styles.productDetails}>
-            <Text style={styles.Head}>Color:</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.colorScrollContainer}>
-              {colorsAvailable.map((color, index) => (
-                <ColorButton
+            <Text style={styles.Head}>Storage:</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.colorScrollContainer}>
+              {Object.keys(product.storageOptions).map((storage, index) => (
+                <TouchableOpacity
                   key={index}
-                  color={color}
-                  selectedColor={selectedColor}
-                  onPress={() => handleColorSelect(color)}
-                />
+                  style={[
+                    styles.colorButton,
+                    selectedStorage === storage && styles.selectedButton,
+                  ]}
+                  onPress={() => handleStorageSelect(storage)}>
+                  <Text
+                    style={[
+                      styles.colorButtonText,
+                      selectedStorage === storage && styles.selectedText,
+                    ]}>
+                    {storage}
+                  </Text>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
+
+
+          {selectedStorage && (
+            <View style={styles.productDetails}>
+              <Text style={styles.Head}>Sizes:</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.colorScrollContainer}>
+                {sizesAvailable.map((sizeMap, index) => {
+                  const size = Object.keys(sizeMap)[0];
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        styles.colorButton,
+                        selectedSize === size && styles.selectedButton,
+                      ]}
+                      onPress={() => handleSizeSelect(size)}>
+                      <Text
+                        style={[
+                          styles.colorButtonText,
+                          selectedSize === size && styles.selectedText,
+                        ]}>
+                        {size}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          )}
+          {selectedSize && selectedStorage && (
+            <View style={styles.productDetails}>
+              <Text style={styles.Head}>Color:</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.colorScrollContainer}>
+                {colorsAvailable.map((colorMap, index) => {
+                  const colorName = Object.keys(colorMap)[0];
+                return (
+                  <TouchableOpacity
+                    key={colorName}
+                    onPress={() => handleColorSelect(colorName)}
+                    style={[
+                      styles.colorButton,
+                      selectedColor === colorName && styles.selectedButton,
+                    ]}>
+                    <Text
+                      style={[
+                        styles.colorButtonText,
+                        selectedColor === colorName && styles.selectedText,
+                      ]}>
+                      {colorName}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+              </ScrollView>
+            </View>
+          )}
 
           <View style={styles.quantityContainer}>
             <Text style={styles.quantityText}>Quantity:</Text>
@@ -159,27 +383,33 @@ const ProductDetailPage = ({ route }) => {
               </TouchableOpacity>
             </View>
           </View>
-
           <View style={styles.productDetails}>
             <Text style={styles.Head}>Product Description:</Text>
             <Text style={styles.regularText}>{description}</Text>
           </View>
-
-          <View style={styles.productDetails}>
-            <Text style={styles.Head}>Product Specifications:</Text>
+          <View style={styles.specificationsContainer}>
+            <Text style={styles.specificationsTitle}>Specifications:</Text>
             <View style={styles.specificationTable}>
-              {specifications.map((spec, index) => (
-                <View key={index} style={[styles.specRow, index % 2 === 0 ? styles.firstRow : styles.secondRow]}>
-                  <Text style={styles.specLabel}>{spec.label}</Text>
-                  <Text style={styles.specValue}>{spec.value}</Text>
+              {Object.entries(specifications).map(([key, value], index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.specificationRow,
+                    index % 2 === 0 ? styles.specificationRowEven : styles.specificationRowOdd,
+                  ]}
+                >
+                  <Text style={styles.specificationKey}>{key}</Text>
+                  <Text style={styles.specificationValue}>{value}</Text>
                 </View>
               ))}
             </View>
           </View>
 
           <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-            <Text style={styles.addToCartText}>Add to Cart</Text>
+            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
           </TouchableOpacity>
+
+          
         </View>
       </ScrollView>
 
@@ -189,39 +419,22 @@ const ProductDetailPage = ({ route }) => {
           <Text style={styles.alertText}>Item added to cart</Text>
         </Animated.View>
       )}
-
       <WhatsAppButton2 />
     </View>
   );
 };
 
-const ColorButton = ({ color, selectedColor, onPress }) => {
-  return (
-    <TouchableOpacity
-      style={[
-        styles.colorButton,
-        { backgroundColor: selectedColor === color ? colors.main : '#FFFFFF' },
-        selectedColor === color ? styles.selectedButton : null,
-      ]}
-      onPress={onPress}
-    >
-      <Text style={[styles.colorButtonText, { color: selectedColor === color ? 'white' : colors.main }]}>
-        {color}
-      </Text>
-    </TouchableOpacity>
-  );
-};
 
 const styles = StyleSheet.create({
   scrollViewContainer: {
     flexGrow: 1,
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 10,
     paddingTop: 20,
   },
   container: {
     width: '100%',
+    paddingHorizontal: 10,
   },
   imageContainer: {
     width: '100%',
@@ -233,6 +446,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderWidth: 1, // Adding a stroke
     borderColor: '#B3B3B39D', // Stroke color
+    
   },
   image: {
     width: '85%',
@@ -273,7 +487,7 @@ const styles = StyleSheet.create({
   },
   productDetails: {
     width: '90%',
-    marginTop: 20,
+    marginTop: 1,
   },
   title: {
     fontSize: 20,
@@ -326,6 +540,9 @@ const styles = StyleSheet.create({
     color: colors.main,
     fontWeight: 'bold',
   },
+  selectedText: {
+    color: '#fff',
+  },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -362,35 +579,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.TextBlack,
   },
+  specificationsContainer: {
+    marginVertical: 16,
+    paddingHorizontal: 1,
+  },
+  specificationsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
   specificationTable: {
-    marginTop: 10,
-  },
-  specRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-    backgroundColor: 'rgba(120, 120, 120, 0.3)',
     borderWidth: 1,
-    borderColor: 'rgba(120, 120, 120, 0.3)',
-    marginBottom: 5,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    overflow: 'hidden',
   },
-  firstRow: {
-    backgroundColor: '#F5F5F5', // Alternate row color
+  specificationRow: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    justifyContent: 'space-between',
   },
-  secondRow: {
-    backgroundColor: '#CFCECE9C', // Default row color
+  specificationRowEven: {
+    backgroundColor: '#f7f7f7',
   },
-  specLabel: {
-    fontSize: 16,
-    color: colors.TextBlack,
+  specificationRowOdd: {
+    backgroundColor: '#e0e0e0',
+  },
+  specificationKey: {
+    fontSize: 14,
+    color: '#333',
     fontWeight: 'bold',
   },
-  specValue: {
-    flex: 1,
-    textAlign: 'right',
-    color: colors.TextBlack,
+  specificationValue: {
+    fontSize: 14,
+    color: '#666',
   },
   addToCartButton: {
     backgroundColor: colors.main,
@@ -398,10 +622,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginBottom: 30,
-    marginHorizontal: 20,
+    marginHorizontal: 1,
   },
-  addToCartText: {
-    color: 'white',
+  addToCartButtonText: {
+    color: '#ffffff',
     fontWeight: 'bold',
     fontSize: 18,
   },
@@ -460,3 +684,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProductDetailPage;
+

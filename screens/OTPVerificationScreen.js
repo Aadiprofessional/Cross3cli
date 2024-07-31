@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,13 +8,16 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { colors } from '../styles/color';
-import { sizes } from '../styles/size';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import {colors} from '../styles/color';
+import {sizes} from '../styles/size';
 
 // Configure Google Sign-In
 GoogleSignin.configure({
@@ -32,8 +35,8 @@ const OTPVerificationScreen = ({navigation}) => {
     React.createRef(),
     React.createRef(),
     React.createRef(),
-    React.createRef(), 
-    React.createRef()
+    React.createRef(),
+    React.createRef(),
   ]);
 
   useEffect(() => {
@@ -64,7 +67,7 @@ const OTPVerificationScreen = ({navigation}) => {
     return () => clearInterval(timerInterval);
   }, [confirmResult]);
 
-  const signInWithPhoneNumber = async (phoneNumber) => {
+  const signInWithPhoneNumber = async phoneNumber => {
     try {
       const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
       setConfirmResult(confirmation);
@@ -107,7 +110,7 @@ const OTPVerificationScreen = ({navigation}) => {
   const signInWithGoogle = async () => {
     try {
       await GoogleSignin.hasPlayServices();
-      const { idToken } = await GoogleSignin.signIn();
+      const {idToken} = await GoogleSignin.signIn();
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
       await auth().signInWithCredential(googleCredential);
       await AsyncStorage.setItem('loggedIn', 'true');
@@ -133,10 +136,7 @@ const OTPVerificationScreen = ({navigation}) => {
           source={require('../assets/login_top.png')}
           style={styles.topImage}
         />
-        <Image
-          source={require('../assets/logo.png')}
-          style={styles.logo}
-        />
+        <Image source={require('../assets/logo.png')} style={styles.logo} />
         <Text style={styles.welcomeText}>Welcome to Cross Bee</Text>
         {!confirmResult ? (
           <View style={styles.content}>
@@ -153,15 +153,15 @@ const OTPVerificationScreen = ({navigation}) => {
             />
             <TouchableOpacity
               style={styles.button}
-              onPress={() => signInWithPhoneNumber('+91' + phoneNumber)}
-            >
+              onPress={() => signInWithPhoneNumber('+91' + phoneNumber)}>
               <Text style={styles.buttonText}>Get OTP</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.otpContent}>
             <Text style={styles.otpText}>
-              We sent a 6-digit one-time password to this number +91 {phoneNumber}
+              We sent a 6-digit one-time password to this number +91{' '}
+              {phoneNumber}
             </Text>
             <View style={styles.otpInputsContainer}>
               {textInputRefs.current.map((ref, index) => (
@@ -184,23 +184,21 @@ const OTPVerificationScreen = ({navigation}) => {
             <View style={styles.timerResendContainer}>
               <Text style={styles.timerText}>{timer}s</Text>
               <TouchableOpacity
-                style={[styles.resendButton, { opacity: canResend ? 1 : 0.5 }]}
+                style={[styles.resendButton, {opacity: canResend ? 1 : 0.5}]}
                 onPress={resendOTP}
-                disabled={!canResend}
-              >
+                disabled={!canResend}>
                 <Text style={styles.resendButtonText}>Resend</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={confirmCode}
-            >
+            <TouchableOpacity style={styles.button} onPress={confirmCode}>
               <Text style={styles.buttonText}>Confirm Code</Text>
             </TouchableOpacity>
           </View>
         )}
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.googleButton} onPress={signInWithGoogle}>
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={signInWithGoogle}>
             <View style={styles.googleButtonContent}>
               <Image
                 source={require('../assets/google_logo.png')}
@@ -209,7 +207,9 @@ const OTPVerificationScreen = ({navigation}) => {
               <Text style={styles.googleButtonText}>Log in with Google</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.guestButton} onPress={() => navigation.replace('Home')}>
+          <TouchableOpacity
+            style={styles.guestButton}
+            onPress={() => navigation.replace('Home')}>
             <Text style={styles.guestButtonText}>Log in as Guest User</Text>
           </TouchableOpacity>
         </View>

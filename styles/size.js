@@ -10,4 +10,5 @@ export const sizes = {
   marginVertical: 1, // Increase margin for more space
   marginMax: 10,
   borderRadius: 5,
+  number : 1,
 };

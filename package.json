@@ -26,6 +26,7 @@
     "@react-navigation/stack": "^6.4.1",
     "date-fns": "^3.6.0",
     "expo-font": "^12.0.7",
+    "express": "^4.19.2",
     "firebase": "^10.12.4",
     "pdfkit": "^0.15.0",
     "react": "18.2.0",

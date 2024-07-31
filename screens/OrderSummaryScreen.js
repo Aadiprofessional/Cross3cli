@@ -1,15 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import CartItem from '../components/CartItem';
-import { colors } from '../styles/color';
-import { sizes } from '../styles/size';
-import { data } from '../data/data';
+import {colors} from '../styles/color';
+import {sizes} from '../styles/size';
+import {data} from '../data/data';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CheckBox from '@react-native-community/checkbox';
 
-const OrderSummaryScreen = ({ route, navigation }) => {
-  const { cartItems: initialCartItems, totalAmount: initialTotalAmount } = route.params;
+const OrderSummaryScreen = ({route, navigation}) => {
+  const {cartItems: initialCartItems, totalAmount: initialTotalAmount} =
+    route.params;
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
@@ -22,7 +31,10 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   }, [cartItems, useRewardPoints, appliedCoupon]);
 
   const calculateTotalAmount = () => {
-    let amount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let amount = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
     if (useRewardPoints) {
       amount -= data.rewardPointsPrice;
     }
@@ -34,7 +46,10 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   };
 
   const calculateSubtotal = () => {
-    let subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    let subtotal = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
     if (appliedCoupon) {
       subtotal -= (subtotal * appliedCoupon.value) / 100;
     }
@@ -44,7 +59,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   const handleUpdateQuantity = (id, quantity) => {
     setCartItems(prevItems => {
       const updatedItems = prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item,
+        item.id === id ? {...item, quantity} : item,
       );
       return updatedItems.filter(item => item.quantity > 0);
     });
@@ -89,10 +104,13 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       };
 
       await firestore().collection('orders').add(orderData);
-      navigation.navigate('InvoiceScreen', { invoiceData: orderData });
+      navigation.navigate('InvoiceScreen', {invoiceData: orderData});
     } catch (error) {
       console.error('Error saving order data: ', error);
-      Alert.alert('Error', 'There was an issue processing your order. Please try again.');
+      Alert.alert(
+        'Error',
+        'There was an issue processing your order. Please try again.',
+      );
     }
   };
 
@@ -106,22 +124,31 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         <View style={styles.summaryContainer}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Shipping Charges:</Text>
-            <Text style={styles.summaryValue}>₹{data.shippingCharges.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>
+              ₹{data.shippingCharges.toFixed(2)}
+            </Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Additional Discount:</Text>
-            <Text style={styles.summaryValue}>-₹{data.additionalDiscount.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>
+              -₹{data.additionalDiscount.toFixed(2)}
+            </Text>
           </View>
           {appliedCoupon && (
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Coupon Discount:</Text>
-              <Text style={styles.couponDiscount}>-₹{(calculateSubtotal() * appliedCoupon.value / 100).toFixed(2)}</Text>
+              <Text style={styles.couponDiscount}>
+                -₹
+                {((calculateSubtotal() * appliedCoupon.value) / 100).toFixed(2)}
+              </Text>
             </View>
           )}
           {useRewardPoints && (
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Reward Points Discount:</Text>
-              <Text style={styles.couponDiscount}>-₹{data.rewardPointsPrice.toFixed(2)}</Text>
+              <Text style={styles.couponDiscount}>
+                -₹{data.rewardPointsPrice.toFixed(2)}
+              </Text>
             </View>
           )}
           <View style={styles.totalRow}>
@@ -130,15 +157,17 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.rewardPointsToggle} onPress={handleToggleRewardPoints}>
+        <TouchableOpacity
+          style={styles.rewardPointsToggle}
+          onPress={handleToggleRewardPoints}>
           <Text style={styles.rewardPointsText}>
             Use Reward Points (-₹{data.rewardPointsPrice.toFixed(2)})
           </Text>
           <CheckBox
             value={useRewardPoints}
             onValueChange={handleToggleRewardPoints}
-            boxType='square'
-            tintColors={{ true: colors.main, false: '#dcdcdc' }}
+            boxType="square"
+            tintColors={{true: colors.main, false: '#dcdcdc'}}
           />
         </TouchableOpacity>
 
@@ -163,18 +192,26 @@ const OrderSummaryScreen = ({ route, navigation }) => {
             {data.coupons.map((coupon, index) => (
               <View key={index} style={styles.couponItem}>
                 <Text style={styles.applicableText}>
-                  <Text style={{ color: colors.main, fontWeight: 'bold' }}>{coupon.code}</Text>{'\n'}
+                  <Text style={{color: colors.main, fontWeight: 'bold'}}>
+                    {coupon.code}
+                  </Text>
+                  {'\n'}
                   {coupon.text}
                 </Text>
                 <TouchableOpacity
                   style={styles.applyTextButton}
                   onPress={() => {
                     setAppliedCoupon(coupon);
-                    Alert.alert('Coupon applied', `Coupon ${coupon.code} applied successfully!`);
+                    Alert.alert(
+                      'Coupon applied',
+                      `Coupon ${coupon.code} applied successfully!`,
+                    );
                   }}>
                   <Text style={styles.applyTextButtonText}>Apply</Text>
                 </TouchableOpacity>
-                {index < data.coupons.length - 1 && <View style={styles.separator} />}
+                {index < data.coupons.length - 1 && (
+                  <View style={styles.separator} />
+                )}
               </View>
             ))}
           </View>
@@ -197,7 +234,6 @@ const OrderSummaryScreen = ({ route, navigation }) => {
             onRemoveItem={handleRemoveItem}
           />
         ))}
-
       </ScrollView>
       <View style={styles.checkoutContainer}>
         <TouchableOpacity
@@ -224,7 +260,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -315,7 +351,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -361,7 +397,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   rewardPointsText: {
-    marginLeft:20,
+    marginLeft: 20,
     fontSize: sizes.body,
     flex: 1,
     color: colors.TextBlack,
@@ -373,7 +409,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.main,
     marginLeft: 10,
-    
   },
   checked: {
     backgroundColor: colors.main,
