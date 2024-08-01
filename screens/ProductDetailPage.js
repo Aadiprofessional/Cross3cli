@@ -268,13 +268,16 @@ const ProductDetailPage = ({ route }) => {
 
   const handleAddToCart = () => {
     const newItem = {
-      id: productId,
+      Id : productId,
       name: product.name,
       price: currentPrice,
       quantity,
       selectedStorage,
       selectedSize,
-      selectedColor,
+      color : selectedColor,
+      image : currentImages[0],
+      
+      
     };
     addToCart(newItem);
     showAlert();

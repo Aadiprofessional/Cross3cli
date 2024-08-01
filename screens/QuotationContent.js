@@ -7,7 +7,7 @@ const QuotationContent = ({ item, onIncrease, onDecrease }) => {
     <View style={styles.itemContainer}>
       <View style={styles.imageContainer}>
         <Image
-          source={item.image} // Make sure the image source is correct
+          source={{ uri: item.image}} // Make sure the image source is correct
           style={styles.image}
           resizeMode="contain"
         />

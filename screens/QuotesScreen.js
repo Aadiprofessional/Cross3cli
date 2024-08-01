@@ -15,45 +15,51 @@ const QuotesScreen = () => {
   const [activeButton, setActiveButton] = useState('quotes'); 
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userId = auth().currentUser.uid;
-        const quotesSnapshot = await firestore()
-          .collection('Quotation')
-          .where('userId', '==', userId)
-          .get();
-  
-        const ordersSnapshot = await firestore()
-          .collection('orders')
-          .where('userId', '==', userId)
-          .get();
-  
-        const quotes = quotesSnapshot.docs
+    const userId = auth().currentUser.uid;
+
+    const unsubscribeQuotes = firestore()
+      .collection('Quotation')
+      .where('userId', '==', userId)
+      .onSnapshot(snapshot => {
+        const quotes = snapshot.docs
           .map(doc => ({
             id: doc.id,
             ...doc.data(),
           }))
           .filter(item => item.timestamp)
           .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
-  
-        const orders = ordersSnapshot.docs
-          .map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter(item => item.timestamp)
-          .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
-  
+
         setQuotations(quotes);
-        setOrders(orders);
-      } catch (error) {
-        console.error('Error fetching data: ', error);
-      } finally {
         setLoading(false);
-      }
+      }, error => {
+        console.error('Error fetching quotes: ', error);
+        setLoading(false);
+      });
+
+    const unsubscribeOrders = firestore()
+      .collection('orders')
+      .where('userId', '==', userId)
+      .onSnapshot(snapshot => {
+        const orders = snapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter(item => item.timestamp)
+          .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
+
+        setOrders(orders);
+        setLoading(false);
+      }, error => {
+        console.error('Error fetching orders: ', error);
+        setLoading(false);
+      });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribeQuotes();
+      unsubscribeOrders();
     };
-  
-    fetchUserData();
   }, []);
 
   const handleStartShopping = () => {
@@ -71,8 +77,6 @@ const QuotesScreen = () => {
   const navigateToInvoice = (data) => {
     navigation.navigate('InvoiceScreen2', { quotationId: activeButton === 'quotes' ? data.id : null, orderId: activeButton === 'orders' ? data.id : null });
   };
-  
-  
 
   const renderOrderItem = ({ item }) => (
     <View style={styles.orderItem}>
@@ -152,6 +156,7 @@ const QuotesScreen = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

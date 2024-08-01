@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { colors } from '../styles/color';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {colors} from '../styles/color';
+import {useNavigation} from '@react-navigation/native';
 
-const CartItem = ({
-  item,
-  onUpdateQuantity,
-  onRemoveItem,
-}) => {
-  const { cartId, name, price, quantity, color, image, productId } = item; // Assuming productId is available in item
+const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
+  const {cartId, name, price, quantity, color, image, productId} = item; // Assuming productId is available in item
   const [itemQuantity, setItemQuantity] = useState(quantity);
   const navigation = useNavigation(); // Use navigation hook
 
@@ -34,7 +30,7 @@ const CartItem = ({
 
   const handleImagePress = () => {
     // Navigate to ProductDetailPage, passing the productId
-    navigation.navigate('ProductDetailPage', { productId });
+    navigation.navigate('ProductDetailPage', {productId});
   };
 
   return (
@@ -44,7 +40,7 @@ const CartItem = ({
         onPress={handleImagePress} // Handle image press
       >
         <Image
-          source={image} // Assuming image is passed correctly from the CartScreen
+          source={{uri: image}} // Ensure image is a valid URL or provide a valid source object
           style={styles.productImage}
           resizeMode="contain"
         />
@@ -55,7 +51,7 @@ const CartItem = ({
           ₹{(price * itemQuantity).toFixed(2)}
         </Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, { backgroundColor: colors.main }]}>
+          <View style={[styles.itemColor, {backgroundColor: colors.main}]}>
             <Text style={styles.itemColorText}>{color}</Text>
           </View>
         </View>
@@ -63,15 +59,13 @@ const CartItem = ({
       <View style={styles.quantityContainer}>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={handleDecreaseQuantity}
-        >
+          onPress={handleDecreaseQuantity}>
           <Text style={styles.quantityButtonText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.quantityText}>{itemQuantity}</Text>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={handleIncreaseQuantity}
-        >
+          onPress={handleIncreaseQuantity}>
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
       </View>
@@ -88,7 +82,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
