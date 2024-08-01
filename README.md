@@ -30,13 +30,15 @@
 git clone https://github.com/yourusername/crossbee.git
 cd crossbee
 
+```
 ## Step 1: Install Dependencies
 
+```bash
 npm install
 # or
 yarn install
 
-
+```
 ## Step 2: Start your Application
 
 ### For Android
