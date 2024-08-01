@@ -12,7 +12,7 @@ import firestore from '@react-native-firebase/firestore';
 import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';
 import auth from '@react-native-firebase/auth';
-
+import axios from 'axios';
 const CartScreen = () => {
   const { cartItems, updateCartItemQuantity, removeCartItem } = useCart(); // Assuming CartContext is used
   const navigation = useNavigation();
@@ -25,19 +25,19 @@ const CartScreen = () => {
         return;
       }
 
-      const cartRef = firestore().collection('users').doc(user.uid).collection('Quotation');
-      const newQuotationRef = cartRef.doc(); // Create a new document reference
+      const response = await axios.post(`https://crossbee-server.vercel.app/generateQuotation`, {
+        cartItems,
+        uid : user.uid 
+      });
 
-      const totalAmount = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const quotationData = {
-        items: cartItems,
-        totalAmount,
-        timestamp: firestore.FieldValue.serverTimestamp(),
-      };
-
-      await newQuotationRef.set(quotationData);
-
-      navigation.navigate('Quotation'); // Navigate to Quotation screen after saving
+      if (response.data.text) {
+        console.log('Item added to cart successfully');
+        navigation.navigate('Quotation'); // Navigate to Quotation screen after saving
+       
+      
+      } else {
+        console.error('Failed to checkout');
+      }
     } catch (error) {
       console.error('Error saving quotation: ', error);
     }

@@ -14,6 +14,7 @@ import firestore from '@react-native-firebase/firestore';
 import {useCart} from '../components/CartContext';
 import WhatsAppButton2 from '../components/WhatsAppButton2';
 import {colors} from '../styles/color';
+import axios from 'axios';
 
 const ProductDetailPage = ({route}) => {
   const {productId, mainId, categoryId} = route.params || {};
@@ -36,26 +37,30 @@ const ProductDetailPage = ({route}) => {
   const [attribute2Values, setAttribute2Values] = useState([]);
   const [attribute3Values, setAttribute3Values] = useState([]);
   const [colorDescription, setColorDescription] = useState('');
-const [colorDeliveryTime, setColorDeliveryTime] = useState('');
-const [colorminCartValue, setColorMinCartValue] = useState(1);
-const [colorSpecifications, setColorSpecifications] = useState([]);
+  const [colorDeliveryTime, setColorDeliveryTime] = useState('');
+  const [colorminCartValue, setColorMinCartValue] = useState(1);
+  const [colorSpecifications, setColorSpecifications] = useState([]);
 
   // Fetch product data
   useEffect(() => {
     const fetchProductData = async () => {
       setLoading(true);
       try {
-        const productDoc = await firestore()
-          .collection('Main')
-          .doc(mainId)
-          .collection('Category')
-          .doc(categoryId)
-          .collection('Products')
-          .doc(productId)
-          .get();
+        const headers = {
+          'Content-Type': 'application/json',
+        };
+        const response = await axios.post(
+          `https://crossbee-server.vercel.app/productData`,
+          {
+            main: mainId,
+            category: categoryId,
+            product: productId,
+          },
+          { headers }
+        );
 
-        if (productDoc.exists) {
-          const productData = productDoc.data();
+        if (response.data) {
+          const productData = response.data;
           setProduct(productData);
           setCurrentImages(productData.mainImages || []); // Set default images
           setCurrentPrice(productData.price || '');
@@ -76,61 +81,53 @@ const [colorSpecifications, setColorSpecifications] = useState([]);
     }
   }, [productId, mainId, categoryId]);
 
+
   const fetchAttribute1Values = async attribute1 => {
     try {
-      const attribute1Snapshot = await firestore()
-        .collection('Main')
-        .doc(mainId)
-        .collection('Category')
-        .doc(categoryId)
-        .collection('Products')
-        .doc(productId)
-        .collection('Attribute 1')
-        .get();
+      const response = await axios.post(
+        `https://crossbee-server.vercel.app/attribute1Data`,
+        {
+          main: mainId,
+          category: categoryId,
+          product: productId,
+        }
+      );
 
-      const values = attribute1Snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        value: `${doc.data().value} ${doc.data().suffix || ''}`, // Append suffix to value
-      }));
+      const values = response.data
+      
 
       setAttribute1Values(values);
       // Set default storage
       if (values.length > 0) {
         const defaultStorage = values[0].id;
         setSelectedStorage(defaultStorage);
+        fetchAttribute2Values(defaultStorage);
       }
     } catch (error) {
       console.error('Error fetching Attribute 1 values:', error);
     }
   };
 
-  // Fetch attribute2 values based on selected attribute1id
   const fetchAttribute2Values = async storage => {
     try {
-      const attribute2Snapshot = await firestore()
-        .collection('Main')
-        .doc(mainId)
-        .collection('Category')
-        .doc(categoryId)
-        .collection('Products')
-        .doc(productId)
-        .collection('Attribute 1')
-        .doc(storage)
-        .collection('Attribute 2')
-        .get();
+      const response = await axios.post(
+        `https://crossbee-server.vercel.app/attribute2Data`,
+        {
+          main: mainId,
+          category: categoryId,
+          product: productId,
+          attribute1 : storage
+        }
+      );
 
-      const values = attribute2Snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        value: `${doc.data().value} ${doc.data().suffix || ''}`, // Append suffix to value
-      }));
+      const values = response.data
 
       setAttribute2Values(values);
       // Set default size
       if (values.length > 0) {
         const defaultSize = values[0].id;
         setSelectedSize(defaultSize);
+        fetchAttribute3Values(storage, defaultSize);
       } else {
         setSelectedSize(null); // No sizes available
       }
@@ -139,27 +136,20 @@ const [colorSpecifications, setColorSpecifications] = useState([]);
     }
   };
 
-  // Fetch attribute3 values based on selected attribute1 and attribute2
   const fetchAttribute3Values = async (storage, size) => {
     try {
-      const attribute3Snapshot = await firestore()
-        .collection('Main')
-        .doc(mainId)
-        .collection('Category')
-        .doc(categoryId)
-        .collection('Products')
-        .doc(productId)
-        .collection('Attribute 1')
-        .doc(storage)
-        .collection('Attribute 2')
-        .doc(size)
-        .collection('Colors')
-        .get();
+      const response = await axios.post(
+        `https://crossbee-server.vercel.app/colorData`,
+        {
+          main: mainId,
+          category: categoryId,
+          product: productId,
+          attribute1 : storage,
+          attribute2 : size,
+        }
+      );
 
-      const values = attribute3Snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const values = response.data
 
       setAttribute3Values(values);
       // Set default color
@@ -203,10 +193,18 @@ const [colorSpecifications, setColorSpecifications] = useState([]);
       if (selectedColorData) {
         setCurrentImages(selectedColorData.images || []);
         setCurrentPrice(selectedColorData.price || product.price);
-        setColorDescription(selectedColorData.description || product.description);
-        setColorDeliveryTime(selectedColorData.deliveryTime || product.deliveryTime);
-        setColorSpecifications(selectedColorData.specifications || product.specifications);
-        setColorMinCartValue(selectedColorData.minCartValue || product.minCartValue);
+        setColorDescription(
+          selectedColorData.description || product.description,
+        );
+        setColorDeliveryTime(
+          selectedColorData.deliveryTime || product.deliveryTime,
+        );
+        setColorSpecifications(
+          selectedColorData.specifications || product.specifications,
+        );
+        setColorMinCartValue(
+          selectedColorData.minCartValue || product.minCartValue,
+        );
       }
     }
   }, [selectedColor, attribute3Values, product]);
@@ -257,7 +255,7 @@ const [colorSpecifications, setColorSpecifications] = useState([]);
   const handleIncreaseQuantity = () => {
     // Ensure colorminCartValue is a number
     const minCartValue = Number(colorminCartValue);
-  
+
     // Increase quantity by 1 if minCartValue is valid
     if (!isNaN(minCartValue)) {
       setQuantity(prevQuantity => prevQuantity + 1);
@@ -293,6 +291,7 @@ const [colorSpecifications, setColorSpecifications] = useState([]);
       selectedSize,
       color: selectedColor,
       image: currentImages[0],
+      colorminCartValue,
     };
     addToCart(newItem);
     showAlert();
@@ -441,35 +440,33 @@ const [colorSpecifications, setColorSpecifications] = useState([]);
               </View>
             </ScrollView>
           </View>
-          
+
           {/* Quantity and Add to Cart */}
           <View>
-      <View style={styles.quantityContainer}>
-        <Text style={styles.Head}>Quantity:</Text>
-        <TouchableOpacity
-          onPress={handleDecreaseQuantity}
-          style={[
-            styles.quantityButton,
-            quantity <= colorminCartValue && styles.disabledButton,
-          ]}
-          disabled={quantity <= colorminCartValue}
-        >
-          <Text style={styles.quantityButtonText}>-</Text>
-        </TouchableOpacity>
-        <Text style={styles.quantityText}>{quantity}</Text>
-        <TouchableOpacity
-          onPress={handleIncreaseQuantity}
-          style={styles.quantityButton}
-        >
-          <Text style={styles.quantityButtonText}>+</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.productDetails}>
-        <Text style={styles.regularText}>
-          Min Cart Value: {colorminCartValue}
-        </Text>
-      </View>
-    </View>
+            <View style={styles.quantityContainer}>
+              <Text style={styles.Head}>Quantity:</Text>
+              <TouchableOpacity
+                onPress={handleDecreaseQuantity}
+                style={[
+                  styles.quantityButton,
+                  quantity <= colorminCartValue && styles.disabledButton,
+                ]}
+                disabled={quantity <= colorminCartValue}>
+                <Text style={styles.quantityButtonText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{quantity}</Text>
+              <TouchableOpacity
+                onPress={handleIncreaseQuantity}
+                style={styles.quantityButton}>
+                <Text style={styles.quantityButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.productDetails}>
+              <Text style={styles.regularText}>
+                Min Cart Value: {colorminCartValue}
+              </Text>
+            </View>
+          </View>
           <View style={styles.productDetails}>
             <Text style={styles.Head}>Product Description:</Text>
             <Text style={styles.regularText}>{colorDescription}</Text>
@@ -569,6 +566,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#A7A7A7',
     marginHorizontal: 5,
+  },
+  disabledButton: {
+    backgroundColor: colors.mainlight, // Change this to a color that indicates disabled
   },
   activeDot: {
     width: 16,

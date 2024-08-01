@@ -12,4 +12,5 @@ export const colors = {
   placeholder : '#787878',
   TextWhite : '#ffffff',
   Green : '#008000',
+  mainlight : '#FCCB5169',
 };

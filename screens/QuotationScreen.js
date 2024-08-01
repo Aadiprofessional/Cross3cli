@@ -1,71 +1,78 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import QuotationItem from '../components/QuotationItem';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
+import axios from 'axios';
 
-const QuotationScreen = ({ navigation }) => {
+const QuotationScreen = ({navigation}) => {
   const [quotations, setQuotations] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const user = auth().currentUser;
-    if (user) {
-      const cartRef = firestore()
-        .collection('users')
-        .doc(user.uid)
-        .collection('Quotation');
+    const fetchProductData = async () => {
+      const user = auth().currentUser;
+      if (user) {
+        try {
+          // Replace the URL with your API endpoint for adding items to the cart
+          const response = await axios.post(
+            `https://crossbee-server.vercel.app/getUserQuotations`,
+            {
+              uid: user.uid,
+            },
+          );
+          console.log(response.data);
 
-      const unsubscribe = cartRef.orderBy('timestamp', 'desc').onSnapshot(
-        snapshot => {
-          if (snapshot) {
-            const data = snapshot.docs.map(doc => ({
-              ...doc.data(),
-              id: doc.id
-            }));
-            setQuotations(data);
+          if (response.data) {
+            console.log('Item added to cart successfully');
+            setQuotations(response.data);
           } else {
-            setQuotations([]);
+            console.error('Failed to add item to cart');
           }
-        },
-        err => {
-          console.error('Error fetching quotations:', err);
-          setError('Failed to load data. Please try again later.');
+        } catch (error) {
+          console.error('Error adding item to cart:', error);
         }
-      );
-
-      return () => unsubscribe();
-    } else {
-      setError('User not authenticated');
-    }
+      } else {
+        setError('User not authenticated');
+      }
+    };
+    fetchProductData()
   }, []);
 
-  const handleCheckout = async (quotation) => {
+  
+
+  const handleCheckout = async quotation => {
     try {
       const userId = auth().currentUser.uid;
 
-      const orderData = {
-        totalAmount: quotation.totalAmount || 0,
-        shippingCharges: quotation.shippingCharges || 0,
-        additionalDiscount: quotation.additionalDiscount || 0,
-        rewardPointsPrice: quotation.useRewardPoints ? (quotation.rewardPointsPrice || 0) : 0,
-        appliedCoupon: quotation.appliedCoupon ? (quotation.appliedCoupon.value || 0) : 0,
-        cartItems: quotation.items || [],
-        userId,
-        timestamp: firestore.FieldValue.serverTimestamp(),
-      };
+      const response = await axios.post(`https://crossbee-server.vercel.app/quotationCheckout`, {
+        quotation,
+        uid : userId 
+      });
 
-      console.log('Order Data:', orderData);
+      if (response.data.data) {
+        console.log('Item added to cart successfully');
+        navigation.navigate('InvoiceScreen', {invoiceData: response.data.data});
+      
+      } else {
+        console.error('Failed to checkout');
+      }
 
-      const docRef = await firestore().collection('Quotation').add(orderData);
 
-      console.log('Order successfully saved to Firestore with ID:', docRef.id);
-
-      navigation.navigate('InvoiceScreen', { invoiceData: orderData });
     } catch (error) {
       console.error('Error saving order data: ', error);
-      Alert.alert('Error', 'There was an issue processing your order. Please try again.');
+      Alert.alert(
+        'Error',
+        'There was an issue processing your order. Please try again.',
+      );
     }
   };
 
@@ -87,8 +94,7 @@ const QuotationScreen = ({ navigation }) => {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.checkoutButton}
-              onPress={() => handleCheckout(quotation)}
-            >
+              onPress={() => handleCheckout(quotation)}>
               <Text style={styles.checkoutButtonText}>Checkout</Text>
             </TouchableOpacity>
           </View>
@@ -116,7 +122,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#f9f9f9',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,

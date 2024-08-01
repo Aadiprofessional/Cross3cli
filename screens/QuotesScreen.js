@@ -6,60 +6,52 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import { format } from 'date-fns';
 import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome for icons
-
+import axios from 'axios';
 const QuotesScreen = () => {
   const navigation = useNavigation();
   const [quotations, setQuotations] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeButton, setActiveButton] = useState('quotes'); 
-
+  
   useEffect(() => {
-    const userId = auth().currentUser.uid;
-
-    const unsubscribeQuotes = firestore()
-      .collection('Quotation')
-      .where('userId', '==', userId)
-      .onSnapshot(snapshot => {
-        const quotes = snapshot.docs
-          .map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter(item => item.timestamp)
-          .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
-
-        setQuotations(quotes);
-        setLoading(false);
-      }, error => {
-        console.error('Error fetching quotes: ', error);
-        setLoading(false);
-      });
-
-    const unsubscribeOrders = firestore()
-      .collection('orders')
-      .where('userId', '==', userId)
-      .onSnapshot(snapshot => {
-        const orders = snapshot.docs
-          .map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter(item => item.timestamp)
-          .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
-
-        setOrders(orders);
-        setLoading(false);
-      }, error => {
-        console.error('Error fetching orders: ', error);
-        setLoading(false);
-      });
-
-    // Cleanup subscription on unmount
-    return () => {
-      unsubscribeQuotes();
-      unsubscribeOrders();
+    const fetchProductData = async () => {
+      const user = auth().currentUser;
+      if (user) {
+        try {
+          // Replace the URL with your API endpoint for adding items to the cart
+          
+          const response = await axios.post(`https://crossbee-server.vercel.app/getQuotations`, {
+            uid : user.uid 
+          });
+        
+          if (response.data) {
+            console.log('Item added to cart successfully');
+            setQuotations(response.data);
+            setLoading(false);
+          } else {
+            console.error('Failed to checkout');
+          }
+          const response1 = await axios.post(`https://crossbee-server.vercel.app/getOrders`, {
+            uid : user.uid 
+          });
+        
+          if (response1.data) {
+            console.log('Item added to cart successfully');
+            setOrders(response1.data);
+            setLoading(false);
+          } else {
+            console.error('Failed to checkout');
+          }
+        } catch (error) {
+          console.error('Error adding item to cart:', error);
+        }
+      } else {
+        setError('User not authenticated');
+      }
     };
+    fetchProductData()
+
   }, []);
 
   const handleStartShopping = () => {
@@ -82,7 +74,7 @@ const QuotesScreen = () => {
     <View style={styles.orderItem}>
       <Text style={styles.orderText}>Order ID: <Text style={styles.boldText}>{item.id}</Text></Text>
       <Text style={styles.orderText}>Total Amount: ₹<Text style={styles.boldText}>{item.totalAmount}</Text></Text>
-      <Text style={styles.orderText}>Time: <Text style={styles.boldText}>{format(item.timestamp.toDate(), 'MMM d, yyyy h:mm a')}</Text></Text>
+      {/* <Text style={styles.orderText}>Time: <Text style={styles.boldText}>{format(item.timestamp.toDate(), 'MMM d, yyyy h:mm a')}</Text></Text> */}
       <Text style={styles.orderText}>Items:</Text>
       {item.cartItems.map(cartItem => (
         <Text key={cartItem.id} style={styles.orderText}>
@@ -99,7 +91,7 @@ const QuotesScreen = () => {
     <View style={styles.orderItem}>
       <Text style={styles.orderText}>Quote ID: <Text style={styles.boldText}>{item.id}</Text></Text>
       <Text style={styles.orderText}>Total Amount: ₹<Text style={styles.boldText}>{item.totalAmount}</Text></Text>
-      <Text style={styles.orderText}>Time: <Text style={styles.boldText}>{format(item.timestamp.toDate(), 'MMM d, yyyy h:mm a')}</Text></Text>     
+      {/* <Text style={styles.orderText}>Time: <Text style={styles.boldText}>{format(item.timestamp.toDate(), 'MMM d, yyyy h:mm a')}</Text></Text>      */}
       <Text style={styles.orderText}>Items:</Text>
       {item.cartItems.map(cartItem => (
         <Text key={cartItem.id} style={styles.orderText}>

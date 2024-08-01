@@ -4,7 +4,7 @@ import {colors} from '../styles/color';
 import {useNavigation} from '@react-navigation/native';
 
 const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
-  const {cartId, name, price, quantity, color, image, productId} = item; // Assuming productId is available in item
+  const {cartId, name, price, quantity, color, image, productId, colorminCartValue} = item; // Assuming productId is available in item
   const [itemQuantity, setItemQuantity] = useState(quantity);
   const navigation = useNavigation(); // Use navigation hook
 
@@ -33,6 +33,10 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
     navigation.navigate('ProductDetailPage', {productId});
   };
 
+  const handleRemoveItem = () => {
+    onRemoveItem(cartId);
+  };
+
   return (
     <View style={styles.cartItemContainer}>
       <TouchableOpacity
@@ -54,21 +58,31 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
           <View style={[styles.itemColor, {backgroundColor: colors.main}]}>
             <Text style={styles.itemColorText}>{color}</Text>
           </View>
+          <TouchableOpacity
+        style={styles.removeButton}
+        onPress={handleRemoveItem}
+      >
+        <Text style={styles.removeButtonText}>Remove</Text>
+      </TouchableOpacity>
         </View>
       </View>
       <View style={styles.quantityContainer}>
         <TouchableOpacity
-          style={styles.quantityButton}
-          onPress={handleDecreaseQuantity}>
+          style={[styles.quantityButton, itemQuantity <= colorminCartValue && styles.disabledButton]}
+          onPress={handleDecreaseQuantity}
+          disabled={itemQuantity <= colorminCartValue}
+        >
           <Text style={styles.quantityButtonText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.quantityText}>{itemQuantity}</Text>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={handleIncreaseQuantity}>
+          onPress={handleIncreaseQuantity}
+        >
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
       </View>
+      
     </View>
   );
 };
@@ -143,6 +157,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 15,
   },
+  disabledButton: {
+    backgroundColor: colors.mainlight, // Change this to a color that indicates disabled
+  },
   quantityButtonText: {
     fontSize: 18,
     color: '#fff',
@@ -152,6 +169,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: colors.TextBlack,
     marginHorizontal: 10,
+  },
+  removeButton: {
+    marginLeft: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    borderRadius: 5,
+    backgroundColor: colors.main,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeButtonText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });
 

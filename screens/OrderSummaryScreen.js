@@ -15,6 +15,7 @@ import {data} from '../data/data';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CheckBox from '@react-native-community/checkbox';
+import axios from 'axios';
 
 const OrderSummaryScreen = ({route, navigation}) => {
   const {cartItems: initialCartItems, totalAmount: initialTotalAmount} =
@@ -92,19 +93,35 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const handleCheckout = async () => {
     try {
       const userId = auth().currentUser.uid;
-      const orderData = {
-        totalAmount,
-        shippingCharges: data.shippingCharges,
-        additionalDiscount: data.additionalDiscount,
-        rewardPointsPrice: useRewardPoints ? data.rewardPointsPrice : 0,
-        appliedCoupon: appliedCoupon ? appliedCoupon.value : 0,
-        cartItems,
-        userId,
-        timestamp: firestore.FieldValue.serverTimestamp(),
-      };
+      // const orderData = {
+      //   totalAmount,
+      //   shippingCharges: data.shippingCharges,
+      //   additionalDiscount: data.additionalDiscount,
+      //   rewardPointsPrice: useRewardPoints ? data.rewardPointsPrice : 0,
+      //   appliedCoupon: appliedCoupon ? appliedCoupon.value : 0,
+      //   cartItems,
+      //   userId,
+      //   timestamp: firestore.FieldValue.serverTimestamp(),
+      // };
 
-      await firestore().collection('orders').add(orderData);
-      navigation.navigate('InvoiceScreen', {invoiceData: orderData});
+      // await firestore().collection('orders').add(orderData);
+      const response = await axios.post(`https://crossbee-server.vercel.app/checkout`, {
+        totalAmount,
+        data,
+
+        useRewardPoints,
+        appliedCoupon,
+        cartItems,
+        uid : userId 
+      });
+
+      if (response.data.data) {
+        console.log('Item added to cart successfully');
+        navigation.navigate('InvoiceScreen', {invoiceData: response.data.data});
+      
+      } else {
+        console.error('Failed to checkout');
+      }
     } catch (error) {
       console.error('Error saving order data: ', error);
       Alert.alert(
