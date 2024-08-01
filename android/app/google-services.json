@@ -1,41 +1,33 @@
 {
   "project_info": {
-    "project_number": "331668531059",
-    "project_id": "crossbee-1f64f",
-    "storage_bucket": "crossbee-1f64f.appspot.com"
+    "project_number": "1097929165854",
+    "project_id": "crossbee",
+    "storage_bucket": "crossbee.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:331668531059:android:8643f60dda213746cb8706",
+        "mobilesdk_app_id": "1:1097929165854:android:450c8169cf4173c4a0b20f",
         "android_client_info": {
           "package_name": "com.crossbee"
         }
       },
       "oauth_client": [
         {
-          "client_id": "331668531059-ieumt59io0a8t5kt7p2jlq14lcjdp26e.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.crossbee",
-            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
-          }
-        },
-        {
-          "client_id": "331668531059-j28cavhs1u69nvbb19kumjeufqut89fv.apps.googleusercontent.com",
+          "client_id": "1097929165854-t9p0f55jva07tauq34o1vejt58hg2ot8.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCpDqImFLQ3iK384-4LAP00PdLSInM2Ujk"
+          "current_key": "AIzaSyB4WV8m9xwQnI-ot4mcBWkyXbvpi-V6Nzw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "331668531059-j28cavhs1u69nvbb19kumjeufqut89fv.apps.googleusercontent.com",
+              "client_id": "1097929165854-t9p0f55jva07tauq34o1vejt58hg2ot8.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

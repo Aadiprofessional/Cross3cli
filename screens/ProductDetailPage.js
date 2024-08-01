@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,16 @@ import {
   TouchableOpacity,
   Linking,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import {useCart} from '../components/CartContext';
+import { useCart } from '../components/CartContext';
 import WhatsAppButton2 from '../components/WhatsAppButton2';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
-const ProductDetailPage = ({route}) => {
-  const {productId} = route.params || {};
-  const {addToCart} = useCart();
+const ProductDetailPage = ({ route }) => {
+  const { productId, mainId, categoryId } = route.params || {};
+  const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,35 +31,35 @@ const ProductDetailPage = ({route}) => {
   const [quantity, setQuantity] = useState(1);
   const [imageIndex, setImageIndex] = useState(0);
   const [currentImages, setCurrentImages] = useState([]);
-  const [currentPrice, setCurrentPrice] = useState(null);
+  const [currentPrice, setCurrentPrice] = useState('');
+  const [attribute1Values, setAttribute1Values] = useState([]);
+  const [attribute2Values, setAttribute2Values] = useState([]);
+  const [attribute3Values, setAttribute3Values] = useState([]);
 
+  // Fetch product data
   useEffect(() => {
     const fetchProductData = async () => {
       setLoading(true);
       try {
-        const categoriesSnapshot = await firestore()
-          .collection('categories')
+        const productDoc = await firestore()
+          .collection('Main')
+          .doc(mainId)
+          .collection('Category')
+          .doc(categoryId)
+          .collection('Products')
+          .doc(productId)
           .get();
-        for (const categoryDoc of categoriesSnapshot.docs) {
-          const companiesSnapshot = await categoryDoc.ref
-            .collection('companies')
-            .get();
-          for (const companyDoc of companiesSnapshot.docs) {
-            const productDoc = await companyDoc.ref
-              .collection('products')
-              .doc(productId)
-              .get();
-            if (productDoc.exists) {
-              const productData = productDoc.data();
-              setProduct(productData);
-              setSelectedColor(productData.colorsAvailable[0]); // Set default color
-              setCurrentImages(productData.mainImage); // Set default images
-              setCurrentPrice(productData.price); // Set default price
-              return;
-            }
-          }
+
+        if (productDoc.exists) {
+          const productData = productDoc.data();
+          setProduct(productData);
+          setCurrentImages(productData.mainImages || []); // Set default images
+          setCurrentPrice(productData.price || '');
+          // Fetch initial attribute values
+          fetchAttribute1Values(productData.attribute1 || []);
+        } else {
+          console.log('Product not found!');
         }
-        console.log('Product not found!');
       } catch (error) {
         console.error('Error fetching product data:', error);
       } finally {
@@ -69,115 +70,171 @@ const ProductDetailPage = ({route}) => {
     if (productId) {
       fetchProductData();
     }
-  }, [productId]);
+  }, [productId, mainId, categoryId]);
 
-  useEffect(() => {
-    if (selectedStorage && product) {
-      const sizes = product.storageOptions[selectedStorage]?.sizes || [];
-      setSizesAvailable(sizes);
-      setSelectedSize(null);
-      setColorsAvailable([]);
+  const fetchAttribute1Values = async (attribute1) => {
+    try {
+      const attribute1Snapshot = await firestore()
+        .collection('Main')
+        .doc(mainId)
+        .collection('Category')
+        .doc(categoryId)
+        .collection('Products')
+        .doc(productId)
+        .collection('Attribute 1')
+        .get();
+  
+      const values = attribute1Snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        value: `${doc.data().value} ${doc.data().suffix || ''}`, // Append suffix to value
+      }));
+  
+      setAttribute1Values(values);
+      // Set default storage
+      if (values.length > 0) {
+        const defaultStorage = values[0].id;
+        setSelectedStorage(defaultStorage);
+      }
+    } catch (error) {
+      console.error('Error fetching Attribute 1 values:', error);
     }
-  }, [selectedStorage, product]);
-
-  useEffect(() => {
-    if (selectedSize && selectedStorage && product) {
-      const selectedSizeMap = product.storageOptions[
-        selectedStorage
-      ]?.sizes.find(sizeMap => sizeMap[selectedSize]);
-      const colors = selectedSizeMap
-        ? selectedSizeMap[selectedSize].colors
-        : [];
-      setColorsAvailable(colors);
-    }
-  }, [selectedSize, selectedStorage, product]);
-
-  useEffect(() => {
-    if (selectedColor && product) {
-      const sizeMap = product.storageOptions[selectedStorage]?.sizes.find(
-        sizeMap => sizeMap[selectedSize]
-      );
-      const colorMap = sizeMap?.[selectedSize]?.colors.find(
-        colorMap => Object.keys(colorMap)[0] === selectedColor
-      );
-
-      if (colorMap) {
-        const colorImages = colorMap[selectedColor]?.images || [];
-        setCurrentImages(colorImages);
-        const price = colorMap[selectedColor]?.price || product.price;
-        setCurrentPrice(price);
+  };
+  
+  // Fetch attribute2 values based on selected attribute1id
+  const fetchAttribute2Values = async (storage) => {
+    try {
+      const attribute2Snapshot = await firestore()
+        .collection('Main')
+        .doc(mainId)
+        .collection('Category')
+        .doc(categoryId)
+        .collection('Products')
+        .doc(productId)
+        .collection('Attribute 1')
+        .doc(storage)
+        .collection('Attribute 2')
+        .get();
+  
+      const values = attribute2Snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        value: `${doc.data().value} ${doc.data().suffix || ''}`, // Append suffix to value
+      }));
+  
+      setAttribute2Values(values);
+      // Set default size
+      if (values.length > 0) {
+        const defaultSize = values[0].id;
+        setSelectedSize(defaultSize);
       } else {
-        setCurrentImages(product.mainImage); // Fallback to main images if color not found
-        setCurrentPrice(product.price);
+        setSelectedSize(null); // No sizes available
+      }
+    } catch (error) {
+      console.error('Error fetching Attribute 2 values:', error);
+    }
+  };
+
+  // Fetch attribute3 values based on selected attribute1 and attribute2
+  const fetchAttribute3Values = async (storage, size) => {
+    try {
+      const attribute3Snapshot = await firestore()
+        .collection('Main')
+        .doc(mainId)
+        .collection('Category')
+        .doc(categoryId)
+        .collection('Products')
+        .doc(productId)
+        .collection('Attribute 1')
+        .doc(storage)
+        .collection('Attribute 2')
+        .doc(size)
+        .collection('Colors')
+        .get();
+
+      const values = attribute3Snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setAttribute3Values(values);
+      // Set default color
+      if (values.length > 0) {
+        const defaultColor = values[0].id;
+        setSelectedColor(defaultColor);
+      } else {
+        setSelectedColor(null); // No colors available
+      }
+    } catch (error) {
+      console.error('Error fetching Attribute 3 values:', error);
+    }
+  };
+
+  // Handle storage selection
+  const handleStorageSelect = (storage) => {
+    setSelectedStorage(storage);
+    setSelectedSize(null); // Reset selected size
+    setSelectedColor(null); // Reset selected color
+    fetchAttribute2Values(storage); // Fetch new sizes
+  };
+
+  // Handle size selection
+  const handleSizeSelect = (size) => {
+    setSelectedSize(size);
+    setSelectedColor(null); // Reset selected color
+    fetchAttribute3Values(selectedStorage, size); // Fetch new colors
+  };
+
+  // Handle color selection
+  const handleColorSelect = (color) => {
+    setSelectedColor(color);
+  };
+
+  // Update images and price based on selected color
+  useEffect(() => {
+    if (selectedColor && attribute3Values.length > 0) {
+      const selectedColorData = attribute3Values.find(
+        (colorOption) => colorOption.id === selectedColor
+      );
+      if (selectedColorData) {
+        setCurrentImages(selectedColorData.images || []);
+        setCurrentPrice(selectedColorData.price || product.price);
       }
     }
-  }, [selectedColor, selectedSize, selectedStorage, product]);
+  }, [selectedColor, attribute3Values, product]);
+
+  // Update sizes and colors when storage or size changes
+  useEffect(() => {
+    if (selectedStorage) {
+      fetchAttribute2Values(selectedStorage);
+    }
+  }, [selectedStorage]);
+
+  useEffect(() => {
+    if (selectedSize) {
+      fetchAttribute3Values(selectedStorage, selectedSize);
+    } else {
+      // If no size selected, reset colors
+      setColorsAvailable([]);
+      setSelectedColor(null);
+    }
+  }, [selectedSize]);
 
   const handlePrevious = () => {
-    setImageIndex(prevIndex => (prevIndex === 0 ? currentImages.length - 1 : prevIndex - 1));
+    setImageIndex((prevIndex) =>
+      prevIndex === 0 ? currentImages.length - 1 : prevIndex - 1
+    );
   };
 
   const handleNext = () => {
-    setImageIndex(prevIndex => (prevIndex === currentImages.length - 1 ? 0 : prevIndex + 1));
+    setImageIndex((prevIndex) =>
+      prevIndex === currentImages.length - 1 ? 0 : prevIndex + 1
+    );
   };
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
-  if (!product) {
-    return (
-      <View style={styles.container}>
-        <Text>Product not found!</Text>
-      </View>
-    );
-  }
-
-  const {
-    productName,
-    description,
-    specifications,
-    deliveryTime,
-  } = product;
 
   const handleCall = () => {
     const phoneNumber = '9289881135';
     Linking.openURL(`tel:${phoneNumber}`);
-  };
-
-  const handleColorSelect = colorName => {
-    setSelectedColor(colorName);
-
-    if (selectedSize && selectedStorage && product) {
-      const sizeMap = product.storageOptions[selectedStorage]?.sizes.find(
-        sizeMap => sizeMap[selectedSize]
-      );
-      const colorMap = sizeMap?.[selectedSize]?.colors.find(
-        colorMap => Object.keys(colorMap)[0] === colorName
-      );
-
-      if (colorMap) {
-        const colorImages = colorMap[colorName]?.images || [];
-        setCurrentImages(colorImages);
-        const price = colorMap[colorName]?.price || product.price;
-        setCurrentPrice(price);
-      } else {
-        setCurrentImages(product.mainImage); // Fallback to main images if color not found
-        setCurrentPrice(product.price);
-      }
-    }
-  };
-
-  const handleStorageSelect = storage => {
-    setSelectedStorage(storage);
-  };
-
-  const handleSizeSelect = size => {
-    setSelectedSize(size);
   };
 
   const handleIncreaseQuantity = () => {
@@ -212,15 +269,32 @@ const ProductDetailPage = ({route}) => {
   const handleAddToCart = () => {
     const newItem = {
       id: productId,
-      name: productName,
-      price: currentPrice || price,
-      quantity: quantity,
-      color: selectedColor,
-      image: currentImages[0], // Defaulting to the first image of the currentImages array
+      name: product.name,
+      price: currentPrice,
+      quantity,
+      selectedStorage,
+      selectedSize,
+      selectedColor,
     };
     addToCart(newItem);
     showAlert();
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.main} />
+      </View>
+    );
+  }
+
+  if (!product) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Product not found!</Text>
+      </View>
+    );
+  }
 
   return (
     <View>
@@ -263,17 +337,17 @@ const ProductDetailPage = ({route}) => {
               />
             </View>
             <View style={styles.truckTextContainer}>
-              <Text style={styles.truckText}>{deliveryTime}</Text>
+              <Text style={styles.truckText}>{product.deliveryTime}</Text>
             </View>
 
         </View>
 
         <View style={styles.productDetails}>
-          <Text style={styles.title}>{productName}</Text>
-          <Text style={styles.descriptionText}>{description}</Text>
+          <Text style={styles.title}>{product.name}</Text>
+          <Text style={styles.descriptionText}>{product.description}</Text>
           <View style={styles.priceContainer}>
           <Text style={styles.priceText}>
-            Price: ₹{currentPrice || price}
+            Price: ₹{currentPrice}
           </Text>
           <TouchableOpacity onPress={handleCall}>
                 <Image
@@ -283,136 +357,134 @@ const ProductDetailPage = ({route}) => {
               </TouchableOpacity>
               </View>
 
-          <View style={styles.productDetails}>
-            <Text style={styles.Head}>Storage:</Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.colorScrollContainer}>
-              {Object.keys(product.storageOptions).map((storage, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.colorButton,
-                    selectedStorage === storage && styles.selectedButton,
-                  ]}
-                  onPress={() => handleStorageSelect(storage)}>
-                  <Text
-                    style={[
-                      styles.colorButtonText,
-                      selectedStorage === storage && styles.selectedText,
-                    ]}>
-                    {storage}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
 
+        {/* Attribute 1 (Storage) */}
+        <View style={styles.productDetails}>
+  <Text style={styles.Head}>{product.attribute1}</Text>
+  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+    <View style={styles.colorScrollContainer}>
+      {attribute1Values.map((storage) => (
+        <TouchableOpacity
+          key={storage.id}
+          style={[
+            styles.colorButton,
+            selectedStorage === storage.id && styles.selectedButton,
+          ]}
+          onPress={() => handleStorageSelect(storage.id)}
+        >
+          <Text
+            style={[
+              styles.colorButtonText,
+              selectedStorage === storage.id && styles.selectedText,
+            ]}
+          >
+            {storage.value}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  </ScrollView>
+</View>
 
-          {selectedStorage && (
-            <View style={styles.productDetails}>
-              <Text style={styles.Head}>Sizes:</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.colorScrollContainer}>
-                {sizesAvailable.map((sizeMap, index) => {
-                  const size = Object.keys(sizeMap)[0];
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      style={[
-                        styles.colorButton,
-                        selectedSize === size && styles.selectedButton,
-                      ]}
-                      onPress={() => handleSizeSelect(size)}>
-                      <Text
-                        style={[
-                          styles.colorButtonText,
-                          selectedSize === size && styles.selectedText,
-                        ]}>
-                        {size}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          )}
-          {selectedSize && selectedStorage && (
-            <View style={styles.productDetails}>
-              <Text style={styles.Head}>Color:</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.colorScrollContainer}>
-                {colorsAvailable.map((colorMap, index) => {
-                  const colorName = Object.keys(colorMap)[0];
-                return (
-                  <TouchableOpacity
-                    key={colorName}
-                    onPress={() => handleColorSelect(colorName)}
-                    style={[
-                      styles.colorButton,
-                      selectedColor === colorName && styles.selectedButton,
-                    ]}>
-                    <Text
-                      style={[
-                        styles.colorButtonText,
-                        selectedColor === colorName && styles.selectedText,
-                      ]}>
-                      {colorName}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-              </ScrollView>
-            </View>
-          )}
+<View style={styles.productDetails}>
+  <Text style={styles.Head}>{product.attribute2}</Text>
+  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+    <View style={styles.colorScrollContainer}>
+      {attribute2Values.map((size) => (
+        <TouchableOpacity
+          key={size.id}
+          style={[
+            styles.colorButton,
+            selectedSize === size.id && styles.selectedButton,
+          ]}
+          onPress={() => handleSizeSelect(size.id)}
+        >
+          <Text
+            style={[
+              styles.colorButtonText,
+              selectedSize === size.id && styles.selectedText,
+            ]}
+          >
+            {size.value}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  </ScrollView>
+</View>
 
-          <View style={styles.quantityContainer}>
-            <Text style={styles.quantityText}>Quantity:</Text>
-            <View style={styles.quantityControl}>
-              <TouchableOpacity style={styles.quantityButton} onPress={handleDecreaseQuantity}>
-                <Text style={styles.quantityButtonText}>-</Text>
-              </TouchableOpacity>
-              <Text style={styles.quantityNumber}>{quantity}</Text>
-              <TouchableOpacity style={styles.quantityButton} onPress={handleIncreaseQuantity}>
-                <Text style={styles.quantityButtonText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-          <View style={styles.productDetails}>
-            <Text style={styles.Head}>Product Description:</Text>
-            <Text style={styles.regularText}>{description}</Text>
-          </View>
-          <View style={styles.specificationsContainer}>
-            <Text style={styles.specificationsTitle}>Specifications:</Text>
-            <View style={styles.specificationTable}>
-              {Object.entries(specifications).map(([key, value], index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.specificationRow,
-                    index % 2 === 0 ? styles.specificationRowEven : styles.specificationRowOdd,
-                  ]}
-                >
-                  <Text style={styles.specificationKey}>{key}</Text>
-                  <Text style={styles.specificationValue}>{value}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
+<View style={styles.productDetails}>
+  <Text style={styles.Head}>{product.attribute3}</Text>
+  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+    <View style={styles.colorScrollContainer}>
+      {attribute3Values.map((color) => (
+        <TouchableOpacity
+          key={color.id}
+          style={[
+            styles.colorButton,
+            selectedColor === color.id && styles.selectedButton,
+          ]}
+          onPress={() => handleColorSelect(color.id)}
+        >
+          <Text
+            style={[
+              styles.colorButtonText,
+              selectedColor === color.id && styles.selectedText,
+            ]}
+          >
+            {color.value}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  </ScrollView>
+</View>
 
-          <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+ {/* Quantity and Add to Cart */}
+ <View style={styles.quantityContainer}>
+ <Text style={styles.Head}>Quantity:</Text>
+          <TouchableOpacity onPress={handleDecreaseQuantity} style={styles.quantityButton}>
+            <Text style={styles.quantityButtonText}>-</Text>
           </TouchableOpacity>
-
-          
+          <Text style={styles.quantityText}>{quantity}</Text>
+          <TouchableOpacity onPress={handleIncreaseQuantity} style={styles.quantityButton}>
+            <Text style={styles.quantityButtonText}>+</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+        <View style={styles.productDetails}>
+            <Text style={styles.Head}>Product Description:</Text>
+            <Text style={styles.regularText}>{product.description}</Text>
+          </View>
 
+<View style={styles.specificationsContainer}>
+  <Text style={styles.specificationsTitle}>Specifications:</Text>
+  <View style={styles.specificationTable}>
+    {product.specifications.map(({ label, value }, index) => (
+      <View
+        key={index}
+        style={[
+          styles.specificationRow,
+          index % 2 === 0 ? styles.specificationRowEven : styles.specificationRowOdd,
+        ]}
+      >
+        <Text style={styles.specificationKey}>{label}</Text>
+        <Text style={styles.specificationValue}>{value}</Text>
+      </View>
+    ))}
+  </View>
+</View>
+
+
+       
+
+
+       
+        <TouchableOpacity onPress={handleAddToCart} style={styles.addToCartButton}>
+          <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+        </TouchableOpacity>
+  
+      </View>
+    </ScrollView>
       {alertVisible && (
         <Animated.View style={[styles.alertContainer, { opacity: fadeAnim }]}>
           <Image source={require('../assets/alert.png')} style={styles.alertIcon} />
@@ -421,6 +493,7 @@ const ProductDetailPage = ({route}) => {
       )}
       <WhatsAppButton2 />
     </View>
+
   );
 };
 
@@ -551,6 +624,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 18,
     color: colors.TextBlack,
+    marginLeft:6,
   },
   quantityControl: {
     flexDirection: 'row',
@@ -684,4 +758,3 @@ const styles = StyleSheet.create({
 });
 
 export default ProductDetailPage;
-

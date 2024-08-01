@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
@@ -12,29 +12,35 @@ interface LeftNavBarProps {
 const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   const navigation = useNavigation();
 
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [expandedSubCategory, setExpandedSubCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const categorySnapshot = await firestore().collection('categories').get();
-      const categoriesData = await Promise.all(
-        categorySnapshot.docs.map(async (categoryDoc) => {
-          const categoryData = categoryDoc.data();
-          const companiesSnapshot = await categoryDoc.ref.collection('companies').get();
-          const companiesData = await Promise.all(
-            companiesSnapshot.docs.map(async (companyDoc) => {
-              const companyData = companyDoc.data();
-              const productsSnapshot = await companyDoc.ref.collection('products').get();
-              const productsData = productsSnapshot.docs.map(productDoc => ({ id: productDoc.id, ...productDoc.data() }));
-              return { ...companyData, products: productsData };
-            })
-          );
-          return { id: categoryDoc.id, ...categoryData, companies: companiesData };
-        })
-      );
-      setCategories(categoriesData);
+      try {
+        const categorySnapshot = await firestore().collection('Main').get();
+        const categoriesData = await Promise.all(
+          categorySnapshot.docs.map(async (categoryDoc) => {
+            const categoryData = categoryDoc.data();
+            const categoryName = categoryDoc.id;
+            const subcategorySnapshot = await categoryDoc.ref.collection('Category').get();
+            const subcategoriesData = await Promise.all(
+              subcategorySnapshot.docs.map(async (subcategoryDoc) => {
+                const subcategoryData = subcategoryDoc.data();
+                const subcategoryName = subcategoryDoc.id;
+                const productSnapshot = await subcategoryDoc.ref.collection('Products').get();
+                const productsData = productSnapshot.docs.map(productDoc => ({ id: productDoc.id, ...productDoc.data() }));
+                return { id: subcategoryName, ...subcategoryData, products: productsData };
+              })
+            );
+            return { id: categoryName, ...categoryData, subcategories: subcategoriesData };
+          })
+        );
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
     };
 
     fetchData();
@@ -43,6 +49,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   const toggleCategory = (categoryName: string) => {
     if (expandedCategory === categoryName) {
       setExpandedCategory(null);
+      setExpandedSubCategory(null);
     } else {
       setExpandedCategory(categoryName);
       setExpandedSubCategory(null);
@@ -50,64 +57,65 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   };
 
   const toggleSubCategory = (subCategoryName: string) => {
-    if (expandedSubCategory === subCategoryName) {
-      setExpandedSubCategory(null);
-    } else {
-      setExpandedSubCategory(subCategoryName);
-    }
+    setExpandedSubCategory(prev => prev === subCategoryName ? null : subCategoryName);
   };
 
-  const navigateToProductDetail = (productId: string) => {
-    navigation.navigate('ProductDetailPage', { productId });
+  const navigateToProductDetail = (productId: string, mainId: string, categoryId: string) => {
+    navigation.navigate('ProductDetailPage', { productId, mainId, categoryId });
     toggleNavBar();
   };
-  const renderSubSubCategoryItem = (products: any[]) => (
-    <View style={styles.subsubCategoryContainer}>
+  
+  const renderProductItem = (products: any[], mainId: string, categoryId: string) => (
+    <View style={styles.productContainer}>
       {products.map((product) => (
-        <TouchableOpacity key={product.id} style={styles.subsubcategoryItem} onPress={() => navigateToProductDetail(product.id)}>
-          <Text style={styles.subsubcategoryText}>{product.name}</Text>
+        <TouchableOpacity
+          key={product.id}
+          style={styles.productItem}
+          onPress={() => navigateToProductDetail(product.id, mainId, categoryId)}
+        >
+          <Text style={styles.productText}>{product.name}</Text>
         </TouchableOpacity>
       ))}
     </View>
   );
+  
 
-  const renderSubCategoryItem = (companies: any[]) => (
+  const renderSubCategoryItem = (subcategories: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
-      {companies.map(({ name, products }) => {
-        const isExpanded = expandedSubCategory === name;
+      {subcategories.map(({ id, name, products }) => {
+        const isExpanded = expandedSubCategory === id;
         return (
-          <View key={name}>
-            <TouchableOpacity style={styles.subcategoryItem} onPress={() => toggleSubCategory(name)}>
+          <View key={id}>
+            <TouchableOpacity
+              style={styles.subcategoryItem}
+              onPress={() => toggleSubCategory(id)}
+            >
               <Text style={styles.subcategoryText}>{name}</Text>
               <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={colors.second} />
             </TouchableOpacity>
-            {isExpanded && renderSubSubCategoryItem(products)}
+            {isExpanded && renderProductItem(products, mainId, id)}
           </View>
         );
       })}
     </View>
   );
-
-  const renderCategoryItem = ({ id, name, icon, companies }: { id: string; name: string; icon: any; companies?: any[] }) => {
-    const isExpanded = expandedCategory === name;
-
+  
+  const renderCategoryItem = ({ id, name, icon, subcategories }: { id: string; name: string; icon: any; subcategories?: any[] }) => {
+    const isExpanded = expandedCategory === id;
+  
     return (
       <View key={id}>
-        <TouchableOpacity style={styles.navItem} onPress={() => {
-          if (companies) {
-            toggleCategory(name);
-          }
-        }}>
-          <Image source={{ uri: icon }} style={styles.categoryIcon} />
+        <TouchableOpacity style={styles.navItem} onPress={() => toggleCategory(id)}>
           <Text style={styles.navText}>{name}</Text>
-          {companies && (
+          {subcategories && (
             <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={colors.second} />
           )}
         </TouchableOpacity>
-        {isExpanded && renderSubCategoryItem(companies)}
+        {isExpanded && renderSubCategoryItem(subcategories, id)}
       </View>
     );
   };
+  
 
   return (
     <View style={styles.navContainer}>
@@ -162,14 +170,14 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: colors.TextBlack,
   },
-  subsubCategoryContainer: {
+  productContainer: {
     marginTop: 5,
     paddingLeft: 20,
   },
-  subsubcategoryItem: {
+  productItem: {
     paddingVertical: 10,
   },
-  subsubcategoryText: {
+  productText: {
     fontSize: 16,
     fontWeight: '400',
     color: colors.TextBlack,
