@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,13 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import { useCart } from '../components/CartContext';
+import {useCart} from '../components/CartContext';
 import WhatsAppButton2 from '../components/WhatsAppButton2';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
-const ProductDetailPage = ({ route }) => {
-  const { productId, mainId, categoryId } = route.params || {};
-  const { addToCart } = useCart();
+const ProductDetailPage = ({route}) => {
+  const {productId, mainId, categoryId} = route.params || {};
+  const {addToCart} = useCart();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,13 +28,17 @@ const ProductDetailPage = ({ route }) => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [sizesAvailable, setSizesAvailable] = useState([]);
   const [colorsAvailable, setColorsAvailable] = useState([]);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(colorminCartValue || 1);
   const [imageIndex, setImageIndex] = useState(0);
   const [currentImages, setCurrentImages] = useState([]);
   const [currentPrice, setCurrentPrice] = useState('');
   const [attribute1Values, setAttribute1Values] = useState([]);
   const [attribute2Values, setAttribute2Values] = useState([]);
   const [attribute3Values, setAttribute3Values] = useState([]);
+  const [colorDescription, setColorDescription] = useState('');
+const [colorDeliveryTime, setColorDeliveryTime] = useState('');
+const [colorminCartValue, setColorMinCartValue] = useState(1);
+const [colorSpecifications, setColorSpecifications] = useState([]);
 
   // Fetch product data
   useEffect(() => {
@@ -72,7 +76,7 @@ const ProductDetailPage = ({ route }) => {
     }
   }, [productId, mainId, categoryId]);
 
-  const fetchAttribute1Values = async (attribute1) => {
+  const fetchAttribute1Values = async attribute1 => {
     try {
       const attribute1Snapshot = await firestore()
         .collection('Main')
@@ -83,13 +87,13 @@ const ProductDetailPage = ({ route }) => {
         .doc(productId)
         .collection('Attribute 1')
         .get();
-  
-      const values = attribute1Snapshot.docs.map((doc) => ({
+
+      const values = attribute1Snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         value: `${doc.data().value} ${doc.data().suffix || ''}`, // Append suffix to value
       }));
-  
+
       setAttribute1Values(values);
       // Set default storage
       if (values.length > 0) {
@@ -100,9 +104,9 @@ const ProductDetailPage = ({ route }) => {
       console.error('Error fetching Attribute 1 values:', error);
     }
   };
-  
+
   // Fetch attribute2 values based on selected attribute1id
-  const fetchAttribute2Values = async (storage) => {
+  const fetchAttribute2Values = async storage => {
     try {
       const attribute2Snapshot = await firestore()
         .collection('Main')
@@ -115,13 +119,13 @@ const ProductDetailPage = ({ route }) => {
         .doc(storage)
         .collection('Attribute 2')
         .get();
-  
-      const values = attribute2Snapshot.docs.map((doc) => ({
+
+      const values = attribute2Snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         value: `${doc.data().value} ${doc.data().suffix || ''}`, // Append suffix to value
       }));
-  
+
       setAttribute2Values(values);
       // Set default size
       if (values.length > 0) {
@@ -152,7 +156,7 @@ const ProductDetailPage = ({ route }) => {
         .collection('Colors')
         .get();
 
-      const values = attribute3Snapshot.docs.map((doc) => ({
+      const values = attribute3Snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -171,7 +175,7 @@ const ProductDetailPage = ({ route }) => {
   };
 
   // Handle storage selection
-  const handleStorageSelect = (storage) => {
+  const handleStorageSelect = storage => {
     setSelectedStorage(storage);
     setSelectedSize(null); // Reset selected size
     setSelectedColor(null); // Reset selected color
@@ -179,14 +183,14 @@ const ProductDetailPage = ({ route }) => {
   };
 
   // Handle size selection
-  const handleSizeSelect = (size) => {
+  const handleSizeSelect = size => {
     setSelectedSize(size);
     setSelectedColor(null); // Reset selected color
     fetchAttribute3Values(selectedStorage, size); // Fetch new colors
   };
 
   // Handle color selection
-  const handleColorSelect = (color) => {
+  const handleColorSelect = color => {
     setSelectedColor(color);
   };
 
@@ -194,15 +198,18 @@ const ProductDetailPage = ({ route }) => {
   useEffect(() => {
     if (selectedColor && attribute3Values.length > 0) {
       const selectedColorData = attribute3Values.find(
-        (colorOption) => colorOption.id === selectedColor
+        colorOption => colorOption.id === selectedColor,
       );
       if (selectedColorData) {
         setCurrentImages(selectedColorData.images || []);
         setCurrentPrice(selectedColorData.price || product.price);
+        setColorDescription(selectedColorData.description || product.description);
+        setColorDeliveryTime(selectedColorData.deliveryTime || product.deliveryTime);
+        setColorSpecifications(selectedColorData.specifications || product.specifications);
+        setColorMinCartValue(selectedColorData.minCartValue || product.minCartValue);
       }
     }
   }, [selectedColor, attribute3Values, product]);
-
   // Update sizes and colors when storage or size changes
   useEffect(() => {
     if (selectedStorage) {
@@ -221,14 +228,14 @@ const ProductDetailPage = ({ route }) => {
   }, [selectedSize]);
 
   const handlePrevious = () => {
-    setImageIndex((prevIndex) =>
-      prevIndex === 0 ? currentImages.length - 1 : prevIndex - 1
+    setImageIndex(prevIndex =>
+      prevIndex === 0 ? currentImages.length - 1 : prevIndex - 1,
     );
   };
 
   const handleNext = () => {
-    setImageIndex((prevIndex) =>
-      prevIndex === currentImages.length - 1 ? 0 : prevIndex + 1
+    setImageIndex(prevIndex =>
+      prevIndex === currentImages.length - 1 ? 0 : prevIndex + 1,
     );
   };
 
@@ -237,13 +244,23 @@ const ProductDetailPage = ({ route }) => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleIncreaseQuantity = () => {
-    setQuantity(quantity + 1);
-  };
+  useEffect(() => {
+    setQuantity(Number(colorminCartValue) || 1); // Ensure quantity is a number
+  }, [colorminCartValue]);
 
   const handleDecreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1);
+    if (quantity > colorminCartValue) {
+      setQuantity(prevQuantity => prevQuantity - 1);
+    }
+  };
+
+  const handleIncreaseQuantity = () => {
+    // Ensure colorminCartValue is a number
+    const minCartValue = Number(colorminCartValue);
+  
+    // Increase quantity by 1 if minCartValue is valid
+    if (!isNaN(minCartValue)) {
+      setQuantity(prevQuantity => prevQuantity + 1);
     }
   };
 
@@ -268,16 +285,14 @@ const ProductDetailPage = ({ route }) => {
 
   const handleAddToCart = () => {
     const newItem = {
-      Id : productId,
+      Id: productId,
       name: product.name,
       price: currentPrice,
       quantity,
       selectedStorage,
       selectedSize,
-      color : selectedColor,
-      image : currentImages[0],
-      
-      
+      color: selectedColor,
+      image: currentImages[0],
     };
     addToCart(newItem);
     showAlert();
@@ -305,17 +320,17 @@ const ProductDetailPage = ({ route }) => {
         <View style={styles.imageContainer}>
           {currentImages.length > 0 && (
             <Image
-              source={{ uri: currentImages[imageIndex] }}
+              source={{uri: currentImages[imageIndex]}}
               style={styles.image}
             />
           )}
           <TouchableOpacity
-            style={[styles.arrowButton, { left: 10 }]}
+            style={[styles.arrowButton, {left: 10}]}
             onPress={handlePrevious}>
             <Text style={styles.arrowText}>{'<'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.arrowButton, { right: 10 }]}
+            style={[styles.arrowButton, {right: 10}]}
             onPress={handleNext}>
             <Text style={styles.arrowText}>{'>'}</Text>
           </TouchableOpacity>
@@ -323,183 +338,182 @@ const ProductDetailPage = ({ route }) => {
             {currentImages.map((_, index) => (
               <View
                 key={index}
-                style={[
-                  styles.dot,
-                  index === imageIndex && styles.activeDot,
-                ]}
+                style={[styles.dot, index === imageIndex && styles.activeDot]}
               />
             ))}
-            
-         
-
           </View>
           <View style={styles.truckIcon}>
-              <Image
-                source={require('../assets/truck.png')}
-                style={styles.truckImage}
-              />
-            </View>
-            <View style={styles.truckTextContainer}>
-              <Text style={styles.truckText}>{product.deliveryTime}</Text>
-            </View>
-
+            <Image
+              source={require('../assets/truck.png')}
+              style={styles.truckImage}
+            />
+          </View>
+          <View style={styles.truckTextContainer}>
+            <Text style={styles.truckText}>{colorDeliveryTime} Days</Text>
+          </View>
         </View>
 
         <View style={styles.productDetails}>
           <Text style={styles.title}>{product.name}</Text>
-          <Text style={styles.descriptionText}>{product.description}</Text>
+          <Text style={styles.descriptionText}>{colorDescription}</Text>
           <View style={styles.priceContainer}>
-          <Text style={styles.priceText}>
-            Price: ₹{currentPrice}
-          </Text>
-          <TouchableOpacity onPress={handleCall}>
-                <Image
-                  source={require('../assets/call.png')}
-                  style={styles.callIcon}
-                />
-              </TouchableOpacity>
-              </View>
-
-
-        {/* Attribute 1 (Storage) */}
-        <View style={styles.productDetails}>
-  <Text style={styles.Head}>{product.attribute1}</Text>
-  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-    <View style={styles.colorScrollContainer}>
-      {attribute1Values.map((storage) => (
-        <TouchableOpacity
-          key={storage.id}
-          style={[
-            styles.colorButton,
-            selectedStorage === storage.id && styles.selectedButton,
-          ]}
-          onPress={() => handleStorageSelect(storage.id)}
-        >
-          <Text
-            style={[
-              styles.colorButtonText,
-              selectedStorage === storage.id && styles.selectedText,
-            ]}
-          >
-            {storage.value}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  </ScrollView>
-</View>
-
-<View style={styles.productDetails}>
-  <Text style={styles.Head}>{product.attribute2}</Text>
-  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-    <View style={styles.colorScrollContainer}>
-      {attribute2Values.map((size) => (
-        <TouchableOpacity
-          key={size.id}
-          style={[
-            styles.colorButton,
-            selectedSize === size.id && styles.selectedButton,
-          ]}
-          onPress={() => handleSizeSelect(size.id)}
-        >
-          <Text
-            style={[
-              styles.colorButtonText,
-              selectedSize === size.id && styles.selectedText,
-            ]}
-          >
-            {size.value}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  </ScrollView>
-</View>
-
-<View style={styles.productDetails}>
-  <Text style={styles.Head}>{product.attribute3}</Text>
-  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-    <View style={styles.colorScrollContainer}>
-      {attribute3Values.map((color) => (
-        <TouchableOpacity
-          key={color.id}
-          style={[
-            styles.colorButton,
-            selectedColor === color.id && styles.selectedButton,
-          ]}
-          onPress={() => handleColorSelect(color.id)}
-        >
-          <Text
-            style={[
-              styles.colorButtonText,
-              selectedColor === color.id && styles.selectedText,
-            ]}
-          >
-            {color.value}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  </ScrollView>
-</View>
-
- {/* Quantity and Add to Cart */}
- <View style={styles.quantityContainer}>
- <Text style={styles.Head}>Quantity:</Text>
-          <TouchableOpacity onPress={handleDecreaseQuantity} style={styles.quantityButton}>
-            <Text style={styles.quantityButtonText}>-</Text>
-          </TouchableOpacity>
-          <Text style={styles.quantityText}>{quantity}</Text>
-          <TouchableOpacity onPress={handleIncreaseQuantity} style={styles.quantityButton}>
-            <Text style={styles.quantityButtonText}>+</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.productDetails}>
-            <Text style={styles.Head}>Product Description:</Text>
-            <Text style={styles.regularText}>{product.description}</Text>
+            <Text style={styles.priceText}>Price: ₹{currentPrice}</Text>
+            <TouchableOpacity onPress={handleCall}>
+              <Image
+                source={require('../assets/call.png')}
+                style={styles.callIcon}
+              />
+            </TouchableOpacity>
           </View>
 
-<View style={styles.specificationsContainer}>
-  <Text style={styles.specificationsTitle}>Specifications:</Text>
-  <View style={styles.specificationTable}>
-    {product.specifications.map(({ label, value }, index) => (
-      <View
-        key={index}
-        style={[
-          styles.specificationRow,
-          index % 2 === 0 ? styles.specificationRowEven : styles.specificationRowOdd,
-        ]}
-      >
-        <Text style={styles.specificationKey}>{label}</Text>
-        <Text style={styles.specificationValue}>{value}</Text>
-      </View>
-    ))}
-  </View>
-</View>
+          {/* Attribute 1 (Storage) */}
+          <View style={styles.productDetails}>
+            <Text style={styles.Head}>{product.attribute1}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.colorScrollContainer}>
+                {attribute1Values.map(storage => (
+                  <TouchableOpacity
+                    key={storage.id}
+                    style={[
+                      styles.colorButton,
+                      selectedStorage === storage.id && styles.selectedButton,
+                    ]}
+                    onPress={() => handleStorageSelect(storage.id)}>
+                    <Text
+                      style={[
+                        styles.colorButtonText,
+                        selectedStorage === storage.id && styles.selectedText,
+                      ]}>
+                      {storage.value}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
 
+          <View style={styles.productDetails}>
+            <Text style={styles.Head}>{product.attribute2}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.colorScrollContainer}>
+                {attribute2Values.map(size => (
+                  <TouchableOpacity
+                    key={size.id}
+                    style={[
+                      styles.colorButton,
+                      selectedSize === size.id && styles.selectedButton,
+                    ]}
+                    onPress={() => handleSizeSelect(size.id)}>
+                    <Text
+                      style={[
+                        styles.colorButtonText,
+                        selectedSize === size.id && styles.selectedText,
+                      ]}>
+                      {size.value}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
 
-       
-
-
-       
-        <TouchableOpacity onPress={handleAddToCart} style={styles.addToCartButton}>
-          <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+          <View style={styles.productDetails}>
+            <Text style={styles.Head}>{product.attribute3}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.colorScrollContainer}>
+                {attribute3Values.map(color => (
+                  <TouchableOpacity
+                    key={color.id}
+                    style={[
+                      styles.colorButton,
+                      selectedColor === color.id && styles.selectedButton,
+                    ]}
+                    onPress={() => handleColorSelect(color.id)}>
+                    <Text
+                      style={[
+                        styles.colorButtonText,
+                        selectedColor === color.id && styles.selectedText,
+                      ]}>
+                      {color.id}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+          
+          {/* Quantity and Add to Cart */}
+          <View>
+      <View style={styles.quantityContainer}>
+        <Text style={styles.Head}>Quantity:</Text>
+        <TouchableOpacity
+          onPress={handleDecreaseQuantity}
+          style={[
+            styles.quantityButton,
+            quantity <= colorminCartValue && styles.disabledButton,
+          ]}
+          disabled={quantity <= colorminCartValue}
+        >
+          <Text style={styles.quantityButtonText}>-</Text>
         </TouchableOpacity>
-  
+        <Text style={styles.quantityText}>{quantity}</Text>
+        <TouchableOpacity
+          onPress={handleIncreaseQuantity}
+          style={styles.quantityButton}
+        >
+          <Text style={styles.quantityButtonText}>+</Text>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+      <View style={styles.productDetails}>
+        <Text style={styles.regularText}>
+          Min Cart Value: {colorminCartValue}
+        </Text>
+      </View>
+    </View>
+          <View style={styles.productDetails}>
+            <Text style={styles.Head}>Product Description:</Text>
+            <Text style={styles.regularText}>{colorDescription}</Text>
+          </View>
+
+          <View style={styles.specificationsContainer}>
+            <Text style={styles.specificationsTitle}>Specifications:</Text>
+            <View style={styles.specificationTable}>
+              {colorSpecifications.map(({label, value}, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.specificationRow,
+                    index % 2 === 0
+                      ? styles.specificationRowEven
+                      : styles.specificationRowOdd,
+                  ]}>
+                  <Text style={styles.specificationKey}>{label}</Text>
+                  <Text style={styles.specificationValue}>{value}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <TouchableOpacity
+            onPress={handleAddToCart}
+            style={styles.addToCartButton}>
+            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
       {alertVisible && (
-        <Animated.View style={[styles.alertContainer, { opacity: fadeAnim }]}>
-          <Image source={require('../assets/alert.png')} style={styles.alertIcon} />
+        <Animated.View style={[styles.alertContainer, {opacity: fadeAnim}]}>
+          <Image
+            source={require('../assets/alert.png')}
+            style={styles.alertIcon}
+          />
           <Text style={styles.alertText}>Item added to cart</Text>
         </Animated.View>
       )}
       <WhatsAppButton2 />
     </View>
-
   );
 };
-
 
 const styles = StyleSheet.create({
   scrollViewContainer: {
@@ -522,7 +536,6 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderWidth: 1, // Adding a stroke
     borderColor: '#B3B3B39D', // Stroke color
-    
   },
   image: {
     width: '85%',
@@ -627,7 +640,7 @@ const styles = StyleSheet.create({
   quantityText: {
     fontSize: 18,
     color: colors.TextBlack,
-    marginLeft:6,
+    marginLeft: 6,
   },
   quantityControl: {
     flexDirection: 'row',
@@ -734,6 +747,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.second,
     borderRadius: 20,
     padding: 10,
+    zIndex: 1000,
   },
   truckImage: {
     width: 24,
@@ -756,7 +770,7 @@ const styles = StyleSheet.create({
   callIcon: {
     width: 65,
     height: 65,
-    marginRight: -20,
+    marginRight: -5,
   },
 });
 
