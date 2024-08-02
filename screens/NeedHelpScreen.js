@@ -3,12 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   Linking,
+  Image,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {colors} from '../styles/color';
+import Icon from 'react-native-vector-icons/Feather'; // Import Feather icons
 
 const NeedHelpScreen = () => {
   const navigation = useNavigation();
@@ -32,8 +33,11 @@ const NeedHelpScreen = () => {
     <View style={styles.container}>
       <View style={[styles.header, {backgroundColor: colors.main}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../assets/back.png')}
+          {/* Use Feather icon for back button */}
+          <Icon
+            name="arrow-left"
+            size={24}
+            color="#FFFFFF"
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -82,9 +86,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   backIcon: {
-    width: 24,
-    height: 24,
-    tintColor: '#FFFFFF',
     marginRight: 10,
   },
   headerTitle: {

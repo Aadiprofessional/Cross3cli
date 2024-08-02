@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,26 +8,41 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore';
 import { colors } from '../styles/color';
 
-const products = [
-  { id: 1, name: 'Product 1', image: require('../assets/product.png') },
-  { id: 2, name: 'Product 2', image: require('../assets/product.png') },
-  { id: 3, name: 'Product 3', image: require('../assets/product.png') },
-  { id: 4, name: 'Product 4', image: require('../assets/product.png') },
-  { id: 5, name: 'Product 5', image: require('../assets/product.png') },
-  { id: 6, name: 'Product 6', image: require('../assets/product.png') },
-  { id: 7, name: 'Product 7', image: require('../assets/product.png') },
-  { id: 8, name: 'Product 8', image: require('../assets/product.png') },
-  { id: 9, name: 'Product 9', image: require('../assets/product.png') },
-];
-
-const SubCategoryScreen = ({ route }: { route: any }) => {
-  const { subcategory } = route.params || {};
+const SubCategoryScreen = ({ route }) => {
+  const { mainId, categoryId } = route.params || {};
   const navigation = useNavigation();
+  const [products, setProducts] = useState([]);
 
-  const navigateToProductDetail = (productId: number) => {
-    navigation.navigate('ProductDetailPage', { productId });
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsSnapshot = await firestore()
+          .collection('Main')
+          .doc(mainId)
+          .collection('Category')
+          .doc(categoryId)
+          .collection('Products')
+          .get();
+
+        const productsData = productsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Error fetching products: ", error);
+      }
+    };
+
+    fetchProducts();
+  }, [mainId, categoryId]);
+
+  const navigateToProductDetail = (productId: string) => {
+    navigation.navigate('ProductDetailPage', { mainId, categoryId, productId });
   };
 
   return (
@@ -40,7 +55,7 @@ const SubCategoryScreen = ({ route }: { route: any }) => {
             onPress={() => navigateToProductDetail(product.id)}
           >
             <View style={styles.productImageContainer}>
-              <Image source={product.image} style={styles.productImage} />
+              <Image source={{ uri: product.mainImage }} style={styles.productImage} />
             </View>
             <Text style={styles.productName}>{product.name}</Text>
           </TouchableOpacity>
@@ -55,15 +70,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
     paddingHorizontal: 10,
+    
   },
   scrollViewContent: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+     // Align items to the left
+     alignItems: 'center',
   },
   productItem: {
     width: '30%',
     marginBottom: 20,
+    marginLeft: '3.33%', // Add some right margin for spacing
   },
   productImageContainer: {
     backgroundColor: '#FFF',

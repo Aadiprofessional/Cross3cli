@@ -13,19 +13,19 @@ export const products = [
     deliveryTime: '2-3 days',
     images: {
       red: [
-        require('../assets/product.png'),
-        require('../assets/product.png'),
-        require('../assets/product.png'),
+        require('../assets/product2.png'),
+        require('../assets/product2.png'),
+        require('../assets/product2.png'),
       ],
       blue: [
-        require('../assets/product.png'),
-        require('../assets/product.png'),
-        require('../assets/product.png'),
+        require('../assets/product2.png'),
+        require('../assets/product2.png'),
+        require('../assets/product2.png'),
       ],
       green: [
         require('../assets/product2.png'),
         require('../assets/product2.png'),
-        require('../assets/product.png'),
+        require('../assets/product2.png'),
       ],
     },
   },

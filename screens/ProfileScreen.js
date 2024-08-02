@@ -11,6 +11,7 @@ import {
 import { colors } from '../styles/color';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { data } from '../data/data'; // Adjust the path accordingly
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ProfileScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -29,27 +30,27 @@ const ProfileScreen = ({ navigation }) => {
 
   const options = [
     {
-      icon: require('../assets/icon1.png'),
+      iconName: 'office-building-outline', // Outlined icon for "Register your Company"
       text: 'Register your Company',
       screen: 'RegisterCompanyScreen',
     },
     {
-      icon: require('../assets/icon2.png'),
-      text: 'Terms and Condition',
+      iconName: 'file-document-outline', // Outlined icon for "Terms and Conditions"
+      text: 'Terms and Conditions',
       screen: 'TermsConditionsScreen',
     },
     {
-      icon: require('../assets/icon3.png'),
-      text: 'Privacy and policy',
+      iconName: 'shield-lock-outline', // Outlined icon for "Privacy Policy"
+      text: 'Privacy and Policy',
       screen: 'PrivacyPolicyScreen',
     },
     {
-      icon: require('../assets/icon4.png'),
+      iconName: 'email-outline', // Outlined icon for "Contact us"
       text: 'Contact us',
       screen: 'NeedHelp',
     },
     {
-      icon: require('../assets/icon5.png'),
+      iconName: 'logout', // Outlined icon for "Log out"
       text: 'Log out',
       screen: '', // No direct screen for logout
     },
@@ -105,7 +106,7 @@ const ProfileScreen = ({ navigation }) => {
             }
           }}
         >
-          <Image source={option.icon} style={styles.optionIcon} />
+          <Icon name={option.iconName} size={40} color="#333333" style={styles.optionIcon} />
           <Text style={styles.optionText}>{option.text}</Text>
         </TouchableOpacity>
       ))}
@@ -186,8 +187,6 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   optionIcon: {
-    width: 40,
-    height: 40,
     marginRight: 15,
   },
   optionText: {
