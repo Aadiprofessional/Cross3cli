@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -6,22 +6,32 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useCart } from '../components/CartContext'; // Adjust this import if necessary
-import { colors } from '../styles/color';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {useCart} from '../components/CartContext'; // Adjust this import if necessary
+import {colors} from '../styles/color';
 import CartItem from '../components/CartItem';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
+import OTPVerificationScreen from './OTPVerificationScreen';
 
 const CartScreen = () => {
-  const { cartItems, updateCartItemQuantity, removeCartItem } = useCart(); // Assuming CartContext is used
+  const {cartItems, updateCartItemQuantity, removeCartItem} = useCart(); // Assuming CartContext is used
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
 
   const fetchCartData = useCallback(async () => {
-    // Perform any required data fetching or updates here.
-    // For example, fetch cart items from a server if they are not already in state.
+    const user = auth().currentUser;
+    setIsUserLoggedIn(!!user); // Check if the user is logged in
+
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    // Fetch data if user is authenticated
     setLoading(false);
   }, []);
 
@@ -33,45 +43,74 @@ const CartScreen = () => {
       return () => {
         // Cleanup if needed
       };
-    }, [])
+    }, [fetchCartData]),
   );
 
   const handleGetQuotation = async () => {
     try {
-      const user = auth().currentUser; // Ensure auth is imported and initialized
+      const user = auth().currentUser;
       if (!user) {
         console.error('User not authenticated');
         return;
       }
 
-      const response = await axios.post(`https://crossbee-server.vercel.app/generateQuotation`, {
-        cartItems,
-        uid: user.uid,
-      });
+      const response = await axios.post(
+        'https://crossbee-server.vercel.app/generateQuotation',
+        {
+          cartItems,
+          uid: user.uid,
+        },
+      );
 
       if (response.data.text) {
-        console.log('Item added to cart successfully');
-        navigation.navigate('Quotation'); // Navigate to Quotation screen after saving
+        console.log('Quotation generated successfully');
+        navigation.navigate('Quotation');
       } else {
-        console.error('Failed to checkout');
+        console.error('Failed to generate quotation');
       }
     } catch (error) {
-      console.error('Error saving quotation: ', error);
+      console.error('Error generating quotation: ', error);
     }
   };
 
   const handlePlaceOrder = () => {
     const totalAmount = cartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
-      0
+      0,
     );
-    navigation.navigate('OrderSummary', { cartItems, totalAmount });
+    navigation.navigate('OrderSummary', {cartItems, totalAmount});
+  };
+
+  const navigateToOTP = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'OTPScreen'}],
+    });
   };
 
   if (loading) {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color={colors.main} />
+      </View>
+    );
+  }
+
+  if (!isUserLoggedIn) {
+    return (
+      <View style={styles.container}>
+        <Image source={require('../assets/Login.png')} style={styles.image} />
+        <Text style={styles.loginPromptText}>
+          Please log in to access your cart.
+        </Text>
+        <TouchableOpacity
+          style={[
+            styles.button2,
+            {backgroundColor: colors.main, alignSelf: 'center'},
+          ]}
+          onPress={OTPVerificationScreen}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -86,7 +125,10 @@ const CartScreen = () => {
         <View style={styles.headerRight}>
           <Text style={styles.subtotalText}>Subtotal:</Text>
           <Text style={styles.totalAmountText}>
-            ₹{cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}
+            ₹
+            {cartItems
+              .reduce((sum, item) => sum + item.price * item.quantity, 0)
+              .toFixed(2)}
           </Text>
         </View>
       </View>
@@ -102,15 +144,13 @@ const CartScreen = () => {
       </ScrollView>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: colors.second }]}
-          onPress={handleGetQuotation}
-        >
+          style={[styles.button, {backgroundColor: colors.second}]}
+          onPress={handleGetQuotation}>
           <Text style={styles.buttonText}>Get Quotation</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: colors.main }]}
-          onPress={handlePlaceOrder}
-        >
+          style={[styles.button, {backgroundColor: colors.main}]}
+          onPress={handlePlaceOrder}>
           <Text style={styles.buttonText}>Place Order</Text>
         </TouchableOpacity>
       </View>
@@ -173,10 +213,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  button2: {
+    height: 50,
+    width: 90,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
   buttonText: {
     fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
+  },
+  loginPromptContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
+  },
+  loginPromptText: {
+    fontSize: 16,
+    color: colors.TextBlack,
+    marginBottom: 20,
+    textAlign: 'center',
   },
 });
 

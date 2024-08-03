@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,16 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  ScrollView
+  ScrollView,
+  Platform,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
-import { launchImageLibrary } from 'react-native-image-picker'; // Updated import
+import storage from '@react-native-firebase/storage'; // Import Firebase Storage
+import {launchImageLibrary} from 'react-native-image-picker'; // Updated import
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Default icon
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 import axios from 'axios';
 
 const UpdateProfileScreen = () => {
@@ -38,11 +40,13 @@ const UpdateProfileScreen = () => {
   };
 
   // Function to detect city and state from pincode
-  const fetchLocationFromPincode = async (pincode) => {
+  const fetchLocationFromPincode = async pincode => {
     try {
-      const response = await axios.get(`https://api.postalpincode.in/pincode/${pincode}`);
+      const response = await axios.get(
+        `https://api.postalpincode.in/pincode/${pincode}`,
+      );
       if (response.data[0].Status === 'Success') {
-        const { District, State } = response.data[0].PostOffice[0];
+        const {District, State} = response.data[0].PostOffice[0];
         setCity(District);
         setState(State);
       } else {
@@ -66,7 +70,10 @@ const UpdateProfileScreen = () => {
       try {
         const user = auth().currentUser;
         if (user) {
-          const userDoc = await firestore().collection('users').doc(user.uid).get();
+          const userDoc = await firestore()
+            .collection('users')
+            .doc(user.uid)
+            .get();
           const userData = userDoc.data();
           if (userData) {
             setName(userData.name || '');
@@ -91,13 +98,37 @@ const UpdateProfileScreen = () => {
   }, []);
 
   const handleImagePicker = () => {
-    launchImageLibrary({ mediaType: 'photo' }, response => {
+    launchImageLibrary({mediaType: 'photo'}, async response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
         console.error('ImagePicker Error: ', response.errorMessage);
       } else {
-        setProfilePicture(response.assets[0].uri);
+        const {uri} = response.assets[0];
+        const filename = uri.substring(uri.lastIndexOf('/') + 1);
+        const uploadUri =
+          Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+
+        setLoading(true);
+
+        try {
+          // Upload image to Firebase Storage
+          await storage()
+            .ref('users/' + auth().currentUser.uid + '/' + filename)
+            .putFile(uploadUri);
+
+          // Get the download URL
+          const url = await storage()
+            .ref('users/' + auth().currentUser.uid + '/' + filename)
+            .getDownloadURL();
+
+          // Set the profile picture URL
+          setProfilePicture(url);
+        } catch (error) {
+          console.error('Error uploading image: ', error);
+        } finally {
+          setLoading(false);
+        }
       }
     });
   };
@@ -126,10 +157,13 @@ const UpdateProfileScreen = () => {
         state,
         email,
         gender,
-        profilePicture,
+        profilePicture, // Ensure this is the URL
       });
 
-      Alert.alert('Profile Updated', 'Your profile has been updated successfully.');
+      Alert.alert(
+        'Profile Updated',
+        'Your profile has been updated successfully.',
+      );
       navigation.goBack();
     } catch (error) {
       console.error('Error updating profile: ', error);
@@ -142,7 +176,7 @@ const UpdateProfileScreen = () => {
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color= '#FCCC51' />
+        <ActivityIndicator size="large" color="#FCCC51" />
       </View>
     );
   }
@@ -150,7 +184,7 @@ const UpdateProfileScreen = () => {
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           {/* Use Feather icon for back button */}
           <Icon
             name="arrow-back"
@@ -164,7 +198,7 @@ const UpdateProfileScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.profileImageContainer}>
           {profilePicture ? (
-            <Image source={{ uri: profilePicture }} style={styles.profileImage} />
+            <Image source={{uri: profilePicture}} style={styles.profileImage} />
           ) : (
             <Icon name="person" size={100} color="#ccc" />
           )}
@@ -174,6 +208,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Name"
+            placeholderTextColor={colors.placeholder} // Set placeholder color
             value={name}
             onChangeText={setName}
           />
@@ -181,6 +216,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Main Address"
+            placeholderTextColor={colors.placeholder} // Set placeholder color
             value={mainAddress}
             onChangeText={setMainAddress}
           />
@@ -188,6 +224,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Optional Address"
+            placeholderTextColor={colors.placeholder} // Set placeholder color
             value={optionalAddress}
             onChangeText={setOptionalAddress}
           />
@@ -195,6 +232,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Pincode"
+            placeholderTextColor={colors.placeholder} // Set placeholder color
             value={pincode}
             onChangeText={setPincode}
             keyboardType="numeric"
@@ -203,6 +241,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="City"
+            placeholderTextColor={colors.placeholder} // Set placeholder color
             value={city}
             editable={false}
           />
@@ -210,6 +249,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="State"
+            placeholderTextColor={colors.placeholder} // Set placeholder color
             value={state}
             editable={false}
           />
@@ -217,6 +257,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Email"
+            placeholderTextColor={colors.placeholder} // Set placeholder color
             value={email}
             onChangeText={setEmail}
           />
@@ -224,33 +265,46 @@ const UpdateProfileScreen = () => {
           <View style={styles.genderContainer}>
             <TouchableOpacity
               style={styles.genderOption}
-              onPress={() => setGender('Male')}
-            >
-              <View style={[styles.radioDot, gender === 'Male' && { backgroundColor: colors.main }]} />
+              onPress={() => setGender('Male')}>
+              <View
+                style={[
+                  styles.radioDot,
+                  gender === 'Male' && {backgroundColor: colors.main},
+                ]}
+              />
               <Text style={styles.genderText}>Male</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.genderOption}
-              onPress={() => setGender('Female')}
-            >
-              <View style={[styles.radioDot, gender === 'Female' && { backgroundColor: colors.main }]} />
+              onPress={() => setGender('Female')}>
+              <View
+                style={[
+                  styles.radioDot,
+                  gender === 'Female' && {backgroundColor: colors.main},
+                ]}
+              />
               <Text style={styles.genderText}>Female</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.genderOption}
-              onPress={() => setGender('Other')}
-            >
-              <View style={[styles.radioDot, gender === 'Other' && { backgroundColor: colors.main }]} />
+              onPress={() => setGender('Other')}>
+              <View
+                style={[
+                  styles.radioDot,
+                  gender === 'Other' && {backgroundColor: colors.main},
+                ]}
+              />
               <Text style={styles.genderText}>Other</Text>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={handleImagePicker} style={styles.imagePickerButton}>
+          <TouchableOpacity
+            onPress={handleImagePicker}
+            style={styles.imagePickerButton}>
             <Text style={styles.PickerText}>Upload Image</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: colors.main }]}
-            onPress={handleUpdateProfile}
-          >
+            style={[styles.button, {backgroundColor: colors.main}]}
+            onPress={handleUpdateProfile}>
             <Text style={styles.buttonText}>Update Profile</Text>
           </TouchableOpacity>
         </View>
@@ -310,6 +364,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+    color: colors.textPrimary,
   },
   input: {
     backgroundColor: '#f0f0f0',
@@ -317,17 +372,16 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 15,
     fontSize: 16,
+    color: colors.textPrimary,
   },
   genderContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-   
     marginBottom: 20,
   },
   genderOption: {
     flexDirection: 'row',
     alignItems: 'center',
-   
   },
   radioDot: {
     width: 20,
@@ -339,7 +393,8 @@ const styles = StyleSheet.create({
   },
   genderText: {
     fontSize: 16,
-    marginRight :  15,
+    marginRight: 15,
+    color: colors.textPrimary,
   },
   imagePickerButton: {
     backgroundColor: colors.lightGrey,

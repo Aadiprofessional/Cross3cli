@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,13 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore'; // Import Firestore
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import auth from '@react-native-firebase/auth';
-const ProfileScreen = ({ navigation }) => {
+
+const ProfileScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [userName, setUserName] = useState('Your Name'); // Default value
   const [profileImage, setProfileImage] = useState(null); // State for profile image
@@ -25,16 +26,24 @@ const ProfileScreen = ({ navigation }) => {
       setPhoneNumber(savedPhoneNumber || 'N/A');
     };
 
-    const fetchUserData = async () => {
+    const unsubscribeUserData = async () => {
       try {
         const user = auth().currentUser;
         if (user) {
-          const userDoc = await firestore().collection('users').doc(user.uid).get();
-          const userData = userDoc.data();
-          if (userData) {
-            setUserName(userData.name || 'Your Name'); // Update userName with Firestore data
-            setProfileImage(userData.profileImage || null); // Update profileImage with Firestore data
-          }
+          // Use Firestore's onSnapshot to listen for real-time updates
+          const unsubscribe = firestore()
+            .collection('users')
+            .doc(user.uid)
+            .onSnapshot(docSnapshot => {
+              const userData = docSnapshot.data();
+              if (userData) {
+                setUserName(userData.name || 'Your Name');
+                setProfileImage(userData.profilePicture || null);
+              }
+            });
+
+          // Return the unsubscribe function
+          return unsubscribe;
         }
       } catch (error) {
         console.error('Error fetching user data: ', error);
@@ -43,7 +52,14 @@ const ProfileScreen = ({ navigation }) => {
     };
 
     fetchPhoneNumber();
-    fetchUserData();
+    const unsubscribe = unsubscribeUserData();
+
+    // Cleanup function for the useEffect
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe(); // Correctly call unsubscribe
+      }
+    };
   }, []);
 
   const rewardPointsValue = 100; // Assuming this is fetched or defined somewhere
@@ -59,7 +75,6 @@ const ProfileScreen = ({ navigation }) => {
       text: 'Terms and Conditions',
       screen: 'TermsConditionsScreen',
     },
-   
     {
       iconName: 'shield-lock-outline', // Outlined icon for "Privacy Policy"
       text: 'Privacy and Policy',
@@ -79,12 +94,13 @@ const ProfileScreen = ({ navigation }) => {
 
   const handleLogout = async () => {
     try {
+      await auth().signOut(); // Sign out from Firebase Authentication
       await AsyncStorage.removeItem('loggedIn');
       await AsyncStorage.removeItem('phoneNumber'); // Clear phone number
       // Clear the navigation stack and navigate to OTPVerificationScreen
       navigation.reset({
         index: 0,
-        routes: [{ name: 'OTPVerification' }],
+        routes: [{name: 'OTPVerification'}],
       });
       Alert.alert('Logged Out', 'You have been successfully logged out.');
     } catch (error) {
@@ -96,7 +112,11 @@ const ProfileScreen = ({ navigation }) => {
     <ScrollView style={styles.container}>
       <View style={styles.profileContainer}>
         <Image
-          source={profileImage ? { uri: profileImage } : require('../assets/profile.png')} // Conditional rendering
+          source={
+            profileImage
+              ? {uri: profileImage}
+              : require('../assets/profile.png')
+          } // Conditional rendering
           style={styles.profileImage}
         />
         <View style={styles.profileTextContainer}>
@@ -125,9 +145,13 @@ const ProfileScreen = ({ navigation }) => {
             } else {
               navigation.navigate(option.screen);
             }
-          }}
-        >
-          <Icon name={option.iconName} size={40} color="#333333" style={styles.optionIcon} />
+          }}>
+          <Icon
+            name={option.iconName}
+            size={40}
+            color="#333333"
+            style={styles.optionIcon}
+          />
           <Text style={styles.optionText}>{option.text}</Text>
         </TouchableOpacity>
       ))}
@@ -148,7 +172,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -199,7 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,

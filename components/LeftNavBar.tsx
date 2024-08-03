@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
 interface LeftNavBarProps {
   toggleNavBar: () => void;
 }
 
-const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
+const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
   const navigation = useNavigation();
 
   const [categories, setCategories] = useState<any[]>([]);
@@ -18,11 +18,13 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('https://crossbee-server.vercel.app/drawer');
-        console.log("Fetched data:", response.data); // Log the fetched data
+        const response = await axios.get(
+          'https://crossbee-server.vercel.app/drawer',
+        );
+        console.log('Fetched data:', response.data); // Log the fetched data
         setCategories(response.data);
       } catch (error) {
-        console.error("Error fetching data: ", error);
+        console.error('Error fetching data: ', error);
       }
     };
 
@@ -30,22 +32,21 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   }, []);
 
   const toggleCategory = (categoryName: string) => {
-    setExpandedCategory(prev => prev === categoryName ? null : categoryName);
+    setExpandedCategory(prev => (prev === categoryName ? null : categoryName));
   };
 
   const navigateToSubCategory = (mainId: string, categoryId: string) => {
-    navigation.navigate('SubCategoryScreen', { mainId, categoryId });
+    navigation.navigate('SubCategoryScreen', {mainId, categoryId});
     toggleNavBar();
   };
 
   const renderSubCategoryItem = (companies: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
-      {companies.map(({ id, name }) => (
+      {companies.map(({id, name}) => (
         <TouchableOpacity
           key={id}
           style={styles.subcategoryItem}
-          onPress={() => navigateToSubCategory(mainId, id)}
-        >
+          onPress={() => navigateToSubCategory(mainId, id)}>
           <Text style={styles.subcategoryText}>{name}</Text>
           <Icon name="chevron-forward" size={24} color={colors.second} />
         </TouchableOpacity>
@@ -53,15 +54,29 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     </View>
   );
 
-  const renderCategoryItem = ({ id, name, companies }: { id: string; name: string; companies?: any[] }) => {
+  const renderCategoryItem = ({
+    id,
+    name,
+    companies,
+  }: {
+    id: string;
+    name: string;
+    companies?: any[];
+  }) => {
     const isExpanded = expandedCategory === id;
 
     return (
       <View key={id}>
-        <TouchableOpacity style={styles.navItem} onPress={() => toggleCategory(id)}>
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => toggleCategory(id)}>
           <Text style={styles.navText}>{name}</Text>
           {companies && (
-            <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={colors.second} />
+            <Icon
+              name={isExpanded ? 'chevron-up' : 'chevron-down'}
+              size={24}
+              color={colors.second}
+            />
           )}
         </TouchableOpacity>
         {isExpanded && companies && renderSubCategoryItem(companies, id)}
@@ -74,11 +89,16 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       <View style={styles.categoriesHeader}>
         <Text style={styles.categoriesHeaderText}>Categories</Text>
         <TouchableOpacity onPress={toggleNavBar}>
-          <Icon name="close" size={32} color={colors.inputPlaceholder} style={styles.backIcon} />
+          <Icon
+            name="close"
+            size={32}
+            color={colors.inputPlaceholder}
+            style={styles.backIcon}
+          />
         </TouchableOpacity>
       </View>
       {Array.isArray(categories) && categories.length > 0 ? (
-        categories.map((category) => renderCategoryItem(category))
+        categories.map(category => renderCategoryItem(category))
       ) : (
         <Text>No categories available</Text> // Handle the case where there are no categories
       )}

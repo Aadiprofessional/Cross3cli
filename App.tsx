@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, {useState, useEffect} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import LoginScreen from './screens/LoginScreen';
@@ -19,9 +19,9 @@ import QuotationScreen from './screens/QuotationScreen';
 import SearchResultsScreen from './screens/SearchResultsScreen';
 import InvoiceScreen from './screens/InvoiceScreen';
 import OTPVerificationScreen from './screens/OTPVerificationScreen';
-import { colors } from './styles/color';
+import {colors} from './styles/color';
 import LeftNavBar from './components/LeftNavBar';
-import { CartProvider } from './components/CartContext';
+import {CartProvider} from './components/CartContext';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import InvoiceScreen2 from './screens/invoiceScreen2';
@@ -53,30 +53,31 @@ const App = () => {
   return (
     <CartProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName={isLoggedIn ? 'Home' : 'OTPVerification'}>
+        <Stack.Navigator
+          initialRouteName={isLoggedIn ? 'Home' : 'OTPVerification'}>
           <Stack.Screen
             name="OTPVerification"
             component={OTPVerificationScreen}
-            options={{ headerShown: false }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            options={{ headerShown: false }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="Login"
             component={LoginScreen}
-            options={{ headerShown: false }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="SearchScreen"
             component={SearchScreen}
             options={{
               title: 'Search',
-              headerStyle: { backgroundColor: colors.main },
+              headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
+              headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
           <Stack.Screen
@@ -84,9 +85,9 @@ const App = () => {
             component={SearchResultsScreen}
             options={{
               title: 'Search Results',
-              headerStyle: { backgroundColor: colors.main },
+              headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
+              headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
           <Stack.Screen
@@ -94,54 +95,49 @@ const App = () => {
             component={ProductDetailPage}
             options={{
               title: 'Product Detail',
-              headerStyle: { backgroundColor: colors.main },
+              headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
+              headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
           <Stack.Screen
             name="NeedHelp"
             component={NeedHelpScreen}
-            options={{ headerShown: false }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="PrivacyPolicyScreen"
             component={PrivacyPolicyScreen}
-            options={{ headerShown: false }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="UpdateProfileScreen"
             component={UpdateProfileScreen}
-            options={{ headerShown: false }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="TermsConditionsScreen"
             component={TermsConditionsScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="RegisterCompanyScreen"
-            component={RegisterCompanyScreen}
-            options={{ headerShown: false }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="Cart"
             component={CartScreen}
-            options={{ title: 'Cart' }}
+            options={{title: 'Cart'}}
           />
           <Stack.Screen
             name="Profile"
             component={ProfileScreen}
-            options={{ headerShown: false }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="SubCategoryScreen"
             component={SubCategoryScreen}
             options={{
               title: 'Subcategory',
-              headerStyle: { backgroundColor: colors.main },
+              headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
+              headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
           <Stack.Screen
@@ -149,9 +145,9 @@ const App = () => {
             component={QuotationScreen}
             options={{
               title: 'Quotation Screen',
-              headerStyle: { backgroundColor: colors.main },
+              headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
+              headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
           <Stack.Screen
@@ -159,9 +155,9 @@ const App = () => {
             component={OrderSummaryScreen}
             options={{
               title: 'Order Summary',
-              headerStyle: { backgroundColor: colors.main },
+              headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
+              headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
           <Stack.Screen
@@ -169,9 +165,9 @@ const App = () => {
             component={InvoiceScreen}
             options={{
               title: 'Invoice Screen',
-              headerStyle: { backgroundColor: colors.main },
+              headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
+              headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
           <Stack.Screen
@@ -179,9 +175,9 @@ const App = () => {
             component={InvoiceScreen2}
             options={{
               title: 'Invoice Screen',
-              headerStyle: { backgroundColor: colors.main },
+              headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: { fontWeight: 'bold' },
+              headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
         </Stack.Navigator>

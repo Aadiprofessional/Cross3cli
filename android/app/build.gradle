@@ -109,10 +109,10 @@ android {
 dependencies {
     implementation "com.facebook.react:react-android"
     implementation platform('com.google.firebase:firebase-bom:28.3.1')
-    implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
-    implementation 'com.google.android.gms:play-services-auth:19.2.0'
     implementation 'com.google.firebase:firebase-crashlytics:18.3.1'
+    implementation 'com.google.firebase:firebase-auth:21.0.7' // Ensure this version is up-to-date
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
     if (hermesEnabled.toBoolean()) {
         implementation "com.facebook.react:hermes-android"
     } else {

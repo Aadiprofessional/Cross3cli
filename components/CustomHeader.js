@@ -1,16 +1,45 @@
-import React from 'react';
-import {View, StyleSheet, Image, TouchableOpacity, Text} from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {colors} from '../styles/color';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Using Feather icons
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { colors } from '../styles/color';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
 interface CustomHeaderProps {
   toggleNavBar: () => void;
 }
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
   const navigation = useNavigation();
   const route = useRoute();
+  const [profileImage, setProfileImage] = useState(null);
+
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const user = auth().currentUser;
+        if (user) {
+          const userDoc = await firestore()
+            .collection('users')
+            .doc(user.uid)
+            .get();
+          const userData = userDoc.data();
+          if (userData && typeof userData.profilePicture === 'string') {
+            setProfileImage(userData.profilePicture);
+          } else {
+            setProfileImage(null); // Default to null if no valid URL
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching profile image: ', error);
+        Alert.alert('Error', 'Unable to fetch profile image.');
+        setProfileImage(null);
+      }
+    };
+
+    fetchProfileImage();
+  }, []);
 
   const handleSearchPress = () => {
     navigation.navigate('SearchScreen');
@@ -21,24 +50,18 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
   };
 
   if (route.name !== 'Home') {
-    return null; // Ensure that this logic is correct
+    return null;
   }
-
-  // Debug: Log to ensure components are rendering correctl
 
   return (
     <View style={styles.header}>
       <View style={styles.leftIcons}>
         <TouchableOpacity onPress={toggleNavBar}>
-          {/* Ensure this icon renders correctly */}
           <Icon name="menu" size={30} color="#FFFFFF" style={styles.icon} />
         </TouchableOpacity>
       </View>
       <View style={styles.centerLogo}>
-        <Image
-          source={require('../assets/logo.png')}
-          style={styles.logoImage}
-        />
+        <Image source={require('../assets/logo.png')} style={styles.logoImage} />
       </View>
       <View style={styles.rightIcons}>
         <TouchableOpacity onPress={handleSearchPress}>
@@ -46,7 +69,11 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
         </TouchableOpacity>
         <TouchableOpacity onPress={handleProfilePress}>
           <Image
-            source={require('../assets/profile.png')}
+            source={
+              profileImage
+                ? { uri: profileImage }
+                : require('../assets/profile.png')
+            }
             style={styles.profile}
           />
         </TouchableOpacity>
@@ -92,6 +119,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     width: 35,
     height: 37,
+    borderRadius: 18.5, // Make it circular
   },
 });
 

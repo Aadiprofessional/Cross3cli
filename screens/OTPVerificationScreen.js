@@ -11,33 +11,34 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import auth from '@react-native-firebase/auth';
+import axios from 'axios'; // Import axios or your preferred HTTP client
 import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import {colors} from '../styles/color';
 import {sizes} from '../styles/size';
+import auth from '@react-native-firebase/auth';
+import Toast from 'react-native-toast-message';
 
 // Configure Google Sign-In
 GoogleSignin.configure({
-  webClientId: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com', // Your web client ID from Firebase
+  webClientId:
+    '1097929165854-t9p0f55jva07tauq34o1vejt58hg2ot8.apps.googleusercontent.com', // Replace with your actual webClientId
 });
 
 const OTPVerificationScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [confirmResult, setConfirmResult] = useState(null);
+  const [otpSent, setOtpSent] = useState(false); // Renamed state for better clarity
+  const [orderId, setOrderId] = useState(null);
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
-  const textInputRefs = useRef([
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-    React.createRef(),
-  ]);
+  const textInputRefs = useRef(
+    Array(6)
+      .fill(null)
+      .map(() => React.createRef()),
+  );
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -52,7 +53,7 @@ const OTPVerificationScreen = ({navigation}) => {
 
   useEffect(() => {
     let timerInterval;
-    if (confirmResult) {
+    if (otpSent) {
       timerInterval = setInterval(() => {
         setTimer(prev => {
           if (prev === 1) {
@@ -65,29 +66,69 @@ const OTPVerificationScreen = ({navigation}) => {
       }, 1000);
     }
     return () => clearInterval(timerInterval);
-  }, [confirmResult]);
+  }, [otpSent]);
 
-  const signInWithPhoneNumber = async phoneNumber => {
+  const isValidPhoneNumber = number => {
+    // Basic validation for Indian phone numbers
+    const phoneRegex = /^[6-9]\d{9}$/;
+    return phoneRegex.test(number);
+  };
+
+  const requestOTP = async phoneNumber => {
+    if (!isValidPhoneNumber(phoneNumber)) {
+      showToast(
+        'error',
+        'Invalid Number',
+        'Please enter a valid phone number.',
+      );
+      return;
+    }
+
     try {
-      const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-      setConfirmResult(confirmation);
+      // Replace this with your API call to request OTP
+      let response = await axios.get(
+        'https://crossbee-server.vercel.app/sendOtp?phoneNumber=91' +
+          phoneNumber,
+      );
+      setOrderId(response.data.orderId);
+      setOtpSent(true);
       setTimer(60);
       setCanResend(false);
+      showToast('success', 'OTP Sent', 'OTP has been sent to your phone.');
     } catch (error) {
-      console.error(error);
+      console.error('Error requesting OTP:', error);
+      showToast('error', 'Error', 'Failed to send OTP. Please try again.');
     }
   };
 
   const confirmCode = async () => {
     try {
       const completeCode = code.join('');
-      await confirmResult.confirm(completeCode);
-      await AsyncStorage.setItem('loggedIn', 'true');
-      await AsyncStorage.setItem('phoneNumber', phoneNumber);
-      console.log('Phone number verified!');
-      navigation.replace('Home');
+      // Replace this with your API call to verify OTP
+      let response = await axios.get(
+        'https://crossbee-server.vercel.app/verifyOtp?phoneNumber=91' +
+          phoneNumber +
+          '&orderId=' +
+          orderId +
+          '&otp=' +
+          completeCode,
+      );
+      if (response.data.isOTPVerified) {
+        let tokenResponse = await axios.get(
+          'https://crossbee-server.vercel.app/getCustomToken?phoneNumber=91' +
+            phoneNumber,
+        );
+        await auth().signInWithCustomToken(tokenResponse.data.token);
+        await AsyncStorage.setItem('loggedIn', 'true');
+        await AsyncStorage.setItem('phoneNumber', phoneNumber);
+        showToast('success', 'Success', 'Phone number verified!');
+        navigation.replace('Home');
+      } else {
+        showToast('error', 'Invalid OTP', 'Please enter the correct OTP.');
+      }
     } catch (error) {
-      console.error('Invalid code.', error);
+      console.error('Error confirming code:', error);
+      showToast('error', 'Error', 'Failed to verify OTP. Please try again.');
     }
   };
 
@@ -98,12 +139,29 @@ const OTPVerificationScreen = ({navigation}) => {
 
     if (text && index < textInputRefs.current.length - 1) {
       textInputRefs.current[index + 1].current.focus();
+    } else if (!text && index > 0) {
+      textInputRefs.current[index - 1].current.focus();
     }
   };
 
   const resendOTP = async () => {
     if (canResend) {
-      await signInWithPhoneNumber('+91' + phoneNumber);
+      try {
+        await axios.get(
+          'https://crossbee-server.vercel.app/resendOtp?orderId=' + orderId,
+        );
+        setOtpSent(true);
+        setTimer(60);
+        setCanResend(false);
+        showToast(
+          'success',
+          'OTP Resent',
+          'OTP has been resent to your phone.',
+        );
+      } catch (error) {
+        console.error('Error resending OTP:', error);
+        showToast('error', 'Error', 'Failed to resend OTP. Please try again.');
+      }
     }
   };
 
@@ -129,92 +187,124 @@ const OTPVerificationScreen = ({navigation}) => {
     }
   };
 
+  const handleGuestLogin = () => {
+    showToast('info', 'Guest Login', 'Logged in as a guest.');
+    navigation.replace('Home');
+  };
+
+  const handlePhoneNumberSubmit = () => {
+    if (phoneNumber.length === 10) {
+      requestOTP(phoneNumber);
+    }
+  };
+
+  const showToast = (type, title, message) => {
+    Toast.show({
+      type,
+      text1: title,
+      text2: message,
+      position: 'bottom',
+      visibilityTime: 2000,
+      icon: 'info',
+    });
+  };
+
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Image
-          source={require('../assets/login_top.png')}
-          style={styles.topImage}
-        />
-        <Image source={require('../assets/logo.png')} style={styles.logo} />
-        <Text style={styles.welcomeText}>Welcome to Cross Bee</Text>
-        {!confirmResult ? (
-          <View style={styles.content}>
-            <Text style={styles.label}>Phone Number</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter Phone Number"
-              keyboardType="phone-pad"
-              maxLength={10}
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-              cursorColor={colors.buttonBackground}
-              placeholderTextColor={colors.placeholder}
-            />
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => signInWithPhoneNumber('+91' + phoneNumber)}>
-              <Text style={styles.buttonText}>Get OTP</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.otpContent}>
-            <Text style={styles.otpText}>
-              We sent a 6-digit one-time password to this number +91{' '}
-              {phoneNumber}
-            </Text>
-            <View style={styles.otpInputsContainer}>
-              {textInputRefs.current.map((ref, index) => (
-                <TextInput
-                  key={index}
-                  ref={ref}
-                  style={[
-                    styles.otpInput,
-                    code[index] ? styles.activeOtpInput : {},
-                  ]}
-                  keyboardType="numeric"
-                  maxLength={1}
-                  value={code[index]}
-                  onChangeText={text => handleChangeText(text, index)}
-                  cursorColor={colors.buttonBackground}
-                  placeholderTextColor={colors.placeholder}
-                />
-              ))}
-            </View>
-            <View style={styles.timerResendContainer}>
-              <Text style={styles.timerText}>{timer}s</Text>
+    <>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Image
+            source={require('../assets/login_top.png')}
+            style={styles.topImage}
+          />
+          <Image source={require('../assets/logo.png')} style={styles.logo} />
+          <Text style={styles.welcomeText}>Welcome to Cross Bee</Text>
+          {!otpSent ? (
+            <View style={styles.content}>
+              <Text style={styles.label}>Phone Number</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter Phone Number"
+                keyboardType="phone-pad"
+                maxLength={10}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                cursorColor={colors.buttonBackground}
+                placeholderTextColor={colors.placeholder}
+                onSubmitEditing={handlePhoneNumberSubmit} // Automatically request OTP on submit
+              />
               <TouchableOpacity
-                style={[styles.resendButton, {opacity: canResend ? 1 : 0.5}]}
-                onPress={resendOTP}
-                disabled={!canResend}>
-                <Text style={styles.resendButtonText}>Resend</Text>
+                style={styles.button}
+                onPress={() => requestOTP(phoneNumber)}>
+                <Text style={styles.buttonText}>Get OTP</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.button} onPress={confirmCode}>
-              <Text style={styles.buttonText}>Confirm Code</Text>
+          ) : (
+            <View style={styles.otpContent}>
+              <Text style={styles.otpText}>
+                We sent a 6-digit one-time password to this number +91{' '}
+                {phoneNumber}
+              </Text>
+              <View style={styles.otpInputsContainer}>
+                {textInputRefs.current.map((ref, index) => (
+                  <TextInput
+                    key={index}
+                    ref={ref}
+                    style={[
+                      styles.otpInput,
+                      code[index] ? styles.activeOtpInput : {},
+                    ]}
+                    keyboardType="numeric"
+                    maxLength={1}
+                    value={code[index]}
+                    onChangeText={text => handleChangeText(text, index)}
+                    cursorColor={colors.buttonBackground}
+                    placeholderTextColor={colors.placeholder}
+                    onKeyPress={({nativeEvent}) => {
+                      if (nativeEvent.key === 'Backspace' && index > 0) {
+                        textInputRefs.current[index - 1].current.focus();
+                      }
+                    }}
+                    onSubmitEditing={confirmCode} // Automatically confirm code on submit
+                  />
+                ))}
+              </View>
+              <TouchableOpacity style={styles.button} onPress={confirmCode}>
+                <Text style={styles.buttonText}>Confirm Code</Text>
+              </TouchableOpacity>
+              <View style={styles.timerResendContainer}>
+                {timer > 0 ? (
+                  <Text style={styles.timerText}>Resend OTP in {timer}s</Text>
+                ) : (
+                  <TouchableOpacity onPress={resendOTP}>
+                    <Text style={styles.resendButtonText}>Resend OTP</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          )}
+          <View style={styles.footer}>
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={signInWithGoogle}>
+              <View style={styles.googleButtonContent}>
+                <Image
+                  source={require('../assets/google_logo.png')}
+                  style={styles.googleLogo}
+                />
+                <Text style={styles.googleButtonText}>Log in with Google</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.guestButton}
+              onPress={handleGuestLogin}>
+              <Text style={styles.guestButtonText}>Log in as Guest User</Text>
             </TouchableOpacity>
           </View>
-        )}
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.googleButton}
-            onPress={signInWithGoogle}>
-            <View style={styles.googleButtonContent}>
-              <Image
-                source={require('../assets/google_logo.png')}
-                style={styles.googleLogo}
-              />
-              <Text style={styles.googleButtonText}>Log in with Google</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.guestButton}
-            onPress={() => navigation.replace('Home')}>
-            <Text style={styles.guestButtonText}>Log in as Guest User</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </TouchableWithoutFeedback>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+      <Toast />
+    </>
   );
 };
 
@@ -272,8 +362,7 @@ const styles = StyleSheet.create({
     fontSize: sizes.inputFontSize,
     fontWeight: '400',
     color: colors.textPrimary,
-    // Updated placeholder color
-    placeholderTextColor: colors.placeholder, // Ensure this is the correct color
+    placeholderTextColor: colors.placeholder,
   },
   otpInputsContainer: {
     flexDirection: 'row',
@@ -335,9 +424,8 @@ const styles = StyleSheet.create({
   footer: {
     width: '80%',
     alignItems: 'center',
-    marginTop: sizes.marginMax * 3, // Adjusted margin to decrease distance
+    marginTop: sizes.marginMax * 3,
   },
-
   guestButton: {
     width: '100%',
     padding: sizes.padding,

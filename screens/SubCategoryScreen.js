@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,27 +7,30 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
-const SubCategoryScreen = ({ route }) => {
-  const { mainId, categoryId } = route.params || {};
+const SubCategoryScreen = ({route}) => {
+  const {mainId, categoryId} = route.params || {};
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.post('https://crossbee-server.vercel.app/products', {
-          main: mainId,
-          category: categoryId,
-        });
+        const response = await axios.post(
+          'https://crossbee-server.vercel.app/products',
+          {
+            main: mainId,
+            category: categoryId,
+          },
+        );
 
-        console.log("Fetched products:", response.data); // Log the fetched data
+        console.log('Fetched products:', response.data); // Log the fetched data
         setProducts(response.data);
       } catch (error) {
-        console.error("Error fetching products: ", error);
+        console.error('Error fetching products: ', error);
       }
     };
 
@@ -37,20 +40,22 @@ const SubCategoryScreen = ({ route }) => {
   }, [mainId, categoryId]);
 
   const navigateToProductDetail = (productId: string) => {
-    navigation.navigate('ProductDetailPage', { mainId, categoryId, productId });
+    navigation.navigate('ProductDetailPage', {mainId, categoryId, productId});
   };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        {products.map((product) => (
+        {products.map(product => (
           <TouchableOpacity
             key={product.id}
             style={styles.productItem}
-            onPress={() => navigateToProductDetail(product.id)}
-          >
+            onPress={() => navigateToProductDetail(product.id)}>
             <View style={styles.productImageContainer}>
-              <Image source={{ uri: product.mainImage }} style={styles.productImage} />
+              <Image
+                source={{uri: product.mainImage}}
+                style={styles.productImage}
+              />
             </View>
             <Text style={styles.productName}>{product.name}</Text>
           </TouchableOpacity>

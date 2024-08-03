@@ -7,12 +7,57 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1097929165854:android:450c8169cf4173c4a0b20f",
+        "mobilesdk_app_id": "1:1097929165854:android:1b81fc2bc989a089a0b20f",
+        "android_client_info": {
+          "package_name": "com.CrossBee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1097929165854-f9ppfno99e4vmv8dm8psu27peacfe1oc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.CrossBee",
+            "certificate_hash": "0b0cc033336788d74d886e40243c489a6909aeeb"
+          }
+        },
+        {
+          "client_id": "1097929165854-t9p0f55jva07tauq34o1vejt58hg2ot8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4WV8m9xwQnI-ot4mcBWkyXbvpi-V6Nzw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1097929165854-t9p0f55jva07tauq34o1vejt58hg2ot8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097929165854:android:61dec28282092fe4a0b20f",
         "android_client_info": {
           "package_name": "com.crossbee"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "1097929165854-4l7o9b00h2e4sqj026tm8fuet223sef0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.crossbee",
+            "certificate_hash": "0b0cc033336788d74d886e40243c489a6909aeeb"
+          }
+        },
         {
           "client_id": "1097929165854-t9p0f55jva07tauq34o1vejt58hg2ot8.apps.googleusercontent.com",
           "client_type": 3

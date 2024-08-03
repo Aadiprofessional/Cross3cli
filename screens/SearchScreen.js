@@ -1,56 +1,86 @@
-import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, ScrollView, Text } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, TextInput, StyleSheet, ScrollView, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
+import {fetchProducts} from '../services/apiService';
 import ProductComponent from '../components/ProductComponent';
-import { products } from '../data/productData'; // Ensure correct import path and structure
+import {ActivityIndicator} from 'react-native-paper';
 
 const SearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [originalProducts, setOriginalProducts] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [sortedResults, setSortedResults] = useState([]);
   const [openSort, setOpenSort] = useState(false);
   const [sortValue, setSortValue] = useState(null);
   const [sortItems, setSortItems] = useState([
-    { label: 'Low to High', value: 'low_to_high' },
-    { label: 'High to Low', value: 'high_to_low' },
-    { label: 'Newest', value: 'newest' },
+    {label: 'Low to High', value: 'low_to_high'},
+    {label: 'High to Low', value: 'high_to_low'},
+    {label: 'Newest', value: 'newest'},
   ]);
-
   const [openFilter, setOpenFilter] = useState(false);
   const [filterValue, setFilterValue] = useState(null);
   const [filterItems, setFilterItems] = useState([
-    { label: 'Category 1', value: 'category1' },
-    { label: 'Category 2', value: 'category2' },
-    { label: 'Category 3', value: 'category3' },
+    {label: 'Category 1', value: 'category1'},
+    {label: 'Category 2', value: 'category2'},
+    {label: 'Category 3', value: 'category3'},
   ]);
+  const [loading, setLoading] = useState(true);
 
-  // Handle search functionality
   useEffect(() => {
-    let filteredProducts = products.filter(product =>
-      product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+    const loadProducts = async () => {
+      try {
+        const products = await fetchProducts();
+        setOriginalProducts(products);
+        setSearchResults(products);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  useEffect(() => {
+    let filteredProducts = originalProducts.filter(product =>
+      product.searchName.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     if (filterValue) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.category === filterValue
+      filteredProducts = filteredProducts.filter(
+        product => product.category === filterValue,
       );
     }
 
-    setSearchResults(filteredProducts);
-  }, [searchQuery, filterValue]);
+    // Flatten products with multiple items
+    const productMap = new Map();
+    filteredProducts.forEach(product => {
+      if (!productMap.has(product.productId)) {
+        productMap.set(product.productId, []);
+      }
+      productMap.get(product.productId).push(product);
+    });
 
-  // Handle sorting functionality
+    const flattenedProducts = Array.from(productMap.values()).flat();
+    setSearchResults(searchQuery ? flattenedProducts : originalProducts);
+  }, [searchQuery, filterValue, originalProducts]);
+
   useEffect(() => {
     const sortProducts = () => {
       let sortedProducts = [...searchResults];
 
       if (sortValue === 'low_to_high') {
-        sortedProducts.sort((a, b) => a.price - b.price);
+        sortedProducts.sort(
+          (a, b) => parseFloat(a.price) - parseFloat(b.price),
+        );
       } else if (sortValue === 'high_to_low') {
-        sortedProducts.sort((a, b) => b.price - a.price);
+        sortedProducts.sort(
+          (a, b) => parseFloat(b.price) - parseFloat(a.price),
+        );
       } else if (sortValue === 'newest') {
-        sortedProducts.sort((a, b) => b.dateAdded - a.dateAdded); // Assuming 'dateAdded' is a timestamp
+        // Add logic if you have a date field
       }
 
       setSortedResults(sortedProducts);
@@ -70,7 +100,6 @@ const SearchScreen = () => {
           placeholderTextColor="#484848"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          onSubmitEditing={() => {}}
           returnKeyType="search"
           autoFocus
         />
@@ -90,8 +119,13 @@ const SearchScreen = () => {
             style={styles.smallButton}
             dropDownContainerStyle={styles.smallDropDownContainer}
             textStyle={styles.buttonText}
-            ArrowDownIconComponent={({ style }) => (
-              <Icon name="chevron-down" size={16} color="#484848" style={style} />
+            ArrowDownIconComponent={({style}) => (
+              <Icon
+                name="chevron-down"
+                size={16}
+                color="#484848"
+                style={style}
+              />
             )}
           />
         </View>
@@ -107,31 +141,44 @@ const SearchScreen = () => {
             style={styles.smallButton}
             dropDownContainerStyle={styles.smallDropDownContainer}
             textStyle={styles.buttonText}
-            ArrowDownIconComponent={({ style }) => (
-              <Icon name="chevron-down" size={16} color="#484848" style={style} />
+            ArrowDownIconComponent={({style}) => (
+              <Icon
+                name="chevron-down"
+                size={16}
+                color="#484848"
+                style={style}
+              />
             )}
           />
         </View>
       </View>
 
-      {/* Product list */}
-      <ScrollView contentContainerStyle={styles.productList}>
-        {sortedResults.length > 0 ? (
-          sortedResults.map(product => (
-            <ProductComponent
-              key={product.id}
-              id={product.id}
-              description={product.description}
-              price={product.price}
-              imageSource={product.images[0]} // Assuming images are properly structured
-            />
-          ))
-        ) : (
-          <View style={styles.noResultsContainer}>
-            <Text style={styles.noResultsText}>No products found</Text>
-          </View>
-        )}
-      </ScrollView>
+      {/* Loading Indicator */}
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#484848" />
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.productList}>
+          {sortedResults.length > 0 ? (
+            sortedResults.map(product => (
+              <ProductComponent
+                key={product.productId}
+                id={product.productId}
+                productName={product.displayName}
+                imageSource={product.image} // Use the image URL from API
+                price={product.price}
+                categoryId={product.categoryId}
+                mainId={product.mainId}
+              />
+            ))
+          ) : (
+            <View style={styles.noResultsContainer}>
+              <Text style={styles.noResultsText}>No products found</Text>
+            </View>
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 };
