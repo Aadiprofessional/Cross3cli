@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import firestore from '@react-native-firebase/firestore';
+import axios from 'axios';
 import { colors } from '../styles/color';
 
 interface LeftNavBarProps {
@@ -18,20 +18,9 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categorySnapshot = await firestore().collection('Main').get();
-        const categoriesData = await Promise.all(
-          categorySnapshot.docs.map(async (categoryDoc) => {
-            const categoryData = categoryDoc.data();
-            const categoryName = categoryDoc.id;
-            const subcategorySnapshot = await categoryDoc.ref.collection('Category').get();
-            const subcategoriesData = subcategorySnapshot.docs.map(subcategoryDoc => ({
-              id: subcategoryDoc.id,
-              ...subcategoryDoc.data()
-            }));
-            return { id: categoryName, ...categoryData, subcategories: subcategoriesData };
-          })
-        );
-        setCategories(categoriesData);
+        const response = await axios.get('https://crossbee-server.vercel.app/drawer');
+        console.log("Fetched data:", response.data); // Log the fetched data
+        setCategories(response.data);
       } catch (error) {
         console.error("Error fetching data: ", error);
       }
@@ -49,9 +38,9 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     toggleNavBar();
   };
 
-  const renderSubCategoryItem = (subcategories: any[], mainId: string) => (
+  const renderSubCategoryItem = (companies: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
-      {subcategories.map(({ id, name }) => (
+      {companies.map(({ id, name }) => (
         <TouchableOpacity
           key={id}
           style={styles.subcategoryItem}
@@ -64,18 +53,18 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     </View>
   );
 
-  const renderCategoryItem = ({ id, name, icon, subcategories }: { id: string; name: string; icon: any; subcategories?: any[] }) => {
+  const renderCategoryItem = ({ id, name, companies }: { id: string; name: string; companies?: any[] }) => {
     const isExpanded = expandedCategory === id;
 
     return (
       <View key={id}>
         <TouchableOpacity style={styles.navItem} onPress={() => toggleCategory(id)}>
           <Text style={styles.navText}>{name}</Text>
-          {subcategories && (
+          {companies && (
             <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size={24} color={colors.second} />
           )}
         </TouchableOpacity>
-        {isExpanded && renderSubCategoryItem(subcategories, id)}
+        {isExpanded && companies && renderSubCategoryItem(companies, id)}
       </View>
     );
   };
@@ -88,7 +77,11 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
           <Icon name="close" size={32} color={colors.inputPlaceholder} style={styles.backIcon} />
         </TouchableOpacity>
       </View>
-      {categories.map((category) => renderCategoryItem(category))}
+      {Array.isArray(categories) && categories.length > 0 ? (
+        categories.map((category) => renderCategoryItem(category))
+      ) : (
+        <Text>No categories available</Text> // Handle the case where there are no categories
+      )}
     </View>
   );
 };

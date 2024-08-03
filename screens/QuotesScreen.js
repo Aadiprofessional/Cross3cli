@@ -1,58 +1,60 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors } from '../styles/color';
-import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import { format } from 'date-fns';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome for icons
+import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
+
 const QuotesScreen = () => {
   const navigation = useNavigation();
   const [quotations, setQuotations] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeButton, setActiveButton] = useState('quotes'); 
-  
-  useEffect(() => {
-    const fetchProductData = async () => {
-      const user = auth().currentUser;
-      if (user) {
-        try {
-          // Replace the URL with your API endpoint for adding items to the cart
-          
-          const response = await axios.post(`https://crossbee-server.vercel.app/getQuotations`, {
-            uid : user.uid 
-          });
-        
-          if (response.data) {
-            console.log('Item added to cart successfully');
-            setQuotations(response.data);
-            setLoading(false);
-          } else {
-            console.error('Failed to checkout');
-          }
-          const response1 = await axios.post(`https://crossbee-server.vercel.app/getOrders`, {
-            uid : user.uid 
-          });
-        
-          if (response1.data) {
-            console.log('Item added to cart successfully');
-            setOrders(response1.data);
-            setLoading(false);
-          } else {
-            console.error('Failed to checkout');
-          }
-        } catch (error) {
-          console.error('Error adding item to cart:', error);
-        }
-      } else {
-        setError('User not authenticated');
-      }
-    };
-    fetchProductData()
+  const [activeButton, setActiveButton] = useState('quotes');
 
-  }, []);
+  const fetchProductData = async () => {
+    const user = auth().currentUser;
+    if (user) {
+      try {
+        const response = await axios.post(`https://crossbee-server.vercel.app/getQuotations`, {
+          uid: user.uid,
+        });
+
+        if (response.data) {
+          setQuotations(response.data);
+        } else {
+          console.error('Failed to fetch quotations');
+        }
+
+        const response1 = await axios.post(`https://crossbee-server.vercel.app/getOrders`, {
+          uid: user.uid,
+        });
+
+        if (response1.data) {
+          setOrders(response1.data);
+        } else {
+          console.error('Failed to fetch orders');
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    } else {
+      console.error('User not authenticated');
+    }
+    setLoading(false);
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      fetchProductData();
+
+      return () => {
+        // Cleanup if needed
+      };
+    }, [activeButton])
+  );
 
   const handleStartShopping = () => {
     navigation.navigate('Home');
@@ -74,7 +76,6 @@ const QuotesScreen = () => {
     <View style={styles.orderItem}>
       <Text style={styles.orderText}>Order ID: <Text style={styles.boldText}>{item.id}</Text></Text>
       <Text style={styles.orderText}>Total Amount: ₹<Text style={styles.boldText}>{item.totalAmount}</Text></Text>
-      {/* <Text style={styles.orderText}>Time: <Text style={styles.boldText}>{format(item.timestamp.toDate(), 'MMM d, yyyy h:mm a')}</Text></Text> */}
       <Text style={styles.orderText}>Items:</Text>
       {item.cartItems.map(cartItem => (
         <Text key={cartItem.id} style={styles.orderText}>
@@ -86,12 +87,11 @@ const QuotesScreen = () => {
       </TouchableOpacity>
     </View>
   );
-  
+
   const renderQuoteItem = ({ item }) => (
     <View style={styles.orderItem}>
       <Text style={styles.orderText}>Quote ID: <Text style={styles.boldText}>{item.id}</Text></Text>
       <Text style={styles.orderText}>Total Amount: ₹<Text style={styles.boldText}>{item.totalAmount}</Text></Text>
-      {/* <Text style={styles.orderText}>Time: <Text style={styles.boldText}>{format(item.timestamp.toDate(), 'MMM d, yyyy h:mm a')}</Text></Text>      */}
       <Text style={styles.orderText}>Items:</Text>
       {item.cartItems.map(cartItem => (
         <Text key={cartItem.id} style={styles.orderText}>
@@ -148,7 +148,6 @@ const QuotesScreen = () => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

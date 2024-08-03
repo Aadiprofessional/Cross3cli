@@ -56,7 +56,7 @@ const ProductDetailPage = ({route}) => {
             category: categoryId,
             product: productId,
           },
-          { headers }
+          {headers},
         );
 
         if (response.data) {
@@ -81,7 +81,6 @@ const ProductDetailPage = ({route}) => {
     }
   }, [productId, mainId, categoryId]);
 
-
   const fetchAttribute1Values = async attribute1 => {
     try {
       const response = await axios.post(
@@ -90,11 +89,10 @@ const ProductDetailPage = ({route}) => {
           main: mainId,
           category: categoryId,
           product: productId,
-        }
+        },
       );
 
-      const values = response.data
-      
+      const values = response.data;
 
       setAttribute1Values(values);
       // Set default storage
@@ -116,11 +114,11 @@ const ProductDetailPage = ({route}) => {
           main: mainId,
           category: categoryId,
           product: productId,
-          attribute1 : storage
-        }
+          attribute1: storage,
+        },
       );
 
-      const values = response.data
+      const values = response.data;
 
       setAttribute2Values(values);
       // Set default size
@@ -144,12 +142,12 @@ const ProductDetailPage = ({route}) => {
           main: mainId,
           category: categoryId,
           product: productId,
-          attribute1 : storage,
-          attribute2 : size,
-        }
+          attribute1: storage,
+          attribute2: size,
+        },
       );
 
-      const values = response.data
+      const values = response.data;
 
       setAttribute3Values(values);
       // Set default color

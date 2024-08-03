@@ -1,21 +1,40 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useCart} from '../components/CartContext'; // Adjust this import if necessary
-import firestore from '@react-native-firebase/firestore';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useCart } from '../components/CartContext'; // Adjust this import if necessary
 import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
+
 const CartScreen = () => {
   const { cartItems, updateCartItemQuantity, removeCartItem } = useCart(); // Assuming CartContext is used
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+
+  const fetchCartData = useCallback(async () => {
+    // Perform any required data fetching or updates here.
+    // For example, fetch cart items from a server if they are not already in state.
+    setLoading(false);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(true);
+      fetchCartData();
+
+      return () => {
+        // Cleanup if needed
+      };
+    }, [])
+  );
 
   const handleGetQuotation = async () => {
     try {
@@ -27,14 +46,12 @@ const CartScreen = () => {
 
       const response = await axios.post(`https://crossbee-server.vercel.app/generateQuotation`, {
         cartItems,
-        uid : user.uid 
+        uid: user.uid,
       });
 
       if (response.data.text) {
         console.log('Item added to cart successfully');
         navigation.navigate('Quotation'); // Navigate to Quotation screen after saving
-       
-      
       } else {
         console.error('Failed to checkout');
       }
@@ -50,6 +67,14 @@ const CartScreen = () => {
     );
     navigation.navigate('OrderSummary', { cartItems, totalAmount });
   };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={colors.main} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

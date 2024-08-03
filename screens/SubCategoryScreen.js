@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import firestore from '@react-native-firebase/firestore';
+import axios from 'axios';
 import { colors } from '../styles/color';
 
 const SubCategoryScreen = ({ route }) => {
@@ -19,26 +19,21 @@ const SubCategoryScreen = ({ route }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productsSnapshot = await firestore()
-          .collection('Main')
-          .doc(mainId)
-          .collection('Category')
-          .doc(categoryId)
-          .collection('Products')
-          .get();
+        const response = await axios.post('https://crossbee-server.vercel.app/products', {
+          main: mainId,
+          category: categoryId,
+        });
 
-        const productsData = productsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setProducts(productsData);
+        console.log("Fetched products:", response.data); // Log the fetched data
+        setProducts(response.data);
       } catch (error) {
         console.error("Error fetching products: ", error);
       }
     };
 
-    fetchProducts();
+    if (mainId && categoryId) {
+      fetchProducts();
+    }
   }, [mainId, categoryId]);
 
   const navigateToProductDetail = (productId: string) => {
@@ -70,14 +65,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF',
     paddingHorizontal: 10,
-    
   },
   scrollViewContent: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
-     // Align items to the left
-     alignItems: 'center',
+    alignItems: 'center',
   },
   productItem: {
     width: '30%',

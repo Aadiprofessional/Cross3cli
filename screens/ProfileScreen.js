@@ -10,11 +10,13 @@ import {
 } from 'react-native';
 import { colors } from '../styles/color';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { data } from '../data/data'; // Adjust the path accordingly
+import firestore from '@react-native-firebase/firestore'; // Import Firestore
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import auth from '@react-native-firebase/auth';
 const ProfileScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [userName, setUserName] = useState('Your Name'); // Default value
+  const [profileImage, setProfileImage] = useState(null); // State for profile image
   const rewardPoints = 100; // Replace this with the actual reward points you have
 
   useEffect(() => {
@@ -23,22 +25,41 @@ const ProfileScreen = ({ navigation }) => {
       setPhoneNumber(savedPhoneNumber || 'N/A');
     };
 
+    const fetchUserData = async () => {
+      try {
+        const user = auth().currentUser;
+        if (user) {
+          const userDoc = await firestore().collection('users').doc(user.uid).get();
+          const userData = userDoc.data();
+          if (userData) {
+            setUserName(userData.name || 'Your Name'); // Update userName with Firestore data
+            setProfileImage(userData.profileImage || null); // Update profileImage with Firestore data
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data: ', error);
+        setUserName('Your Name'); // Fallback value
+      }
+    };
+
     fetchPhoneNumber();
+    fetchUserData();
   }, []);
 
-  const rewardPointsValue = data.rewardPointsPrice;
+  const rewardPointsValue = 100; // Assuming this is fetched or defined somewhere
 
   const options = [
     {
       iconName: 'office-building-outline', // Outlined icon for "Register your Company"
       text: 'Register your Company',
-      screen: 'RegisterCompanyScreen',
+      screen: 'UpdateProfileScreen',
     },
     {
       iconName: 'file-document-outline', // Outlined icon for "Terms and Conditions"
       text: 'Terms and Conditions',
       screen: 'TermsConditionsScreen',
     },
+   
     {
       iconName: 'shield-lock-outline', // Outlined icon for "Privacy Policy"
       text: 'Privacy and Policy',
@@ -75,11 +96,11 @@ const ProfileScreen = ({ navigation }) => {
     <ScrollView style={styles.container}>
       <View style={styles.profileContainer}>
         <Image
-          source={require('../assets/profile.png')}
+          source={profileImage ? { uri: profileImage } : require('../assets/profile.png')} // Conditional rendering
           style={styles.profileImage}
         />
         <View style={styles.profileTextContainer}>
-          <Text style={styles.nameText}>Your Name</Text>
+          <Text style={styles.nameText}>{userName || 'N/A'}</Text>
           <Text style={styles.newText}>Mobile:</Text>
           <Text style={styles.mobileText}>
             {phoneNumber ? `+91 ${phoneNumber}` : 'N/A'}

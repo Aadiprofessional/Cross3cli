@@ -18,6 +18,7 @@
     "@react-native-firebase/auth": "^20.3.0",
     "@react-native-firebase/firestore": "^20.3.0",
     "@react-native-google-signin/google-signin": "^12.2.1",
+    "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/bottom-tabs": "^6.6.0",
     "@react-navigation/drawer": "^6.7.0",
     "@react-navigation/material-bottom-tabs": "^6.2.28",
@@ -38,12 +39,15 @@
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.17.1",
     "react-native-html-to-pdf": "^0.12.0",
+    "react-native-image-picker": "^7.1.2",
     "react-native-paper": "^5.12.3",
     "react-native-reanimated": "^3.14.0",
     "react-native-safe-area-context": "^4.10.8",
     "react-native-screens": "^3.32.0",
     "react-native-svg": "^15.3.0",
-    "react-native-vector-icons": "^10.1.0"
+    "react-native-vector-icons": "^10.1.0",
+    "react-navigation": "^4.4.4",
+    "react-navigation-stack": "^2.10.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

@@ -25,6 +25,7 @@ import { CartProvider } from './components/CartContext';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
 import InvoiceScreen2 from './screens/invoiceScreen2';
+import UpdateProfileScreen from './screens/UpdateProfileScreen';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -106,6 +107,11 @@ const App = () => {
           <Stack.Screen
             name="PrivacyPolicyScreen"
             component={PrivacyPolicyScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="UpdateProfileScreen"
+            component={UpdateProfileScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen

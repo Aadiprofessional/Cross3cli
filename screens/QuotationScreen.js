@@ -32,13 +32,13 @@ const QuotationScreen = ({navigation}) => {
           console.log(response.data);
 
           if (response.data) {
-            console.log('Item added to cart successfully');
+            console.log('Item added successfully');
             setQuotations(response.data);
           } else {
-            console.error('Failed to add item to cart');
+            console.error('Failed to add item');
           }
         } catch (error) {
-          console.error('Error adding item to cart:', error);
+          console.error('Error adding item:', error);
         }
       } else {
         setError('User not authenticated');
