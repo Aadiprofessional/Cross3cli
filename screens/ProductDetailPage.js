@@ -10,7 +10,7 @@ import {
   Animated,
   ActivityIndicator,
 } from 'react-native';
-import firestore from '@react-native-firebase/firestore';
+
 import {useCart} from '../components/CartContext';
 import WhatsAppButton2 from '../components/WhatsAppButton2';
 import {colors} from '../styles/color';

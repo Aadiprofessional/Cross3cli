@@ -16,29 +16,28 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
   const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
-    const fetchProfileImage = async () => {
-      try {
-        const user = auth().currentUser;
-        if (user) {
-          const userDoc = await firestore()
-            .collection('users')
-            .doc(user.uid)
-            .get();
-          const userData = userDoc.data();
+    const user = auth().currentUser;
+
+    if (user) {
+      const unsubscribe = firestore()
+        .collection('users')
+        .doc(user.uid)
+        .onSnapshot((snapshot) => {
+          const userData = snapshot.data();
           if (userData && typeof userData.profilePicture === 'string') {
             setProfileImage(userData.profilePicture);
           } else {
             setProfileImage(null); // Default to null if no valid URL
           }
-        }
-      } catch (error) {
-        console.error('Error fetching profile image: ', error);
-        Alert.alert('Error', 'Unable to fetch profile image.');
-        setProfileImage(null);
-      }
-    };
+        }, (error) => {
+          console.error('Error fetching profile image: ', error);
+          Alert.alert('Error', 'Unable to fetch profile image.');
+          setProfileImage(null);
+        });
 
-    fetchProfileImage();
+      // Cleanup subscription on unmount
+      return () => unsubscribe();
+    }
   }, []);
 
   const handleSearchPress = () => {

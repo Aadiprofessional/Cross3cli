@@ -10,7 +10,8 @@ import {
 import {colors} from '../styles/color';
 const HelpBox = () => {
   const handleCallPress = () => {
-    Linking.opaenURL('tel:9289881135');
+    const phoneNumber = '9289881135';
+    Linking.openURL(`tel:${phoneNumber}`);
   };
 
   const handleWhatsAppPress = () => {

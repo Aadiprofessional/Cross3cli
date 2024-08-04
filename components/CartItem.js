@@ -2,11 +2,12 @@ import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import {colors} from '../styles/color';
 import {useNavigation} from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
-  const {cartId, name, price, quantity, color, image, productId, colorminCartValue} = item; // Assuming productId is available in item
+  const {cartId, name, price, quantity, color, image, productId, colorminCartValue} = item;
   const [itemQuantity, setItemQuantity] = useState(quantity);
-  const navigation = useNavigation(); // Use navigation hook
+  const navigation = useNavigation();
 
   useEffect(() => {
     setItemQuantity(quantity);
@@ -23,28 +24,38 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
     setItemQuantity(newQuantity);
     if (newQuantity < 1) {
       onRemoveItem(cartId);
+      Toast.show({
+        type: 'info',
+        position: 'bottom',
+        text1: 'Item quantity is less than 1',
+        text2: 'Removing item from cart',
+      });
     } else {
       onUpdateQuantity(cartId, newQuantity);
     }
   };
 
   const handleImagePress = () => {
-    // Navigate to ProductDetailPage, passing the productId
     navigation.navigate('ProductDetailPage', {productId});
   };
 
   const handleRemoveItem = () => {
     onRemoveItem(cartId);
+    Toast.show({
+      type: 'info',
+      position: 'bottom',
+      text1: 'Removing item from cart',
+    });
   };
 
   return (
     <View style={styles.cartItemContainer}>
       <TouchableOpacity
         style={styles.productImageContainer}
-        onPress={handleImagePress} // Handle image press
+        onPress={handleImagePress}
       >
         <Image
-          source={{uri: image}} // Ensure image is a valid URL or provide a valid source object
+          source={{uri: image}}
           style={styles.productImage}
           resizeMode="contain"
         />
@@ -59,11 +70,11 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
             <Text style={styles.itemColorText}>{color}</Text>
           </View>
           <TouchableOpacity
-        style={styles.removeButton}
-        onPress={handleRemoveItem}
-      >
-        <Text style={styles.removeButtonText}>Remove</Text>
-      </TouchableOpacity>
+            style={styles.removeButton}
+            onPress={handleRemoveItem}
+          >
+            <Text style={styles.removeButtonText}>Remove</Text>
+          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.quantityContainer}>
@@ -82,10 +93,10 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
       </View>
-      
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   cartItemContainer: {

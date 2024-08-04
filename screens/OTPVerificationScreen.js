@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,8 +16,8 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import {colors} from '../styles/color';
-import {sizes} from '../styles/size';
+import { colors } from '../styles/color';
+import { sizes } from '../styles/size';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 
@@ -27,7 +27,7 @@ GoogleSignin.configure({
     '1097929165854-t9p0f55jva07tauq34o1vejt58hg2ot8.apps.googleusercontent.com', // Replace with your actual webClientId
 });
 
-const OTPVerificationScreen = ({navigation}) => {
+const OTPVerificationScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpSent, setOtpSent] = useState(false); // Renamed state for better clarity
   const [orderId, setOrderId] = useState(null);
@@ -37,7 +37,7 @@ const OTPVerificationScreen = ({navigation}) => {
   const textInputRefs = useRef(
     Array(6)
       .fill(null)
-      .map(() => React.createRef()),
+      .map(() => React.createRef())
   );
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const OTPVerificationScreen = ({navigation}) => {
 
   useEffect(() => {
     let timerInterval;
-    if (otpSent) {
+    if (otpSent && timer > 0) {
       timerInterval = setInterval(() => {
         setTimer(prev => {
           if (prev === 1) {
@@ -66,7 +66,7 @@ const OTPVerificationScreen = ({navigation}) => {
       }, 1000);
     }
     return () => clearInterval(timerInterval);
-  }, [otpSent]);
+  }, [otpSent, timer]);
 
   const isValidPhoneNumber = number => {
     // Basic validation for Indian phone numbers
@@ -74,7 +74,7 @@ const OTPVerificationScreen = ({navigation}) => {
     return phoneRegex.test(number);
   };
 
-  const requestOTP = async phoneNumber => {
+  const requestOTP = async (phoneNumber) => {
     if (!isValidPhoneNumber(phoneNumber)) {
       showToast(
         'error',
@@ -85,10 +85,9 @@ const OTPVerificationScreen = ({navigation}) => {
     }
 
     try {
-      // Replace this with your API call to request OTP
       let response = await axios.get(
         'https://crossbee-server.vercel.app/sendOtp?phoneNumber=91' +
-          phoneNumber,
+          phoneNumber
       );
       setOrderId(response.data.orderId);
       setOtpSent(true);
@@ -104,19 +103,18 @@ const OTPVerificationScreen = ({navigation}) => {
   const confirmCode = async () => {
     try {
       const completeCode = code.join('');
-      // Replace this with your API call to verify OTP
       let response = await axios.get(
         'https://crossbee-server.vercel.app/verifyOtp?phoneNumber=91' +
           phoneNumber +
           '&orderId=' +
           orderId +
           '&otp=' +
-          completeCode,
+          completeCode
       );
       if (response.data.isOTPVerified) {
         let tokenResponse = await axios.get(
           'https://crossbee-server.vercel.app/getCustomToken?phoneNumber=91' +
-            phoneNumber,
+            phoneNumber
         );
         await auth().signInWithCustomToken(tokenResponse.data.token);
         await AsyncStorage.setItem('loggedIn', 'true');
@@ -148,7 +146,7 @@ const OTPVerificationScreen = ({navigation}) => {
     if (canResend) {
       try {
         await axios.get(
-          'https://crossbee-server.vercel.app/resendOtp?orderId=' + orderId,
+          'https://crossbee-server.vercel.app/resendOtp?orderId=' + orderId
         );
         setOtpSent(true);
         setTimer(60);
@@ -168,7 +166,7 @@ const OTPVerificationScreen = ({navigation}) => {
   const signInWithGoogle = async () => {
     try {
       await GoogleSignin.hasPlayServices();
-      const {idToken} = await GoogleSignin.signIn();
+      const { idToken } = await GoogleSignin.signIn();
       const googleCredential = auth.GoogleAuthProvider.credential(idToken);
       await auth().signInWithCredential(googleCredential);
       await AsyncStorage.setItem('loggedIn', 'true');
@@ -176,13 +174,14 @@ const OTPVerificationScreen = ({navigation}) => {
       navigation.replace('Home');
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        console.error('User cancelled the sign-in.');
+        showToast('info', 'Cancelled', 'Google sign-in was cancelled.');
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        console.error('Sign-in is in progress.');
+        showToast('info', 'In Progress', 'Google sign-in is in progress.');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        console.error('Play services not available.');
+        showToast('info', 'Play Services Not Available', 'Google Play Services are not available.');
       } else {
         console.error('Some other error happened:', error);
+        showToast('error', 'Error', 'An error occurred during Google sign-in.');
       }
     }
   };
@@ -260,7 +259,7 @@ const OTPVerificationScreen = ({navigation}) => {
                     onChangeText={text => handleChangeText(text, index)}
                     cursorColor={colors.buttonBackground}
                     placeholderTextColor={colors.placeholder}
-                    onKeyPress={({nativeEvent}) => {
+                    onKeyPress={({ nativeEvent }) => {
                       if (nativeEvent.key === 'Backspace' && index > 0) {
                         textInputRefs.current[index - 1].current.focus();
                       }
@@ -413,9 +412,6 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: sizes.inputFontSize,
     color: colors.textPrimary,
-  },
-  resendButton: {
-    // Add styles for resend button if needed
   },
   resendButtonText: {
     fontSize: sizes.inputFontSize,

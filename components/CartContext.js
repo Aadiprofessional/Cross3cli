@@ -2,6 +2,7 @@ import React, {createContext, useState, useContext, useEffect} from 'react';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
+import Toast from 'react-native-toast-message';
 
 const CartContext = createContext();
 
@@ -12,7 +13,6 @@ export const CartProvider = ({children}) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Listen for auth state changes
     const unsubscribeAuth = auth().onAuthStateChanged(newUser => {
       if (newUser) {
         setUser(newUser);
@@ -30,7 +30,7 @@ export const CartProvider = ({children}) => {
       const unsubscribe = firestore()
         .collection('users')
         .doc(user.uid)
-        .collection('cart') // Replace with your collection name
+        .collection('cart')
         .onSnapshot(snapshot => {
           const newItems = snapshot.docs.map(doc => ({
             cartId: doc.id,
@@ -39,7 +39,6 @@ export const CartProvider = ({children}) => {
           setCartItems(newItems);
         });
 
-      // Clean up the subscription on unmount
       return () => unsubscribe();
     }
   }, [user]);
@@ -47,7 +46,6 @@ export const CartProvider = ({children}) => {
   const addToCart = async item => {
     if (user) {
       try {
-        // Replace the URL with your API endpoint for adding items to the cart
         const response = await axios.post(
           `https://crossbee-server.vercel.app/addItem`,
           {
@@ -57,12 +55,25 @@ export const CartProvider = ({children}) => {
         );
 
         if (response.data.text) {
-          console.log('Item added to cart successfully');
+          Toast.show({
+            type: 'success',
+            position: 'bottom',
+            text1: 'Item added to cart successfully',
+          });
         } else {
-          console.error('Failed to add item to cart');
+          Toast.show({
+            type: 'error',
+            position: 'bottom',
+            text1: 'Failed to add item to cart',
+          });
         }
       } catch (error) {
-        console.error('Error adding item to cart:', error);
+        Toast.show({
+          type: 'error',
+          position: 'bottom',
+          text1: 'Error adding item to cart',
+          text2: error.message,
+        });
       }
     }
   };
@@ -74,19 +85,37 @@ export const CartProvider = ({children}) => {
         .doc(user.uid)
         .collection('cart');
       const itemRef = cartRef.doc(cartId);
-      if (newQuantity < 1) {
-        await itemRef.delete();
-      } else {
-        await itemRef.update({quantity: newQuantity});
+      try {
+        if (newQuantity < 1) {
+          await itemRef.delete();
+          Toast.show({
+            type: 'success',
+            position: 'bottom',
+            text1: 'Item removed from cart successfully',
+            text2: 'Quantity was less than 1',
+          });
+        } else {
+          await itemRef.update({quantity: newQuantity});
+          Toast.show({
+            type: 'success',
+            position: 'bottom',
+            text1: 'Item quantity updated',
+          });
+        }
+      } catch (error) {
+        Toast.show({
+          type: 'error',
+          position: 'bottom',
+          text1: 'Error updating cart item',
+          text2: error.message,
+        });
       }
-      // fetchCartItems(); // Refresh cart items after update
     }
   };
 
   const removeCartItem = async cartId => {
     if (user) {
       try {
-        // Replace the URL with your API endpoint for removing items from the cart
         const response = await axios.post(
           `https://crossbee-server.vercel.app/removeItem`,
           {
@@ -96,12 +125,25 @@ export const CartProvider = ({children}) => {
         );
 
         if (response.data.text) {
-          console.log('Item removed from cart successfully');
+          Toast.show({
+            type: 'success',
+            position: 'bottom',
+            text1: 'Item removed from cart successfully',
+          });
         } else {
-          console.error('Failed to remove item from cart');
+          Toast.show({
+            type: 'error',
+            position: 'bottom',
+            text1: 'Failed to remove item from cart',
+          });
         }
       } catch (error) {
-        console.error('Error removing item from cart:', error);
+        Toast.show({
+          type: 'error',
+          position: 'bottom',
+          text1: 'Error removing item from cart',
+          text2: error.message,
+        });
       }
     }
   };

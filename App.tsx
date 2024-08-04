@@ -2,6 +2,11 @@ import React, {useState, useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
+import firebase from '@react-native-firebase/app';
+import {colors} from './styles/color';
+import LeftNavBar from './components/LeftNavBar';
+import {CartProvider} from './components/CartContext';
 
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -19,13 +24,10 @@ import QuotationScreen from './screens/QuotationScreen';
 import SearchResultsScreen from './screens/SearchResultsScreen';
 import InvoiceScreen from './screens/InvoiceScreen';
 import OTPVerificationScreen from './screens/OTPVerificationScreen';
-import {colors} from './styles/color';
-import LeftNavBar from './components/LeftNavBar';
-import {CartProvider} from './components/CartContext';
-import auth from '@react-native-firebase/auth';
-import firebase from '@react-native-firebase/app';
+import {color} from './styles/color';
 import InvoiceScreen2 from './screens/invoiceScreen2';
 import UpdateProfileScreen from './screens/UpdateProfileScreen';
+import Toast from 'react-native-toast-message';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -39,11 +41,21 @@ const App = () => {
   const [isNavBarVisible, setIsNavBarVisible] = useState(false);
 
   useEffect(() => {
-    const checkLoginState = async () => {
-      const loggedIn = await AsyncStorage.getItem('loggedIn');
-      setIsLoggedIn(!!loggedIn);
+    const checkAuthState = async () => {
+      try {
+        const user = await auth().currentUser;
+        if (user) {
+          setIsLoggedIn(true);
+        } else {
+          const loggedIn = await AsyncStorage.getItem('loggedIn');
+          setIsLoggedIn(!!loggedIn);
+        }
+      } catch (error) {
+        console.error('Error checking authentication state:', error);
+      }
     };
-    checkLoginState();
+
+    checkAuthState();
   }, []);
 
   const toggleNavBar = () => {
@@ -70,6 +82,7 @@ const App = () => {
             component={LoginScreen}
             options={{headerShown: false}}
           />
+           
           <Stack.Screen
             name="SearchScreen"
             component={SearchScreen}
@@ -80,6 +93,7 @@ const App = () => {
               headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
+
           <Stack.Screen
             name="SearchResultsScreen"
             component={SearchResultsScreen}
@@ -183,6 +197,7 @@ const App = () => {
         </Stack.Navigator>
 
         {isNavBarVisible && <LeftNavBar toggleNavBar={toggleNavBar} />}
+        <Toast />
       </NavigationContainer>
     </CartProvider>
   );

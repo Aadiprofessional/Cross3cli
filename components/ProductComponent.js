@@ -40,46 +40,62 @@ const ProductComponent = ({
 };
 
 const styles = StyleSheet.create({
+  productList: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  productWrapper: {
+    width: 180, // Adjust width to control the size of the product container
+    marginRight: 10, // Space between product containers
+  },
   productContainer: {
-    width: '48%',
-    marginBottom: 16,
-    backgroundColor: '#FFFFFF',
+    width: '47%',
+    aspectRatio: 1, // Ensure a square aspect ratio
+    backgroundColor: colors.primary,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#DCDCDC',
-    elevation: 3,
-    overflow: 'hidden',
+    overflow: 'hidden', // Ensure contents don't overflow the rounded corners
+    marginBottom : 10,
   },
   productContent: {
     flex: 1,
-    justifyContent: 'space-between',
+    backgroundColor: colors.primary,
+    borderRadius: 10,
     padding: 10,
+    alignItems: 'center',
+    borderWidth: 1,
   },
   imageContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    width: '100%',
+    height: '60%', // 60% of the productContent height
+    aspectRatio: 1, // Ensure a square aspect ratio for the image container
+    marginBottom: 10,
     alignItems: 'center',
   },
   imageBox: {
-    width: '100%',
-    height: 150,
-    backgroundColor: '#F0F0F0',
+    width: '90%', // Adjust as needed for the size of the white box
+    height: '100%', // Take full height of the image container
+    backgroundColor: 'white',
     borderRadius: 10,
     overflow: 'hidden',
+    alignItems: 'center', // Center the image inside the white box
+    justifyContent: 'center', // Center the image inside the white box
   },
   productImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+    resizeMode: 'contain', // Ensure image fits inside without cropping
   },
   productName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#484848',
+    fontSize: 14,
+    fontWeight: 'bold', // Bold font for product name
+    color: colors.TextBlack,
+    textAlign: 'center',
+    marginBottom: 5,
   },
   productPrice: {
-    fontSize: 14,
-    color: '#484848',
+    fontSize: 16,
+    color: colors.TextBlack,
+    textAlign: 'center',
   },
 });
 

@@ -16,6 +16,7 @@ import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CheckBox from '@react-native-community/checkbox';
 import axios from 'axios';
+import Toast from 'react-native-toast-message';
 
 const OrderSummaryScreen = ({route, navigation}) => {
   const {cartItems: initialCartItems, totalAmount: initialTotalAmount} =
@@ -93,32 +94,29 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const handleCheckout = async () => {
     try {
       const userId = auth().currentUser.uid;
-      // const orderData = {
-      //   totalAmount,
-      //   shippingCharges: data.shippingCharges,
-      //   additionalDiscount: data.additionalDiscount,
-      //   rewardPointsPrice: useRewardPoints ? data.rewardPointsPrice : 0,
-      //   appliedCoupon: appliedCoupon ? appliedCoupon.value : 0,
-      //   cartItems,
-      //   userId,
-      //   timestamp: firestore.FieldValue.serverTimestamp(),
-      // };
-
-      // await firestore().collection('orders').add(orderData);
-      const response = await axios.post(`https://crossbee-server.vercel.app/checkout`, {
-        totalAmount,
-        data,
-
-        useRewardPoints,
-        appliedCoupon,
-        cartItems,
-        uid : userId 
-      });
+      const response = await axios.post(
+        `https://crossbee-server.vercel.app/checkout`,
+        {
+          totalAmount,
+          data,
+          useRewardPoints,
+          appliedCoupon,
+          cartItems,
+          uid: userId,
+        },
+      );
 
       if (response.data.data) {
         console.log('Item added to cart successfully');
+        Toast.show({
+          type: 'success',
+          position: 'bottom',
+          text1: 'Order Placed Successfully',
+          visibilityTime: 3000,
+          autoHide: true,
+          bottomOffset: 50,
+        });
         navigation.navigate('InvoiceScreen', {invoiceData: response.data.data});
-      
       } else {
         console.error('Failed to checkout');
       }
@@ -130,7 +128,6 @@ const OrderSummaryScreen = ({route, navigation}) => {
       );
     }
   };
-
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>

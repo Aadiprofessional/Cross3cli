@@ -1,52 +1,83 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, AppState, AppStateStatus } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 interface LeftNavBarProps {
   toggleNavBar: () => void;
 }
 
-const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
-  const navigation = useNavigation();
+// In-memory cache to store categories data for the session
+let categoriesCache: any[] | null = null;
 
+const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
+  const navigation = useNavigation();
   const [categories, setCategories] = useState<any[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadData = async () => {
       try {
-        const response = await axios.get(
-          'https://crossbee-server.vercel.app/drawer',
-        );
-        console.log('Fetched data:', response.data); // Log the fetched data
-        setCategories(response.data);
+        if (categoriesCache) {
+          setCategories(categoriesCache);
+          console.log('Loaded data from cache');
+        } else {
+          await fetchAndCacheData();
+        }
       } catch (error) {
-        console.error('Error fetching data: ', error);
+        console.error('Error loading data:', error);
       }
     };
 
-    fetchData();
+    loadData();
+
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'background' || nextAppState === 'inactive') {
+        // Clear the cached data when the app is closed or sent to the background
+        categoriesCache = null;
+        console.log('Cleared cache on app close');
+      }
+    };
+
+    // Subscribe to app state changes
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    // Clean up subscription on unmount
+    return () => {
+      subscription.remove();
+    };
   }, []);
+
+  const fetchAndCacheData = async () => {
+    try {
+      const response = await axios.get('https://crossbee-server.vercel.app/drawer');
+      console.log('Fetched data:', response.data);
+      setCategories(response.data);
+      categoriesCache = response.data; // Store in cache
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategory(prev => (prev === categoryName ? null : categoryName));
   };
 
   const navigateToSubCategory = (mainId: string, categoryId: string) => {
-    navigation.navigate('SubCategoryScreen', {mainId, categoryId});
+    navigation.navigate('SubCategoryScreen', { mainId, categoryId });
     toggleNavBar();
   };
 
   const renderSubCategoryItem = (companies: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
-      {companies.map(({id, name}) => (
+      {companies.map(({ id, name }) => (
         <TouchableOpacity
           key={id}
           style={styles.subcategoryItem}
-          onPress={() => navigateToSubCategory(mainId, id)}>
+          onPress={() => navigateToSubCategory(mainId, id)}
+        >
           <Text style={styles.subcategoryText}>{name}</Text>
           <Icon name="chevron-forward" size={24} color={colors.second} />
         </TouchableOpacity>
@@ -69,7 +100,8 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
       <View key={id}>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => toggleCategory(id)}>
+          onPress={() => toggleCategory(id)}
+        >
           <Text style={styles.navText}>{name}</Text>
           {companies && (
             <Icon
@@ -100,7 +132,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
       {Array.isArray(categories) && categories.length > 0 ? (
         categories.map(category => renderCategoryItem(category))
       ) : (
-        <Text>No categories available</Text> // Handle the case where there are no categories
+        <Text>No categories available</Text>
       )}
     </View>
   );

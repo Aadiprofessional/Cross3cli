@@ -156,7 +156,7 @@ const SearchScreen = () => {
       {/* Loading Indicator */}
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#484848" />
+          <ActivityIndicator size="small" color="#FCCC51" />
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.productList}>
