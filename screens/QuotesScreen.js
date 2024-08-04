@@ -1,7 +1,15 @@
-import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { colors } from '../styles/color';
+import React, {useCallback, useState, useMemo} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {colors} from '../styles/color';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import axios from 'axios';
@@ -13,47 +21,49 @@ const QuotesScreen = () => {
   const [loading, setLoading] = useState(true);
   const [activeButton, setActiveButton] = useState('quotes');
 
-  const fetchProductData = async () => {
+  const fetchProductData = useCallback(async () => {
     const user = auth().currentUser;
     if (user) {
+      setLoading(true);
       try {
-        const response = await axios.post(`https://crossbee-server.vercel.app/getQuotations`, {
-          uid: user.uid,
-        });
+        const [quotationsResponse, ordersResponse] = await Promise.all([
+          axios.post('https://crossbee-server.vercel.app/getQuotations', {
+            uid: user.uid,
+          }),
+          axios.post('https://crossbee-server.vercel.app/getOrders', {
+            uid: user.uid,
+          }),
+        ]);
 
-        if (response.data) {
-          setQuotations(response.data);
+        if (quotationsResponse.data) {
+          setQuotations(quotationsResponse.data);
         } else {
           console.error('Failed to fetch quotations');
         }
 
-        const response1 = await axios.post(`https://crossbee-server.vercel.app/getOrders`, {
-          uid: user.uid,
-        });
-
-        if (response1.data) {
-          setOrders(response1.data);
+        if (ordersResponse.data) {
+          setOrders(ordersResponse.data);
         } else {
           console.error('Failed to fetch orders');
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     } else {
       console.error('User not authenticated');
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
       fetchProductData();
-
       return () => {
         // Cleanup if needed
       };
-    }, [activeButton])
+    }, [fetchProductData]),
   );
 
   const handleStartShopping = () => {
@@ -68,40 +78,74 @@ const QuotesScreen = () => {
     setActiveButton('orders');
   };
 
-  const navigateToInvoice = (data) => {
-    navigation.navigate('InvoiceScreen2', { quotationId: activeButton === 'quotes' ? data.id : null, orderId: activeButton === 'orders' ? data.id : null });
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const navigateToInvoice = useCallback(data => {
+    navigation.navigate('InvoiceScreen2', {
+      quotationId: activeButton === 'quotes' ? data.id : null,
+      orderId: activeButton === 'orders' ? data.id : null,
+    });
+  });
 
-  const renderOrderItem = ({ item }) => (
-    <View style={styles.orderItem}>
-      <Text style={styles.orderText}>Order ID: <Text style={styles.boldText}>{item.id}</Text></Text>
-      <Text style={styles.orderText}>Total Amount: ₹<Text style={styles.boldText}>{item.totalAmount}</Text></Text>
-      <Text style={styles.orderText}>Items:</Text>
-      {item.cartItems.map(cartItem => (
-        <Text key={cartItem.id} style={styles.orderText}>
-          <Text style={styles.boldText}>{cartItem.name}</Text> - {cartItem.quantity} x ₹<Text style={styles.boldText}>{cartItem.price}</Text>
-        </Text>
-      ))}
-      <TouchableOpacity style={styles.downloadButton} onPress={() => navigateToInvoice(item)}>
-        <Icon name="download" size={20} color={colors.main} />
-      </TouchableOpacity>
-    </View>
+  const renderOrderItem = useMemo(
+    () =>
+      // eslint-disable-next-line react/no-unstable-nested-components
+      ({item}) =>
+        (
+          <View style={styles.orderItem}>
+            <Text style={styles.orderText}>
+              Order ID: <Text style={styles.boldText}>{item.id}</Text>
+            </Text>
+            <Text style={styles.orderText}>
+              Total Amount: ₹
+              <Text style={styles.boldText}>{item.totalAmount}</Text>
+            </Text>
+            <Text style={styles.orderText}>Items:</Text>
+            {item.cartItems.map(cartItem => (
+              <Text key={cartItem.id} style={styles.orderText}>
+                <Text style={styles.boldText}>{cartItem.name}</Text> -{' '}
+                {cartItem.quantity} x ₹
+                <Text style={styles.boldText}>{cartItem.price}</Text>
+              </Text>
+            ))}
+            <TouchableOpacity
+              style={styles.downloadButton}
+              onPress={() => navigateToInvoice(item)}>
+              <Icon name="download" size={20} color={colors.main} />
+            </TouchableOpacity>
+          </View>
+        ),
+    [navigateToInvoice],
   );
 
-  const renderQuoteItem = ({ item }) => (
-    <View style={styles.orderItem}>
-      <Text style={styles.orderText}>Quote ID: <Text style={styles.boldText}>{item.id}</Text></Text>
-      <Text style={styles.orderText}>Total Amount: ₹<Text style={styles.boldText}>{item.totalAmount}</Text></Text>
-      <Text style={styles.orderText}>Items:</Text>
-      {item.cartItems.map(cartItem => (
-        <Text key={cartItem.id} style={styles.orderText}>
-          <Text style={styles.boldText}>{cartItem.name}</Text> - {cartItem.quantity} x ₹<Text style={styles.boldText}>{cartItem.price}</Text>
-        </Text>
-      ))}
-      <TouchableOpacity style={styles.downloadButton} onPress={() => navigateToInvoice(item)}>
-        <Icon name="download" size={20} color={colors.main} />
-      </TouchableOpacity>
-    </View>
+  const renderQuoteItem = useMemo(
+    () =>
+      // eslint-disable-next-line react/no-unstable-nested-components
+      ({item}) =>
+        (
+          <View style={styles.orderItem}>
+            <Text style={styles.orderText}>
+              Quote ID: <Text style={styles.boldText}>{item.id}</Text>
+            </Text>
+            <Text style={styles.orderText}>
+              Total Amount: ₹
+              <Text style={styles.boldText}>{item.totalAmount}</Text>
+            </Text>
+            <Text style={styles.orderText}>Items:</Text>
+            {item.cartItems.map(cartItem => (
+              <Text key={cartItem.id} style={styles.orderText}>
+                <Text style={styles.boldText}>{cartItem.name}</Text> -{' '}
+                {cartItem.quantity} x ₹
+                <Text style={styles.boldText}>{cartItem.price}</Text>
+              </Text>
+            ))}
+            <TouchableOpacity
+              style={styles.downloadButton}
+              onPress={() => navigateToInvoice(item)}>
+              <Icon name="download" size={20} color={colors.main} />
+            </TouchableOpacity>
+          </View>
+        ),
+    [navigateToInvoice],
   );
 
   if (loading) {
@@ -118,21 +162,53 @@ const QuotesScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
-          style={[styles.headerButton, activeButton === 'quotes' ? styles.quotesButtonActive : styles.quotesButton]}
+          style={[
+            styles.headerButton,
+            activeButton === 'quotes'
+              ? styles.quotesButtonActive
+              : styles.quotesButton,
+          ]}
           onPress={handleGetQuotation}>
-          <Text style={[styles.headerButtonText, { color: activeButton === 'quotes' ? '#fff' : '#00000070' }]}>Quotes</Text>
+          <Text
+            style={[
+              styles.headerButtonText,
+              // eslint-disable-next-line react-native/no-inline-styles
+              {color: activeButton === 'quotes' ? '#fff' : '#00000070'},
+            ]}>
+            Quotes
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.headerButton, activeButton === 'orders' ? styles.ordersButtonActive : styles.ordersButton]}
+          style={[
+            styles.headerButton,
+            activeButton === 'orders'
+              ? styles.ordersButtonActive
+              : styles.ordersButton,
+          ]}
           onPress={handleCheckout}>
-          <Text style={[styles.headerButtonText, { color: activeButton === 'orders' ? '#fff' : '#00000070' }]}>Orders</Text>
+          <Text
+            style={[
+              styles.headerButtonText,
+              // eslint-disable-next-line react-native/no-inline-styles
+              {color: activeButton === 'orders' ? '#fff' : '#00000070'},
+            ]}>
+            Orders
+          </Text>
         </TouchableOpacity>
       </View>
       {data.length === 0 ? (
         <>
-          <Image source={require('../assets/Quotes.png')} style={styles.image} />
-          <Text style={styles.noQuoteText}>No {activeButton === 'quotes' ? 'Quote' : 'Order'} yet</Text>
-          <Text style={styles.infoText}>Looks like you have not added any {activeButton === 'quotes' ? 'quote' : 'order'}</Text>
+          <Image
+            source={require('../assets/Quotes.png')}
+            style={styles.image}
+          />
+          <Text style={styles.noQuoteText}>
+            No {activeButton === 'quotes' ? 'Quote' : 'Order'} yet
+          </Text>
+          <Text style={styles.infoText}>
+            Looks like you have not added any{' '}
+            {activeButton === 'quotes' ? 'quote' : 'order'}
+          </Text>
           <TouchableOpacity style={styles.button} onPress={handleStartShopping}>
             <Text style={styles.buttonText}>Start Shopping</Text>
           </TouchableOpacity>
@@ -141,7 +217,9 @@ const QuotesScreen = () => {
         <FlatList
           data={data}
           keyExtractor={item => item.id}
-          renderItem={activeButton === 'quotes' ? renderQuoteItem : renderOrderItem}
+          renderItem={
+            activeButton === 'quotes' ? renderQuoteItem : renderOrderItem
+          }
           contentContainerStyle={styles.orderList}
         />
       )}
@@ -194,7 +272,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
@@ -222,7 +300,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '45%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3,

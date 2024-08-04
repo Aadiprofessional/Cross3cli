@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, Text } from 'react-native';
+import {View, ScrollView, StyleSheet, Text} from 'react-native';
 import AutoImageSlider from '../components/AutoImageSlider';
 import HelpBox from '../components/HelpBox';
 import Categories from '../components/Categories';
@@ -8,11 +8,11 @@ import BestDeals from '../components/BestDeals';
 import LatestProducts from '../components/LatestProducts';
 import UpcomingProducts from '../components/UpcomingProducts';
 import WhatsAppButton from '../components/WhatsAppButton';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
 const HomeContent = () => {
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1}}>
       <ScrollView style={styles.container}>
         <AutoImageSlider />
         <View style={styles.backgroundContainer}>

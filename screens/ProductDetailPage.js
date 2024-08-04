@@ -15,6 +15,7 @@ import {useCart} from '../components/CartContext';
 import WhatsAppButton2 from '../components/WhatsAppButton2';
 import {colors} from '../styles/color';
 import axios from 'axios';
+import debounce from 'lodash.debounce';
 
 const ProductDetailPage = ({route}) => {
   const {productId, mainId, categoryId} = route.params || {};
@@ -29,7 +30,7 @@ const ProductDetailPage = ({route}) => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [sizesAvailable, setSizesAvailable] = useState([]);
   const [colorsAvailable, setColorsAvailable] = useState([]);
-  const [quantity, setQuantity] = useState(colorminCartValue || 1);
+  const [quantity, setQuantity] = useState(1); // Default value
   const [imageIndex, setImageIndex] = useState(0);
   const [currentImages, setCurrentImages] = useState([]);
   const [currentPrice, setCurrentPrice] = useState('');
@@ -46,9 +47,6 @@ const ProductDetailPage = ({route}) => {
     const fetchProductData = async () => {
       setLoading(true);
       try {
-        const headers = {
-          'Content-Type': 'application/json',
-        };
         const response = await axios.post(
           `https://crossbee-server.vercel.app/productData`,
           {
@@ -56,13 +54,13 @@ const ProductDetailPage = ({route}) => {
             category: categoryId,
             product: productId,
           },
-          {headers},
+          {headers: {'Content-Type': 'application/json'}},
         );
 
         if (response.data) {
           const productData = response.data;
           setProduct(productData);
-          setCurrentImages(productData.mainImages || []); // Set default images
+          setCurrentImages(productData.mainImages || []);
           setCurrentPrice(productData.price || '');
           // Fetch initial attribute values
           fetchAttribute1Values(productData.attribute1 || []);
@@ -81,6 +79,7 @@ const ProductDetailPage = ({route}) => {
     }
   }, [productId, mainId, categoryId]);
 
+  // Fetch attribute values with parallel requests
   const fetchAttribute1Values = async attribute1 => {
     try {
       const response = await axios.post(
@@ -95,7 +94,6 @@ const ProductDetailPage = ({route}) => {
       const values = response.data;
 
       setAttribute1Values(values);
-      // Set default storage
       if (values.length > 0) {
         const defaultStorage = values[0].id;
         setSelectedStorage(defaultStorage);
@@ -121,13 +119,12 @@ const ProductDetailPage = ({route}) => {
       const values = response.data;
 
       setAttribute2Values(values);
-      // Set default size
       if (values.length > 0) {
         const defaultSize = values[0].id;
         setSelectedSize(defaultSize);
         fetchAttribute3Values(storage, defaultSize);
       } else {
-        setSelectedSize(null); // No sizes available
+        setSelectedSize(null);
       }
     } catch (error) {
       console.error('Error fetching Attribute 2 values:', error);
@@ -150,34 +147,31 @@ const ProductDetailPage = ({route}) => {
       const values = response.data;
 
       setAttribute3Values(values);
-      // Set default color
       if (values.length > 0) {
         const defaultColor = values[0].id;
         setSelectedColor(defaultColor);
       } else {
-        setSelectedColor(null); // No colors available
+        setSelectedColor(null);
       }
     } catch (error) {
       console.error('Error fetching Attribute 3 values:', error);
     }
   };
 
-  // Handle storage selection
-  const handleStorageSelect = storage => {
+  // Handle storage, size, and color selection
+  const handleStorageSelect = debounce(storage => {
     setSelectedStorage(storage);
-    setSelectedSize(null); // Reset selected size
-    setSelectedColor(null); // Reset selected color
-    fetchAttribute2Values(storage); // Fetch new sizes
-  };
+    setSelectedSize(null);
+    setSelectedColor(null);
+    fetchAttribute2Values(storage);
+  }, 300); // Debounced to avoid rapid re-renders
 
-  // Handle size selection
-  const handleSizeSelect = size => {
+  const handleSizeSelect = debounce(size => {
     setSelectedSize(size);
-    setSelectedColor(null); // Reset selected color
-    fetchAttribute3Values(selectedStorage, size); // Fetch new colors
-  };
+    setSelectedColor(null);
+    fetchAttribute3Values(selectedStorage, size);
+  }, 300); // Debounced to avoid rapid re-renders
 
-  // Handle color selection
   const handleColorSelect = color => {
     setSelectedColor(color);
   };
@@ -206,7 +200,7 @@ const ProductDetailPage = ({route}) => {
       }
     }
   }, [selectedColor, attribute3Values, product]);
-  // Update sizes and colors when storage or size changes
+
   useEffect(() => {
     if (selectedStorage) {
       fetchAttribute2Values(selectedStorage);
@@ -217,7 +211,6 @@ const ProductDetailPage = ({route}) => {
     if (selectedSize) {
       fetchAttribute3Values(selectedStorage, selectedSize);
     } else {
-      // If no size selected, reset colors
       setColorsAvailable([]);
       setSelectedColor(null);
     }
@@ -241,7 +234,7 @@ const ProductDetailPage = ({route}) => {
   };
 
   useEffect(() => {
-    setQuantity(Number(colorminCartValue) || 1); // Ensure quantity is a number
+    setQuantity(Number(colorminCartValue) || 1);
   }, [colorminCartValue]);
 
   const handleDecreaseQuantity = () => {
@@ -251,10 +244,8 @@ const ProductDetailPage = ({route}) => {
   };
 
   const handleIncreaseQuantity = () => {
-    // Ensure colorminCartValue is a number
     const minCartValue = Number(colorminCartValue);
 
-    // Increase quantity by 1 if minCartValue is valid
     if (!isNaN(minCartValue)) {
       setQuantity(prevQuantity => prevQuantity + 1);
     }
@@ -310,7 +301,6 @@ const ProductDetailPage = ({route}) => {
       </View>
     );
   }
-
   return (
     <View>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -496,15 +486,8 @@ const ProductDetailPage = ({route}) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      {alertVisible && (
-        <Animated.View style={[styles.alertContainer, {opacity: fadeAnim}]}>
-          <Image
-            source={require('../assets/alert.png')}
-            style={styles.alertIcon}
-          />
-          <Text style={styles.alertText}>Item added to cart</Text>
-        </Animated.View>
-      )}
+     
+  
       <WhatsAppButton2 />
     </View>
   );
@@ -751,6 +734,11 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     tintColor: 'white',
+  },
+   loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   truckTextContainer: {
     position: 'absolute',

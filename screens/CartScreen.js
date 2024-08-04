@@ -14,7 +14,6 @@ import {colors} from '../styles/color';
 import CartItem from '../components/CartItem';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
-import OTPVerificationScreen from './OTPVerificationScreen';
 
 const CartScreen = () => {
   const {cartItems, updateCartItemQuantity, removeCartItem} = useCart(); // Assuming CartContext is used
@@ -45,6 +44,9 @@ const CartScreen = () => {
       };
     }, [fetchCartData]),
   );
+  const handleStartShopping = () => {
+    navigation.navigate('Home');
+  };
 
   const handleGetQuotation = async () => {
     try {
@@ -55,7 +57,7 @@ const CartScreen = () => {
       }
 
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/generateQuotation',
+        'https://crossbee-server.vercel.app/quotationCheckout',
         {
           cartItems,
           uid: user.uid,
@@ -64,7 +66,7 @@ const CartScreen = () => {
 
       if (response.data.text) {
         console.log('Quotation generated successfully');
-        navigation.navigate('Quotation');
+        navigation.navigate('InvoiceScreen', {invoiceData: response.data.data});
       } else {
         console.error('Failed to generate quotation');
       }
@@ -84,7 +86,7 @@ const CartScreen = () => {
   const navigateToOTP = () => {
     navigation.reset({
       index: 0,
-      routes: [{name: 'OTPScreen'}],
+      routes: [{name: 'OTPVerificationScreen'}],
     });
   };
 
@@ -106,9 +108,10 @@ const CartScreen = () => {
         <TouchableOpacity
           style={[
             styles.button2,
+            // eslint-disable-next-line react-native/no-inline-styles
             {backgroundColor: colors.main, alignSelf: 'center'},
           ]}
-          onPress={OTPVerificationScreen}>
+          onPress={navigateToOTP}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       </View>
@@ -133,24 +136,41 @@ const CartScreen = () => {
         </View>
       </View>
       <ScrollView style={styles.cartItemsContainer}>
-        {cartItems.map(item => (
-          <CartItem
-            key={item.cartId}
-            item={item}
-            onUpdateQuantity={updateCartItemQuantity}
-            onRemoveItem={removeCartItem}
-          />
-        ))}
+        {cartItems.length === 0 ? (
+          <View style={styles.emptyCartContainer}>
+            <Image
+              source={require('../assets/Cart.png')}
+              style={styles.image2}
+            />
+            <Text style={styles.infoText}>Your cart is empty</Text>
+            <TouchableOpacity
+              style={styles.button3}
+              onPress={handleStartShopping}>
+              <Text style={styles.buttonText}>Start Shopping</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          cartItems.map(item => (
+            <CartItem
+              key={item.cartId}
+              item={item}
+              onUpdateQuantity={updateCartItemQuantity}
+              onRemoveItem={removeCartItem}
+            />
+          ))
+        )}
       </ScrollView>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={[styles.button, {backgroundColor: colors.second}]}
-          onPress={handleGetQuotation}>
+          onPress={handleGetQuotation}
+          disabled={cartItems.length === 0}>
           <Text style={styles.buttonText}>Get Quotation</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, {backgroundColor: colors.main}]}
-          onPress={handlePlaceOrder}>
+          onPress={handlePlaceOrder}
+          disabled={cartItems.length === 0}>
           <Text style={styles.buttonText}>Place Order</Text>
         </TouchableOpacity>
       </View>
@@ -199,6 +219,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  emptyCartContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyCartText: {
+    fontSize: 18,
+    color: colors.TextBlack,
+  },
   cartItemsContainer: {
     flex: 1,
     padding: 10,
@@ -240,6 +269,36 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
     marginBottom: 20,
     textAlign: 'center',
+  },
+  image2: {
+    width: 200,
+    height: 200,
+    marginBottom: 20,
+  },
+  noQuoteText: {
+    fontSize: 24,
+    fontWeight: '600',
+    marginBottom: 10,
+    color: colors.TextBlack,
+  },
+  infoText: {
+    fontSize: 26,
+    color: '#666',
+    marginBottom: 20,
+    textAlign: 'center',
+    fontWeight: 'black',
+  },
+  button3: {
+    backgroundColor: colors.main,
+    width: '80%',
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText2: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -6,61 +6,88 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {colors} from '../styles/color';
+import {debounce} from 'lodash';
 
 const SubCategoryScreen = ({route}) => {
   const {mainId, categoryId} = route.params || {};
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.post(
-          'https://crossbee-server.vercel.app/products',
-          {
-            main: mainId,
-            category: categoryId,
-          },
-        );
+  const fetchProducts = useCallback(async () => {
+    try {
+      const response = await axios.post(
+        'https://crossbee-server.vercel.app/products',
+        {
+          main: mainId,
+          category: categoryId,
+        },
+      );
 
-        console.log('Fetched products:', response.data); // Log the fetched data
-        setProducts(response.data);
-      } catch (error) {
-        console.error('Error fetching products: ', error);
-      }
-    };
-
-    if (mainId && categoryId) {
-      fetchProducts();
+      console.log('Fetched products:', response.data); // Log the fetched data
+      setProducts(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching products: ', error);
+      setLoading(false);
     }
   }, [mainId, categoryId]);
 
-  const navigateToProductDetail = (productId: string) => {
-    navigation.navigate('ProductDetailPage', {mainId, categoryId, productId});
-  };
+  useEffect(() => {
+    if (mainId && categoryId) {
+      fetchProducts();
+    }
+  }, [mainId, categoryId, fetchProducts]);
+
+  const navigateToProductDetail = useCallback(
+    productId => {
+      navigation.navigate('ProductDetailPage', {mainId, categoryId, productId});
+    },
+    [navigation, mainId, categoryId],
+  );
+
+  // Optimize product list rendering
+  const productItems = useMemo(
+    () =>
+      products.map(product => (
+        <TouchableOpacity
+          key={product.id}
+          style={styles.productItem}
+          onPress={() => navigateToProductDetail(product.id)}>
+          <View style={styles.productImageContainer}>
+            <Image
+              source={{uri: product.mainImage}}
+              style={styles.productImage}
+            />
+          </View>
+          <Text style={styles.productName}>{product.name}</Text>
+        </TouchableOpacity>
+      )),
+    [products, navigateToProductDetail],
+  );
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        {products.map(product => (
-          <TouchableOpacity
-            key={product.id}
-            style={styles.productItem}
-            onPress={() => navigateToProductDetail(product.id)}>
-            <View style={styles.productImageContainer}>
-              <Image
-                source={{uri: product.mainImage}}
-                style={styles.productImage}
-              />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          {productItems.length > 0 ? (
+            productItems
+          ) : (
+            <View style={styles.noProductsContainer}>
+              <Text style={styles.noProductsText}>No products found</Text>
             </View>
-            <Text style={styles.productName}>{product.name}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -99,6 +126,25 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     textAlign: 'center',
+    color: colors.TextBlack,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 18,
+    color: colors.TextBlack,
+  },
+  noProductsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noProductsText: {
+    fontSize: 18,
     color: colors.TextBlack,
   },
 });

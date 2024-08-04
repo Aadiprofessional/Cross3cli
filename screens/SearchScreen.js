@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 import {View, TextInput, StyleSheet, ScrollView, Text} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {fetchProducts} from '../services/apiService';
 import ProductComponent from '../components/ProductComponent';
 import {ActivityIndicator} from 'react-native-paper';
+import {debounce} from 'lodash';
 
 const SearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,45 +28,54 @@ const SearchScreen = () => {
   ]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const products = await fetchProducts();
-        setOriginalProducts(products);
-        setSearchResults(products);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error loading products:', error);
-        setLoading(false);
-      }
-    };
-
-    loadProducts();
+  const loadProducts = useCallback(async () => {
+    try {
+      const products = await fetchProducts();
+      setOriginalProducts(products);
+      setSearchResults(products);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    let filteredProducts = originalProducts.filter(product =>
-      product.searchName.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
+    loadProducts();
+  }, [loadProducts]);
 
-    if (filterValue) {
-      filteredProducts = filteredProducts.filter(
-        product => product.category === filterValue,
-      );
-    }
+  // Debounced search handler
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(query => {
+        let filteredProducts = originalProducts.filter(product =>
+          product.searchName.toLowerCase().includes(query.toLowerCase()),
+        );
 
-    // Flatten products with multiple items
-    const productMap = new Map();
-    filteredProducts.forEach(product => {
-      if (!productMap.has(product.productId)) {
-        productMap.set(product.productId, []);
-      }
-      productMap.get(product.productId).push(product);
-    });
+        if (filterValue) {
+          filteredProducts = filteredProducts.filter(
+            product => product.category === filterValue,
+          );
+        }
 
-    const flattenedProducts = Array.from(productMap.values()).flat();
-    setSearchResults(searchQuery ? flattenedProducts : originalProducts);
-  }, [searchQuery, filterValue, originalProducts]);
+        // Flatten products with multiple items
+        const productMap = new Map();
+        filteredProducts.forEach(product => {
+          if (!productMap.has(product.productId)) {
+            productMap.set(product.productId, []);
+          }
+          productMap.get(product.productId).push(product);
+        });
+
+        const flattenedProducts = Array.from(productMap.values()).flat();
+        setSearchResults(query ? flattenedProducts : originalProducts);
+      }, 300),
+    [originalProducts, filterValue],
+  );
+
+  useEffect(() => {
+    debouncedSearch(searchQuery);
+  }, [searchQuery, debouncedSearch]);
 
   useEffect(() => {
     const sortProducts = () => {
@@ -221,6 +231,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     width: 120,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   smallDropDownContainer: {
     borderRadius: 10,

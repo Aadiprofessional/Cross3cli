@@ -3401,6 +3401,18 @@
   dependencies:
     tslib "^2.4.0"
 
+"@tanstack/query-core@5.51.21":
+  version "5.51.21"
+  resolved "https://registry.npmjs.org/@tanstack/query-core/-/query-core-5.51.21.tgz"
+  integrity sha512-POQxm42IUp6n89kKWF4IZi18v3fxQWFRolvBA6phNVmA8psdfB1MvDnGacCJdS+EOX12w/CyHM62z//rHmYmvw==
+
+"@tanstack/react-query@^5.51.21":
+  version "5.51.21"
+  resolved "https://registry.npmjs.org/@tanstack/react-query/-/react-query-5.51.21.tgz"
+  integrity sha512-Q/V81x3sAYgCsxjwOkfLXfrmoG+FmDhLeHH5okC/Bp8Aaw2c33lbEo/mMcMnkxUPVtB2FLpzHT0tq3c+OlZEbw==
+  dependencies:
+    "@tanstack/query-core" "5.51.21"
+
 "@trysound/sax@0.2.0":
   version "0.2.0"
   resolved "https://registry.npmjs.org/@trysound/sax/-/sax-0.2.0.tgz"
@@ -7753,6 +7765,11 @@ loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.4.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
+lottie-react-native@^6.7.2:
+  version "6.7.2"
+  resolved "https://registry.npmjs.org/lottie-react-native/-/lottie-react-native-6.7.2.tgz"
+  integrity sha512-MZVx6N1EeO/EaSx8T44mJ0aHc5Mqee+xIfWwszni0oz8U2wlHdaWGjES44dHxaxgAp/0dRaFt3PkpZ6egTzcBg==
+
 lower-case@^2.0.2:
   version "2.0.2"
   resolved "https://registry.npmjs.org/lower-case/-/lower-case-2.0.2.tgz"
@@ -9339,7 +9356,7 @@ react-native-vector-icons@*, react-native-vector-icons@^10.1.0, "react-native-ve
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
-react-native@*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@>= 0.62", react-native@>=0.42.0, react-native@>=0.47, react-native@>=0.57, react-native@>=0.59.0, react-native@0.74.3:
+react-native@*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@>= 0.62", react-native@>=0.42.0, react-native@>=0.46, react-native@>=0.47, react-native@>=0.57, react-native@>=0.59.0, react-native@0.74.3:
   version "0.74.3"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.74.3.tgz"
   integrity sha512-UFutCC6WEw6HkxlcpQ2BemKqi0JkwrgDchYB5Svi8Sp4Xwt4HA6LGEjNQgZ+3KM44bjyFRpofQym0uh0jACGng==
@@ -9425,7 +9442,7 @@ react-test-renderer@18.2.0:
     react-shallow-renderer "^16.15.0"
     scheduler "^0.23.0"
 
-react@*, "react@^16.0.0 || ^17.0.0 || ^18.0.0", react@^18.2.0, react@>=16.0, react@>=16.3.0, react@>=16.8, react@>=17.0.0, react@18.2.0:
+react@*, "react@^16.0.0 || ^17.0.0 || ^18.0.0", react@^18.0.0, react@^18.2.0, react@>=16.0, react@>=16.3.0, react@>=16.8, react@>=17.0.0, react@18.2.0:
   version "18.2.0"
   resolved "https://registry.npmjs.org/react/-/react-18.2.0.tgz"
   integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
