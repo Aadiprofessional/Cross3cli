@@ -1,9 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, AppState, AppStateStatus } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  AppState,
+  AppStateStatus,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
 interface LeftNavBarProps {
   toggleNavBar: () => void;
@@ -12,7 +19,7 @@ interface LeftNavBarProps {
 // In-memory cache to store categories data for the session
 let categoriesCache: any[] | null = null;
 
-const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
+const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState<any[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -42,7 +49,10 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     };
 
     // Subscribe to app state changes
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
 
     // Clean up subscription on unmount
     return () => {
@@ -52,7 +62,9 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
 
   const fetchAndCacheData = async () => {
     try {
-      const response = await axios.get('https://crossbee-server.vercel.app/drawer');
+      const response = await axios.get(
+        'https://crossbee-server.vercel.app/drawer',
+      );
       console.log('Fetched data:', response.data);
       setCategories(response.data);
       categoriesCache = response.data; // Store in cache
@@ -66,7 +78,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   };
 
   const navigateToSubCategory = (mainId: string, categoryId: string) => {
-    navigation.navigate('SubCategoryScreen', { mainId, categoryId });
+    navigation.navigate('SubCategoryScreen', {mainId, categoryId});
     toggleNavBar();
   };
 
@@ -78,12 +90,11 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
 
   const renderSubCategoryItem = (companies: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
-      {companies.map(({ id, name }) => (
+      {companies.map(({id, name}) => (
         <TouchableOpacity
           key={id}
           style={styles.subcategoryItem}
-          onPress={() => navigateToSubCategory(mainId, id)}
-        >
+          onPress={() => navigateToSubCategory(mainId, id)}>
           <Text style={styles.subcategoryText}>{name}</Text>
           <Icon name="chevron-forward" size={24} color={colors.second} />
         </TouchableOpacity>
@@ -106,8 +117,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       <View key={id}>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => toggleCategory(id)}
-        >
+          onPress={() => toggleCategory(id)}>
           <Text style={styles.navText}>{name}</Text>
           {companies && (
             <Icon
@@ -139,10 +149,10 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
         <>
           {categories.map(category => renderCategoryItem(category))}
           <TouchableOpacity
-            style={styles.allCategoriesButton}
-            onPress={handleAllCategoriesPress}
-          >
-            <Text style={styles.allCategoriesText}>All Categories</Text>
+            style={styles.subcategoryItem} // Use subcategoryItem style for consistency
+            onPress={handleAllCategoriesPress}>
+            <Text style={styles.subcategoryText2}>All Categories</Text>
+            <Icon name="chevron-forward" size={24} color={colors.second} />
           </TouchableOpacity>
         </>
       ) : (
@@ -172,11 +182,6 @@ const styles = StyleSheet.create({
     marginRight: 'auto',
     color: colors.TextBlack,
   },
-  categoryIcon: {
-    width: 32,
-    height: 32,
-    marginRight: 10,
-  },
   subcategoryContainer: {
     marginTop: 5,
     paddingLeft: 20,
@@ -192,6 +197,12 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: colors.TextBlack,
   },
+  subcategoryText2: {
+    fontSize: 18,
+    fontWeight: '400',
+    color: colors.TextBlack,
+    marginLeft: 17,
+  },
   categoriesHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -205,18 +216,6 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     marginRight: 2,
-  },
-  allCategoriesButton: {
-    marginTop: 20,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    backgroundColor: colors.main,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  allCategoriesText: {
-    fontSize: 18,
-    color: '#FFF',
   },
 });
 

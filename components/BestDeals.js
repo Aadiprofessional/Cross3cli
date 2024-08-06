@@ -92,22 +92,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.primary,
     borderRadius: 10,
-    padding: 10,
+    padding: 2,
     alignItems: 'center',
     borderWidth: 1,
   },
-  imageContainer: {
+ imageContainer: {
     width: '100%',
-    height: '60%', // 60% of the productContent height
+    height: '70%', // 60% of the productContent height
     aspectRatio: 1, // Ensure a square aspect ratio for the image container
-    marginBottom: 10,
+    marginBottom: 1,
+    marginTop: 3,
     alignItems: 'center',
   },
   imageBox: {
-    width: '90%', // Adjust as needed for the size of the white box
+    width: '130%', // Adjust as needed for the size of the white box
     height: '100%', // Take full height of the image container
     backgroundColor: 'white',
-    borderRadius: 10,
+    borderRadius: 5,
     overflow: 'hidden',
     alignItems: 'center', // Center the image inside the white box
     justifyContent: 'center', // Center the image inside the white box

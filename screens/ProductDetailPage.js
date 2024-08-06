@@ -23,6 +23,7 @@ const ProductDetailPage = ({route}) => {
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(true);
   const [alertVisible, setAlertVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [selectedStorage, setSelectedStorage] = useState(null);
@@ -183,7 +184,7 @@ const ProductDetailPage = ({route}) => {
         colorOption => colorOption.id === selectedColor,
       );
       if (selectedColorData) {
-        setCurrentImages(selectedColorData.images || []);
+        setCurrentImages(selectedColorData.imageName || []);
         setCurrentPrice(selectedColorData.price || product.price);
         setColorDescription(
           selectedColorData.description || product.description,
@@ -257,43 +258,36 @@ const ProductDetailPage = ({route}) => {
       toValue: 1,
       duration: 500,
       useNativeDriver: true,
-    }).start(() => {
-      setTimeout(() => {
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }).start(() => {
-          setAlertVisible(false);
-        });
-      }, 2000);
-    });
+    }).start();
+  };
+
+  const hideAlert = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start(() => setAlertVisible(false));
   };
 
   const handleAddToCart = () => {
-    const newItem = {
-      Id: productId,
-      name: product.name,
-      price: currentPrice,
-      quantity,
-      selectedStorage,
-      selectedSize,
-      color: selectedColor,
-      image: currentImages[0],
-      colorminCartValue,
-    };
-    addToCart(newItem);
-    showAlert();
+    if (product) {
+      const item = {
+        ...product,
+        quantity,
+        price: currentPrice,
+      };
+      addToCart(item);
+      showAlert();
+    }
   };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.main} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
-
   if (!product) {
     return (
       <View style={styles.errorContainer}>
@@ -304,13 +298,18 @@ const ProductDetailPage = ({route}) => {
   return (
     <View>
       <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-        <View style={styles.imageContainer}>
-          {currentImages.length > 0 && (
-            <Image
-              source={{uri: currentImages[imageIndex]}}
-              style={styles.image}
-            />
-          )}
+      <View style={styles.imageContainer}>
+        {currentImages.length > 0 && (
+          <Image
+            source={{uri: currentImages[imageIndex]}}
+            style={styles.image}
+            onLoad={() => setImageLoading(false)}
+            onError={() => setImageLoading(false)}
+          />
+        )}
+        {imageLoading && (
+          <ActivityIndicator size="large" color={colors.primary} style={styles.imageLoader} />
+        )}
           <TouchableOpacity
             style={[styles.arrowButton, {left: 10}]}
             onPress={handlePrevious}>

@@ -9,17 +9,16 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios'; // Import axios or your preferred HTTP client
-import {
-  GoogleSignin,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
+import axios from 'axios';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {colors} from '../styles/color';
 import {sizes} from '../styles/size';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
+import SmsRetriever from 'react-native-sms-retriever'; // Import SmsRetriever for auto-reading OTP
 
 // Configure Google Sign-In
 GoogleSignin.configure({
@@ -29,11 +28,13 @@ GoogleSignin.configure({
 
 const OTPVerificationScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [otpSent, setOtpSent] = useState(false); // Renamed state for better clarity
+  const [otpSent, setOtpSent] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false); // State to manage loading for OTP request
   const textInputRefs = useRef(
     Array(6)
       .fill(null)
@@ -68,6 +69,34 @@ const OTPVerificationScreen = ({navigation}) => {
     return () => clearInterval(timerInterval);
   }, [otpSent, timer]);
 
+  useEffect(() => {
+    if (otpSent) {
+      textInputRefs.current[0].current.focus();
+    }
+  }, [otpSent]);
+
+  useEffect(() => {
+    // Start SMS Retriever when OTP is sent
+    if (otpSent) {
+      SmsRetriever.startSmsRetriever()
+        .then(result => {
+          SmsRetriever.addSmsListener(event => {
+            const message = event.message;
+            const otp = /(\d{6})/g.exec(message)[1];
+            if (otp) {
+              const otpArray = otp.split('');
+              setCode(otpArray);
+              confirmCode(otpArray.join(''));
+              SmsRetriever.removeSmsListener();
+            }
+          });
+        })
+        .catch(error => {
+          console.error('Error starting SMS Retriever:', error);
+        });
+    }
+  }, [otpSent]);
+
   const isValidPhoneNumber = number => {
     // Basic validation for Indian phone numbers
     const phoneRegex = /^[6-9]\d{9}$/;
@@ -83,6 +112,8 @@ const OTPVerificationScreen = ({navigation}) => {
       );
       return;
     }
+
+    setOtpLoading(true); // Start loading animation for OTP request
 
     try {
       let response = await axios.get(
@@ -102,24 +133,28 @@ const OTPVerificationScreen = ({navigation}) => {
         error.response.data &&
         error.response.data.error === "User doesn't exist."
       ) {
-        // Pass phoneNumber as a parameter to UpdateProfileScreen
-        navigation.navigate('UpdateProfileScreen', {phoneNumber});
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'UpdateProfileScreen', params: {phoneNumber}}], // Resetting with UpdateProfileScreen as the first route
+        });
       } else {
         showToast('error', 'Error', 'Failed to send OTP. Please try again.');
       }
+    } finally {
+      setOtpLoading(false); // Stop loading animation after request completes
     }
   };
 
-  const confirmCode = async () => {
+  const confirmCode = async otp => {
+    setLoading(true);
     try {
-      const completeCode = code.join('');
       let response = await axios.get(
         'https://crossbee-server.vercel.app/verifyOtp?phoneNumber=91' +
           phoneNumber +
           '&orderId=' +
           orderId +
           '&otp=' +
-          completeCode,
+          otp,
       );
       if (response.data.isOTPVerified) {
         let tokenResponse = await axios.get(
@@ -137,6 +172,8 @@ const OTPVerificationScreen = ({navigation}) => {
     } catch (error) {
       console.error('Error confirming code:', error);
       showToast('error', 'Error', 'Failed to verify OTP. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -149,6 +186,10 @@ const OTPVerificationScreen = ({navigation}) => {
       textInputRefs.current[index + 1].current.focus();
     } else if (!text && index > 0) {
       textInputRefs.current[index - 1].current.focus();
+    }
+
+    if (newCode.every(digit => digit !== '')) {
+      confirmCode(newCode.join(''));
     }
   };
 
@@ -212,12 +253,18 @@ const OTPVerificationScreen = ({navigation}) => {
                 onChangeText={setPhoneNumber}
                 cursorColor={colors.buttonBackground}
                 placeholderTextColor={colors.placeholder}
-                onSubmitEditing={handlePhoneNumberSubmit} // Automatically request OTP on submit
+                onSubmitEditing={handlePhoneNumberSubmit}
               />
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => requestOTP(phoneNumber)}>
-                <Text style={styles.buttonText}>Get OTP</Text>
+                onPress={() => requestOTP(phoneNumber)}
+                disabled={otpLoading} // Disable button while loading
+              >
+                {otpLoading ? ( // Display loading indicator if OTP is being requested
+                  <ActivityIndicator color={colors.background} />
+                ) : (
+                  <Text style={styles.buttonText}>Get OTP</Text>
+                )}
               </TouchableOpacity>
             </View>
           ) : (
@@ -246,12 +293,20 @@ const OTPVerificationScreen = ({navigation}) => {
                         textInputRefs.current[index - 1].current.focus();
                       }
                     }}
-                    onSubmitEditing={confirmCode} // Automatically confirm code on submit
+                    onSubmitEditing={() => {
+                      if (code.every(digit => digit !== '')) {
+                        confirmCode(code.join(''));
+                      }
+                    }}
                   />
                 ))}
               </View>
               <TouchableOpacity style={styles.button} onPress={confirmCode}>
-                <Text style={styles.buttonText}>Confirm Code</Text>
+                {loading ? (
+                  <ActivityIndicator color={colors.background} />
+                ) : (
+                  <Text style={styles.buttonText}>Confirm Code</Text>
+                )}
               </TouchableOpacity>
               <View style={styles.timerResendContainer}>
                 {timer > 0 ? (
@@ -307,13 +362,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 40,
     width: '80%',
   },
   otpContent: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 40,
     width: '80%',
   },
   input: {

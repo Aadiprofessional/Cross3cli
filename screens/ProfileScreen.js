@@ -67,8 +67,8 @@ const ProfileScreen = ({navigation}) => {
   const options = [
     {
       iconName: 'office-building-outline', // Outlined icon for "Register your Company"
-      text: 'Register your Company',
-      screen: 'UpdateProfileScreen',
+      text: 'Add your Company',
+      screen: 'UserCompaniesScreen',
     },
     {
       iconName: 'file-document-outline', // Outlined icon for "Terms and Conditions"

@@ -9,27 +9,69 @@ import {
   Keyboard,
   ScrollView,
   Image,
-  route,
+  ActivityIndicator,
 } from 'react-native';
-import axios from 'axios'; // Import axios or your preferred HTTP client
+import axios from 'axios';
 import Toast from 'react-native-toast-message';
-import { sizes } from '../styles/size';
-import { colors } from '../styles/color';
+import {sizes} from '../styles/size';
+import {colors} from '../styles/color';
+import SmsRetriever from 'react-native-sms-retriever';
 
-
-
-const OTPscreen = ({route, navigation}) => {
+const OTPScreen = ({route, navigation}) => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [loading, setLoading] = useState(false);
   const textInputRefs = useRef(
     Array(6)
       .fill(null)
       .map(() => React.createRef()),
   );
 
-  // Extract token and orderId from route params
-  const {token, orderId} = route.params;
+  // Extract phoneNumber and orderId from route params
+  const {phoneNumber, orderId} = route.params;
+
+  // Log phoneNumber and orderId
+  useEffect(() => {
+    console.log('Phone Number:', phoneNumber);
+    console.log('Order ID:', orderId);
+  }, [phoneNumber, orderId]);
+
+  // Start SMS Retriever
+  useEffect(() => {
+    const startSMSListener = async () => {
+      try {
+        const registered = await SmsRetriever.startSmsRetriever();
+        if (registered) {
+          SmsRetriever.addSmsListener(event => {
+            console.log('Message:', event.message);
+            // Extract the OTP code from the message using regex
+            const otpRegex = /\b(\d{6})\b/;
+            const otp = otpRegex.exec(event.message)[1];
+            if (otp) {
+              const otpArray = otp.split('');
+              setCode(otpArray);
+              // Focus the last input box
+              textInputRefs.current[5].current.focus();
+              SmsRetriever.removeSmsListener();
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to start SMS Retriever:', error);
+      }
+    };
+
+    startSMSListener();
+    return () => SmsRetriever.removeSmsListener();
+  }, []);
+
+  // Set initial focus on the first input
+  useEffect(() => {
+    if (textInputRefs.current[0].current) {
+      textInputRefs.current[0].current.focus();
+    }
+  }, []);
 
   useEffect(() => {
     let timerInterval;
@@ -49,6 +91,7 @@ const OTPscreen = ({route, navigation}) => {
   }, [timer]);
 
   const confirmCode = async () => {
+    setLoading(true); // Start loading animation
     try {
       const completeCode = code.join('');
       let response = await axios.get(
@@ -68,6 +111,8 @@ const OTPscreen = ({route, navigation}) => {
     } catch (error) {
       console.error('Error confirming code:', error);
       showToast('error', 'Error', 'Failed to verify OTP. Please try again.');
+    } finally {
+      setLoading(false); // Stop loading animation
     }
   };
 
@@ -86,7 +131,6 @@ const OTPscreen = ({route, navigation}) => {
   const resendOTP = async () => {
     if (canResend) {
       try {
-        // Replace this URL with your actual resend OTP endpoint
         await axios.get(
           `https://crossbee-server.vercel.app/resendOtp?orderId=${orderId}`,
         );
@@ -118,10 +162,12 @@ const OTPscreen = ({route, navigation}) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Image
-          source={require('../assets/login_top.png')}
-          style={styles.topImage}
-        />
+        <View style={styles.topImageContainer}>
+          <Image
+            source={require('../assets/login_top.png')}
+            style={styles.topImage}
+          />
+        </View>
         <Image source={require('../assets/logo.png')} style={styles.logo} />
         <Text style={styles.welcomeText}>Welcome to Cross Bee</Text>
         <Text style={styles.otpText}>
@@ -151,8 +197,16 @@ const OTPscreen = ({route, navigation}) => {
             />
           ))}
         </View>
-        <TouchableOpacity style={styles.button} onPress={confirmCode}>
-          <Text style={styles.buttonText}>Confirm Code</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={confirmCode}
+          disabled={loading || code.includes('')} // Disable button if loading or any input is empty
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Confirm Code</Text>
+          )}
         </TouchableOpacity>
         <View style={styles.timerResendContainer}>
           {timer > 0 ? (
@@ -172,15 +226,19 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#fff',
     paddingVertical: 20,
+  },
+  topImageContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   topImage: {
     width: '100%',
     height: sizes.topImageHeight,
     resizeMode: 'contain',
-    marginTop: -27,
+    marginTop: -43,
   },
   logo: {
     width: sizes.logoWidth,
@@ -219,7 +277,6 @@ const styles = StyleSheet.create({
   },
   activeOtpInput: {
     borderColor: colors.main,
-    backgroundColor: '#E3F2FD',
   },
   button: {
     width: '80%',
@@ -228,6 +285,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: colors.main,
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   buttonText: {
     fontSize: 16,
@@ -249,4 +308,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OTPscreen;
+export default OTPScreen;

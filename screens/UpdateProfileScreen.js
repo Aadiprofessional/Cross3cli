@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,12 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 import axios from 'axios';
 
 const UpdateProfileScreen = () => {
@@ -38,6 +38,18 @@ const UpdateProfileScreen = () => {
   // Extract phoneNumber from route params
   const phoneNumber = route.params?.phoneNumber;
 
+  // Check if all required fields are filled
+  const isFormValid = () => {
+    return (
+      CompanyName &&
+      OwnerName &&
+      GST &&
+      mainAddress &&
+      email &&
+      pincode.length === 6
+    );
+  };
+
   const isValidEmail = email => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
@@ -49,7 +61,7 @@ const UpdateProfileScreen = () => {
         `https://api.postalpincode.in/pincode/${pincode}`,
       );
       if (response.data[0].Status === 'Success') {
-        const {District, State} = response.data[0].PostOffice[0];
+        const { District, State } = response.data[0].PostOffice[0];
         setCity(District);
         setState(State);
       } else {
@@ -67,14 +79,21 @@ const UpdateProfileScreen = () => {
     }
   }, [pincode]);
 
+  useEffect(() => {
+    // Check if form is valid when any of the required fields change
+    if (isFormValid()) {
+      // Enable navigation only if form is valid
+    }
+  }, [CompanyName, OwnerName, GST, mainAddress, email, pincode]);
+
   const handleImagePicker = () => {
-    launchImageLibrary({mediaType: 'photo'}, async response => {
+    launchImageLibrary({ mediaType: 'photo' }, async response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.errorCode) {
         console.error('ImagePicker Error: ', response.errorMessage);
       } else {
-        const {uri} = response.assets[0];
+        const { uri } = response.assets[0];
         const filename = uri.substring(uri.lastIndexOf('/') + 1);
         const uploadUri =
           Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
@@ -101,6 +120,11 @@ const UpdateProfileScreen = () => {
   };
 
   const handleUpdateProfile = async () => {
+    if (!isFormValid()) {
+      Alert.alert('Missing Fields', 'Please fill in all required fields.');
+      return;
+    }
+
     if (!isValidEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
@@ -114,6 +138,7 @@ const UpdateProfileScreen = () => {
       );
 
       const orderId = otpResponse.data.orderId;
+      console.log(orderId);
 
       // Request to get custom token
       const response = await axios.post(
@@ -130,10 +155,10 @@ const UpdateProfileScreen = () => {
       );
 
       if (response.data && response.data.token) {
-        navigation.navigate('OTPscreen', {
-          token: response.data.token,
-          orderId: orderId, // Pass orderId to OTPscreen
-          phoneNumber,
+        // Reset navigation to prevent going back
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'OTPscreen', params: { token: response.data.token, orderId, phoneNumber } }],
         });
       } else {
         Alert.alert('Error', 'Failed to get custom token.');
@@ -148,7 +173,7 @@ const UpdateProfileScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#FCCC51" />
       </View>
     );
@@ -170,13 +195,13 @@ const UpdateProfileScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.profileImageContainer}>
           {profilePicture ? (
-            <Image source={{uri: profilePicture}} style={styles.profileImage} />
+            <Image source={{ uri: profilePicture }} style={styles.profileImage} />
           ) : (
             <Icon name="person" size={100} color="#ccc" />
           )}
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Company Name</Text>
+          <Text style={styles.label}>Company Name <Text style={styles.requiredStar}>*</Text></Text>
           <TextInput
             style={styles.input}
             placeholder="Company Name"
@@ -191,7 +216,7 @@ const UpdateProfileScreen = () => {
             placeholderTextColor={colors.placeholder}
             editable={false} // Set to false to avoid user editing
           />
-          <Text style={styles.label}>Owner Name</Text>
+          <Text style={styles.label}>Owner Name <Text style={styles.requiredStar}>*</Text></Text>
           <TextInput
             style={styles.input}
             placeholder="Owner Name"
@@ -199,7 +224,7 @@ const UpdateProfileScreen = () => {
             value={OwnerName}
             onChangeText={setOwnerName}
           />
-          <Text style={styles.label}>GST</Text>
+          <Text style={styles.label}>GST <Text style={styles.requiredStar}>*</Text></Text>
           <TextInput
             style={styles.input}
             placeholder="GST"
@@ -207,7 +232,7 @@ const UpdateProfileScreen = () => {
             value={GST}
             onChangeText={setGST}
           />
-          <Text style={styles.label}>Main Address</Text>
+          <Text style={styles.label}>Main Address <Text style={styles.requiredStar}>*</Text></Text>
           <TextInput
             style={styles.input}
             placeholder="Main Address"
@@ -223,7 +248,7 @@ const UpdateProfileScreen = () => {
             value={optionalAddress}
             onChangeText={setOptionalAddress}
           />
-          <Text style={styles.label}>Pincode</Text>
+          <Text style={styles.label}>Pincode <Text style={styles.requiredStar}>*</Text></Text>
           <TextInput
             style={styles.input}
             placeholder="Pincode"
@@ -248,13 +273,14 @@ const UpdateProfileScreen = () => {
             value={state}
             editable={false}
           />
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>Email <Text style={styles.requiredStar}>*</Text></Text>
           <TextInput
             style={styles.input}
             placeholder="Email"
             placeholderTextColor={colors.placeholder}
             value={email}
             onChangeText={setEmail}
+            keyboardType="email-address"
           />
           <Text style={styles.label}>Gender</Text>
           <View style={styles.genderContainer}>
@@ -264,7 +290,7 @@ const UpdateProfileScreen = () => {
               <View
                 style={[
                   styles.radioDot,
-                  gender === 'Male' && {backgroundColor: colors.main},
+                  gender === 'Male' && { backgroundColor: colors.main },
                 ]}
               />
               <Text style={styles.genderText}>Male</Text>
@@ -275,7 +301,7 @@ const UpdateProfileScreen = () => {
               <View
                 style={[
                   styles.radioDot,
-                  gender === 'Female' && {backgroundColor: colors.main},
+                  gender === 'Female' && { backgroundColor: colors.main },
                 ]}
               />
               <Text style={styles.genderText}>Female</Text>
@@ -286,7 +312,7 @@ const UpdateProfileScreen = () => {
               <View
                 style={[
                   styles.radioDot,
-                  gender === 'Other' && {backgroundColor: colors.main},
+                  gender === 'Other' && { backgroundColor: colors.main },
                 ]}
               />
               <Text style={styles.genderText}>Other</Text>
@@ -298,8 +324,9 @@ const UpdateProfileScreen = () => {
             <Text style={styles.PickerText}>Upload Image</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.button, {backgroundColor: colors.main}]}
-            onPress={handleUpdateProfile}>
+            style={[styles.button, { backgroundColor: isFormValid() ? colors.main : '#ccc' }]}
+            onPress={handleUpdateProfile}
+            disabled={!isFormValid()}>
             <Text style={styles.buttonText}>Update Profile</Text>
           </TouchableOpacity>
         </View>
@@ -333,6 +360,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   headerTitle: {
     color: '#fff',
     fontSize: 20,
@@ -360,6 +392,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
     color: colors.textPrimary,
+  },
+  requiredStar: {
+    color: 'red',
+    fontSize: 16,
   },
   input: {
     backgroundColor: '#f0f0f0',

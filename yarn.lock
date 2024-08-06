@@ -2939,6 +2939,11 @@
   dependencies:
     plist "^3.1.0"
 
+"@react-native-firebase/database@^20.3.0":
+  version "20.3.0"
+  resolved "https://registry.npmjs.org/@react-native-firebase/database/-/database-20.3.0.tgz"
+  integrity sha512-MMRdBTCEJDJycO1M/7ATnsIDxsOn1XR3CgB87X17Z++nVINrA8fOSEDOHviNVjNgKp8sCAlIG7eObcMG1UGnUw==
+
 "@react-native-firebase/firestore@^20.3.0":
   version "20.3.0"
   resolved "https://registry.npmjs.org/@react-native-firebase/firestore/-/firestore-20.3.0.tgz"
@@ -2954,7 +2959,7 @@
   resolved "https://registry.npmjs.org/@react-native-google-signin/google-signin/-/google-signin-12.2.1.tgz"
   integrity sha512-qt2Cb+bN2NS8BBT06M3UbLVS1gaSYTenNh4uZtPNmyJC23xZAynLkuhvsC6gmeEnxcj0wLVUn1Es+LSHw0OhVQ==
 
-"@react-native-picker/picker@^2.7.7":
+"@react-native-picker/picker@^2.4.0", "@react-native-picker/picker@^2.7.7":
   version "2.7.7"
   resolved "https://registry.npmjs.org/@react-native-picker/picker/-/picker-2.7.7.tgz"
   integrity sha512-CTHthVmx8ujlH/u5AnxLQfsheh/DoEbo+Kbx0HGTlbKVLC1eZ4Kr9jXIIUcwB7JEgOXifdZIPQCsoTc/7GQ0ag==
@@ -7714,6 +7719,11 @@ lodash.isequal@^4.5.0:
   resolved "https://registry.npmjs.org/lodash.isequal/-/lodash.isequal-4.5.0.tgz"
   integrity sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==
 
+lodash.isobject@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.npmjs.org/lodash.isobject/-/lodash.isobject-3.0.2.tgz"
+  integrity sha512-3/Qptq2vr7WeJbB4KHUSKlq8Pl7ASXi3UG6CMbBm8WRtXi8+GHm7mKaU3urfpSEzWe2wCIChs6/sdocUsTKJiA==
+
 lodash.merge@^4.6.2:
   version "4.6.2"
   resolved "https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz"
@@ -9282,6 +9292,14 @@ react-native-permissions@^4.1.5:
   version "4.1.5"
   resolved "https://registry.npmjs.org/react-native-permissions/-/react-native-permissions-4.1.5.tgz"
   integrity sha512-r6VMRacASmtRHS+GZ+5HQCp9p9kiE+UU9magHOZCXZLTJitdTuVHWZRrb4v4oqZGU+zAp3mZhTQftuMMv+WLUg==
+
+react-native-picker-select@^9.2.0:
+  version "9.2.0"
+  resolved "https://registry.npmjs.org/react-native-picker-select/-/react-native-picker-select-9.2.0.tgz"
+  integrity sha512-jFvogSMFuTIYorp/r95HnJHmoHyilZFAcETgxMylwaF+4T7cWYWoTXzB0+g89hljPH4LMsr+3q+PAuJouLPvIw==
+  dependencies:
+    lodash.isequal "^4.5.0"
+    lodash.isobject "^3.0.2"
 
 react-native-ratings@8.0.4:
   version "8.0.4"

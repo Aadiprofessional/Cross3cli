@@ -30,6 +30,8 @@ import Toast from 'react-native-toast-message';
 import SplashScreen from './screens/SplashScreen';
 import OTPScreen from './screens/OTPscreen';
 import OTPscreen from './screens/OTPscreen';
+import AllCategoriesScreen from './screens/AllCategoriesScreen';
+import UserCompaniesScreen from './screens/UserCompaniesScreen';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -156,6 +158,11 @@ const App = () => {
             options={{headerShown: false}}
           />
           <Stack.Screen
+            name="UserCompaniesScreen"
+            component={UserCompaniesScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
             name="TermsConditionsScreen"
             component={TermsConditionsScreen}
             options={{headerShown: false}}
@@ -175,6 +182,16 @@ const App = () => {
             component={SubCategoryScreen}
             options={{
               title: 'Subcategory',
+              headerStyle: {backgroundColor: colors.main},
+              headerTintColor: '#fff',
+              headerTitleStyle: {fontWeight: 'bold'},
+            }}
+          />
+          <Stack.Screen
+            name="AllCategoriesScreen"
+            component={AllCategoriesScreen}
+            options={{
+              title: 'Category',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
               headerTitleStyle: {fontWeight: 'bold'},
