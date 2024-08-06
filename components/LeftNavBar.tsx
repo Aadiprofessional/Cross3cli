@@ -70,6 +70,12 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     toggleNavBar();
   };
 
+  const handleAllCategoriesPress = () => {
+    // Add navigation or logic for "All Categories" button here
+    navigation.navigate('AllCategoriesScreen'); // Replace with your actual screen name
+    toggleNavBar();
+  };
+
   const renderSubCategoryItem = (companies: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
       {companies.map(({ id, name }) => (
@@ -130,7 +136,15 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
         </TouchableOpacity>
       </View>
       {Array.isArray(categories) && categories.length > 0 ? (
-        categories.map(category => renderCategoryItem(category))
+        <>
+          {categories.map(category => renderCategoryItem(category))}
+          <TouchableOpacity
+            style={styles.allCategoriesButton}
+            onPress={handleAllCategoriesPress}
+          >
+            <Text style={styles.allCategoriesText}>All Categories</Text>
+          </TouchableOpacity>
+        </>
       ) : (
         <Text>No categories available</Text>
       )}
@@ -191,6 +205,18 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     marginRight: 2,
+  },
+  allCategoriesButton: {
+    marginTop: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  allCategoriesText: {
+    fontSize: 18,
+    color: '#FFF',
   },
 });
 

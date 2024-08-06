@@ -13,7 +13,7 @@ const SplashScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Gif source={require('../assets/splash.gif')} style={styles.gif} />
+      <Gif source={require('../assets/logo.png')} style={styles.gif} />
     </View>
   );
 };
@@ -26,8 +26,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FCCC51',
   },
   gif: {
-    width: '100%',
-    height: '100%',
+    width: '60%',
   },
 });
 

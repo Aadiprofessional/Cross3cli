@@ -121,12 +121,15 @@ const ProfileScreen = ({navigation}) => {
         />
         <View style={styles.profileTextContainer}>
           <Text style={styles.nameText}>{userName || 'N/A'}</Text>
-          <Text style={styles.newText}>Mobile:</Text>
-          <Text style={styles.mobileText}>
-            {phoneNumber ? `+91 ${phoneNumber}` : 'N/A'}
+          <Text style={styles.newText}>
+            Mobile:{' '}
+            <Text style={styles.mobileText}>
+              {phoneNumber ? `+91 ${phoneNumber}` : 'N/A'}
+            </Text>
           </Text>
+
           <Text style={styles.rewardPointsText}>
-            Reward Points: {rewardPoints} ({rewardPointsValue.toFixed(2)} INR)
+            Reward Points: {rewardPoints}
           </Text>
         </View>
         <Image

@@ -1,21 +1,54 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 import { colors } from '../styles/color';
 
 const categories = [
-  { id: 1, name: 'Electronics', image: require('../assets/Categories.png'), screen: 'SubCategoryScreen' },
-  { id: 2, name: 'Stationary', image: require('../assets/Categories3.png'), screen: 'SubCategoryScreen' },
-  { id: 3, name: 'Tools', image: require('../assets/Categories2.png'), screen: 'SubCategoryScreen' },
-  { id: 4, name: 'Furniture', image: require('../assets/Categories4.png'), screen: 'SubCategoryScreen' },
-  { id: 5, name: 'All Categories', image: require('../assets/Categories5.png'), screen: 'SubCategoryScreen' },
+  {
+    id: 1,
+    name: 'Electronics',
+    image: require('../assets/Categories.png'),
+    screen: 'SubCategoryScreen',
+  },
+  {
+    id: 2,
+    name: 'Stationary',
+    image: require('../assets/Categories3.png'),
+    screen: 'SubCategoryScreen',
+  },
+  {
+    id: 3,
+    name: 'Tools',
+    image: require('../assets/Categories2.png'),
+    screen: 'SubCategoryScreen',
+  },
+  {
+    id: 4,
+    name: 'Furniture',
+    image: require('../assets/Categories4.png'),
+    screen: 'SubCategoryScreen',
+  },
+  {
+    id: 5,
+    name: 'All Categories',
+    image: require('../assets/Categories5.png'),
+    screen: 'SubCategoryScreen',
+  },
 ];
 
 const Categories = () => {
   const navigation = useNavigation();
 
-  const handleCategoryPress = (screen) => {
-    navigation.navigate(screen);
+  const handleCategoryPress = (category) => {
+    // Show a toast message
+    Toast.show({
+      type: 'success',
+      text1: `Navigating to ${category.name}`,
+    });
+
+    // Navigate to the specified screen
+    navigation.navigate(category.screen);
   };
 
   return (
@@ -25,7 +58,7 @@ const Categories = () => {
         {categories.map((category) => (
           <TouchableOpacity
             key={category.id}
-            onPress={() => handleCategoryPress(category.screen)}
+            onPress={() => handleCategoryPress(category)}
             style={styles.categoryItem}
           >
             <View style={styles.circle}>
@@ -35,6 +68,7 @@ const Categories = () => {
           </TouchableOpacity>
         ))}
       </View>
+     
     </View>
   );
 };

@@ -67,7 +67,7 @@ const HomeScreen = () => {
       <View style={styles.contentContainer}>
         <CustomHeader toggleNavBar={toggleNavBar} />
         <Tab.Navigator
-          initialRouteName="Home"
+          initialRouteName="HomeTab"
           activeColor={colors.main}
           inactiveColor="#8A8A8A"
           barStyle={{ backgroundColor: '#FFFFFF' }}

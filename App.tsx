@@ -24,10 +24,12 @@ import QuotationScreen from './screens/QuotationScreen';
 import SearchResultsScreen from './screens/SearchResultsScreen';
 import InvoiceScreen from './screens/InvoiceScreen';
 import OTPVerificationScreen from './screens/OTPVerificationScreen';
-import {color} from './styles/color';
 import InvoiceScreen2 from './screens/invoiceScreen2';
 import UpdateProfileScreen from './screens/UpdateProfileScreen';
 import Toast from 'react-native-toast-message';
+import SplashScreen from './screens/SplashScreen';
+import OTPScreen from './screens/OTPscreen';
+import OTPscreen from './screens/OTPscreen';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -38,20 +40,21 @@ const Stack = createNativeStackNavigator();
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isNavBarVisible, setIsNavBarVisible] = useState(false);
 
   useEffect(() => {
     const checkAuthState = async () => {
       try {
-        const user = await auth().currentUser;
-        if (user) {
+        const user = auth().currentUser;
+        const loggedIn = await AsyncStorage.getItem('loggedIn');
+        if (user || loggedIn === 'true') {
           setIsLoggedIn(true);
-        } else {
-          const loggedIn = await AsyncStorage.getItem('loggedIn');
-          setIsLoggedIn(!!loggedIn);
         }
       } catch (error) {
         console.error('Error checking authentication state:', error);
+      } finally {
+        setIsLoading(false); // Stop loading after check
       }
     };
 
@@ -62,18 +65,33 @@ const App = () => {
     setIsNavBarVisible(!isNavBarVisible);
   };
 
+  if (isLoading) {
+    // You can return a custom splash/loading screen here
+    return (
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Splash"
+            component={SplashScreen} // Replace with your splash screen component
+            options={{headerShown: false}}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
+
   return (
     <CartProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName={isLoggedIn ? 'Home' : 'OTPVerification'}>
+          initialRouteName={isLoggedIn ? 'HomeTab' : 'OTPVerification'}>
           <Stack.Screen
             name="OTPVerification"
             component={OTPVerificationScreen}
             options={{headerShown: false}}
           />
           <Stack.Screen
-            name="Home"
+            name="HomeTab"
             component={HomeScreen}
             options={{headerShown: false}}
           />
@@ -83,11 +101,15 @@ const App = () => {
             options={{headerShown: false}}
           />
           <Stack.Screen
+            name="OTPscreen"
+            component={OTPscreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
             name="Login"
             component={LoginScreen}
             options={{headerShown: false}}
           />
-
           <Stack.Screen
             name="SearchScreen"
             component={SearchScreen}
@@ -98,7 +120,6 @@ const App = () => {
               headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
-
           <Stack.Screen
             name="SearchResultsScreen"
             component={SearchResultsScreen}

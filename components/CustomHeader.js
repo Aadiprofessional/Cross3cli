@@ -48,7 +48,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
     navigation.navigate('Profile');
   };
 
-  if (route.name !== 'Home') {
+  if (route.name !== 'HomeTab') {
     return null;
   }
 

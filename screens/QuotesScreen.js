@@ -67,7 +67,7 @@ const QuotesScreen = () => {
   );
 
   const handleStartShopping = () => {
-    navigation.navigate('Home');
+    navigation.navigate('HomeTab');
   };
 
   const handleGetQuotation = () => {
@@ -221,6 +221,7 @@ const QuotesScreen = () => {
             activeButton === 'quotes' ? renderQuoteItem : renderOrderItem
           }
           contentContainerStyle={styles.orderList}
+          showsVerticalScrollIndicator={false} // Add this line to hide the scroll line
         />
       )}
     </View>

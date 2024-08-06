@@ -11,9 +11,17 @@ const InvoiceScreen = ({ route }) => {
 
   useEffect(() => {
     if (Platform.OS === 'android') {
-      requestStoragePermission().then(() => {
+      if (Platform.Version >= 30) {
         generatePdf();
-      });
+      } else {
+        requestStoragePermission().then((granted) => {
+          if (granted) {
+            generatePdf();
+          } else {
+            Alert.alert('Permission Denied', 'Storage permission is required to download the PDF.');
+          }
+        });
+      }
     } else {
       generatePdf();
     }
@@ -77,15 +85,17 @@ const InvoiceScreen = ({ route }) => {
       </html>
     `;
 
+    const fileName = `invoice_${invoiceData.orderId}`; // Unique file name based on order ID
     const options = {
       html: htmlContent,
-      fileName: 'invoice',
+      fileName: fileName,
       directory: 'Documents',
+      base64: false,
     };
 
     try {
       const pdf = await RNHTMLtoPDF.convert(options);
-      const newFilePath = `${RNFS.DownloadDirectoryPath}/invoice.pdf`;
+      const newFilePath = `${RNFS.DocumentDirectoryPath}/${fileName}.pdf`; // Save to app's document directory
       await RNFS.moveFile(pdf.filePath, newFilePath);
       setPdfPath(newFilePath);
       Alert.alert('Success', `PDF generated successfully at: ${newFilePath}`);
@@ -111,7 +121,7 @@ const InvoiceScreen = ({ route }) => {
       <View style={styles.header}>
         <Text style={styles.title}>INVOICE</Text>
         <Image
-          source={require('../assets/logo.png') } // Replace with your logo URL
+          source={require('../assets/logo.png')} // Replace with your logo URL
           style={styles.logo}
         />
       </View>
@@ -182,7 +192,7 @@ const styles = StyleSheet.create({
   downloadButton: {
     alignItems: 'center',
     paddingVertical: 10,
-    backgroundColor: colors.main ,
+    backgroundColor: colors.main,
     borderRadius: 5,
     marginTop: 20,
   },

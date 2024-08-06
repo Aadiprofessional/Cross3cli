@@ -11,17 +11,18 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
-import storage from '@react-native-firebase/storage'; // Import Firebase Storage
-import {launchImageLibrary} from 'react-native-image-picker'; // Updated import
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Default icon
+import storage from '@react-native-firebase/storage';
+import {launchImageLibrary} from 'react-native-image-picker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {colors} from '../styles/color';
 import axios from 'axios';
 
 const UpdateProfileScreen = () => {
-  const [name, setName] = useState('');
+  const [CompanyName, setCompanyName] = useState('');
+  const [OwnerName, setOwnerName] = useState('');
+  const [GST, setGST] = useState('');
   const [mainAddress, setMainAddress] = useState('');
   const [optionalAddress, setOptionalAddress] = useState('');
   const [pincode, setPincode] = useState('');
@@ -32,14 +33,16 @@ const UpdateProfileScreen = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
+  const route = useRoute();
 
-  // Function to validate email
+  // Extract phoneNumber from route params
+  const phoneNumber = route.params?.phoneNumber;
+
   const isValidEmail = email => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
 
-  // Function to detect city and state from pincode
   const fetchLocationFromPincode = async pincode => {
     try {
       const response = await axios.get(
@@ -64,39 +67,6 @@ const UpdateProfileScreen = () => {
     }
   }, [pincode]);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      setLoading(true);
-      try {
-        const user = auth().currentUser;
-        if (user) {
-          const userDoc = await firestore()
-            .collection('users')
-            .doc(user.uid)
-            .get();
-          const userData = userDoc.data();
-          if (userData) {
-            setName(userData.name || '');
-            setMainAddress(userData.mainAddress || '');
-            setOptionalAddress(userData.optionalAddress || '');
-            setPincode(userData.pincode || '');
-            setCity(userData.city || '');
-            setState(userData.state || '');
-            setEmail(userData.email || '');
-            setGender(userData.gender || '');
-            setProfilePicture(userData.profilePicture || null);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching user data: ', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
   const handleImagePicker = () => {
     launchImageLibrary({mediaType: 'photo'}, async response => {
       if (response.didCancel) {
@@ -112,17 +82,14 @@ const UpdateProfileScreen = () => {
         setLoading(true);
 
         try {
-          // Upload image to Firebase Storage
           await storage()
             .ref('users/' + auth().currentUser.uid + '/' + filename)
             .putFile(uploadUri);
 
-          // Get the download URL
           const url = await storage()
             .ref('users/' + auth().currentUser.uid + '/' + filename)
             .getDownloadURL();
 
-          // Set the profile picture URL
           setProfilePicture(url);
         } catch (error) {
           console.error('Error uploading image: ', error);
@@ -141,30 +108,36 @@ const UpdateProfileScreen = () => {
 
     setLoading(true);
     try {
-      const user = auth().currentUser;
-      if (!user) {
-        console.error('User not authenticated');
-        setLoading(false);
-        return;
-      }
-
-      await firestore().collection('users').doc(user.uid).set({
-        name,
-        mainAddress,
-        optionalAddress,
-        pincode,
-        city,
-        state,
-        email,
-        gender,
-        profilePicture, // Ensure this is the URL
-      });
-
-      Alert.alert(
-        'Profile Updated',
-        'Your profile has been updated successfully.',
+      // Request to get the orderId
+      const otpResponse = await axios.get(
+        `https://crossbee-server.vercel.app/sendRegisterOtp?phoneNumber=91${phoneNumber}`,
       );
-      navigation.goBack();
+
+      const orderId = otpResponse.data.orderId;
+
+      // Request to get custom token
+      const response = await axios.post(
+        'https://crossbee-server.vercel.app/getRegisterCustomToken',
+        {
+          phoneNumber: `91${phoneNumber}`,
+          companyName: CompanyName,
+          gst: GST,
+          email: email,
+          address: mainAddress,
+          ownerName: OwnerName,
+          orderId: orderId, // Add orderId to the request
+        },
+      );
+
+      if (response.data && response.data.token) {
+        navigation.navigate('OTPscreen', {
+          token: response.data.token,
+          orderId: orderId, // Pass orderId to OTPscreen
+          phoneNumber,
+        });
+      } else {
+        Alert.alert('Error', 'Failed to get custom token.');
+      }
     } catch (error) {
       console.error('Error updating profile: ', error);
       Alert.alert('Error', 'There was a problem updating your profile.');
@@ -185,7 +158,6 @@ const UpdateProfileScreen = () => {
     <View style={styles.screen}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          {/* Use Feather icon for back button */}
           <Icon
             name="arrow-back"
             size={24}
@@ -204,19 +176,42 @@ const UpdateProfileScreen = () => {
           )}
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Name</Text>
+          <Text style={styles.label}>Company Name</Text>
           <TextInput
             style={styles.input}
-            placeholder="Name"
-            placeholderTextColor={colors.placeholder} // Set placeholder color
-            value={name}
-            onChangeText={setName}
+            placeholder="Company Name"
+            placeholderTextColor={colors.placeholder}
+            value={CompanyName}
+            onChangeText={setCompanyName}
+          />
+          <Text style={styles.label}>Phone Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder={phoneNumber}
+            placeholderTextColor={colors.placeholder}
+            editable={false} // Set to false to avoid user editing
+          />
+          <Text style={styles.label}>Owner Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Owner Name"
+            placeholderTextColor={colors.placeholder}
+            value={OwnerName}
+            onChangeText={setOwnerName}
+          />
+          <Text style={styles.label}>GST</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="GST"
+            placeholderTextColor={colors.placeholder}
+            value={GST}
+            onChangeText={setGST}
           />
           <Text style={styles.label}>Main Address</Text>
           <TextInput
             style={styles.input}
             placeholder="Main Address"
-            placeholderTextColor={colors.placeholder} // Set placeholder color
+            placeholderTextColor={colors.placeholder}
             value={mainAddress}
             onChangeText={setMainAddress}
           />
@@ -224,7 +219,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Optional Address"
-            placeholderTextColor={colors.placeholder} // Set placeholder color
+            placeholderTextColor={colors.placeholder}
             value={optionalAddress}
             onChangeText={setOptionalAddress}
           />
@@ -232,7 +227,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Pincode"
-            placeholderTextColor={colors.placeholder} // Set placeholder color
+            placeholderTextColor={colors.placeholder}
             value={pincode}
             onChangeText={setPincode}
             keyboardType="numeric"
@@ -241,7 +236,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="City"
-            placeholderTextColor={colors.placeholder} // Set placeholder color
+            placeholderTextColor={colors.placeholder}
             value={city}
             editable={false}
           />
@@ -249,7 +244,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="State"
-            placeholderTextColor={colors.placeholder} // Set placeholder color
+            placeholderTextColor={colors.placeholder}
             value={state}
             editable={false}
           />
@@ -257,7 +252,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor={colors.placeholder} // Set placeholder color
+            placeholderTextColor={colors.placeholder}
             value={email}
             onChangeText={setEmail}
           />

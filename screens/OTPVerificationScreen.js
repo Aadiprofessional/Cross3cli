@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -16,8 +16,8 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { colors } from '../styles/color';
-import { sizes } from '../styles/size';
+import {colors} from '../styles/color';
+import {sizes} from '../styles/size';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 
@@ -27,7 +27,7 @@ GoogleSignin.configure({
     '1097929165854-t9p0f55jva07tauq34o1vejt58hg2ot8.apps.googleusercontent.com', // Replace with your actual webClientId
 });
 
-const OTPVerificationScreen = ({ navigation }) => {
+const OTPVerificationScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpSent, setOtpSent] = useState(false); // Renamed state for better clarity
   const [orderId, setOrderId] = useState(null);
@@ -37,14 +37,14 @@ const OTPVerificationScreen = ({ navigation }) => {
   const textInputRefs = useRef(
     Array(6)
       .fill(null)
-      .map(() => React.createRef())
+      .map(() => React.createRef()),
   );
 
   useEffect(() => {
     const checkLoginStatus = async () => {
       const loggedIn = await AsyncStorage.getItem('loggedIn');
       if (loggedIn === 'true') {
-        navigation.replace('Home');
+        navigation.replace('HomeTab');
       }
     };
 
@@ -74,7 +74,7 @@ const OTPVerificationScreen = ({ navigation }) => {
     return phoneRegex.test(number);
   };
 
-  const requestOTP = async (phoneNumber) => {
+  const requestOTP = async phoneNumber => {
     if (!isValidPhoneNumber(phoneNumber)) {
       showToast(
         'error',
@@ -87,7 +87,7 @@ const OTPVerificationScreen = ({ navigation }) => {
     try {
       let response = await axios.get(
         'https://crossbee-server.vercel.app/sendOtp?phoneNumber=91' +
-          phoneNumber
+          phoneNumber,
       );
       setOrderId(response.data.orderId);
       setOtpSent(true);
@@ -96,7 +96,17 @@ const OTPVerificationScreen = ({ navigation }) => {
       showToast('success', 'OTP Sent', 'OTP has been sent to your phone.');
     } catch (error) {
       console.error('Error requesting OTP:', error);
-      showToast('error', 'Error', 'Failed to send OTP. Please try again.');
+
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.error === "User doesn't exist."
+      ) {
+        // Pass phoneNumber as a parameter to UpdateProfileScreen
+        navigation.navigate('UpdateProfileScreen', {phoneNumber});
+      } else {
+        showToast('error', 'Error', 'Failed to send OTP. Please try again.');
+      }
     }
   };
 
@@ -109,18 +119,18 @@ const OTPVerificationScreen = ({ navigation }) => {
           '&orderId=' +
           orderId +
           '&otp=' +
-          completeCode
+          completeCode,
       );
       if (response.data.isOTPVerified) {
         let tokenResponse = await axios.get(
           'https://crossbee-server.vercel.app/getCustomToken?phoneNumber=91' +
-            phoneNumber
+            phoneNumber,
         );
         await auth().signInWithCustomToken(tokenResponse.data.token);
         await AsyncStorage.setItem('loggedIn', 'true');
         await AsyncStorage.setItem('phoneNumber', phoneNumber);
         showToast('success', 'Success', 'Phone number verified!');
-        navigation.replace('Home');
+        navigation.replace('HomeTab');
       } else {
         showToast('error', 'Invalid OTP', 'Please enter the correct OTP.');
       }
@@ -146,7 +156,7 @@ const OTPVerificationScreen = ({ navigation }) => {
     if (canResend) {
       try {
         await axios.get(
-          'https://crossbee-server.vercel.app/resendOtp?orderId=' + orderId
+          'https://crossbee-server.vercel.app/resendOtp?orderId=' + orderId,
         );
         setOtpSent(true);
         setTimer(60);
@@ -161,34 +171,6 @@ const OTPVerificationScreen = ({ navigation }) => {
         showToast('error', 'Error', 'Failed to resend OTP. Please try again.');
       }
     }
-  };
-
-  const signInWithGoogle = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const { idToken } = await GoogleSignin.signIn();
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      await auth().signInWithCredential(googleCredential);
-      await AsyncStorage.setItem('loggedIn', 'true');
-      console.log('User signed in with Google!');
-      navigation.replace('Home');
-    } catch (error) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        showToast('info', 'Cancelled', 'Google sign-in was cancelled.');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        showToast('info', 'In Progress', 'Google sign-in is in progress.');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        showToast('info', 'Play Services Not Available', 'Google Play Services are not available.');
-      } else {
-        console.error('Some other error happened:', error);
-        showToast('error', 'Error', 'An error occurred during Google sign-in.');
-      }
-    }
-  };
-
-  const handleGuestLogin = () => {
-    showToast('info', 'Guest Login', 'Logged in as a guest.');
-    navigation.replace('Home');
   };
 
   const handlePhoneNumberSubmit = () => {
@@ -259,7 +241,7 @@ const OTPVerificationScreen = ({ navigation }) => {
                     onChangeText={text => handleChangeText(text, index)}
                     cursorColor={colors.buttonBackground}
                     placeholderTextColor={colors.placeholder}
-                    onKeyPress={({ nativeEvent }) => {
+                    onKeyPress={({nativeEvent}) => {
                       if (nativeEvent.key === 'Backspace' && index > 0) {
                         textInputRefs.current[index - 1].current.focus();
                       }
@@ -282,24 +264,6 @@ const OTPVerificationScreen = ({ navigation }) => {
               </View>
             </View>
           )}
-          <View style={styles.footer}>
-            <TouchableOpacity
-              style={styles.googleButton}
-              onPress={signInWithGoogle}>
-              <View style={styles.googleButtonContent}>
-                <Image
-                  source={require('../assets/google_logo.png')}
-                  style={styles.googleLogo}
-                />
-                <Text style={styles.googleButtonText}>Log in with Google</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.guestButton}
-              onPress={handleGuestLogin}>
-              <Text style={styles.guestButtonText}>Log in as Guest User</Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </TouchableWithoutFeedback>
       <Toast />
