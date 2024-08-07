@@ -10,33 +10,47 @@ const InvoiceScreen = ({ route }) => {
   const [pdfPath, setPdfPath] = useState('');
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      if (Platform.Version >= 30) {
-        generatePdf();
-      } else {
-        requestStoragePermission().then((granted) => {
+    const handlePdfGeneration = async () => {
+      if (Platform.OS === 'android') {
+        if (Platform.Version >= 30) {
+          await generatePdf();
+        } else {
+          const granted = await requestStoragePermission();
           if (granted) {
-            generatePdf();
+            await generatePdf();
           } else {
-            Alert.alert('Permission Denied', 'Storage permission is required to download the PDF.');
+            Alert.alert('Permission Denied', 'Storage permission is required to generate the PDF.');
           }
-        });
+        }
+      } else {
+        await generatePdf();
       }
-    } else {
-      generatePdf();
-    }
+    };
+
+    handlePdfGeneration();
   }, [invoiceData]);
 
   const requestStoragePermission = async () => {
     try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'Storage Permission Required',
-          message: 'This app needs access to your storage to download the PDF',
-        },
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
+      if (Platform.Version >= 30) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.MANAGE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message: 'This app needs access to your storage to download the PDF',
+          },
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } else {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message: 'This app needs access to your storage to download the PDF',
+          },
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      }
     } catch (err) {
       console.warn(err);
       return false;
@@ -89,13 +103,13 @@ const InvoiceScreen = ({ route }) => {
     const options = {
       html: htmlContent,
       fileName: fileName,
-      directory: 'Documents',
+      directory: 'Documents', // Save to a public directory
       base64: false,
     };
 
     try {
       const pdf = await RNHTMLtoPDF.convert(options);
-      const newFilePath = `${RNFS.DocumentDirectoryPath}/${fileName}.pdf`; // Save to app's document directory
+      const newFilePath = `${RNFS.ExternalDirectoryPath}/${fileName}.pdf`; // Use ExternalDirectoryPath
       await RNFS.moveFile(pdf.filePath, newFilePath);
       setPdfPath(newFilePath);
       Alert.alert('Success', `PDF generated successfully at: ${newFilePath}`);
@@ -104,7 +118,7 @@ const InvoiceScreen = ({ route }) => {
     }
   };
 
-  const downloadPdf = async () => {
+  const openPdf = async () => {
     if (pdfPath) {
       try {
         await FileViewer.open(pdfPath);
@@ -143,8 +157,8 @@ const InvoiceScreen = ({ route }) => {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.downloadButton} onPress={downloadPdf}>
-        <Text style={styles.downloadButtonText}>Download Invoice PDF</Text>
+      <TouchableOpacity style={styles.downloadButton} onPress={openPdf}>
+        <Text style={styles.downloadButtonText}>Open PDF</Text>
       </TouchableOpacity>
     </ScrollView>
   );

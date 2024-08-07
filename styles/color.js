@@ -13,4 +13,5 @@ export const colors = {
   TextWhite : '#ffffff',
   Green : '#008000',
   mainlight : '#FCCB5169',
+  orange: '#F59F13',
 };

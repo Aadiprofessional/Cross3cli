@@ -32,6 +32,7 @@ import OTPScreen from './screens/OTPscreen';
 import OTPscreen from './screens/OTPscreen';
 import AllCategoriesScreen from './screens/AllCategoriesScreen';
 import UserCompaniesScreen from './screens/UserCompaniesScreen';
+import AddCompanyScreen from './screens/AddCompanyScreen';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -104,7 +105,7 @@ const App = () => {
           />
           <Stack.Screen
             name="OTPscreen"
-            component={OTPscreen}
+            component={OTPScreen}
             options={{headerShown: false}}
           />
           <Stack.Screen
@@ -155,6 +156,11 @@ const App = () => {
           <Stack.Screen
             name="UpdateProfileScreen"
             component={UpdateProfileScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="AddCompanyScreen"
+            component={AddCompanyScreen}
             options={{headerShown: false}}
           />
           <Stack.Screen

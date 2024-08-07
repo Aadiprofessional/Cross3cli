@@ -1,120 +1,189 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native';
-import storage from '@react-native-firebase/storage';
+import React, {useState, useEffect, useCallback} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import auth from '@react-native-firebase/auth';
-import RNPickerSelect from 'react-native-picker-select';
+import axios from 'axios';
+import CompanyDetail from '../components/CompanyDetail'; // Adjust path as needed
+import {useFocusEffect} from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
+import {colors} from '../styles/color';
+import Icon from 'react-native-vector-icons/Feather';
+import CompanyDropdown from '../components/CompanyDropdown';
 
-const UserCompaniesScreen = () => {
+const UserCompaniesScreen = ({navigation}) => {
   const [uid, setUid] = useState(null);
   const [companies, setCompanies] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [companyInfo, setCompanyInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const getUserUid = () => {
-      const currentUser = auth().currentUser;
-      if (currentUser) {
-        setUid(currentUser.uid);
-      } else {
-        setError('User not authenticated');
-        setLoading(false);
-      }
-    };
-console.log(uid);
+  const fetchCompanies = async () => {
+    setLoading(true);
+    const currentUser = auth().currentUser;
 
-    getUserUid();
+    if (!currentUser) {
+      setError('User not authenticated');
+      setLoading(false);
+      return;
+    }
+
+    const uid = currentUser.uid;
+    setUid(uid);
+
+    try {
+      const response = await axios.post(
+        'https://crossbee-server.vercel.app/getCompanies',
+        {uid},
+      );
+
+      if (response.status === 200) {
+        setCompanies(response.data);
+      } else {
+        throw new Error(`Failed to load companies: ${response.status}`);
+      }
+    } catch (err) {
+      setError('Failed to load companies');
+      Alert.alert('Error', err.message); // Show error alert
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanies();
   }, []);
 
-  useEffect(() => {
-    if (uid) {
-      const fetchCompanies = async () => {
-        try {
-          // Replace with your actual path to JSON files in Firebase Storage
-          const reference = storage().ref(`/users/wPP8X250n6RYaBC60mhqG7OA4Wq1/Companies.json`);
-          const url = await reference.getDownloadURL();
-          const response = await fetch(url);
-          const companyData = await response.json();
-
-          if (companyData) {
-            const formattedData = Object.keys(companyData).map(key => ({
-              label: companyData[key].name,
-              value: companyData[key]
-            }));
-            setCompanies(formattedData);
-          } else {
-            setCompanies([]);
-          }
-          setLoading(false);
-        } catch (err) {
-          setError('Failed to load companies');
-          setLoading(false);
-        }
-      };
-
+  // Refresh the list whenever the screen is focused
+  useFocusEffect(
+    useCallback(() => {
       fetchCompanies();
-    }
-  }, [uid]);
+    }, []),
+  );
 
-  const handleCompanySelect = (value) => {
-    setSelectedCompany(value);
-    setCompanyInfo(value);
+  const handleRemove = async companyId => {
+    try {
+      // Remove company locally
+      setCompanies(prevCompanies =>
+        prevCompanies.filter(company => company.id !== companyId),
+      );
+      // Optionally, you could also call an API to remove the company server-side if needed
+    } catch (err) {
+      setError('Failed to remove company');
+      Alert.alert('Error', err.message); // Show error alert
+    }
   };
 
   const handleAddCompany = () => {
-    console.log('Add company button pressed');
+    navigation.navigate('AddCompanyScreen'); // Replace with your screen name
   };
 
-  if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
-
-  if (error) return <Text>{error}</Text>;
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.container}>
-      <RNPickerSelect
-        onValueChange={handleCompanySelect}
-        items={companies}
-        placeholder={{ label: 'Select a company...', value: null }}
-        style={pickerSelectStyles}
-      />
-      {companyInfo && (
-        <View style={styles.infoContainer}>
-          <Text>Address: {companyInfo.phone?.address || 'N/A'}</Text>
-          <Text>GST: {companyInfo.phone?.gst || 'N/A'}</Text>
-          <Text>Owner: {companyInfo.phone?.owner || 'N/A'}</Text>
-          <Text>Email: {companyInfo.phone?.email || 'N/A'}</Text>
+    <View style={styles.container2}>
+      <View style={[styles.header, {backgroundColor: colors.main}]}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon
+            name="arrow-left"
+            size={24}
+            color="#FFFFFF"
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Your Companies</Text>
+      </View>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.container}>
+          {companies.length > 0 ? (
+            companies.map(company => (
+              <CompanyDetail
+                key={company.id}
+                company={company}
+                onRemove={handleRemove}
+              />
+            ))
+          ) : (
+            <Text style={styles.noCompaniesText}>No companies found</Text>
+          )}
+          <TouchableOpacity style={styles.addButton} onPress={handleAddCompany}>
+            <Text style={styles.addButtonText}>Add Company</Text>
+          </TouchableOpacity>
+
+          <Toast />
         </View>
-      )}
-      <Button title="Add Company" onPress={handleAddCompany} />
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container2: {
+    flex: 1,
+    backgroundColor: colors.white,
+  },
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff'
+    backgroundColor: colors.white,
   },
-  infoContainer: {
-    marginVertical: 16
-  }
-});
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
 
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4
+    paddingHorizontal: 10,
+    paddingVertical: 15,
   },
-  inputAndroid: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4
-  }
+  backIcon: {
+    marginRight: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  addButton: {
+    alignItems: 'center',
+    paddingVertical: 10,
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  noCompaniesText: {
+    textAlign: 'center',
+    color: colors.primary,
+    fontSize: 16,
+    marginTop: 20,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 export default UserCompaniesScreen;

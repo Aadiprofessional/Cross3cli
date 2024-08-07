@@ -94,17 +94,24 @@ const ProfileScreen = ({navigation}) => {
 
   const handleLogout = async () => {
     try {
-      await auth().signOut(); // Sign out from Firebase Authentication
-      await AsyncStorage.removeItem('loggedIn');
-      await AsyncStorage.removeItem('phoneNumber'); // Clear phone number
-      // Clear the navigation stack and navigate to OTPVerificationScreen
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'OTPVerification'}],
-      });
-      Alert.alert('Logged Out', 'You have been successfully logged out.');
+      const user = auth().currentUser;
+      if (user) {
+        await auth().signOut(); // Sign out from Firebase Authentication
+        await AsyncStorage.removeItem('loggedIn');
+        await AsyncStorage.removeItem('phoneNumber'); // Clear phone number
+        // Clear the navigation stack and navigate to OTPVerificationScreen
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'OTPVerification'}],
+        });
+        Alert.alert('Logged Out', 'You have been successfully logged out.');
+      } else {
+        console.error('No user is currently signed in.');
+        Alert.alert('Error', 'No user is currently signed in.');
+      }
     } catch (error) {
       console.error('Logout failed', error);
+      Alert.alert('Error', 'Logout failed. Please try again.');
     }
   };
 
@@ -241,6 +248,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.TextBlack,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

@@ -7,42 +7,42 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Image,
   ScrollView,
-  Platform,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {colors} from '../styles/color';
+import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/Feather';
 
-const UpdateProfileScreen = () => {
-  const [CompanyName, setCompanyName] = useState('');
-  const [OwnerName, setOwnerName] = useState('');
-  const [GST, setGST] = useState('');
+const colors = {
+  main: '#FCCC51', // Replace with your actual color
+};
+
+const AddCompanyScreen = () => {
+  const [companyName, setCompanyName] = useState('');
+  const [ownerName, setOwnerName] = useState('');
+  const [gst, setGst] = useState('');
   const [mainAddress, setMainAddress] = useState('');
   const [optionalAddress, setOptionalAddress] = useState('');
   const [pincode, setPincode] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const route = useRoute();
-
-  // Extract phoneNumber from route params
-  const phoneNumber = route.params?.phoneNumber;
 
   // Check if all required fields are filled
   const isFormValid = () => {
     return (
-      CompanyName &&
-      OwnerName &&
-      GST &&
+      companyName &&
+      ownerName &&
+      gst &&
       mainAddress &&
       email &&
-      pincode.length === 6
+      pincode.length === 6 &&
+      phoneNumber.length === 10
     );
   };
 
@@ -75,14 +75,7 @@ const UpdateProfileScreen = () => {
     }
   }, [pincode]);
 
-  useEffect(() => {
-    // Check if form is valid when any of the required fields change
-    if (isFormValid()) {
-      // Enable navigation only if form is valid
-    }
-  }, [CompanyName, OwnerName, GST, mainAddress, email, pincode]);
-
-  const handleUpdateProfile = async () => {
+  const handleSaveCompany = async () => {
     if (!isFormValid()) {
       Alert.alert('Missing Fields', 'Please fill in all required fields.');
       return;
@@ -95,52 +88,36 @@ const UpdateProfileScreen = () => {
 
     setLoading(true);
     try {
-      // Request to get the orderId
-      const otpResponse = await axios.get(
-        `https://crossbee-server.vercel.app/sendRegisterOtp?phoneNumber=91${phoneNumber}`,
-      );
-
-      const orderId = otpResponse.data.orderId;
-      console.log(orderId);
-
-      // Request to get custom token
+      const uid = auth().currentUser.uid;
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/getRegisterCustomToken',
+        'https://crossbee-server.vercel.app/addCompany',
         {
-          phoneNumber: `91${phoneNumber}`,
-          companyName: CompanyName,
-          gst: GST,
-          email: email,
-          address: `${mainAddress}, ${
-            optionalAddress ? optionalAddress + ', ' : ''
-          }${city}, ${state} ${pincode}`,
-          ownerName: OwnerName,
-          orderId: orderId, // Add orderId to the request
+          uid,
+          phoneNumber,
+          companyName,
+          gst,
+          email,
+          address: `${mainAddress}${
+            optionalAddress ? ', ' + optionalAddress : ''
+          }, ${city}, ${state} - ${pincode}`,
+          ownerName,
         },
       );
 
-      if (response.data && response.data.token) {
-        // Sign in with the custom token
-        await auth().signInWithCustomToken(response.data.token);
-        await AsyncStorage.setItem('loggedIn', 'true');
-        await AsyncStorage.setItem('phoneNumber', phoneNumber);
-
-        // Reset navigation to prevent going back
-        navigation.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'OTPscreen',
-              params: {token: response.data.token, orderId, phoneNumber},
-            },
-          ],
+      if (response.status === 200) {
+        Toast.show({
+          type: 'success',
+          position: 'top',
+          text1: 'Company Added',
+          text2: 'Your company has been added successfully!',
         });
+        navigation.goBack();
       } else {
-        Alert.alert('Error', 'Failed to get custom token.');
+        Alert.alert('Error', 'Failed to add company.');
       }
     } catch (error) {
-      console.error('Error updating profile: ', error);
-      Alert.alert('Error', 'There was a problem updating your profile.');
+      console.error('Error adding company: ', error);
+      Alert.alert('Error', 'There was a problem adding your company.');
     } finally {
       setLoading(false);
     }
@@ -149,15 +126,23 @@ const UpdateProfileScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FCCC51" />
+        <ActivityIndicator size="large" color={colors.main} />
       </View>
     );
   }
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Update Profile</Text>
+      <View style={[styles.header, {backgroundColor: colors.main}]}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon
+            name="arrow-left"
+            size={24}
+            color="#FFFFFF"
+            style={styles.backIcon}
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Add Your Company</Text>
       </View>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.inputContainer}>
@@ -167,16 +152,23 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Company Name"
-            placeholderTextColor={colors.placeholder}
-            value={CompanyName}
+            placeholderTextColor="#999"
+            value={companyName}
             onChangeText={setCompanyName}
           />
           <Text style={styles.label}>Phone Number</Text>
           <TextInput
             style={styles.input}
-            placeholder={phoneNumber}
-            placeholderTextColor={colors.placeholder}
-            editable={false} // Set to false to avoid user editing
+            placeholder="Phone Number"
+            placeholderTextColor="#999"
+            value={phoneNumber}
+            onChangeText={text => {
+              if (text.length <= 10 && /^[0-9]*$/.test(text)) {
+                setPhoneNumber(text);
+              }
+            }}
+            keyboardType="phone-pad"
+            maxLength={10}
           />
           <Text style={styles.label}>
             Owner Name <Text style={styles.requiredStar}>*</Text>
@@ -184,8 +176,8 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Owner Name"
-            placeholderTextColor={colors.placeholder}
-            value={OwnerName}
+            placeholderTextColor="#999"
+            value={ownerName}
             onChangeText={setOwnerName}
           />
           <Text style={styles.label}>
@@ -194,9 +186,9 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="GST"
-            placeholderTextColor={colors.placeholder}
-            value={GST}
-            onChangeText={setGST}
+            placeholderTextColor="#999"
+            value={gst}
+            onChangeText={setGst}
           />
           <Text style={styles.label}>
             Main Address <Text style={styles.requiredStar}>*</Text>
@@ -204,7 +196,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Main Address"
-            placeholderTextColor={colors.placeholder}
+            placeholderTextColor="#999"
             value={mainAddress}
             onChangeText={setMainAddress}
           />
@@ -212,7 +204,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Optional Address"
-            placeholderTextColor={colors.placeholder}
+            placeholderTextColor="#999"
             value={optionalAddress}
             onChangeText={setOptionalAddress}
           />
@@ -222,16 +214,21 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Pincode"
-            placeholderTextColor={colors.placeholder}
+            placeholderTextColor="#999"
             value={pincode}
-            onChangeText={setPincode}
+            onChangeText={text => {
+              if (/^[0-9]*$/.test(text)) {
+                setPincode(text);
+              }
+            }}
             keyboardType="numeric"
+            maxLength={6}
           />
           <Text style={styles.label}>City</Text>
           <TextInput
             style={styles.input}
             placeholder="City"
-            placeholderTextColor={colors.placeholder}
+            placeholderTextColor="#999"
             value={city}
             editable={false}
           />
@@ -239,7 +236,7 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="State"
-            placeholderTextColor={colors.placeholder}
+            placeholderTextColor="#999"
             value={state}
             editable={false}
           />
@@ -249,16 +246,14 @@ const UpdateProfileScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Email"
-            placeholderTextColor={colors.placeholder}
+            placeholderTextColor="#999"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
           />
         </View>
-        <TouchableOpacity
-          style={styles.updateButton}
-          onPress={handleUpdateProfile}>
-          <Text style={styles.updateButtonText}>Update Profile</Text>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSaveCompany}>
+          <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -275,22 +270,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    backgroundColor: '#FCCC51',
-    paddingTop: 16,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  backIcon: {
-    marginRight: 16,
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   scrollView: {
     padding: 16,
   },
@@ -305,6 +284,21 @@ const styles = StyleSheet.create({
   requiredStar: {
     color: 'red',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+  },
+  backIcon: {
+    marginRight: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
   input: {
     backgroundColor: '#F0F0F0',
     borderRadius: 8,
@@ -312,18 +306,20 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 16,
     color: '#333',
+    cursorColor: colors.main, // Note: This will only work on specific platforms
   },
-  updateButton: {
-    backgroundColor: '#FCCC51',
+  saveButton: {
+    backgroundColor: colors.main,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
   },
-  updateButtonText: {
+
+  saveButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
 
-export default UpdateProfileScreen;
+export default AddCompanyScreen;

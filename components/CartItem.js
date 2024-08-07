@@ -5,7 +5,16 @@ import {useNavigation} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 
 const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
-  const {cartId, name, price, quantity, color, image, productId, colorminCartValue} = item;
+  const {
+    cartId,
+    name,
+    price,
+    quantity,
+    color,
+    image,
+    productId,
+    colorminCartValue,
+  } = item;
   const [itemQuantity, setItemQuantity] = useState(quantity);
   const navigation = useNavigation();
 
@@ -52,8 +61,7 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
     <View style={styles.cartItemContainer}>
       <TouchableOpacity
         style={styles.productImageContainer}
-        onPress={handleImagePress}
-      >
+        onPress={handleImagePress}>
         <Image
           source={{uri: image}}
           style={styles.productImage}
@@ -71,32 +79,31 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
           </View>
           <TouchableOpacity
             style={styles.removeButton}
-            onPress={handleRemoveItem}
-          >
+            onPress={handleRemoveItem}>
             <Text style={styles.removeButtonText}>Remove</Text>
           </TouchableOpacity>
         </View>
       </View>
       <View style={styles.quantityContainer}>
         <TouchableOpacity
-          style={[styles.quantityButton, itemQuantity <= colorminCartValue && styles.disabledButton]}
+          style={[
+            styles.quantityButton,
+            itemQuantity <= colorminCartValue && styles.disabledButton,
+          ]}
           onPress={handleDecreaseQuantity}
-          disabled={itemQuantity <= colorminCartValue}
-        >
+          disabled={itemQuantity <= colorminCartValue}>
           <Text style={styles.quantityButtonText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.quantityText}>{itemQuantity}</Text>
         <TouchableOpacity
           style={styles.quantityButton}
-          onPress={handleIncreaseQuantity}
-        >
+          onPress={handleIncreaseQuantity}>
           <Text style={styles.quantityButtonText}>+</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   cartItemContainer: {
@@ -186,13 +193,12 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 5,
     borderRadius: 5,
-    backgroundColor: colors.main,
     justifyContent: 'center',
     alignItems: 'center',
   },
   removeButtonText: {
-    color: '#fff',
-    fontSize: 10,
+    color: colors.orange,
+    fontSize: 13,
     fontWeight: 'bold',
   },
 });

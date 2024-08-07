@@ -17,6 +17,7 @@ import auth from '@react-native-firebase/auth';
 import CheckBox from '@react-native-community/checkbox';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
+import CompanyDropdown from '../components/CompanyDropdown';
 
 const OrderSummaryScreen = ({route, navigation}) => {
   const {cartItems: initialCartItems, totalAmount: initialTotalAmount} =
@@ -26,6 +27,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const [couponCode, setCouponCode] = useState('');
   const [useRewardPoints, setUseRewardPoints] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
 
   useEffect(() => {
     const newTotalAmount = calculateTotalAmount();
@@ -92,6 +94,14 @@ const OrderSummaryScreen = ({route, navigation}) => {
   };
 
   const handleCheckout = async () => {
+    if (!selectedCompanyId) {
+      Alert.alert(
+        'Select Company',
+        'Please select a company before proceeding.',
+      );
+      return;
+    }
+
     try {
       const userId = auth().currentUser.uid;
       const response = await axios.post(
@@ -103,6 +113,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
           appliedCoupon,
           cartItems,
           uid: userId,
+          companyId: selectedCompanyId,
         },
       );
 
@@ -128,6 +139,11 @@ const OrderSummaryScreen = ({route, navigation}) => {
       );
     }
   };
+
+  const handleSelectCompany = companyId => {
+    setSelectedCompanyId(companyId);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -238,7 +254,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
             </TouchableOpacity>
           )}
         </View>
-
+        <CompanyDropdown onSelectCompany={handleSelectCompany} />
         {/* Render the list of cart items */}
         {cartItems.map(item => (
           <CartItem
