@@ -31,13 +31,14 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
   const handleDecreaseQuantity = () => {
     const newQuantity = itemQuantity - 1;
     setItemQuantity(newQuantity);
-    if (newQuantity < 1) {
-      onRemoveItem(cartId);
+    if (newQuantity < colorminCartValue) {
+      // If newQuantity is less than colorminCartValue, set it back to colorminCartValue
+      setItemQuantity(colorminCartValue);
       Toast.show({
         type: 'info',
         position: 'bottom',
-        text1: 'Item quantity is less than 1',
-        text2: 'Removing item from cart',
+        text1: `Minimum quantity is ${colorminCartValue}`,
+        text2: 'Cannot decrease quantity further',
       });
     } else {
       onUpdateQuantity(cartId, newQuantity);

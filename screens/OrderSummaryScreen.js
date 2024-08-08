@@ -364,6 +364,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     color: colors.TextBlack,
+    padding: 15,
   },
   itemCount: {
     fontSize: sizes.body,

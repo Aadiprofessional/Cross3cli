@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
 import { Picker } from '@react-native-picker/picker'; // Updated import
@@ -61,7 +55,7 @@ const CompanyDropdown = ({ onSelectCompany }) => {
     fetchCompanies();
   }, []);
 
-  const handleSelect = (companyId) => {
+  const handleSelect = companyId => {
     setSelectedCompanyId(companyId);
     if (onSelectCompany) {
       onSelectCompany(companyId);
@@ -73,22 +67,23 @@ const CompanyDropdown = ({ onSelectCompany }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Select a Company:</Text>
-      <Picker
-        selectedValue={selectedCompanyId}
-        onValueChange={handleSelect}
-        style={styles.picker}
-      >
-        {companies.length === 0 && (
-          <Picker.Item label="No companies available" value={null} />
-        )}
-        {companies.map((company) => (
-          <Picker.Item
-            key={company.id}
-            label={company.name}
-            value={company.id}
-          />
-        ))}
-      </Picker>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedCompanyId}
+          onValueChange={handleSelect}
+          style={styles.picker}>
+          {companies.length === 0 && (
+            <Picker.Item label="No companies available" value={null} />
+          )}
+          {companies.map(company => (
+            <Picker.Item
+              key={company.id}
+              label={company.name}
+              value={company.id}
+            />
+          ))}
+        </Picker>
+      </View>
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -105,10 +100,16 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
     marginBottom: 8,
   },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: colors.TextBlack,
+    borderRadius: 12, // Rounder corners
+    overflow: 'hidden',
+    backgroundColor: colors.white,
+  },
   picker: {
     height: 50,
     width: '100%',
-    backgroundColor: colors.white,
     color: colors.TextBlack,
   },
   errorText: {

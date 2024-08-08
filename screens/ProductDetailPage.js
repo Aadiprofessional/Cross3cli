@@ -2,760 +2,390 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  Image,
   ScrollView,
+  StyleSheet,
+  Button,
   TouchableOpacity,
-  Linking,
-  Animated,
-  ActivityIndicator,
-} from 'react-native';
-
-import {useCart} from '../components/CartContext';
-import WhatsAppButton2 from '../components/WhatsAppButton2';
-import {colors} from '../styles/color';
+} from 'react-native'; // Use TouchableOpacity
 import axios from 'axios';
-import debounce from 'lodash.debounce';
+import Toast from 'react-native-toast-message';
+import AttributesSelector from '../components/productScreen/AttributesSelector';
+import ProductHeader from '../components/productScreen/ProductHeader';
+import ImageCarousel from '../components/productScreen/ImageCarousel';
+import QuantityControl from '../components/productScreen/QuantityControl';
+import SpecificationsTable from '../components/productScreen/SpecificationsTable';
+import AddToCartButton from '../components/productScreen/AddToCartButton';
+import {useCart} from '../components/CartContext';
+import {colors} from '../styles/color';
+import {ActivityIndicator} from 'react-native-paper';
 
 const ProductDetailPage = ({route}) => {
-  const {productId, mainId, categoryId} = route.params || {};
+  const {mainId, categoryId, productId} = route.params || {};
+
+  const [productData, setProductData] = useState(null);
+  const [selectedAttribute1, setSelectedAttribute1] = useState(null);
+  const [selectedAttribute2, setSelectedAttribute2] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(1);
+
   const {addToCart} = useCart();
 
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [imageLoading, setImageLoading] = useState(true);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [selectedStorage, setSelectedStorage] = useState(null);
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const [sizesAvailable, setSizesAvailable] = useState([]);
-  const [colorsAvailable, setColorsAvailable] = useState([]);
-  const [quantity, setQuantity] = useState(1); // Default value
-  const [imageIndex, setImageIndex] = useState(0);
-  const [currentImages, setCurrentImages] = useState([]);
-  const [currentPrice, setCurrentPrice] = useState('');
-  const [attribute1Values, setAttribute1Values] = useState([]);
-  const [attribute2Values, setAttribute2Values] = useState([]);
-  const [attribute3Values, setAttribute3Values] = useState([]);
-  const [colorDescription, setColorDescription] = useState('');
-  const [colorDeliveryTime, setColorDeliveryTime] = useState('');
-  const [colorminCartValue, setColorMinCartValue] = useState(1);
-  const [colorSpecifications, setColorSpecifications] = useState([]);
-
-  // Fetch product data
   useEffect(() => {
-    const fetchProductData = async () => {
-      setLoading(true);
+    const fetchProductDetails = async () => {
       try {
         const response = await axios.post(
-          `https://crossbee-server.vercel.app/productData`,
+          'https://crossbee-server.vercel.app/productInfo',
           {
             main: mainId,
             category: categoryId,
             product: productId,
           },
-          {headers: {'Content-Type': 'application/json'}},
         );
+        const data = response.data;
+        setProductData(data);
 
-        if (response.data) {
-          const productData = response.data;
-          setProduct(productData);
-          setCurrentImages(productData.mainImages || []);
-          setCurrentPrice(productData.price || '');
-          // Fetch initial attribute values
-          fetchAttribute1Values(productData.attribute1 || []);
-        } else {
-          console.log('Product not found!');
-        }
+        // Initial setup of selections
+        updateSelections(data);
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching product data:', error);
-      } finally {
+        console.error('Error fetching product details:', error);
         setLoading(false);
       }
     };
 
-    if (productId) {
-      fetchProductData();
+    fetchProductDetails();
+  }, [mainId, categoryId, productId]);
+
+  useEffect(() => {
+    // Ensure quantity is set to minCartValue when selections change
+    if (
+      productData &&
+      selectedAttribute1 &&
+      selectedAttribute2 &&
+      selectedColor
+    ) {
+      const minCartValue = getMinCartValue();
+      setQuantity(minCartValue);
     }
-  }, [productId, mainId, categoryId]);
+  }, [productData, selectedAttribute1, selectedAttribute2, selectedColor]);
 
-  // Fetch attribute values with parallel requests
-  const fetchAttribute1Values = async attribute1 => {
-    try {
-      const response = await axios.post(
-        `https://crossbee-server.vercel.app/attribute1Data`,
-        {
-          main: mainId,
-          category: categoryId,
-          product: productId,
-        },
+  const updateSelections = data => {
+    if (data) {
+      const attribute1 = data.attribute1;
+      const attribute2 = data.attribute2;
+
+      // Reset selections and set defaults
+      const firstAttribute1 = Object.keys(data.data[attribute1])[0];
+      setSelectedAttribute1(firstAttribute1);
+
+      const attribute2Options = Object.keys(
+        data.data[attribute1][firstAttribute1]?.[attribute2] || {},
       );
+      if (attribute2Options.length > 0) {
+        const firstAttribute2 = attribute2Options[0];
+        setSelectedAttribute2(firstAttribute2);
 
-      const values = response.data;
-
-      setAttribute1Values(values);
-      if (values.length > 0) {
-        const defaultStorage = values[0].id;
-        setSelectedStorage(defaultStorage);
-        fetchAttribute2Values(defaultStorage);
+        const colorOptions = Object.keys(
+          data.data[attribute1][firstAttribute1]?.[attribute2]?.[
+            firstAttribute2
+          ] || {},
+        );
+        if (colorOptions.length > 0) {
+          setSelectedColor(colorOptions[0]);
+        }
       }
-    } catch (error) {
-      console.error('Error fetching Attribute 1 values:', error);
     }
   };
 
-  const fetchAttribute2Values = async storage => {
-    try {
-      const response = await axios.post(
-        `https://crossbee-server.vercel.app/attribute2Data`,
-        {
-          main: mainId,
-          category: categoryId,
-          product: productId,
-          attribute1: storage,
-        },
-      );
+  const getMinCartValue = () => {
+    if (
+      productData &&
+      selectedAttribute1 &&
+      selectedAttribute2 &&
+      selectedColor
+    ) {
+      const attribute1 = productData.attribute1;
+      const attribute2 = productData.attribute2;
 
-      const values = response.data;
-
-      setAttribute2Values(values);
-      if (values.length > 0) {
-        const defaultSize = values[0].id;
-        setSelectedSize(defaultSize);
-        fetchAttribute3Values(storage, defaultSize);
-      } else {
-        setSelectedSize(null);
+      const currentProduct =
+        productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
+          selectedAttribute2
+        ]?.[selectedColor];
+      if (currentProduct) {
+        return parseInt(currentProduct.minCartValue || '1', 10);
       }
-    } catch (error) {
-      console.error('Error fetching Attribute 2 values:', error);
+    }
+    return 1; // Default value if no attributes or color are selected
+  };
+
+  const handleAttribute1Change = attribute1 => {
+    if (productData) {
+      setSelectedAttribute1(attribute1);
+      const attribute2Key = productData.attribute2;
+
+      // Fetch new attribute2 options based on the updated attribute1 selection
+      const attribute2Options = Object.keys(
+        productData.data[attribute1]?.[attribute2Key] || {},
+      );
+      if (attribute2Options.length > 0) {
+        const firstAttribute2 = attribute2Options[0];
+        setSelectedAttribute2(firstAttribute2);
+
+        // Fetch new color options based on the updated attribute2 selection
+        const colorOptions = Object.keys(
+          productData.data[attribute1]?.[attribute2Key]?.[firstAttribute2] ||
+            {},
+        );
+        if (colorOptions.length > 0) {
+          setSelectedColor(colorOptions[0]);
+        }
+      }
     }
   };
 
-  const fetchAttribute3Values = async (storage, size) => {
-    try {
-      const response = await axios.post(
-        `https://crossbee-server.vercel.app/colorData`,
-        {
-          main: mainId,
-          category: categoryId,
-          product: productId,
-          attribute1: storage,
-          attribute2: size,
-        },
+  const handleAttribute2Change = attribute2 => {
+    if (productData && selectedAttribute1) {
+      setSelectedAttribute2(attribute2);
+
+      // Fetch new color options based on the updated attribute2 selection
+      const attribute1 = productData.attribute1;
+      const attribute2Key = productData.attribute2;
+
+      const colorOptions = Object.keys(
+        productData.data[attribute1]?.[selectedAttribute1]?.[attribute2Key]?.[
+          attribute2
+        ] || {},
       );
-
-      const values = response.data;
-
-      setAttribute3Values(values);
-      if (values.length > 0) {
-        const defaultColor = values[0].id;
-        setSelectedColor(defaultColor);
-      } else {
-        setSelectedColor(null);
+      if (colorOptions.length > 0) {
+        setSelectedColor(colorOptions[0]);
       }
-    } catch (error) {
-      console.error('Error fetching Attribute 3 values:', error);
     }
   };
 
-  // Handle storage, size, and color selection
-  const handleStorageSelect = debounce(storage => {
-    setSelectedStorage(storage);
-    setSelectedSize(null);
-    setSelectedColor(null);
-    fetchAttribute2Values(storage);
-  }, 300); // Debounced to avoid rapid re-renders
-
-  const handleSizeSelect = debounce(size => {
-    setSelectedSize(size);
-    setSelectedColor(null);
-    fetchAttribute3Values(selectedStorage, size);
-  }, 300); // Debounced to avoid rapid re-renders
-
-  const handleColorSelect = color => {
+  const handleColorChange = color => {
     setSelectedColor(color);
   };
 
-  // Update images and price based on selected color
-  useEffect(() => {
-    if (selectedColor && attribute3Values.length > 0) {
-      const selectedColorData = attribute3Values.find(
-        colorOption => colorOption.id === selectedColor,
-      );
-      if (selectedColorData) {
-        setCurrentImages(selectedColorData.imageName || []);
-        setCurrentPrice(selectedColorData.price || product.price);
-        setColorDescription(
-          selectedColorData.description || product.description,
-        );
-        setColorDeliveryTime(
-          selectedColorData.deliveryTime || product.deliveryTime,
-        );
-        setColorSpecifications(
-          selectedColorData.specifications || product.specifications,
-        );
-        setColorMinCartValue(
-          selectedColorData.minCartValue || product.minCartValue,
-        );
-      }
-    }
-  }, [selectedColor, attribute3Values, product]);
+  const handleIncrease = () => {
+    setQuantity(quantity + 1);
+    Toast.show({
+      type: 'success',
+      text1: 'Quantity Increased',
+      text2: `Quantity is now ${quantity + 1}`,
+    });
+  };
 
-  useEffect(() => {
-    if (selectedStorage) {
-      fetchAttribute2Values(selectedStorage);
-    }
-  }, [selectedStorage]);
-
-  useEffect(() => {
-    if (selectedSize) {
-      fetchAttribute3Values(selectedStorage, selectedSize);
+  const handleDecrease = () => {
+    const minCartValue = getMinCartValue();
+    if (quantity > minCartValue) {
+      setQuantity(quantity - 1);
+      Toast.show({
+        type: 'info',
+        text1: 'Quantity Decreased',
+        text2: `Quantity is now ${quantity - 1}`,
+      });
     } else {
-      setColorsAvailable([]);
-      setSelectedColor(null);
+      Toast.show({
+        type: 'error',
+        text1: 'Minimum Quantity Reached',
+        text2: `You cannot go below ${minCartValue}`,
+      });
     }
-  }, [selectedSize]);
-
-  const handlePrevious = () => {
-    setImageIndex(prevIndex =>
-      prevIndex === 0 ? currentImages.length - 1 : prevIndex - 1,
-    );
-  };
-
-  const handleNext = () => {
-    setImageIndex(prevIndex =>
-      prevIndex === currentImages.length - 1 ? 0 : prevIndex + 1,
-    );
-  };
-
-  const handleCall = () => {
-    const phoneNumber = '9289881135';
-    Linking.openURL(`tel:${phoneNumber}`);
-  };
-
-  useEffect(() => {
-    setQuantity(Number(colorminCartValue) || 1);
-  }, [colorminCartValue]);
-
-  const handleDecreaseQuantity = () => {
-    if (quantity > colorminCartValue) {
-      setQuantity(prevQuantity => prevQuantity - 1);
-    }
-  };
-
-  const handleIncreaseQuantity = () => {
-    const minCartValue = Number(colorminCartValue);
-
-    if (!isNaN(minCartValue)) {
-      setQuantity(prevQuantity => prevQuantity + 1);
-    }
-  };
-
-  const showAlert = () => {
-    setAlertVisible(true);
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const hideAlert = () => {
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 500,
-      useNativeDriver: true,
-    }).start(() => setAlertVisible(false));
   };
 
   const handleAddToCart = () => {
-    if (product) {
+    if (
+      productData &&
+      selectedAttribute1 &&
+      selectedAttribute2 &&
+      selectedColor
+    ) {
+      const attribute1 = productData.attribute1;
+      const attribute2 = productData.attribute2;
+
       const item = {
-        ...product,
+        productId,
+        name: productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+          selectedAttribute2
+        ]?.[selectedColor]?.name,
+        price:
+          productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+            selectedAttribute2
+          ]?.[selectedColor]?.price,
+        color: selectedColor,
         quantity,
-        price: currentPrice,
+        image:
+          productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+            selectedAttribute2
+          ]?.[selectedColor]?.images[0],
+        colorminCartValue:
+          productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+            selectedAttribute2
+          ]?.[selectedColor]?.minCartValue,
       };
+
       addToCart(item);
-      showAlert();
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Incomplete Selection',
+        text2: 'Please select all attributes before adding to the cart.',
+      });
     }
   };
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color="#FCCC51" />
       </View>
     );
   }
-  if (!product) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Product not found!</Text>
-      </View>
-    );
-  }
+
+  const attribute1 = productData?.attribute1;
+  const attribute2 = productData?.attribute2;
+  const productName = productData?.productName || 'Product Name';
+  const storageOptions =
+    productData && attribute1
+      ? Object.keys(productData.data[attribute1] || {})
+      : [];
+  const ramOptions =
+    selectedAttribute1 && attribute1
+      ? Object.keys(
+          productData.data[attribute1][selectedAttribute1]?.[attribute2] || {},
+        )
+      : [];
+  const colorOptions =
+    selectedAttribute1 && selectedAttribute2 && attribute1
+      ? Object.keys(
+          productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+            selectedAttribute2
+          ] || {},
+        )
+      : [];
+  const currentProduct =
+    selectedAttribute1 && selectedAttribute2 && selectedColor && attribute1
+      ? productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+          selectedAttribute2
+        ]?.[selectedColor]
+      : {};
+  const images = currentProduct?.images || [];
+
   return (
-    <View>
-      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-      <View style={styles.imageContainer}>
-        {currentImages.length > 0 && (
-          <Image
-            source={{uri: currentImages[imageIndex]}}
-            style={styles.image}
-            onLoad={() => setImageLoading(false)}
-            onError={() => setImageLoading(false)}
+    <ScrollView style={styles.container}>
+      <ImageCarousel
+        images={images}
+        onPrevious={() => {}}
+        onNext={() => {}}
+        imageIndex={0}
+        loading={loading}
+        colorDeliveryTime={currentProduct?.deliveryTime}
+      />
+      <ProductHeader
+        name={productName}
+        description={currentProduct?.description || 'N/A'}
+        price={currentProduct?.price || 'N/A'}
+        onCall={() => {}}
+      />
+      <AttributesSelector
+        attributeData={storageOptions.map(item => ({id: item, value: item}))}
+        selectedValue={selectedAttribute1}
+        onSelect={handleAttribute1Change}
+        attributeName={attribute1}
+      />
+      {selectedAttribute1 && (
+        <AttributesSelector
+          attributeData={ramOptions.map(item => ({id: item, value: item}))}
+          selectedValue={selectedAttribute2}
+          onSelect={handleAttribute2Change}
+          attributeName={attribute2}
+        />
+      )}
+      {selectedAttribute1 && selectedAttribute2 && (
+        <>
+          <AttributesSelector
+            attributeData={colorOptions.map(item => ({id: item, value: item}))}
+            selectedValue={selectedColor}
+            onSelect={handleColorChange}
+            attributeName="Color"
           />
-        )}
-        {imageLoading && (
-          <ActivityIndicator size="large" color={colors.primary} style={styles.imageLoader} />
-        )}
-          <TouchableOpacity
-            style={[styles.arrowButton, {left: 10}]}
-            onPress={handlePrevious}>
-            <Text style={styles.arrowText}>{'<'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.arrowButton, {right: 10}]}
-            onPress={handleNext}>
-            <Text style={styles.arrowText}>{'>'}</Text>
-          </TouchableOpacity>
-          <View style={styles.pagination}>
-            {currentImages.map((_, index) => (
-              <View
-                key={index}
-                style={[styles.dot, index === imageIndex && styles.activeDot]}
-              />
-            ))}
-          </View>
-          <View style={styles.truckIcon}>
-            <Image
-              source={require('../assets/truck.png')}
-              style={styles.truckImage}
-            />
-          </View>
-          <View style={styles.truckTextContainer}>
-            <Text style={styles.truckText}>{colorDeliveryTime} Days</Text>
-          </View>
-        </View>
-
-        <View style={styles.productDetails}>
-          <Text style={styles.title}>{product.name}</Text>
-          <Text style={styles.descriptionText}>{colorDescription}</Text>
-          <View style={styles.priceContainer}>
-            <Text style={styles.priceText}>Price: ₹{currentPrice}</Text>
-            <TouchableOpacity onPress={handleCall}>
-              <Image
-                source={require('../assets/call.png')}
-                style={styles.callIcon}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* Attribute 1 (Storage) */}
-          <View style={styles.productDetails}>
-            <Text style={styles.Head}>{product.attribute1}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.colorScrollContainer}>
-                {attribute1Values.map(storage => (
-                  <TouchableOpacity
-                    key={storage.id}
-                    style={[
-                      styles.colorButton,
-                      selectedStorage === storage.id && styles.selectedButton,
-                    ]}
-                    onPress={() => handleStorageSelect(storage.id)}>
-                    <Text
-                      style={[
-                        styles.colorButtonText,
-                        selectedStorage === storage.id && styles.selectedText,
-                      ]}>
-                      {storage.value}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
-          </View>
-
-          <View style={styles.productDetails}>
-            <Text style={styles.Head}>{product.attribute2}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.colorScrollContainer}>
-                {attribute2Values.map(size => (
-                  <TouchableOpacity
-                    key={size.id}
-                    style={[
-                      styles.colorButton,
-                      selectedSize === size.id && styles.selectedButton,
-                    ]}
-                    onPress={() => handleSizeSelect(size.id)}>
-                    <Text
-                      style={[
-                        styles.colorButtonText,
-                        selectedSize === size.id && styles.selectedText,
-                      ]}>
-                      {size.value}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
-          </View>
-
-          <View style={styles.productDetails}>
-            <Text style={styles.Head}>{product.attribute3}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.colorScrollContainer}>
-                {attribute3Values.map(color => (
-                  <TouchableOpacity
-                    key={color.id}
-                    style={[
-                      styles.colorButton,
-                      selectedColor === color.id && styles.selectedButton,
-                    ]}
-                    onPress={() => handleColorSelect(color.id)}>
-                    <Text
-                      style={[
-                        styles.colorButtonText,
-                        selectedColor === color.id && styles.selectedText,
-                      ]}>
-                      {color.id}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </ScrollView>
-          </View>
-
-          {/* Quantity and Add to Cart */}
-          <View>
-            <View style={styles.quantityContainer}>
-              <Text style={styles.Head}>Quantity:</Text>
-              <TouchableOpacity
-                onPress={handleDecreaseQuantity}
-                style={[
-                  styles.quantityButton,
-                  quantity <= colorminCartValue && styles.disabledButton,
-                ]}
-                disabled={quantity <= colorminCartValue}>
-                <Text style={styles.quantityButtonText}>-</Text>
-              </TouchableOpacity>
-              <Text style={styles.quantityText}>{quantity}</Text>
-              <TouchableOpacity
-                onPress={handleIncreaseQuantity}
-                style={styles.quantityButton}>
-                <Text style={styles.quantityButtonText}>+</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.productDetails}>
-              <Text style={styles.regularText}>
-                Min Cart Value: {colorminCartValue}
-              </Text>
-            </View>
-          </View>
+          <QuantityControl
+            quantity={quantity}
+            minValue={getMinCartValue()} // Pass the minCartValue
+            onIncrease={handleIncrease}
+            onDecrease={handleDecrease}
+          />
           <View style={styles.productDetails}>
             <Text style={styles.Head}>Product Description:</Text>
-            <Text style={styles.regularText}>{colorDescription}</Text>
+            <Text style={styles.regularText}>
+              {currentProduct?.description || 'N/A'}
+            </Text>
           </View>
-
-          <View style={styles.specificationsContainer}>
-            <Text style={styles.specificationsTitle}>Specifications:</Text>
-            <View style={styles.specificationTable}>
-              {colorSpecifications.map(({label, value}, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.specificationRow,
-                    index % 2 === 0
-                      ? styles.specificationRowEven
-                      : styles.specificationRowOdd,
-                  ]}>
-                  <Text style={styles.specificationKey}>{label}</Text>
-                  <Text style={styles.specificationValue}>{value}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-
+          <SpecificationsTable
+            specifications={currentProduct?.specifications || []}
+          />
           <TouchableOpacity
+            style={[
+              styles.addToCartButton,
+              // eslint-disable-next-line react-native/no-inline-styles
+              {
+                backgroundColor: colors.main,
+                marginBottom: 25,
+                opacity:
+                  !selectedAttribute1 || !selectedAttribute2 || !selectedColor
+                    ? 0.5
+                    : 1,
+              },
+            ]}
             onPress={handleAddToCart}
-            style={styles.addToCartButton}>
+            disabled={
+              !selectedAttribute1 || !selectedAttribute2 || !selectedColor
+            }>
             <Text style={styles.addToCartButtonText}>Add to Cart</Text>
           </TouchableOpacity>
-        </View>
-      </ScrollView>
-     
-  
-      <WhatsAppButton2 />
-    </View>
+        </>
+      )}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollViewContainer: {
-    flexGrow: 1,
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingTop: 20,
-  },
   container: {
-    width: '100%',
-    paddingHorizontal: 10,
-  },
-  imageContainer: {
-    width: '100%',
-    aspectRatio: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 5,
-    overflow: 'hidden',
-    marginBottom: 20,
-    position: 'relative',
-    borderWidth: 1, // Adding a stroke
-    borderColor: '#B3B3B39D', // Stroke color
-  },
-  image: {
-    width: '85%',
-    height: '85%',
-    resizeMode: 'contain', // Adjusts the image to fit inside the container
-    alignSelf: 'center', // Center the image horizontally
-    margin: '5%', // Adds space around the image
-  },
-  arrowButton: {
-    position: 'absolute',
-    top: '40%',
-    backgroundColor: colors.main,
-    borderRadius: 50,
+    flex: 1,
     padding: 10,
-  },
-  arrowText: {
-    color: 'white',
-    fontSize: 30,
-  },
-  pagination: {
-    position: 'absolute',
-    bottom: 5,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
-    paddingVertical: 5,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#A7A7A7',
-    marginHorizontal: 5,
-  },
-  disabledButton: {
-    backgroundColor: colors.mainlight, // Change this to a color that indicates disabled
-  },
-  activeDot: {
-    width: 16,
-    backgroundColor: '#316487',
+    backgroundColor: '#fff',
   },
   productDetails: {
     width: '90%',
     marginTop: 1,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: colors.TextBlack,
-  },
-  descriptionText: {
-    fontSize: 16,
-    marginBottom: 5,
-    color: colors.TextBlack,
-  },
-  priceContainer: {
-    flexDirection: 'row',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  priceText: {
-    fontSize: 24,
-    color: colors.TextBlack,
   },
   Head: {
     fontSize: 20,
     color: colors.TextBlack,
     fontWeight: 'bold',
   },
-  colorScrollContainer: {
-    flexDirection: 'row',
-    marginTop: 10,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  colorButton: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: colors.main,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginRight: 10,
-  },
-  selectedButton: {
-    backgroundColor: colors.main,
-    borderWidth: 1,
-    borderColor: colors.main,
-  },
-  colorButtonText: {
-    fontSize: 16,
-    color: colors.main,
-    fontWeight: 'bold',
-  },
-  selectedText: {
-    color: '#fff',
-  },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  quantityText: {
-    fontSize: 18,
-    color: colors.TextBlack,
-    marginLeft: 6,
-  },
-  quantityControl: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  quantityButton: {
-    backgroundColor: colors.main,
-    borderRadius: 15,
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-  quantityButtonText: {
-    fontSize: 18,
-    color: '#fff',
-  },
-  quantityNumber: {
-    fontSize: 18,
-    marginHorizontal: 10,
-    color: colors.TextBlack,
-  },
   regularText: {
     fontSize: 16,
     color: colors.TextBlack,
   },
-  specificationsContainer: {
-    marginVertical: 16,
-    paddingHorizontal: 1,
-  },
-  specificationsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  specificationTable: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  specificationRow: {
-    flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    justifyContent: 'space-between',
-  },
-  specificationRowEven: {
-    backgroundColor: '#f7f7f7',
-  },
-  specificationRowOdd: {
-    backgroundColor: '#e0e0e0',
-  },
-  specificationKey: {
-    fontSize: 14,
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  specificationValue: {
-    fontSize: 14,
-    color: '#666',
-  },
   addToCartButton: {
-    backgroundColor: colors.main,
-    paddingVertical: 15,
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
     alignItems: 'center',
-    marginBottom: 30,
-    marginHorizontal: 1,
+    justifyContent: 'center',
   },
   addToCartButtonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  alertContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: '#333333',
-    borderRadius: 5,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-  },
-  alertIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 10,
-  },
-  alertText: {
-    color: 'white',
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  truckIcon: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: colors.second,
-    borderRadius: 20,
-    padding: 10,
-    zIndex: 1000,
-  },
-  truckImage: {
-    width: 24,
-    height: 24,
-    tintColor: 'white',
-  },
-   loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  truckTextContainer: {
-    position: 'absolute',
-    top: 15,
-    left: 50,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-  },
-  truckText: {
-    color: '#333333',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  callIcon: {
-    width: 65,
-    height: 65,
-    marginRight: -5,
   },
 });
 

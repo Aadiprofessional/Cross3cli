@@ -67,7 +67,7 @@ const ProfileScreen = ({navigation}) => {
   const options = [
     {
       iconName: 'office-building-outline', // Outlined icon for "Register your Company"
-      text: 'Add your Company',
+      text: 'Manage Companies',
       screen: 'UserCompaniesScreen',
     },
     {

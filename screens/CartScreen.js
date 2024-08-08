@@ -92,8 +92,8 @@ const CartScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color={colors.main} />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#FCCC51" />
       </View>
     );
   }
@@ -274,6 +274,11 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     marginBottom: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   noQuoteText: {
     fontSize: 24,
