@@ -223,9 +223,23 @@ const ProductDetailPage = ({route}) => {
           productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
             selectedAttribute2
           ]?.[selectedColor]?.minCartValue,
+        attributeSelected1: selectedAttribute1, // Added attribute1
+        attributeSelected2: selectedAttribute2, // Added attribute2
+        attribute1: attribute1,
+        attribute2: attribute2,
+        mainId, // Added mainId
+        categoryId, // Added categoryId
       };
 
+      // Add item to cart in Firebase
       addToCart(item);
+
+      // Optionally show a toast message for confirmation
+      Toast.show({
+        type: 'success',
+        text1: 'Item Added to Cart',
+        text2: `${item.name} has been added to your cart.`,
+      });
     } else {
       Toast.show({
         type: 'error',
