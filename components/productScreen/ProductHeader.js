@@ -28,11 +28,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
   },
   descriptionText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     marginBottom: 5,
     color: colors.TextBlack,
   },
@@ -44,6 +46,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     fontSize: 24,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   callIcon: {

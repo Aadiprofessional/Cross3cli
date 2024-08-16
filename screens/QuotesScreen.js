@@ -11,7 +11,7 @@ import {
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {colors} from '../styles/color';
 import auth from '@react-native-firebase/auth';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
 
 const QuotesScreen = () => {
@@ -78,7 +78,6 @@ const QuotesScreen = () => {
     setActiveButton('orders');
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const navigateToInvoice = useCallback(data => {
     navigation.navigate('InvoiceScreen2', {
       quotationId: activeButton === 'quotes' ? data.id : null,
@@ -86,9 +85,15 @@ const QuotesScreen = () => {
     });
   });
 
+  const handleQuoteCheckout = quote => {
+    navigation.navigate('OrderSummary', {
+      cartItems: quote.cartItems,
+      totalAmount: quote.totalAmount,
+    });
+  };
+
   const renderOrderItem = useMemo(
     () =>
-      // eslint-disable-next-line react/no-unstable-nested-components
       ({item}) =>
         (
           <View style={styles.orderItem}>
@@ -143,6 +148,11 @@ const QuotesScreen = () => {
               onPress={() => navigateToInvoice(item)}>
               <Icon name="download" size={20} color={colors.main} />
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.placeOrderButton}
+              onPress={() => handleQuoteCheckout(item)}>
+              <Icon name="external-link" size={20} color={colors.main} />
+            </TouchableOpacity>
           </View>
         ),
     [navigateToInvoice],
@@ -172,7 +182,6 @@ const QuotesScreen = () => {
           <Text
             style={[
               styles.headerButtonText,
-              // eslint-disable-next-line react-native/no-inline-styles
               {color: activeButton === 'quotes' ? '#fff' : '#00000070'},
             ]}>
             Quotes
@@ -189,7 +198,6 @@ const QuotesScreen = () => {
           <Text
             style={[
               styles.headerButtonText,
-              // eslint-disable-next-line react-native/no-inline-styles
               {color: activeButton === 'orders' ? '#fff' : '#00000070'},
             ]}>
             Orders
@@ -221,7 +229,7 @@ const QuotesScreen = () => {
             activeButton === 'quotes' ? renderQuoteItem : renderOrderItem
           }
           contentContainerStyle={styles.orderList}
-          showsVerticalScrollIndicator={false} // Add this line to hide the scroll line
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>
@@ -243,11 +251,13 @@ const styles = StyleSheet.create({
   noQuoteText: {
     fontSize: 24,
     fontWeight: '600',
+    fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
   },
   infoText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: '#666',
     marginBottom: 20,
     textAlign: 'center',
@@ -263,6 +273,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   orderList: {
     width: '100%',
@@ -283,55 +294,56 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.TextBlack,
     marginBottom: 5,
+    fontFamily: 'Outfit-Bold',
   },
   boldText: {
     fontWeight: 'bold',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 20,
-    marginVertical: 10,
+    justifyContent: 'space-around',
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
   },
   headerButton: {
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '45%',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 3,
-  },
-  quotesButton: {
-    backgroundColor: '#fff',
-    borderColor: '#000',
-    borderWidth: 1,
-  },
-  ordersButton: {
-    backgroundColor: '#fff',
-    borderColor: '#000',
-    borderWidth: 1,
-  },
-  quotesButtonActive: {
-    backgroundColor: colors.main,
-    borderColor: colors.main,
-  },
-  ordersButtonActive: {
-    backgroundColor: colors.main,
-    borderColor: colors.main,
+    paddingVertical: 10,
+    paddingHorizontal: 60,
+    borderRadius: 5,
   },
   headerButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: 'bold',
+  },
+  quotesButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#C6C6C6',
+  },
+  quotesButtonActive: {
+    backgroundColor: colors.main,
+  },
+  ordersButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#C6C6C6',
+  },
+  ordersButtonActive: {
+    backgroundColor: colors.main,
   },
   downloadButton: {
     position: 'absolute',
-    right: 10,
     bottom: 10,
+    right: 10,
+  },
+  placeOrderButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 40,
+
+    borderRadius: 5,
   },
 });
 

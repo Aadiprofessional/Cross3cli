@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
   quotationTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
   },
@@ -149,6 +150,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
 });
 

@@ -271,6 +271,7 @@ const ProductDetailPage = ({route}) => {
         ]?.[selectedColor]
       : {};
   const images = currentProduct?.images || [];
+  console.log(images);
 
   return (
     <ScrollView style={styles.container}>
@@ -367,11 +368,13 @@ const styles = StyleSheet.create({
   },
   Head: {
     fontSize: 20,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     fontWeight: 'bold',
   },
   regularText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   addToCartButton: {
@@ -385,6 +388,7 @@ const styles = StyleSheet.create({
   addToCartButtonText: {
     color: '#fff',
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     fontWeight: 'bold',
   },
 });

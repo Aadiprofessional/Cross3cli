@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -10,16 +10,16 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { colors } from '../styles/color';
-import { sizes } from '../styles/size';
+import {colors} from '../styles/color';
+import {sizes} from '../styles/size';
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState(new Array(6).fill(''));
   const [showOtp, setShowOtp] = useState(false);
   const otpInputs = useRef([]);
 
-  const handlePhoneNumberChange = (value) => {
+  const handlePhoneNumberChange = value => {
     // Limit input to 10 digits and only allow numeric input
     const formattedValue = value.replace(/[^\d]/g, '').slice(0, 10);
     setPhoneNumber(formattedValue);
@@ -55,8 +55,7 @@ const LoginScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Image
         source={require('../assets/login_top.png')}
         style={styles.topImage}
@@ -88,7 +87,7 @@ const LoginScreen = ({ navigation }) => {
               {otp.map((digit, index) => (
                 <TextInput
                   key={index}
-                  ref={(el) => (otpInputs.current[index] = el)}
+                  ref={el => (otpInputs.current[index] = el)}
                   style={[
                     styles.otpInput,
                     {
@@ -98,7 +97,7 @@ const LoginScreen = ({ navigation }) => {
                     },
                   ]}
                   value={digit}
-                  onChangeText={(value) => handleOtpChange(value, index)}
+                  onChangeText={value => handleOtpChange(value, index)}
                   keyboardType="number-pad"
                   maxLength={1}
                   cursorColor={colors.main}
@@ -144,12 +143,14 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: sizes.welcomeTextSize,
     fontWeight: '500',
+    fontFamily: 'Outfit-Bold',
     marginBottom: sizes.marginMax * 5,
     color: colors.textPrimary,
   },
   label: {
     fontSize: sizes.labelTextSize,
     fontWeight: '400',
+    fontFamily: 'Outfit-Bold',
     alignSelf: 'flex-start',
     marginLeft: '10%',
     marginTop: 10,
@@ -167,12 +168,14 @@ const styles = StyleSheet.create({
   },
   phonePrefix: {
     fontSize: sizes.inputFontSize,
+    fontFamily: 'Outfit-Bold',
     color: colors.textPrimary,
     marginRight: 10,
   },
   phoneInput: {
     flex: 1,
     fontSize: sizes.inputFontSize,
+    fontFamily: 'Outfit-Bold',
     color: colors.textPrimary,
   },
   button: {
@@ -186,6 +189,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: '500',
+    fontFamily: 'Outfit-Bold',
     color: colors.background,
   },
   otpContainer: {
@@ -201,6 +205,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inputBackground,
     fontSize: sizes.inputFontSize,
     fontWeight: '400',
+    fontFamily: 'Outfit-Bold',
     color: colors.textPrimary,
     borderWidth: 1,
     textAlign: 'center',
@@ -208,6 +213,7 @@ const styles = StyleSheet.create({
   resendButtonText: {
     fontSize: 16,
     fontWeight: '500',
+    fontFamily: 'Outfit-Bold',
     color: colors.second,
     marginTop: sizes.marginVertical,
   },

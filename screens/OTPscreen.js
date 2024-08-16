@@ -249,12 +249,14 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: '700',
+    fontFamily: 'Outfit-Bold',
     color: colors.textPrimary,
     marginBottom: sizes.marginVertical,
   },
   otpText: {
     marginBottom: 20,
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: '#000',
     textAlign: 'center',
   },
@@ -273,6 +275,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     color: '#000',
   },
   activeOtpInput: {
@@ -290,6 +293,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: '#fff',
   },
   timerResendContainer: {
@@ -300,10 +304,12 @@ const styles = StyleSheet.create({
   },
   timerText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: '#000',
   },
   resendButtonText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: colors.second,
   },
 });

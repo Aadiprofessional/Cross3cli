@@ -198,11 +198,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#fff',
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   cartItemCount: {
     fontSize: 18,
     color: '#fff',
     marginLeft: 10,
+    fontFamily: 'Outfit-Bold',
   },
   headerRight: {
     flexDirection: 'row',
@@ -213,11 +215,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     marginRight: 5,
+    fontFamily: 'Outfit-Bold',
   },
   totalAmountText: {
     fontSize: 20,
     color: '#fff',
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   emptyCartContainer: {
     flex: 1,
@@ -227,6 +231,7 @@ const styles = StyleSheet.create({
   emptyCartText: {
     fontSize: 18,
     color: colors.TextBlack,
+    fontFamily: 'Outfit-Bold',
   },
   cartItemsContainer: {
     flex: 1,
@@ -253,6 +258,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   loginPromptContainer: {
     justifyContent: 'center',
@@ -266,6 +272,7 @@ const styles = StyleSheet.create({
   },
   loginPromptText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginBottom: 20,
     textAlign: 'center',
@@ -283,6 +290,7 @@ const styles = StyleSheet.create({
   noQuoteText: {
     fontSize: 24,
     fontWeight: '600',
+    fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
   },
@@ -292,6 +300,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
     fontWeight: 'black',
+    fontFamily: 'Outfit-Bold',
   },
   button3: {
     backgroundColor: colors.main,
@@ -304,6 +313,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
 });
 

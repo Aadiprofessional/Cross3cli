@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 5,
     fontSize: 14,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
 });

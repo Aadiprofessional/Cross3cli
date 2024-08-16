@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
   },
   categoryName: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     textAlign: 'center',
     color: colors.TextBlack,
   },
@@ -125,6 +126,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   noCategoriesContainer: {
@@ -134,6 +136,7 @@ const styles = StyleSheet.create({
   },
   noCategoriesText: {
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
 });

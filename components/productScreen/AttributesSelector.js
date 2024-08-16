@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: colors.TextBlack,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   colorScrollContainer: {
     flexDirection: 'row',
@@ -63,6 +64,7 @@ const styles = StyleSheet.create({
   },
   colorButtonText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: colors.main,
     fontWeight: 'bold',
   },

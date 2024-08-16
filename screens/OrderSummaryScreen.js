@@ -222,7 +222,13 @@ const OrderSummaryScreen = ({route, navigation}) => {
             {data.coupons.map((coupon, index) => (
               <View key={index} style={styles.couponItem}>
                 <Text style={styles.applicableText}>
-                  <Text style={{color: colors.main, fontWeight: 'bold'}}>
+                  <Text
+                    // eslint-disable-next-line react-native/no-inline-styles
+                    style={{
+                      color: colors.main,
+                      fontWeight: 'bold',
+                      fontFamily: 'Outfit-Bold',
+                    }}>
                     {coupon.code}
                   </Text>
                   {'\n'}
@@ -319,15 +325,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
+    fontFamily: 'Outfit-Bold',
   },
   applicableCoupons: {
     fontSize: sizes.body,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
   },
   applicableText: {
     fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
     color: '#000',
   },
   applyTextButton: {
@@ -341,6 +350,7 @@ const styles = StyleSheet.create({
     color: colors.second,
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   removeCouponButton: {
     backgroundColor: colors.main,
@@ -352,6 +362,7 @@ const styles = StyleSheet.create({
   removeCouponButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   separator: {
     height: 1,
@@ -369,11 +380,13 @@ const styles = StyleSheet.create({
   itemCount: {
     fontSize: sizes.body,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   subtotal: {
     fontSize: sizes.body,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   summaryContainer: {
@@ -394,14 +407,17 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
     color: '#333',
   },
   summaryValue: {
     fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
     color: '#333',
   },
   couponDiscount: {
     fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
     color: colors.Green,
   },
   totalRow: {
@@ -415,11 +431,13 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: sizes.body,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: '#333',
   },
   totalValue: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   rewardPointsToggle: {
@@ -430,6 +448,7 @@ const styles = StyleSheet.create({
   rewardPointsText: {
     marginLeft: 20,
     fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
     flex: 1,
     color: colors.TextBlack,
   },
@@ -460,6 +479,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
   },
 });
 

@@ -20,9 +20,10 @@ const HomeContent = () => {
           <View style={styles.bottomHalf} />
           <HelpBox style={styles.helpBox} />
           <Categories style={styles.categories} />
+          <BestDeals />
           <Text style={styles.title}>Only For App Deals</Text>
           <AutoImageSlider2 />
-          <BestDeals />
+          
           <UpcomingProducts />
           <LatestProducts />
         </View>
@@ -64,9 +65,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 1,
-    marginLeft: 15,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
+    marginLeft: 25,
     color: colors.TextBlack,
   },
   endTextContainer: {
@@ -77,11 +78,13 @@ const styles = StyleSheet.create({
   endText: {
     fontSize: 40,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     opacity: 0.1,
     color: colors.TextBlack,
   },
   emoji: {
     fontSize: 40,
+    fontFamily: 'Outfit-Bold',
     opacity: 1,
   },
   line: {
@@ -94,6 +97,7 @@ const styles = StyleSheet.create({
   crossBee: {
     fontSize: 24,
     fontWeight: '600',
+    fontFamily: 'Outfit-Bold',
     opacity: 0.1,
     marginBottom: 200,
     color: colors.TextBlack,

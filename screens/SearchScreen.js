@@ -213,6 +213,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: '#484848',
   },
   buttonsContainer: {
@@ -244,6 +245,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 14,
+    fontFamily: 'Outfit-Bold',
     color: '#484848',
     marginRight: 5,
   },
@@ -259,6 +261,7 @@ const styles = StyleSheet.create({
   },
   noResultsText: {
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     color: '#484848',
   },
 });

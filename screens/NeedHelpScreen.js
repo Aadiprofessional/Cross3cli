@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: '#FFFFFF',
   },
   rectangle: {
@@ -120,10 +121,12 @@ const styles = StyleSheet.create({
   mediumText: {
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   regularText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     marginTop: 5,
     color: colors.TextBlack,
   },

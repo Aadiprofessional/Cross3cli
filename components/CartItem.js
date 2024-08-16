@@ -140,12 +140,14 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   productPrice: {
     fontSize: 18,
     marginTop: 5,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   itemColorContainer: {
@@ -163,6 +165,7 @@ const styles = StyleSheet.create({
   itemColorText: {
     color: colors.TextWhite,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -183,9 +186,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   quantityText: {
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginHorizontal: 10,
   },
@@ -201,6 +206,7 @@ const styles = StyleSheet.create({
     color: colors.orange,
     fontSize: 13,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
 });
 

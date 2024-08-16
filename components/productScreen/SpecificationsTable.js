@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
   specificationsTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: '#333',
     marginBottom: 8,
   },
@@ -58,9 +59,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   specificationValue: {
     fontSize: 14,
+    fontFamily: 'Outfit-Bold',
     color: '#666',
   },
 });

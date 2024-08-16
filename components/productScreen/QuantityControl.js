@@ -35,10 +35,12 @@ const styles = StyleSheet.create({
   },
   head: {
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   quantityText: {
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginLeft: 6,
   },
@@ -53,6 +55,7 @@ const styles = StyleSheet.create({
   },
   quantityButtonText: {
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     color: '#fff',
   },
   disabledButton: {

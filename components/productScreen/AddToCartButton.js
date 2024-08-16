@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
 });
 

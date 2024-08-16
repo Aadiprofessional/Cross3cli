@@ -178,6 +178,7 @@ const styles = StyleSheet.create({
   navText: {
     fontSize: 20,
     fontWeight: '400',
+    fontFamily: 'Outfit-Bold',
     marginLeft: 10,
     marginRight: 'auto',
     color: colors.TextBlack,
@@ -195,10 +196,12 @@ const styles = StyleSheet.create({
   subcategoryText: {
     fontSize: 18,
     fontWeight: '400',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   subcategoryText2: {
     fontSize: 18,
+    fontFamily: 'Outfit-Bold',
     fontWeight: '400',
     color: colors.TextBlack,
     marginLeft: 17,
@@ -212,6 +215,7 @@ const styles = StyleSheet.create({
   categoriesHeaderText: {
     fontSize: 32,
     fontWeight: '500',
+    fontFamily: 'Outfit-Bold',
     color: colors.main,
   },
   backIcon: {

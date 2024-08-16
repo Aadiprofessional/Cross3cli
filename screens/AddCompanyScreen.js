@@ -278,6 +278,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 4,
+    fontFamily: 'Outfit-Bold',
     fontWeight: 'bold',
     color: '#333',
   },
@@ -296,6 +297,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
+    fontFamily: 'Outfit-Bold',
     fontWeight: 'bold',
     color: '#FFFFFF',
   },
@@ -319,6 +321,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
 });
 

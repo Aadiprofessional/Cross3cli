@@ -290,6 +290,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   scrollView: {
     padding: 16,
@@ -300,6 +301,7 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 4,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: '#333',
   },
   requiredStar: {
@@ -311,6 +313,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: '#333',
   },
   updateButton: {
@@ -322,6 +325,7 @@ const styles = StyleSheet.create({
   updateButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     fontWeight: 'bold',
   },
 });

@@ -68,7 +68,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Medium',
+
     marginBottom: 10,
     marginLeft: 10,
     color: colors.TextBlack,
@@ -122,17 +124,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold', // Bold font for product name
     color: colors.TextBlack,
+    fontFamily: 'Outfit-Bold',
     textAlign: 'center',
     marginBottom: 5,
   },
   productDescription: {
     fontSize: 12,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     textAlign: 'center',
     marginBottom: 5,
   },
   productPrice: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     textAlign: 'center',
   },

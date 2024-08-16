@@ -102,16 +102,19 @@ const styles = StyleSheet.create({
   primaryText: {
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.orange,
     marginBottom: 8,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   content: {
     fontSize: 16,
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   loadingContainer: {

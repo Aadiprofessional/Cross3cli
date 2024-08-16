@@ -81,7 +81,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
     marginLeft: 15,
@@ -111,7 +112,8 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 5,
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
 });
