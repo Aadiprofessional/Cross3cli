@@ -20,7 +20,7 @@ import CartScreen from './screens/CartScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SubCategoryScreen from './screens/SubCategoryScreen';
 import OrderSummaryScreen from './screens/OrderSummaryScreen';
-import QuotationScreen from './screens/QuotationScreen';
+
 import SearchResultsScreen from './screens/SearchResultsScreen';
 import InvoiceScreen from './screens/InvoiceScreen';
 import OTPVerificationScreen from './screens/OTPVerificationScreen';
@@ -203,16 +203,7 @@ const App = () => {
               headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
-          <Stack.Screen
-            name="Quotation"
-            component={QuotationScreen}
-            options={{
-              title: 'Quotation Screen',
-              headerStyle: {backgroundColor: colors.main},
-              headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
-            }}
-          />
+        
           <Stack.Screen
             name="OrderSummary"
             component={OrderSummaryScreen}

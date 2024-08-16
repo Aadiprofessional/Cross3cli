@@ -273,6 +273,47 @@ const ProductDetailPage = ({route}) => {
   const images = currentProduct?.images || [];
   console.log(images);
 
+  const getStockStatus = () => {
+    if (
+      productData &&
+      selectedAttribute1 &&
+      selectedAttribute2 &&
+      selectedColor
+    ) {
+      const attribute1 = productData.attribute1;
+      const attribute2 = productData.attribute2;
+
+      const currentProduct =
+        productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
+          selectedAttribute2
+        ]?.[selectedColor];
+      return currentProduct ? currentProduct.outOfStock : false;
+    }
+    return false; // Default value if no attributes or color are selected
+  };
+
+  const getEstimatedArrivalDate = () => {
+    if (
+      productData &&
+      selectedAttribute1 &&
+      selectedAttribute2 &&
+      selectedColor
+    ) {
+      const attribute1 = productData.attribute1;
+      const attribute2 = productData.attribute2;
+
+      const currentProduct =
+        productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
+          selectedAttribute2
+        ]?.[selectedColor];
+      return currentProduct ? currentProduct.estdArrivalDate : null;
+    }
+    return null; // Default value if no attributes or color are selected
+  };
+
+  const stockStatus = getStockStatus();
+  const estdArrivalDate = getEstimatedArrivalDate();
+
   return (
     <ScrollView style={styles.container}>
       <ImageCarousel
@@ -326,25 +367,35 @@ const ProductDetailPage = ({route}) => {
           <SpecificationsTable
             specifications={currentProduct?.specifications || []}
           />
-          <TouchableOpacity
-            style={[
-              styles.addToCartButton,
-              // eslint-disable-next-line react-native/no-inline-styles
-              {
-                backgroundColor: colors.main,
-                marginBottom: 25,
-                opacity:
-                  !selectedAttribute1 || !selectedAttribute2 || !selectedColor
-                    ? 0.5
-                    : 1,
-              },
-            ]}
-            onPress={handleAddToCart}
-            disabled={
-              !selectedAttribute1 || !selectedAttribute2 || !selectedColor
-            }>
-            <Text style={styles.addToCartButtonText}>Add to Cart</Text>
-          </TouchableOpacity>
+          {stockStatus ? (
+            <View style={styles.outOfStockContainer}>
+              <Text style={styles.outOfStockText}>Out Of Stock</Text>
+              {estdArrivalDate && (
+                <Text style={styles.arrivalDateText}>
+                  Estimated Arrival: {estdArrivalDate}
+                </Text>
+              )}
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.addToCartButton,
+                {
+                  backgroundColor: colors.main,
+                  marginBottom: 25,
+                  opacity:
+                    !selectedAttribute1 || !selectedAttribute2 || !selectedColor
+                      ? 0.5
+                      : 1,
+                },
+              ]}
+              onPress={handleAddToCart}
+              disabled={
+                !selectedAttribute1 || !selectedAttribute2 || !selectedColor
+              }>
+              <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+            </TouchableOpacity>
+          )}
         </>
       )}
     </ScrollView>
@@ -390,6 +441,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Outfit-Bold',
     fontWeight: 'bold',
+  },
+  outOfStockContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  outOfStockText: {
+    fontSize: 18,
+    color: 'red',
+    fontWeight: 'bold',
+  },
+  arrivalDateText: {
+    fontSize: 16,
+    color: 'gray',
+    marginTop: 5,
+    marginBottom: 20,
   },
 });
 

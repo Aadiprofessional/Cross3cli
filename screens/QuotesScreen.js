@@ -78,6 +78,7 @@ const QuotesScreen = () => {
     setActiveButton('orders');
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const navigateToInvoice = useCallback(data => {
     navigation.navigate('InvoiceScreen2', {
       quotationId: activeButton === 'quotes' ? data.id : null,
@@ -94,9 +95,11 @@ const QuotesScreen = () => {
 
   const renderOrderItem = useMemo(
     () =>
+      // eslint-disable-next-line react/no-unstable-nested-components
       ({item}) =>
         (
           <View style={styles.orderItem}>
+            <Text style={styles.statusText}>{item.status}</Text>
             <Text style={styles.orderText}>
               Order ID: <Text style={styles.boldText}>{item.id}</Text>
             </Text>
@@ -128,6 +131,8 @@ const QuotesScreen = () => {
       ({item}) =>
         (
           <View style={styles.orderItem}>
+            <Text style={styles.statusText}>{item.status}</Text>
+
             <Text style={styles.orderText}>
               Quote ID: <Text style={styles.boldText}>{item.id}</Text>
             </Text>
@@ -242,6 +247,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+  },
+  statusText: {
+    color: colors.orange,
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   image: {
     width: 300,

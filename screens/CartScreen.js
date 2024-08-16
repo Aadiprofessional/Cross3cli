@@ -6,7 +6,12 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Modal,
+  Alert,
+  FlatList,
+  Pressable,
   Image,
+  style,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {useCart} from '../components/CartContext'; // Adjust this import if necessary
@@ -20,6 +25,9 @@ const CartScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const fetchCartData = useCallback(async () => {
     const user = auth().currentUser;
@@ -44,11 +52,39 @@ const CartScreen = () => {
       };
     }, [fetchCartData]),
   );
-  const handleStartShopping = () => {
-    navigation.navigate('Home');
+
+  const fetchCompanies = async () => {
+    try {
+      const user = auth().currentUser;
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+
+      const response = await axios.post(
+        'https://crossbee-server.vercel.app/getCompanies',
+        {uid: user.uid},
+      );
+
+      if (response.status === 200) {
+        setCompanies(response.data);
+        setModalVisible(true);
+      } else {
+        Alert.alert('Error', `Failed to load companies: ${response.status}`);
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Failed to load companies');
+      console.error('Failed to load companies', err);
+    }
   };
 
-  const handleGetQuotation = async () => {
+  const handleSelectCompany = companyId => {
+    setSelectedCompanyId(companyId);
+    setModalVisible(false); // Close the modal when a company is selected
+    handleGetQuotation(companyId); // Pass the selected companyId to the API request
+  };
+
+  const handleGetQuotation = async companyId => {
     try {
       const user = auth().currentUser;
       if (!user) {
@@ -61,6 +97,7 @@ const CartScreen = () => {
         {
           cartItems,
           uid: user.uid,
+          companyId, // Pass the selected companyId in the request body
         },
       );
 
@@ -93,7 +130,7 @@ const CartScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FCCC51" />
+        <ActivityIndicator size="large" color={colors.main} />
       </View>
     );
   }
@@ -101,14 +138,12 @@ const CartScreen = () => {
   if (!isUserLoggedIn) {
     return (
       <View style={styles.container}>
-        <Image source={require('../assets/Login.png')} style={styles.image} />
         <Text style={styles.loginPromptText}>
           Please log in to access your cart.
         </Text>
         <TouchableOpacity
           style={[
             styles.button2,
-            // eslint-disable-next-line react-native/no-inline-styles
             {backgroundColor: colors.main, alignSelf: 'center'},
           ]}
           onPress={navigateToOTP}>
@@ -140,12 +175,12 @@ const CartScreen = () => {
           <View style={styles.emptyCartContainer}>
             <Image
               source={require('../assets/Cart.png')}
-              style={styles.image2}
+              style={styles.image}
             />
-            <Text style={styles.infoText}>Your cart is empty</Text>
+            <Text style={styles.emptyCartText}>Your cart is empty</Text>
             <TouchableOpacity
               style={styles.button3}
-              onPress={handleStartShopping}>
+              onPress={() => navigation.navigate('Home')}>
               <Text style={styles.buttonText}>Start Shopping</Text>
             </TouchableOpacity>
           </View>
@@ -163,7 +198,7 @@ const CartScreen = () => {
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
           style={[styles.button, {backgroundColor: colors.second}]}
-          onPress={handleGetQuotation}
+          onPress={fetchCompanies}
           disabled={cartItems.length === 0}>
           <Text style={styles.buttonText}>Get Quotation</Text>
         </TouchableOpacity>
@@ -174,6 +209,33 @@ const CartScreen = () => {
           <Text style={styles.buttonText}>Place Order</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal for selecting company */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Select a Company</Text>
+            <FlatList
+              data={companies}
+              keyExtractor={item => item.id}
+              renderItem={({item}) => (
+                <Pressable
+                  style={[
+                    styles.companyItem,
+                    item.id === selectedCompanyId && styles.selectedCompanyItem,
+                  ]}
+                  onPress={() => handleSelectCompany(item.id)}>
+                  <Text style={styles.companyText}>{item.name}</Text>
+                </Pressable>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -223,6 +285,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'Outfit-Bold',
   },
+  image: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
+  },
   emptyCartContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -247,73 +314,73 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  button2: {
-    height: 50,
-    width: 90,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 5,
-  },
   buttonText: {
     fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
     fontFamily: 'Outfit-Bold',
   },
-  loginPromptContainer: {
+  button2: {
+    height: 40,
+    width: 250,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.TextBlack,
+  },
+  button3: {
+    height: 50,
+    width: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.main,
+    borderRadius: 10,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
     padding: 20,
+    borderRadius: 10,
+    width: '80%',
   },
-  image: {
-    width: 300,
-    height: 300,
-    marginBottom: 20,
-  },
-  loginPromptText: {
-    fontSize: 16,
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
     fontFamily: 'Outfit-Bold',
-    color: colors.TextBlack,
-    marginBottom: 20,
-    textAlign: 'center',
   },
-  image2: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
+  companyItem: {
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 5,
+    backgroundColor: colors.TextBlack,
+  },
+  selectedCompanyItem: {
+    backgroundColor: colors.second,
+  },
+  companyText: {
+    fontSize: 16,
+    color: '#fff',
+    fontFamily: 'Outfit-Bold',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  noQuoteText: {
-    fontSize: 24,
-    fontWeight: '600',
-    fontFamily: 'Outfit-Bold',
-    marginBottom: 10,
-    color: colors.TextBlack,
-  },
-  infoText: {
-    fontSize: 26,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: 'black',
-    fontFamily: 'Outfit-Bold',
-  },
-  button3: {
-    backgroundColor: colors.main,
-    width: '80%',
-    paddingVertical: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  buttonText2: {
-    color: '#fff',
-    fontSize: 16,
+  loginPromptText: {
+    fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
+    color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',
+    padding: 10,
   },
 });
 
