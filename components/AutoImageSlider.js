@@ -54,7 +54,7 @@ const AutoImageSlider = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.containerImageSlider}>
       <ScrollView
         horizontal
         pagingEnabled
@@ -84,7 +84,7 @@ const AutoImageSlider = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  containerImageSlider: {
     position: 'relative',
     width: '100%',
     height: 250,

@@ -20,14 +20,37 @@ import Toast from 'react-native-toast-message';
 import CompanyDropdown from '../components/CompanyDropdown';
 
 const OrderSummaryScreen = ({route, navigation}) => {
-  const {cartItems: initialCartItems, totalAmount: initialTotalAmount} =
-    route.params;
+  const {
+    cartItems: initialCartItems,
+    totalAmount: initialTotalAmount,
+    totalAdditionalDiscount,
+  } = route.params;
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
   const [useRewardPoints, setUseRewardPoints] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [coupons, setCoupons] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const response = await axios.get(
+          'https://crossbee-server.vercel.app/coupons',
+        );
+        setCoupons(response.data);
+      } catch (error) {
+        console.error('Error fetching coupons:', error);
+        Alert.alert(
+          'Error',
+          'Failed to fetch coupons. Please try again later.',
+        );
+      }
+    };
+
+    fetchCoupons();
+  }, []);
 
   useEffect(() => {
     const newTotalAmount = calculateTotalAmount();
@@ -43,9 +66,9 @@ const OrderSummaryScreen = ({route, navigation}) => {
       amount -= data.rewardPointsPrice;
     }
     if (appliedCoupon) {
-      amount -= (amount * appliedCoupon.value) / 100;
+      amount -= Number(appliedCoupon.value); // Convert to number
     }
-    amount += data.shippingCharges - data.additionalDiscount;
+    amount += data.shippingCharges - totalAdditionalDiscount;
     return amount;
   };
 
@@ -54,11 +77,24 @@ const OrderSummaryScreen = ({route, navigation}) => {
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
-    if (appliedCoupon) {
-      subtotal -= (subtotal * appliedCoupon.value) / 100;
+    if (appliedCoupon && !isNaN(appliedCoupon.value)) {
+      subtotal -= appliedCoupon.value;
     }
     return subtotal;
   };
+
+  {
+    appliedCoupon && (
+      <View style={styles.summaryRow}>
+        <Text style={styles.summaryLabel}>Coupon Discount:</Text>
+        <Text style={styles.couponDiscount}>
+          -₹{Number(appliedCoupon.value)}
+        </Text>
+      </View>
+    );
+  }
+
+  // Inside your JSX where you display the coupon discount:
 
   const handleUpdateQuantity = (id, quantity) => {
     setCartItems(prevItems => {
@@ -74,10 +110,16 @@ const OrderSummaryScreen = ({route, navigation}) => {
   };
 
   const handleApplyCoupon = () => {
-    const coupon = data.coupons.find(c => c.code === couponCode);
+    const coupon = coupons.find(c => c.code === couponCode);
     if (coupon) {
-      setAppliedCoupon(coupon);
-      Alert.alert('Coupon applied', 'Coupon applied successfully!');
+      // Convert value to number
+      const couponValue = Number(coupon.value);
+      if (!isNaN(couponValue)) {
+        setAppliedCoupon({...coupon, value: couponValue});
+        Alert.alert('Coupon applied', 'Coupon applied successfully!');
+      } else {
+        Alert.alert('Invalid coupon', 'Coupon value is not valid.');
+      }
     } else {
       Alert.alert('Invalid coupon', 'Please enter a valid coupon code.');
     }
@@ -117,7 +159,13 @@ const OrderSummaryScreen = ({route, navigation}) => {
         },
       );
 
-      if (response.data.data) {
+      // Check for cartError in the response
+      if (response.data.data.cartError) {
+        Alert.alert(
+          'Out of Stock',
+          'Some items in your cart are out of stock. Please review your cart.',
+        );
+      } else if (response.data.data) {
         console.log('Item added to cart successfully');
         Toast.show({
           type: 'success',
@@ -134,8 +182,8 @@ const OrderSummaryScreen = ({route, navigation}) => {
     } catch (error) {
       console.error('Error saving order data: ', error);
       Alert.alert(
-        'Error',
-        'There was an issue processing your order. Please try again.',
+        'Out of Stock',
+        'Some items in your cart are out of stock. Please review your cart.',
       );
     }
   };
@@ -161,16 +209,13 @@ const OrderSummaryScreen = ({route, navigation}) => {
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Additional Discount:</Text>
             <Text style={styles.summaryValue}>
-              -₹{data.additionalDiscount.toFixed(2)}
+              -₹{totalAdditionalDiscount.toFixed(2)}
             </Text>
           </View>
           {appliedCoupon && (
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Coupon Discount:</Text>
-              <Text style={styles.couponDiscount}>
-                -₹
-                {((calculateSubtotal() * appliedCoupon.value) / 100).toFixed(2)}
-              </Text>
+              <Text style={styles.couponDiscount}>-₹{appliedCoupon.value}</Text>
             </View>
           )}
           {useRewardPoints && (
@@ -211,19 +256,25 @@ const OrderSummaryScreen = ({route, navigation}) => {
               onChangeText={setCouponCode}
             />
             <TouchableOpacity
-              style={styles.applyButton}
-              onPress={handleApplyCoupon}>
-              <Text style={styles.applyButtonText}>Apply</Text>
+              style={[
+                styles.applyButton,
+                appliedCoupon && styles.appliedButton, // Disable button if coupon applied
+              ]}
+              onPress={handleApplyCoupon}
+              disabled={!!appliedCoupon} // Disable button if coupon applied
+            >
+              <Text style={styles.applyButtonText}>
+                {appliedCoupon ? 'Applied' : 'Apply'}
+              </Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.couponSection}>
             <Text style={styles.applicableCoupons}>Applicable coupons</Text>
-            {data.coupons.map((coupon, index) => (
+            {coupons.map((coupon, index) => (
               <View key={index} style={styles.couponItem}>
                 <Text style={styles.applicableText}>
                   <Text
-                    // eslint-disable-next-line react-native/no-inline-styles
                     style={{
                       color: colors.main,
                       fontWeight: 'bold',
@@ -232,7 +283,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
                     {coupon.code}
                   </Text>
                   {'\n'}
-                  {coupon.text}
+                  {coupon.description}
                 </Text>
                 <TouchableOpacity
                   style={styles.applyTextButton}
@@ -242,10 +293,16 @@ const OrderSummaryScreen = ({route, navigation}) => {
                       'Coupon applied',
                       `Coupon ${coupon.code} applied successfully!`,
                     );
-                  }}>
-                  <Text style={styles.applyTextButtonText}>Apply</Text>
+                  }}
+                  disabled={!!appliedCoupon} // Disable button if coupon applied
+                >
+                  <Text style={styles.applyTextButtonText}>
+                    {appliedCoupon && appliedCoupon.code === coupon.code
+                      ? 'Applied'
+                      : 'Apply'}
+                  </Text>
                 </TouchableOpacity>
-                {index < data.coupons.length - 1 && (
+                {index < coupons.length - 1 && (
                   <View style={styles.separator} />
                 )}
               </View>
@@ -261,7 +318,6 @@ const OrderSummaryScreen = ({route, navigation}) => {
           )}
         </View>
         <CompanyDropdown onSelectCompany={handleSelectCompany} />
-        {/* Render the list of cart items */}
         {cartItems.map(item => (
           <CartItem
             key={item.id}
@@ -286,6 +342,200 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  scrollViewContent: {
+    paddingBottom: 80, // Space for the checkout button
+  },
+  couponContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  input: {
+    flex: 1,
+    height: 40,
+    backgroundColor: '#F6F6F6',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginRight: 10,
+    color: '#000',
+  },
+  applyButton: {
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  applyButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontFamily: 'Outfit-Bold',
+  },
+  applicableCoupons: {
+    fontSize: sizes.body,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
+    marginBottom: 10,
+    color: colors.TextBlack,
+  },
+  applicableText: {
+    fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
+    color: '#000',
+  },
+  applyTextButton: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+    paddingVertical: 10,
+  },
+  applyTextButtonText: {
+    color: colors.second,
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
+  },
+  removeCouponButton: {
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    paddingVertical: 10,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  removeCouponButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#E0E0E0',
+    marginVertical: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    color: colors.TextBlack,
+    padding: 15,
+  },
+  itemCount: {
+    fontSize: sizes.body,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
+    color: colors.TextBlack,
+  },
+  subtotal: {
+    fontSize: sizes.body,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
+    color: colors.TextBlack,
+  },
+  summaryContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 5,
+  },
+  summaryLabel: {
+    fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
+    color: '#333',
+  },
+  summaryValue: {
+    fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
+    color: '#333',
+  },
+  couponDiscount: {
+    fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
+    color: colors.Green,
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    paddingTop: 10,
+  },
+  totalLabel: {
+    fontSize: sizes.body,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
+    color: '#333',
+  },
+  totalValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
+    color: colors.TextBlack,
+  },
+  rewardPointsToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  rewardPointsText: {
+    marginLeft: 20,
+    fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
+    flex: 1,
+    color: colors.TextBlack,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: colors.main,
+    marginLeft: 10,
+  },
+  checked: {
+    backgroundColor: colors.main,
+  },
+  checkoutContainer: {
+    padding: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+  },
+  checkoutButton: {
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  checkoutButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: sizes.body,
+    fontFamily: 'Outfit-Bold',
   },
   scrollViewContent: {
     paddingBottom: 80, // Space for the checkout button

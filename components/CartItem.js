@@ -10,11 +10,15 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
     name,
     price,
     quantity,
-    color,
+    attributeSelected3,
     image,
-    productId,
     colorminCartValue,
+    additionalDiscount, // Add additionalDiscount
+    mainId, // Added mainId
+    categoryId, // Added categoryId
+    productId, // Added productId
   } = item;
+  
   const [itemQuantity, setItemQuantity] = useState(quantity);
   const navigation = useNavigation();
 
@@ -32,7 +36,6 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
     const newQuantity = itemQuantity - 1;
     setItemQuantity(newQuantity);
     if (newQuantity < colorminCartValue) {
-      // If newQuantity is less than colorminCartValue, set it back to colorminCartValue
       setItemQuantity(colorminCartValue);
       Toast.show({
         type: 'info',
@@ -46,7 +49,7 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
   };
 
   const handleImagePress = () => {
-    navigation.navigate('ProductDetailPage', {productId});
+    navigation.navigate('ProductDetailPage', {productId, mainId, categoryId}); // Pass additional IDs
   };
 
   const handleRemoveItem = () => {
@@ -57,6 +60,9 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
       text1: 'Removing item from cart',
     });
   };
+
+  // Calculate discounted price
+  const discountedPrice = price - additionalDiscount;
 
   return (
     <View style={styles.cartItemContainer}>
@@ -72,11 +78,11 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
       <View style={styles.productDetails}>
         <Text style={styles.productName}>{name}</Text>
         <Text style={styles.productPrice}>
-          ₹{(price * itemQuantity).toFixed(2)}
+          ₹{(discountedPrice * itemQuantity).toFixed(2)} {/* Use discounted price */}
         </Text>
         <View style={styles.itemColorContainer}>
           <View style={[styles.itemColor, {backgroundColor: colors.main}]}>
-            <Text style={styles.itemColorText}>{color}</Text>
+            <Text style={styles.itemColorText}>{attributeSelected3}</Text>
           </View>
           <TouchableOpacity
             style={styles.removeButton}

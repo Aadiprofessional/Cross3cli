@@ -18,30 +18,33 @@ import AddToCartButton from '../components/productScreen/AddToCartButton';
 import {useCart} from '../components/CartContext';
 import {colors} from '../styles/color';
 import {ActivityIndicator} from 'react-native-paper';
+import auth from '@react-native-firebase/auth';
 
 const ProductDetailPage = ({route}) => {
   const {mainId, categoryId, productId} = route.params || {};
-
   const [productData, setProductData] = useState(null);
   const [selectedAttribute1, setSelectedAttribute1] = useState(null);
   const [selectedAttribute2, setSelectedAttribute2] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedAttribute3, setSelectedAttribute3] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-
   const {addToCart} = useCart();
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
+        const userId = auth().currentUser?.uid; // Get the user ID from the authentication module
+
         const response = await axios.post(
           'https://crossbee-server.vercel.app/productInfo',
           {
             main: mainId,
             category: categoryId,
             product: productId,
+            uid: userId, // Add the user ID to the API request body
           },
         );
+
         const data = response.data;
         setProductData(data);
 
@@ -56,25 +59,24 @@ const ProductDetailPage = ({route}) => {
 
     fetchProductDetails();
   }, [mainId, categoryId, productId]);
-
   useEffect(() => {
     // Ensure quantity is set to minCartValue when selections change
     if (
       productData &&
       selectedAttribute1 &&
       selectedAttribute2 &&
-      selectedColor
+      selectedAttribute3
     ) {
       const minCartValue = getMinCartValue();
       setQuantity(minCartValue);
     }
-  }, [productData, selectedAttribute1, selectedAttribute2, selectedColor]);
+  }, [productData, selectedAttribute1, selectedAttribute2, selectedAttribute3]);
 
   const updateSelections = data => {
     if (data) {
       const attribute1 = data.attribute1;
       const attribute2 = data.attribute2;
-
+      const attribute3 = data.attribute3;
       // Reset selections and set defaults
       const firstAttribute1 = Object.keys(data.data[attribute1])[0];
       setSelectedAttribute1(firstAttribute1);
@@ -92,7 +94,7 @@ const ProductDetailPage = ({route}) => {
           ] || {},
         );
         if (colorOptions.length > 0) {
-          setSelectedColor(colorOptions[0]);
+          setSelectedAttribute3(colorOptions[0]);
         }
       }
     }
@@ -103,15 +105,16 @@ const ProductDetailPage = ({route}) => {
       productData &&
       selectedAttribute1 &&
       selectedAttribute2 &&
-      selectedColor
+      selectedAttribute3
     ) {
       const attribute1 = productData.attribute1;
       const attribute2 = productData.attribute2;
+      const attribute3 = productData.attribute3;
 
       const currentProduct =
         productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
           selectedAttribute2
-        ]?.[selectedColor];
+        ]?.[selectedAttribute3];
       if (currentProduct) {
         return parseInt(currentProduct.minCartValue || '1', 10);
       }
@@ -138,7 +141,7 @@ const ProductDetailPage = ({route}) => {
             {},
         );
         if (colorOptions.length > 0) {
-          setSelectedColor(colorOptions[0]);
+          setSelectedAttribute3(colorOptions[0]);
         }
       }
     }
@@ -158,13 +161,13 @@ const ProductDetailPage = ({route}) => {
         ] || {},
       );
       if (colorOptions.length > 0) {
-        setSelectedColor(colorOptions[0]);
+        setSelectedAttribute3(colorOptions[0]);
       }
     }
   };
 
   const handleColorChange = color => {
-    setSelectedColor(color);
+    setSelectedAttribute3(color);
   };
 
   const handleIncrease = () => {
@@ -199,34 +202,41 @@ const ProductDetailPage = ({route}) => {
       productData &&
       selectedAttribute1 &&
       selectedAttribute2 &&
-      selectedColor
+      selectedAttribute3
     ) {
       const attribute1 = productData.attribute1;
       const attribute2 = productData.attribute2;
+      const attribute3 = productData.attribute3;
 
       const item = {
+        productName,
         productId,
         name: productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
           selectedAttribute2
-        ]?.[selectedColor]?.name,
+        ]?.[selectedAttribute3]?.name,
         price:
           productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
             selectedAttribute2
-          ]?.[selectedColor]?.price,
-        color: selectedColor,
+          ]?.[selectedAttribute3]?.price,
         quantity,
         image:
           productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
             selectedAttribute2
-          ]?.[selectedColor]?.images[0],
+          ]?.[selectedAttribute3]?.images[0],
         colorminCartValue:
           productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
             selectedAttribute2
-          ]?.[selectedColor]?.minCartValue,
-        attributeSelected1: selectedAttribute1, // Added attribute1
-        attributeSelected2: selectedAttribute2, // Added attribute2
+          ]?.[selectedAttribute3]?.minCartValue,
+        attributeSelected1: selectedAttribute1,
+        attributeSelected2: selectedAttribute2,
+        attributeSelected3: selectedAttribute3,
         attribute1: attribute1,
         attribute2: attribute2,
+        attribute3: attribute3,
+        attribute1Id: attribute1Id,
+        attribute2Id: attribute2Id,
+        attribute3Id: attribute3Id,
+        additionalDiscount: additionalDiscount || 0, // Ensure additionalDiscount is passed
         mainId, // Added mainId
         categoryId, // Added categoryId
       };
@@ -259,6 +269,7 @@ const ProductDetailPage = ({route}) => {
 
   const attribute1 = productData?.attribute1;
   const attribute2 = productData?.attribute2;
+  const attribute3 = productData?.attribute3;
   const productName = productData?.productName || 'Product Name';
   const storageOptions =
     productData && attribute1
@@ -279,12 +290,17 @@ const ProductDetailPage = ({route}) => {
         )
       : [];
   const currentProduct =
-    selectedAttribute1 && selectedAttribute2 && selectedColor && attribute1
+    selectedAttribute1 && selectedAttribute2 && selectedAttribute3 && attribute1
       ? productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
           selectedAttribute2
-        ]?.[selectedColor]
+        ]?.[selectedAttribute3]
       : {};
   const images = currentProduct?.images || [];
+  const additionalDiscount = currentProduct?.additionalDiscount;
+  const attribute1Id = currentProduct?.attribute1Id;
+  const attribute2Id = currentProduct?.attribute2Id;
+  const attribute3Id = currentProduct?.attribute3Id;
+
   console.log(images);
 
   const getStockStatus = () => {
@@ -292,7 +308,7 @@ const ProductDetailPage = ({route}) => {
       productData &&
       selectedAttribute1 &&
       selectedAttribute2 &&
-      selectedColor
+      selectedAttribute3
     ) {
       const attribute1 = productData.attribute1;
       const attribute2 = productData.attribute2;
@@ -300,7 +316,7 @@ const ProductDetailPage = ({route}) => {
       const currentProduct =
         productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
           selectedAttribute2
-        ]?.[selectedColor];
+        ]?.[selectedAttribute3];
       return currentProduct ? currentProduct.outOfStock : false;
     }
     return false; // Default value if no attributes or color are selected
@@ -311,7 +327,7 @@ const ProductDetailPage = ({route}) => {
       productData &&
       selectedAttribute1 &&
       selectedAttribute2 &&
-      selectedColor
+      selectedAttribute3
     ) {
       const attribute1 = productData.attribute1;
       const attribute2 = productData.attribute2;
@@ -319,7 +335,7 @@ const ProductDetailPage = ({route}) => {
       const currentProduct =
         productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
           selectedAttribute2
-        ]?.[selectedColor];
+        ]?.[selectedAttribute3];
       return currentProduct ? currentProduct.estdArrivalDate : null;
     }
     return null; // Default value if no attributes or color are selected
@@ -362,9 +378,9 @@ const ProductDetailPage = ({route}) => {
         <>
           <AttributesSelector
             attributeData={colorOptions.map(item => ({id: item, value: item}))}
-            selectedValue={selectedColor}
+            selectedValue={selectedAttribute3}
             onSelect={handleColorChange}
-            attributeName="Color"
+            attributeName={attribute3}
           />
           <QuantityControl
             quantity={quantity}
@@ -398,14 +414,18 @@ const ProductDetailPage = ({route}) => {
                   backgroundColor: colors.main,
                   marginBottom: 25,
                   opacity:
-                    !selectedAttribute1 || !selectedAttribute2 || !selectedColor
+                    !selectedAttribute1 ||
+                    !selectedAttribute2 ||
+                    !selectedAttribute3
                       ? 0.5
                       : 1,
                 },
               ]}
               onPress={handleAddToCart}
               disabled={
-                !selectedAttribute1 || !selectedAttribute2 || !selectedColor
+                !selectedAttribute1 ||
+                !selectedAttribute2 ||
+                !selectedAttribute3
               }>
               <Text style={styles.addToCartButtonText}>Add to Cart</Text>
             </TouchableOpacity>

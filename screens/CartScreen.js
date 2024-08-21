@@ -24,14 +24,14 @@ const CartScreen = () => {
   const {cartItems, updateCartItemQuantity, removeCartItem} = useCart(); // Assuming CartContext is used
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
-  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   const fetchCartData = useCallback(async () => {
     const user = auth().currentUser;
-    setIsUserLoggedIn(!!user); // Check if the user is logged in
+
 
     if (!user) {
       setLoading(false);
@@ -117,38 +117,29 @@ const CartScreen = () => {
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
-    navigation.navigate('OrderSummary', {cartItems, totalAmount});
-  };
+    
+    // Calculate total additional discount
+    const totalAdditionalDiscount = cartItems.reduce(
+      (sum, item) => sum + (item.additionalDiscount || 0) * item.quantity,
+      0,
+    );
 
-  const navigateToOTP = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{name: 'OTPVerificationScreen'}],
+    navigation.navigate('OrderSummary', {
+      cartItems,
+      totalAmount,
+      totalAdditionalDiscount, // Pass the total additional discount
     });
+    console.log(totalAdditionalDiscount);
+    
   };
+  
+
+ 
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.main} />
-      </View>
-    );
-  }
-
-  if (!isUserLoggedIn) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.loginPromptText}>
-          Please log in to access your cart.
-        </Text>
-        <TouchableOpacity
-          style={[
-            styles.button2,
-            {backgroundColor: colors.main, alignSelf: 'center'},
-          ]}
-          onPress={navigateToOTP}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
       </View>
     );
   }
