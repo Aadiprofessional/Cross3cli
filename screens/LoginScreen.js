@@ -143,14 +143,14 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: sizes.welcomeTextSize,
     fontWeight: '500',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginBottom: sizes.marginMax * 5,
     color: colors.textPrimary,
   },
   label: {
     fontSize: sizes.labelTextSize,
     fontWeight: '400',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     alignSelf: 'flex-start',
     marginLeft: '10%',
     marginTop: 10,
@@ -168,14 +168,14 @@ const styles = StyleSheet.create({
   },
   phonePrefix: {
     fontSize: sizes.inputFontSize,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     marginRight: 10,
   },
   phoneInput: {
     flex: 1,
     fontSize: sizes.inputFontSize,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
   },
   button: {
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: '500',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.background,
   },
   otpContainer: {
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inputBackground,
     fontSize: sizes.inputFontSize,
     fontWeight: '400',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     borderWidth: 1,
     textAlign: 'center',
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   resendButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.second,
     marginTop: sizes.marginVertical,
   },

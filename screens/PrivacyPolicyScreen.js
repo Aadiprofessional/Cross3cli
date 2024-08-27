@@ -59,8 +59,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#FFFFFF',
   },
   rectangle: {

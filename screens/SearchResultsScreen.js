@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
   noResultsText: {
     fontSize: 18,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#484848',
   },
 });

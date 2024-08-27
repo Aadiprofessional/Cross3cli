@@ -262,7 +262,7 @@ const ProductDetailPage = ({route}) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FCCC51" />
+        <ActivityIndicator size="large" color="#FFB800" />
       </View>
     );
   }
@@ -453,13 +453,13 @@ const styles = StyleSheet.create({
   },
   Head: {
     fontSize: 20,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
     fontWeight: 'bold',
   },
   regularText: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   addToCartButton: {
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
   addToCartButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     fontWeight: 'bold',
   },
   outOfStockContainer: {

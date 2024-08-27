@@ -1,8 +1,19 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors } from '../../styles/color'; // Adjust the path accordingly
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+} from 'react-native';
+import {colors} from '../../styles/color'; // Adjust the path accordingly
 
-const AttributesSelector = ({ attributeData, selectedValue, onSelect, attributeName }) => {
+const AttributesSelector = ({
+  attributeData,
+  selectedValue,
+  onSelect,
+  attributeName,
+}) => {
   return (
     <View style={styles.productDetails}>
       <Text style={styles.Head}>{attributeName}</Text>
@@ -39,8 +50,7 @@ const styles = StyleSheet.create({
   Head: {
     fontSize: 20,
     color: colors.TextBlack,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   colorScrollContainer: {
     flexDirection: 'row',
@@ -49,23 +59,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   colorButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#D6D6D6',
     borderWidth: 1,
-    borderColor: colors.main,
-    borderRadius: 10,
+    borderColor: '#484848',
+    borderRadius: 6,
     paddingHorizontal: 15,
     paddingVertical: 10,
     marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 2, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    // Shadows for Android
+    elevation: 4,
   },
   selectedButton: {
     backgroundColor: colors.main,
     borderWidth: 1,
     borderColor: colors.main,
+    // Shadows for iOS
+    shadowColor: '#000',
+    shadowOffset: {width: 2, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    // Shadows for Android
+    elevation: 4,
   },
   colorButtonText: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
-    color: colors.main,
+    fontFamily: 'Outfit-Regular',
+    color: '#484848',
     fontWeight: 'bold',
   },
   selectedText: {

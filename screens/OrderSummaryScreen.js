@@ -278,7 +278,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
                     style={{
                       color: colors.main,
                       fontWeight: 'bold',
-                      fontFamily: 'Outfit-Bold',
+                      fontFamily: 'Outfit-Medium',
                     }}>
                     {coupon.code}
                   </Text>
@@ -379,20 +379,20 @@ const styles = StyleSheet.create({
   },
   applyButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+
     textAlign: 'center',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   applicableCoupons: {
     fontSize: sizes.body,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
     marginBottom: 10,
     color: colors.TextBlack,
   },
   applicableText: {
     fontSize: sizes.body,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#000',
   },
   applyTextButton: {
@@ -405,8 +405,8 @@ const styles = StyleSheet.create({
   applyTextButtonText: {
     color: colors.second,
     fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
   },
   removeCouponButton: {
     backgroundColor: colors.main,
@@ -417,8 +417,8 @@ const styles = StyleSheet.create({
   },
   removeCouponButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
   },
   separator: {
     height: 1,
@@ -463,12 +463,12 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: sizes.body,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   summaryValue: {
     fontSize: sizes.body,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   couponDiscount: {
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: sizes.body,
     fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   totalValue: {
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   rewardPointsText: {
     marginLeft: 20,
     fontSize: sizes.body,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     flex: 1,
     color: colors.TextBlack,
   },
@@ -533,9 +533,9 @@ const styles = StyleSheet.create({
   },
   checkoutButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+  
     fontSize: sizes.body,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   scrollViewContent: {
     paddingBottom: 80, // Space for the checkout button
@@ -573,9 +573,8 @@ const styles = StyleSheet.create({
   },
   applyButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
     textAlign: 'center',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   applicableCoupons: {
     fontSize: sizes.body,
@@ -599,8 +598,8 @@ const styles = StyleSheet.create({
   applyTextButtonText: {
     color: colors.second,
     fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
   },
   removeCouponButton: {
     backgroundColor: colors.main,
@@ -667,7 +666,7 @@ const styles = StyleSheet.create({
   },
   couponDiscount: {
     fontSize: sizes.body,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.Green,
   },
   totalRow: {
@@ -681,13 +680,13 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: sizes.body,
     fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   totalValue: {
     fontSize: 18,
     fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   rewardPointsToggle: {
@@ -698,7 +697,7 @@ const styles = StyleSheet.create({
   rewardPointsText: {
     marginLeft: 20,
     fontSize: sizes.body,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     flex: 1,
     color: colors.TextBlack,
   },

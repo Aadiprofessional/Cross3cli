@@ -149,7 +149,7 @@ const UpdateProfileScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#FCCC51" />
+        <ActivityIndicator size="large" color="#FFB800" />
       </View>
     );
   }
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    backgroundColor: '#FCCC51',
+    backgroundColor: colors.main,
     paddingTop: 16,
     paddingBottom: 16,
     flexDirection: 'row',
@@ -289,8 +289,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#FFFFFF',
     fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Regular',
   },
   scrollView: {
     padding: 16,
@@ -300,8 +300,8 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 4,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   requiredStar: {
@@ -313,11 +313,11 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   updateButton: {
-    backgroundColor: '#FCCC51',
+    backgroundColor: colors.main,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
@@ -325,8 +325,7 @@ const styles = StyleSheet.create({
   updateButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Medium',
   },
 });
 

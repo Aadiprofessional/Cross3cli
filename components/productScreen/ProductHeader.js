@@ -1,15 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import { colors } from '../../styles/color';
 
-const ProductHeader = ({ name, description, price, onCall }) => {
+const ProductHeader = ({ name, description, price }) => {
+  const handleCall = () => {
+    const phoneNumber = '9924686611';
+    const url = `tel:${phoneNumber}`;
+    Linking.openURL(url).catch(err => console.error('Error opening dialer:', err));
+  };
+
   return (
     <View style={styles.productDetails}>
       <Text style={styles.title}>{name}</Text>
       <Text style={styles.descriptionText}>{description}</Text>
       <View style={styles.priceContainer}>
         <Text style={styles.priceText}>Price: ₹{price}</Text>
-        <TouchableOpacity onPress={onCall}>
+        <TouchableOpacity onPress={handleCall}>
           <Image
             source={require('../../assets/call.png')}
             style={styles.callIcon}
@@ -28,13 +34,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginBottom: 10,
     color: colors.TextBlack,
   },
   descriptionText: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginBottom: 5,
     color: colors.TextBlack,
   },
@@ -46,7 +52,7 @@ const styles = StyleSheet.create({
   },
   priceText: {
     fontSize: 24,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   callIcon: {

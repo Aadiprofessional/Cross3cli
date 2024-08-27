@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#666',
     marginBottom: 20,
     textAlign: 'center',
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+
     fontFamily: 'Outfit-Bold',
   },
   orderList: {
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.TextBlack,
     marginBottom: 5,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   boldText: {
     fontWeight: 'bold',

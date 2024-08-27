@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FCCC51',
+    backgroundColor: '#FFB800',
   },
   gif: {
     width: '60%',

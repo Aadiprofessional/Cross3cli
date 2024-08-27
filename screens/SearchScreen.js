@@ -166,7 +166,7 @@ const SearchScreen = () => {
       {/* Loading Indicator */}
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color="#FCCC51" />
+          <ActivityIndicator size="small" color="#FFB800" />
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.productList}>
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#484848',
   },
   buttonsContainer: {
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 14,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#484848',
     marginRight: 5,
   },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   noResultsText: {
     fontSize: 18,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#484848',
   },
 });

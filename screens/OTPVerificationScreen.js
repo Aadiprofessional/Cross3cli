@@ -348,14 +348,14 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 24,
     fontWeight: '700',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     marginBottom: sizes.marginVertical,
   },
   label: {
     fontSize: sizes.labelTextSize,
     fontWeight: '400',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     alignSelf: 'flex-start',
     marginTop: 10,
     marginBottom: 5,
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inputBackground,
     fontSize: sizes.inputFontSize,
     fontWeight: '400',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     placeholderTextColor: colors.placeholder,
   },
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
     fontSize: sizes.inputFontSize,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
   },
   activeOtpInput: {
@@ -418,13 +418,13 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: '500',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.background,
   },
   otpText: {
     marginBottom: sizes.marginVertical,
     fontSize: sizes.inputFontSize,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     textAlign: 'center',
   },
@@ -436,12 +436,12 @@ const styles = StyleSheet.create({
   },
   timerText: {
     fontSize: sizes.inputFontSize,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
   },
   resendButtonText: {
     fontSize: sizes.inputFontSize,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.second,
   },
   footer: {
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
   guestButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#333333',
   },
   googleButton: {
@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
   googleButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#333333',
     marginLeft: 10,
   },

@@ -15,12 +15,12 @@ const NeedHelpScreen = () => {
   const navigation = useNavigation();
 
   const handleWhatsApp = () => {
-    const phoneNumber = '9289881135';
+    const phoneNumber = '9924686611';
     Linking.openURL(`https://wa.me/${phoneNumber}`);
   };
 
   const handleCall = () => {
-    const phoneNumber = '9289881135';
+    const phoneNumber = '9924686611';
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   },
   regularText: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginTop: 5,
     color: colors.TextBlack,
   },

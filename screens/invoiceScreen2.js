@@ -98,9 +98,9 @@ const InvoiceScreen2 = ({route}) => {
           .invoice-to, .invoice-from { width: 50%; }
           .invoice-to { text-align: left; }
           .invoice-from { text-align: right; }
-          .invoice-header { border-top: 3px solid #FCCC51; border-bottom: 3px solid #FCCC51; margin: 30px 0; padding: 10px 0; }
+          .invoice-header { border-top: 3px solid #FFB800; border-bottom: 3px solid #FFB800; margin: 30px 0; padding: 10px 0; }
           .invoice-header h2 { margin: 0; font-size: 2rem; font-weight: bold; color: #000; }
-          .text-primary { color: #FCCC51 !important; }
+          .text-primary { color: #FFB800 !important; }
           table { width: 100%; border-collapse: collapse; margin: 20px 0; }
           th, td { padding: 8px 12px; text-align: left; }
           th { background-color: #f2f2f2; }
@@ -336,8 +336,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+ 
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   logo: {
@@ -350,8 +350,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+ 
+    fontFamily: 'Outfit-Medium',
     marginBottom: 10,
     color: colors.TextBlack,
   },
@@ -375,8 +375,8 @@ const styles = StyleSheet.create({
   downloadButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Medium',
+
   },
 });
 

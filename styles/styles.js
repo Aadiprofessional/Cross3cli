@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '../styles/color';
+import { sizes } from './size';
 
 const styles = StyleSheet.create({
   container: {
@@ -80,6 +81,50 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  //Auto Image Slider
+  containerImageSlider: {
+    position: 'relative',
+    width: '100%',
+    height: 250,
+
+    backgroundColor: colors.main,
+    overflow: 'hidden',
+  },
+  scrollViewContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imageContainerAutoImageSlider: {
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  imageAutoImageSlider: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
+  },
+  pagination: {
+    position: 'absolute',
+    bottom: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+    paddingVertical: 5,
+  },
+  dotAutoImageSlider: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: sizes.marginVertical,
+  },
+  activeDotAutoImageSlider: {
+    width: 16,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#316487',
+  },
+
 });
 
 export default styles;

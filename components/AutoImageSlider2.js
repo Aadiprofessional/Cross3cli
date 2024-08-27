@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, Image, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {colors} from '../styles/color';
 
+
 const AutoImageSlider2 = () => {
   const [currentIndex, setCurrentIndex] = useState(1); // Start from the first actual image (after the duplicated one)
   const images = [

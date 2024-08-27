@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   primaryText: {
     fontSize: 16,
     fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Regular',
     color: colors.orange,
     marginBottom: 8,
   },
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   content: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
   },
   loadingContainer: {

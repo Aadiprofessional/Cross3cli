@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
     color: '#fff',
   },
   scrollView: {
@@ -167,14 +167,14 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
   },
   noCompaniesText: {
     textAlign: 'center',
     color: colors.primary,
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginTop: 20,
   },
   errorText: {

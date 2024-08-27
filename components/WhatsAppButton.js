@@ -4,7 +4,7 @@ import { TouchableOpacity, View, Image, StyleSheet, Linking } from 'react-native
 
 const WhatsAppButton = () => {
   const handleWhatsAppPress = () => {
-    const url = 'whatsapp://send?phone=9289881135';
+    const url = 'whatsapp://send?phone=9924686611';
     Linking.openURL(url).catch(() => {
       alert('Make sure WhatsApp is installed on your device');
     });

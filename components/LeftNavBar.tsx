@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,10 @@ import {
   AppState,
   AppStateStatus,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 interface LeftNavBarProps {
   toggleNavBar: () => void;
@@ -19,7 +19,7 @@ interface LeftNavBarProps {
 // In-memory cache to store categories data for the session
 let categoriesCache: any[] | null = null;
 
-const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
+const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState<any[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -78,19 +78,18 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
   };
 
   const navigateToSubCategory = (mainId: string, categoryId: string) => {
-    navigation.navigate('SubCategoryScreen', {mainId, categoryId});
+    navigation.navigate('SubCategoryScreen', { mainId, categoryId });
     toggleNavBar();
   };
 
   const handleAllCategoriesPress = () => {
-    // Add navigation or logic for "All Categories" button here
     navigation.navigate('AllCategoriesScreen'); // Replace with your actual screen name
     toggleNavBar();
   };
 
   const renderSubCategoryItem = (companies: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
-      {companies.map(({id, name}) => (
+      {companies.map(({ id, name }) => (
         <TouchableOpacity
           key={id}
           style={styles.subcategoryItem}
@@ -158,6 +157,10 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
       ) : (
         <Text>No categories available</Text>
       )}
+      <View style={styles.footerContainer}>
+        <Text style={styles.footerText}>Design And Developed By</Text>
+        <Text style={styles.footerText}>AppYard</Text>
+      </View>
     </View>
   );
 };
@@ -177,8 +180,8 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 20,
-    fontWeight: '400',
-    fontFamily: 'Outfit-Bold',
+    fontWeight: '500',
+    fontFamily: 'Outfit-Regular',
     marginLeft: 10,
     marginRight: 'auto',
     color: colors.TextBlack,
@@ -195,13 +198,13 @@ const styles = StyleSheet.create({
   },
   subcategoryText: {
     fontSize: 18,
-    fontWeight: '400',
-    fontFamily: 'Outfit-Bold',
+    fontWeight: '500',
+    fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
   },
   subcategoryText2: {
     fontSize: 18,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Regular',
     fontWeight: '400',
     color: colors.TextBlack,
     marginLeft: 17,
@@ -214,12 +217,22 @@ const styles = StyleSheet.create({
   },
   categoriesHeaderText: {
     fontSize: 32,
-    fontWeight: '500',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.main,
   },
   backIcon: {
     marginRight: 2,
+  },
+  footerContainer: {
+    marginTop: 'auto', // Pushes the footer to the bottom
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  footerText: {
+    fontSize: 12,
+    fontFamily: 'Outfit-Regular',
+    color: colors.TextBlack,
+    opacity: 0.3,
   },
 });
 

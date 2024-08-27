@@ -88,15 +88,15 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 14,
-    fontWeight: 'bold', // Bold font for product name
-    fontFamily: 'Outfit-Bold',
+   // Bold font for product name
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
     textAlign: 'center',
     marginBottom: 5,
   },
   productPrice: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
     textAlign: 'center',
   },

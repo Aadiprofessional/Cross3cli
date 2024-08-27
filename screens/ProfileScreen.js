@@ -202,27 +202,27 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 24,
     fontWeight: '600',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   newText: {
     fontSize: 14,
     fontWeight: '600',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginTop: 5,
     color: colors.TextBlack,
   },
   mobileText: {
     fontSize: 14,
     fontWeight: '600',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginTop: 5,
     color: colors.TextBlack,
   },
   rewardPointsText: {
     fontSize: 14,
     fontWeight: '600',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginTop: 10,
     color: colors.TextBlack,
   },
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     fontWeight: '600',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   loadingContainer: {

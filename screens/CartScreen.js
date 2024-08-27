@@ -250,14 +250,14 @@ const styles = StyleSheet.create({
   cartText: {
     fontSize: 20,
     color: '#fff',
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
   },
   cartItemCount: {
     fontSize: 18,
     color: '#fff',
     marginLeft: 10,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   headerRight: {
     flexDirection: 'row',
@@ -266,15 +266,14 @@ const styles = StyleSheet.create({
   subtotalText: {
     fontSize: 20,
     color: '#fff',
-    fontWeight: 'bold',
+
     marginRight: 5,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   totalAmountText: {
     fontSize: 20,
     color: '#fff',
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   image: {
     width: 300,
@@ -289,7 +288,7 @@ const styles = StyleSheet.create({
   emptyCartText: {
     fontSize: 18,
     color: colors.TextBlack,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   cartItemsContainer: {
     flex: 1,

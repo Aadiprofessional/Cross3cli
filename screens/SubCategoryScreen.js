@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 16,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     textAlign: 'center',
     color: colors.TextBlack,
   },
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 18,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   noProductsContainer: {
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   noProductsText: {
     fontSize: 18,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
 });

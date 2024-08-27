@@ -13,12 +13,12 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
     attributeSelected3,
     image,
     colorminCartValue,
-    additionalDiscount, // Add additionalDiscount
-    mainId, // Added mainId
-    categoryId, // Added categoryId
-    productId, // Added productId
+    additionalDiscount,
+    mainId,
+    categoryId,
+    productId,
   } = item;
-  
+
   const [itemQuantity, setItemQuantity] = useState(quantity);
   const navigation = useNavigation();
 
@@ -76,9 +76,10 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
         />
       </TouchableOpacity>
       <View style={styles.productDetails}>
-        <Text style={styles.productName}>{name}</Text>
+        <Text style={styles.productName}>{productId}</Text>
         <Text style={styles.productPrice}>
-          ₹{(discountedPrice * itemQuantity).toFixed(2)} {/* Use discounted price */}
+          ₹{(discountedPrice * itemQuantity).toFixed(2)}{' '}
+          {/* Use discounted price */}
         </Text>
         <View style={styles.itemColorContainer}>
           <View style={[styles.itemColor, {backgroundColor: colors.main}]}>
@@ -145,15 +146,15 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   productPrice: {
     fontSize: 18,
     marginTop: 5,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+   
+    fontFamily: 'Outfit-SemiBold',
     color: colors.TextBlack,
   },
   itemColorContainer: {
@@ -170,8 +171,8 @@ const styles = StyleSheet.create({
   },
   itemColorText: {
     color: colors.TextWhite,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
   },
   quantityContainer: {
     flexDirection: 'row',
@@ -191,12 +192,12 @@ const styles = StyleSheet.create({
   quantityButtonText: {
     fontSize: 18,
     color: '#fff',
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    
+    fontFamily: 'Outfit-Medium',
   },
   quantityText: {
     fontSize: 18,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
     marginHorizontal: 10,
   },

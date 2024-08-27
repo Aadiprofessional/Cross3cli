@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   arrowText: {
     color: 'white',
     fontSize: 30,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
   },
   pagination: {
     position: 'absolute',
@@ -119,8 +119,8 @@ const styles = StyleSheet.create({
   truckText: {
     color: '#333333',
     fontSize: 16,
-    fontWeight: '600',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
   },
   truckIcon: {
     position: 'absolute',

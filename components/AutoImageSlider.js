@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {View, Image, StyleSheet, ScrollView, Dimensions} from 'react-native';
 import {sizes} from '../styles/size';
 import {colors} from '../styles/color';
+import styles from '../styles/styles'; // Import the styles
 
 const AutoImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(1);
@@ -66,8 +67,8 @@ const AutoImageSlider = () => {
         {imagesWithDuplicates.map((image, index) => (
           <View
             key={index}
-            style={[styles.imageContainer, {width: imageWidth}]}>
-            <Image source={image} style={styles.image} />
+            style={[styles.imageContainerAutoImageSlider, {width: imageWidth}]}>
+            <Image source={image} style={styles.imageAutoImageSlider} />
           </View>
         ))}
       </ScrollView>
@@ -75,7 +76,7 @@ const AutoImageSlider = () => {
         {images.map((_, index) => (
           <View
             key={index}
-            style={[styles.dot, index === currentIndex - 1 && styles.activeDot]}
+            style={[styles.dotAutoImageSlider, index === currentIndex - 1 && styles.activeDotAutoImageSlider]}
           />
         ))}
       </View>
@@ -83,49 +84,6 @@ const AutoImageSlider = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  containerImageSlider: {
-    position: 'relative',
-    width: '100%',
-    height: 250,
 
-    backgroundColor: colors.main,
-    overflow: 'hidden',
-  },
-  scrollViewContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imageContainer: {
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 20,
-  },
-  pagination: {
-    position: 'absolute',
-    bottom: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: '100%',
-    paddingVertical: 5,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: sizes.marginVertical,
-  },
-  activeDot: {
-    width: 16,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#316487',
-  },
-});
 
 export default AutoImageSlider;

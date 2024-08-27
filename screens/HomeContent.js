@@ -23,17 +23,15 @@ const HomeContent = () => {
           <BestDeals />
           <Text style={styles.title}>Only For App Deals</Text>
           <AutoImageSlider2 />
-          
+
           <UpcomingProducts />
           <LatestProducts />
         </View>
         <View style={styles.endTextContainer}>
-          <Text style={styles.endText}>India's best</Text>
-          <Text style={styles.endText}>
-            delivery app<Text style={styles.emoji}>❤️</Text>
-          </Text>
-          <View style={styles.line} />
+         
           <Text style={styles.crossBee}>CrossBee</Text>
+          <Text style={styles.AppYard}>Design And Developed By</Text>
+          <Text style={styles.AppYard2}>AppYard</Text>
         </View>
       </ScrollView>
     </View>
@@ -66,7 +64,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginLeft: 25,
     color: colors.TextBlack,
   },
@@ -78,13 +76,13 @@ const styles = StyleSheet.create({
   endText: {
     fontSize: 40,
     fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     opacity: 0.1,
     color: colors.TextBlack,
   },
   emoji: {
     fontSize: 40,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     opacity: 1,
   },
   line: {
@@ -99,7 +97,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontFamily: 'Outfit-Bold',
     opacity: 0.1,
-    marginBottom: 200,
+
+    color: colors.TextBlack,
+  },
+  AppYard: {
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Outfit-Regular',
+    opacity: 0.1,
+
+    color: colors.TextBlack,
+  },
+  AppYard2: {
+    fontSize: 16,
+
+    fontFamily: 'Outfit-Bold',
+    opacity: 0.1,
+    marginBottom: 170,
     color: colors.TextBlack,
   },
 });

@@ -14,10 +14,9 @@ import auth from '@react-native-firebase/auth';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Feather';
+import { colors } from '../styles/color';
 
-const colors = {
-  main: '#FCCC51', // Replace with your actual color
-};
+
 
 const AddCompanyScreen = () => {
   const [companyName, setCompanyName] = useState('');
@@ -132,7 +131,7 @@ const AddCompanyScreen = () => {
   }
 
   return (
-    <View style={styles.screen}>
+    <View style={styles.container}>
       <View style={[styles.header, {backgroundColor: colors.main}]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon
@@ -261,7 +260,7 @@ const AddCompanyScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  screen: {
+  container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
@@ -278,8 +277,8 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 4,
-    fontFamily: 'Outfit-Bold',
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Medium',
+  
     color: '#333',
   },
   requiredStar: {
@@ -297,8 +296,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: 'Outfit-Bold',
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Medium',
+
     color: '#FFFFFF',
   },
   input: {

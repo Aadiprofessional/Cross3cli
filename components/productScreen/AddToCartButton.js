@@ -23,8 +23,8 @@ const styles = StyleSheet.create({
   addToCartButtonText: {
     color: '#fff',
     fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+ 
+    fontFamily: 'Outfit-Medium',
   },
 });
 

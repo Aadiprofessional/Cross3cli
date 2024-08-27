@@ -8,14 +8,15 @@ import {
   Linking,
 } from 'react-native';
 import {colors} from '../styles/color';
+
 const HelpBox = () => {
   const handleCallPress = () => {
-    const phoneNumber = '9289881135';
+    const phoneNumber = '+919924686611';
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
   const handleWhatsAppPress = () => {
-    const url = 'whatsapp://send?phone=9289881135';
+    const url = 'whatsapp://send?phone=+919924686611';
     Linking.openURL(url).catch(() => {
       // eslint-disable-next-line no-alert
       alert('Make sure WhatsApp is installed on your device');
@@ -83,7 +84,6 @@ const styles = StyleSheet.create({
     height: 44,
     marginLeft: -5,
     marginRight: 5,
-   
   },
 });
 

@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { colors } from '../styles/color';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, Image, TouchableOpacity, Alert} from 'react-native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {colors} from '../styles/color';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import UserCompaniesScreen from '../screens/UserCompaniesScreen';
 
 interface CustomHeaderProps {
   toggleNavBar: () => void;
 }
 
-const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
+const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
   const navigation = useNavigation();
   const route = useRoute();
   const [profileImage, setProfileImage] = useState(null);
@@ -22,18 +23,21 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
       const unsubscribe = firestore()
         .collection('users')
         .doc(user.uid)
-        .onSnapshot((snapshot) => {
-          const userData = snapshot.data();
-          if (userData && typeof userData.profilePicture === 'string') {
-            setProfileImage(userData.profilePicture);
-          } else {
-            setProfileImage(null); // Default to null if no valid URL
-          }
-        }, (error) => {
-          console.error('Error fetching profile image: ', error);
-          Alert.alert('Error', 'Unable to fetch profile image.');
-          setProfileImage(null);
-        });
+        .onSnapshot(
+          snapshot => {
+            const userData = snapshot.data();
+            if (userData && typeof userData.profilePicture === 'string') {
+              setProfileImage(userData.profilePicture);
+            } else {
+              setProfileImage(null); // Default to null if no valid URL
+            }
+          },
+          error => {
+            console.error('Error fetching profile image: ', error);
+            Alert.alert('Error', 'Unable to fetch profile image.');
+            setProfileImage(null);
+          },
+        );
 
       // Cleanup subscription on unmount
       return () => unsubscribe();
@@ -45,7 +49,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
   };
 
   const handleProfilePress = () => {
-    navigation.navigate('Profile');
+    navigation.navigate('UserCompaniesScreen');
   };
 
   if (route.name !== 'HomeTab') {
@@ -60,7 +64,10 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
         </TouchableOpacity>
       </View>
       <View style={styles.centerLogo}>
-        <Image source={require('../assets/logo.png')} style={styles.logoImage} />
+        <Image
+          source={require('../assets/logo.png')}
+          style={styles.logoImage}
+        />
       </View>
       <View style={styles.rightIcons}>
         <TouchableOpacity onPress={handleSearchPress}>
@@ -70,8 +77,8 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({ toggleNavBar }) => {
           <Image
             source={
               profileImage
-                ? { uri: profileImage }
-                : require('../assets/profile.png')
+                ? {uri: UserCompaniesScreen}
+                : require('../assets/insurance-company.png')
             }
             style={styles.profile}
           />
