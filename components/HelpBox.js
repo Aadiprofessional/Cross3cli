@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 const HelpBox = () => {
   const handleCallPress = () => {
@@ -24,28 +24,49 @@ const HelpBox = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.mainText}>Need help with your purchase?</Text>
-        <Text style={styles.subText}>Speak with our experts and place</Text>
-        <Text style={styles.subText}>your order hassle-free</Text>
-      </View>
-      <View style={styles.iconContainer}>
-        <TouchableOpacity onPress={handleCallPress}>
-          <Image style={styles.icon} source={require('../assets/call.png')} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleWhatsAppPress}>
-          <Image
-            style={styles.icon}
-            source={require('../assets/whatsapp.png')}
-          />
-        </TouchableOpacity>
+    <View style={styles.backgroundContainer}>
+      <View style={styles.topBackground} />
+      <View style={styles.bottomBackground} />
+      <View style={styles.container}>
+        <View style={styles.textContainer}>
+          <Text style={styles.mainText}>Need help with your purchase?</Text>
+          <Text style={styles.subText}>Speak with our experts and place</Text>
+          <Text style={styles.subText}>your order hassle-free</Text>
+        </View>
+        <View style={styles.iconContainer}>
+          <TouchableOpacity onPress={handleCallPress}>
+            <Image style={styles.icon} source={require('../assets/call.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleWhatsAppPress}>
+            <Image
+              style={styles.icon2}
+              source={require('../assets/whatsapp.png')}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundContainer: {
+    flex: 1,
+  },
+  topBackground: {
+    backgroundColor: colors.main, // First color
+    height: '50%',
+    width: '100%',
+    position: 'absolute',
+    top: 0,
+  },
+  bottomBackground: {
+    backgroundColor: '#ffffff', // Second color
+    height: '50%',
+    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+  },
   container: {
     flexDirection: 'row',
     backgroundColor: '#FFE8C4',
@@ -54,9 +75,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     alignSelf: 'center',
     width: '92%',
-    position: 'absolute',
     top: 0,
-    left: '4%',
   },
   textContainer: {
     flex: 3,
@@ -83,7 +102,13 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     marginLeft: -5,
-    marginRight: 5,
+    marginRight: 10,
+  },
+  icon2: {
+    width: 40,
+    height: 40,
+    marginLeft: -5,
+    marginRight: 15,
   },
 });
 

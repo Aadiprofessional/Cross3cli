@@ -137,10 +137,7 @@ const App = () => {
             name="ProductDetailPage"
             component={ProductDetailPage}
             options={{
-              title: 'Product Detail',
-              headerStyle: {backgroundColor: colors.main},
-              headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerShown: false,
             }}
           />
           <Stack.Screen
@@ -176,7 +173,12 @@ const App = () => {
           <Stack.Screen
             name="Cart"
             component={CartScreen}
-            options={{title: 'Cart'}}
+            options={{
+              title: 'Cart',
+              headerStyle: {backgroundColor: colors.main},
+              headerTintColor: '#fff',
+              headerTitleStyle: {fontWeight: 'bold'},
+            }}
           />
           <Stack.Screen
             name="Profile"
@@ -203,7 +205,7 @@ const App = () => {
               headerTitleStyle: {fontWeight: 'bold'},
             }}
           />
-        
+
           <Stack.Screen
             name="OrderSummary"
             component={OrderSummaryScreen}

@@ -59,9 +59,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   colorButton: {
-    backgroundColor: '#D6D6D6',
+    backgroundColor: '#F1F1F1',
     borderWidth: 1,
-    borderColor: '#484848',
+    borderColor: '#484848A1',
     borderRadius: 6,
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   colorButtonText: {
     fontSize: 16,
     fontFamily: 'Outfit-Regular',
-    color: '#484848',
+    color: '#4848485C',
     fontWeight: 'bold',
   },
   selectedText: {

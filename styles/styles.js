@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { colors } from '../styles/color';
-import { sizes } from './size';
+import {StyleSheet} from 'react-native';
+import {colors} from '../styles/color';
+import {sizes} from './size';
 
 const styles = StyleSheet.create({
   container: {
@@ -86,8 +86,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 250,
-
     backgroundColor: colors.main,
+    justifyContent: 'center', // Center the image vertically
+    alignItems: 'center', // Center the image horizontally
     overflow: 'hidden',
   },
   scrollViewContent: {
@@ -95,13 +96,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageContainerAutoImageSlider: {
-    borderRadius: 20,
+    width: '100%', // Adjust the width to make the image smaller
+    height: '80%', // Adjust the height proportionally
+    borderRadius: 10,
     overflow: 'hidden',
+    justifyContent: 'center', // Ensure the image is centered
+    alignItems: 'center', // Ensure the image is centered
   },
   imageAutoImageSlider: {
-    width: '100%',
+    width: '95%',
     height: '100%',
-    borderRadius: 20,
+    borderRadius: 10,
   },
   pagination: {
     position: 'absolute',
@@ -124,7 +129,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#316487',
   },
-
 });
 
 export default styles;

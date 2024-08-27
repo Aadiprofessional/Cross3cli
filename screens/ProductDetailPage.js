@@ -19,6 +19,7 @@ import {useCart} from '../components/CartContext';
 import {colors} from '../styles/color';
 import {ActivityIndicator} from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
+import CustomHeader2 from '../components/CustomHeader2';
 
 const ProductDetailPage = ({route}) => {
   const {mainId, categoryId, productId} = route.params || {};
@@ -243,13 +244,6 @@ const ProductDetailPage = ({route}) => {
 
       // Add item to cart in Firebase
       addToCart(item);
-
-      // Optionally show a toast message for confirmation
-      Toast.show({
-        type: 'success',
-        text1: 'Item Added to Cart',
-        text2: `${item.name} has been added to your cart.`,
-      });
     } else {
       Toast.show({
         type: 'error',
@@ -345,98 +339,113 @@ const ProductDetailPage = ({route}) => {
   const estdArrivalDate = getEstimatedArrivalDate();
 
   return (
-    <ScrollView style={styles.container}>
-      <ImageCarousel
-        images={images}
-        onPrevious={() => {}}
-        onNext={() => {}}
-        imageIndex={0}
-        loading={loading}
-        colorDeliveryTime={currentProduct?.deliveryTime}
-      />
-      <ProductHeader
-        name={productName}
-        description={currentProduct?.description || 'N/A'}
-        price={currentProduct?.price || 'N/A'}
-        onCall={() => {}}
-      />
-      <AttributesSelector
-        attributeData={storageOptions.map(item => ({id: item, value: item}))}
-        selectedValue={selectedAttribute1}
-        onSelect={handleAttribute1Change}
-        attributeName={attribute1}
-      />
-      {selectedAttribute1 && (
-        <AttributesSelector
-          attributeData={ramOptions.map(item => ({id: item, value: item}))}
-          selectedValue={selectedAttribute2}
-          onSelect={handleAttribute2Change}
-          attributeName={attribute2}
+    <View style={styles.container2}>
+      <CustomHeader2 title="Product Details" />
+      <ScrollView style={styles.container}>
+        <ImageCarousel
+          images={images}
+          onPrevious={() => {}}
+          onNext={() => {}}
+          imageIndex={0}
+          loading={loading}
+          colorDeliveryTime={currentProduct?.deliveryTime}
         />
-      )}
-      {selectedAttribute1 && selectedAttribute2 && (
-        <>
+        <ProductHeader
+          name={productName}
+          description={currentProduct?.description || 'N/A'}
+          price={currentProduct?.price || 'N/A'}
+          onCall={() => {}}
+        />
+        <AttributesSelector
+          attributeData={storageOptions.map(item => ({id: item, value: item}))}
+          selectedValue={selectedAttribute1}
+          onSelect={handleAttribute1Change}
+          attributeName={attribute1}
+        />
+        {selectedAttribute1 && (
           <AttributesSelector
-            attributeData={colorOptions.map(item => ({id: item, value: item}))}
-            selectedValue={selectedAttribute3}
-            onSelect={handleColorChange}
-            attributeName={attribute3}
+            attributeData={ramOptions.map(item => ({id: item, value: item}))}
+            selectedValue={selectedAttribute2}
+            onSelect={handleAttribute2Change}
+            attributeName={attribute2}
           />
-          <QuantityControl
-            quantity={quantity}
-            minValue={getMinCartValue()} // Pass the minCartValue
-            onIncrease={handleIncrease}
-            onDecrease={handleDecrease}
-          />
-          <View style={styles.productDetails}>
-            <Text style={styles.Head}>Product Description:</Text>
-            <Text style={styles.regularText}>
-              {currentProduct?.description || 'N/A'}
-            </Text>
-          </View>
-          <SpecificationsTable
-            specifications={currentProduct?.specifications || []}
-          />
-          {stockStatus ? (
-            <View style={styles.outOfStockContainer}>
-              <Text style={styles.outOfStockText}>Out Of Stock</Text>
-              {estdArrivalDate && (
-                <Text style={styles.arrivalDateText}>
-                  Estimated Arrival: {estdArrivalDate}
-                </Text>
-              )}
+        )}
+        {selectedAttribute1 && selectedAttribute2 && (
+          <>
+            <AttributesSelector
+              attributeData={colorOptions.map(item => ({
+                id: item,
+                value: item,
+              }))}
+              selectedValue={selectedAttribute3}
+              onSelect={handleColorChange}
+              attributeName={attribute3}
+            />
+            <QuantityControl
+              quantity={quantity}
+              minValue={getMinCartValue()} // Pass the minCartValue
+              onIncrease={handleIncrease}
+              onDecrease={handleDecrease}
+            />
+            <View style={styles.productDetails}>
+              <Text style={styles.Head}>Product Description:</Text>
+              <Text style={styles.regularText}>
+                {currentProduct?.description || 'N/A'}
+              </Text>
             </View>
-          ) : (
-            <TouchableOpacity
-              style={[
-                styles.addToCartButton,
-                {
-                  backgroundColor: colors.main,
-                  marginBottom: 25,
-                  opacity:
-                    !selectedAttribute1 ||
-                    !selectedAttribute2 ||
-                    !selectedAttribute3
-                      ? 0.5
-                      : 1,
-                },
-              ]}
-              onPress={handleAddToCart}
-              disabled={
-                !selectedAttribute1 ||
-                !selectedAttribute2 ||
-                !selectedAttribute3
-              }>
-              <Text style={styles.addToCartButtonText}>Add to Cart</Text>
-            </TouchableOpacity>
-          )}
-        </>
-      )}
-    </ScrollView>
+            <SpecificationsTable
+              specifications={currentProduct?.specifications || []}
+            />
+            {stockStatus ? (
+              <View style={styles.outOfStockContainer}>
+                <Text style={styles.outOfStockText}>Out Of Stock</Text>
+                {estdArrivalDate && (
+                  <Text style={styles.arrivalDateText}>
+                    Estimated Arrival: {estdArrivalDate}
+                  </Text>
+                )}
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={[
+                  styles.addToCartButton,
+                  {
+                    backgroundColor: colors.main,
+                    marginBottom: 25,
+                    opacity:
+                      !selectedAttribute1 ||
+                      !selectedAttribute2 ||
+                      !selectedAttribute3 ||
+                      !currentProduct?.price || // Check if price is available
+                      currentProduct?.price === 'N/A' // Check if price is 'N/A'
+                        ? 0.5
+                        : 1,
+                  },
+                ]}
+                onPress={handleAddToCart}
+                disabled={
+                  !selectedAttribute1 ||
+                  !selectedAttribute2 ||
+                  !selectedAttribute3 ||
+                  !currentProduct?.price || // Disable button if price is not available
+                  currentProduct?.price === 'N/A' // Disable button if price is 'N/A'
+                }>
+                <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+              </TouchableOpacity>
+            )}
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container2: {
+    flex: 1,
+
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     padding: 10,

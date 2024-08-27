@@ -15,20 +15,17 @@ const HomeContent = () => {
     <View style={{flex: 1}}>
       <ScrollView style={styles.container}>
         <AutoImageSlider />
-        <View style={styles.backgroundContainer}>
-          <View style={styles.topHalf} />
-          <View style={styles.bottomHalf} />
-          <HelpBox style={styles.helpBox} />
-          <Categories style={styles.categories} />
-          <BestDeals />
-          <Text style={styles.title}>Only For App Deals</Text>
-          <AutoImageSlider2 />
 
-          <UpcomingProducts />
-          <LatestProducts />
-        </View>
+        <HelpBox style={styles.helpBox} />
+
+        <Categories style={styles.categories} />
+        <BestDeals />
+        <Text style={styles.title}>Only For App Deals</Text>
+        <AutoImageSlider2 />
+
+        <UpcomingProducts />
+        <LatestProducts />
         <View style={styles.endTextContainer}>
-         
           <Text style={styles.crossBee}>CrossBee</Text>
           <Text style={styles.AppYard}>Design And Developed By</Text>
           <Text style={styles.AppYard2}>AppYard</Text>
@@ -43,20 +40,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  backgroundContainer: {
-    position: 'relative',
-  },
-  topHalf: {
-    backgroundColor: colors.main,
-    height: '5%',
-  },
-  bottomHalf: {
-    backgroundColor: '#FFFFFF',
-    height: '5%',
-  },
-  helpBox: {
-    marginBottom: 0,
-  },
+
   categories: {
     marginTop: 0,
     marginBottom: 0,
@@ -113,7 +97,7 @@ const styles = StyleSheet.create({
 
     fontFamily: 'Outfit-Bold',
     opacity: 0.1,
-    marginBottom: 170,
+    marginBottom: 10,
     color: colors.TextBlack,
   },
 });

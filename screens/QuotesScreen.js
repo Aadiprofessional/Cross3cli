@@ -87,9 +87,15 @@ const QuotesScreen = () => {
   });
 
   const handleQuoteCheckout = quote => {
+    // Calculate the total additional discount from all cart items
+    const totalAdditionalDiscount = quote.cartItems.reduce((total, item) => {
+      return total + parseFloat(item.additionalDiscount || 0);
+    }, 0);
+
     navigation.navigate('OrderSummary', {
       cartItems: quote.cartItems,
       totalAmount: quote.totalAmount,
+      totalAdditionalDiscount: totalAdditionalDiscount,
     });
   };
 

@@ -19,6 +19,7 @@ import {colors} from '../styles/color';
 import CartItem from '../components/CartItem';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
+import CustomHeader2 from '../components/CustomHeader2';
 
 const CartScreen = () => {
   const {cartItems, updateCartItemQuantity, removeCartItem} = useCart(); // Assuming CartContext is used
@@ -31,7 +32,6 @@ const CartScreen = () => {
 
   const fetchCartData = useCallback(async () => {
     const user = auth().currentUser;
-
 
     if (!user) {
       setLoading(false);
@@ -117,7 +117,7 @@ const CartScreen = () => {
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
-    
+
     // Calculate total additional discount
     const totalAdditionalDiscount = cartItems.reduce(
       (sum, item) => sum + (item.additionalDiscount || 0) * item.quantity,
@@ -130,11 +130,7 @@ const CartScreen = () => {
       totalAdditionalDiscount, // Pass the total additional discount
     });
     console.log(totalAdditionalDiscount);
-    
   };
-  
-
- 
 
   if (loading) {
     return (

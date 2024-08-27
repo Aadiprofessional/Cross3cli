@@ -1,13 +1,18 @@
 // screens/HomeScreen.js
-import React, { useState } from 'react';
-import { View, StyleSheet, Animated, TouchableWithoutFeedback } from 'react-native';
-import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import React, {useState} from 'react';
+import {
+  View,
+  StyleSheet,
+  Animated,
+  TouchableWithoutFeedback,
+} from 'react-native';
+import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomHeader from '../components/CustomHeader';
 import WhatsAppButton from '../components/WhatsAppButton';
 import HelpBox from '../components/HelpBox';
 import Categories from '../components/Categories';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 import AutoImageSlider2 from '../components/AutoImageSlider2';
 import BestDeals from '../components/BestDeals';
 import LatestProducts from '../components/LatestProducts';
@@ -17,13 +22,15 @@ import ProfileScreen from './ProfileScreen';
 import QuotesScreen from './QuotesScreen';
 import LeftNavBar from '../components/LeftNavBar';
 import HomeContent from './HomeContent';
-
+import { useCart } from '../components/CartContext';
+import { Text } from 'react-native-paper';
 
 const Tab = createMaterialBottomTabNavigator();
 
 const HomeScreen = () => {
   const [isNavBarVisible, setNavBarVisible] = useState(false);
   const [slideAnim] = useState(new Animated.Value(-250));
+  const {cartItemCount} = useCart(); // Access cart item count from context
 
   const toggleNavBar = () => {
     if (isNavBarVisible) {
@@ -56,9 +63,8 @@ const HomeScreen = () => {
             <Animated.View
               style={[
                 styles.navContainer,
-                { transform: [{ translateX: slideAnim }] },
-              ]}
-            >
+                {transform: [{translateX: slideAnim}]},
+              ]}>
               <LeftNavBar toggleNavBar={toggleNavBar} />
             </Animated.View>
           </View>
@@ -70,13 +76,12 @@ const HomeScreen = () => {
           initialRouteName="HomeTab"
           activeColor={colors.main}
           inactiveColor="#8A8A8A"
-          barStyle={{ backgroundColor: '#FFFFFF' }}
-        >
+          barStyle={{backgroundColor: '#FFFFFF'}}>
           <Tab.Screen
             name="Home"
             component={HomeContent}
             options={{
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <Icon name="home-outline" color={color} size={22} />
               ),
               tabBarLabel: 'Home',
@@ -86,7 +91,7 @@ const HomeScreen = () => {
             name="Quotes"
             component={QuotesScreen}
             options={{
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <Icon name="document-outline" color={color} size={22} />
               ),
               tabBarLabel: 'Quotes',
@@ -96,8 +101,15 @@ const HomeScreen = () => {
             name="Cart"
             component={CartScreen}
             options={{
-              tabBarIcon: ({ color }) => (
-                <Icon name="cart-outline" color={color} size={22} />
+              tabBarIcon: ({color}) => (
+                <View>
+                  <Icon name="cart-outline" color={color} size={22} />
+                  {cartItemCount > 0 && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{cartItemCount}</Text>
+                    </View>
+                  )}
+                </View>
               ),
               tabBarLabel: 'Cart',
             }}
@@ -106,7 +118,7 @@ const HomeScreen = () => {
             name="Profile"
             component={ProfileScreen}
             options={{
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <Icon name="person-outline" color={color} size={22} />
               ),
               tabBarLabel: 'Profile',
@@ -145,6 +157,22 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: 'transparent',
     zIndex: 9,
+  },
+  badge: {
+    position: 'absolute',
+    top: -5,
+    right: -10,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
 

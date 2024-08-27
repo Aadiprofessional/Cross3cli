@@ -1,21 +1,18 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, Image, StyleSheet, ScrollView, Dimensions} from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
+import FastImage from 'react-native-fast-image';
 import {colors} from '../styles/color';
 
-
 const AutoImageSlider2 = () => {
-  const [currentIndex, setCurrentIndex] = useState(1); // Start from the first actual image (after the duplicated one)
-  const images = [
-    require('../assets/banner.png'),
-    require('../assets/banner.png'),
-    require('../assets/banner.png'),
-  ];
-
-  const imagesWithDuplicates = [
-    images[images.length - 1],
-    ...images,
-    images[0],
-  ];
+  const [currentIndex, setCurrentIndex] = useState(1);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const sliderWidth = Dimensions.get('window').width;
   const imageWidth = sliderWidth;
@@ -23,21 +20,49 @@ const AutoImageSlider2 = () => {
   const scrollRef = useRef();
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex(current => (current === images.length ? 1 : current + 1));
-    }, 9000);
+    fetchImages();
+  }, []);
 
-    return () => clearInterval(interval);
+  const fetchImages = async () => {
+    try {
+      const response = await fetch(
+        'https://crossbee-server.vercel.app/banners',
+      );
+      const data = await response.json();
+      setImages(data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching images:', error);
+      setLoading(false);
+    }
+  };
+
+  const imagesWithDuplicates = [
+    images[images.length - 1],
+    ...images,
+    images[0],
+  ];
+
+  useEffect(() => {
+    if (images.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentIndex(current =>
+          current === images.length ? 1 : current + 1,
+        );
+      }, 9000);
+
+      return () => clearInterval(interval);
+    }
   }, [images.length]);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && images.length > 0) {
       scrollRef.current.scrollTo({
         x: currentIndex * imageWidth,
         animated: true,
       });
     }
-  }, [currentIndex, imageWidth]);
+  }, [currentIndex, imageWidth, images.length]);
 
   const handleScroll = event => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
@@ -59,22 +84,30 @@ const AutoImageSlider2 = () => {
         <View style={styles.topHalf} />
         <View style={styles.bottomHalf} />
       </View>
-      <ScrollView
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScroll}
-        style={{width: sliderWidth}}
-        contentContainerStyle={styles.scrollViewContent}
-        ref={scrollRef}>
-        {imagesWithDuplicates.map((image, index) => (
-          <View
-            key={index}
-            style={[styles.imageContainer, {width: imageWidth}]}>
-            <Image source={image} style={styles.image} />
-          </View>
-        ))}
-      </ScrollView>
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.main} />
+      ) : (
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={handleScroll}
+          style={{width: sliderWidth}}
+          contentContainerStyle={styles.scrollViewContent}
+          ref={scrollRef}>
+          {imagesWithDuplicates.map((image, index) => (
+            <View
+              key={index}
+              style={[styles.imageContainer, {width: imageWidth}]}>
+              <FastImage
+                source={{uri: image}}
+                style={styles.image}
+                resizeMode={FastImage.resizeMode.cover}
+              />
+            </View>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -84,6 +117,9 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     height: 250,
+    backgroundColor: colors.main,
+    justifyContent: 'center', // Center the image vertically
+    alignItems: 'center', // Center the image horizontally
     overflow: 'hidden',
   },
   backgroundContainer: {
@@ -104,13 +140,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageContainer: {
-    borderRadius: 20,
+    width: '100%', // Adjust the width to make the image smaller
+    height: '80%', // Adjust the height proportionally
+    borderRadius: 10,
     overflow: 'hidden',
+    justifyContent: 'center', // Ensure the image is centered
+    alignItems: 'center', // Ensure the image is centered
   },
   image: {
-    width: '100%',
+    width: '95%',
     height: '100%',
-    borderRadius: 20,
+    borderRadius: 10,
   },
 });
 
