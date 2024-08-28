@@ -25,7 +25,7 @@ const NeedHelpScreen = () => {
   };
 
   const handleMail = () => {
-    const email = 'support@example.com';
+    const email = 'ecomrtepl@gmail.com';
     Linking.openURL(`mailto:${email}`);
   };
 

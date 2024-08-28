@@ -15,11 +15,12 @@ import RNFS from 'react-native-fs';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import {colors} from '../styles/color';
+import {useNavigation} from '@react-navigation/native';
 
 const InvoiceScreen = ({route}) => {
   const {invoiceData} = route.params; // Destructure invoiceData from route params
   const [pdfPath, setPdfPath] = useState('');
-
+  const navigation = useNavigation();
   useEffect(() => {
     const handlePdfGeneration = async () => {
       if (Platform.OS === 'android' && Platform.Version >= 30) {
@@ -92,7 +93,7 @@ const InvoiceScreen = ({route}) => {
         <section id="invoice">
             <div class="container my-5 py-5">
                 <div class="text-center pb-5">
-                    <img src="https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/Main%2FSmartphones%2FCategory%2FApple%2FProducts%2FIphone%2013%2FAttribute%201%2F256%20GB%2FAttribute%202%2F16%20GB%2FLogo%2FFrame%2061%20(1).png?alt=media" alt="Company Logo" class="logo">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/logo.png?alt=media&token=b7622c61-0fff-4083-ac26-a202a0cd970d" alt="Company Logo" class="logo">
                 </div>
 
                 <div class="invoice-section">
@@ -243,24 +244,6 @@ const InvoiceScreen = ({route}) => {
     }
   };
 
-  const openPdf = async () => {
-    if (pdfPath) {
-      try {
-        // Attempt to open the PDF with FileViewer
-        await FileViewer.open(pdfPath, {showOpenWithDialog: true});
-      } catch (error) {
-        // Fallback to opening with Linking if FileViewer fails
-        try {
-          await Linking.openURL(`file://${pdfPath}`);
-        } catch (linkingError) {
-          Alert.alert('Error', `Cannot open PDF: ${linkingError.message}`);
-        }
-      }
-    } else {
-      Alert.alert('Error', 'Failed to generate the PDF.');
-    }
-  };
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -295,10 +278,26 @@ const InvoiceScreen = ({route}) => {
           </View>
         ))}
       </View>
-
-      <TouchableOpacity style={styles.downloadButton} onPress={openPdf}>
-        <Text style={styles.downloadButtonText}>Download Invoice</Text>
-      </TouchableOpacity>
+      <View style={styles.container2}>
+        <TouchableOpacity
+          style={styles.button3}
+          onPress={() => {
+            try {
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeTab',
+                  },
+                ],
+              });
+            } catch (error) {
+              console.error('Navigation error:', error);
+            }
+          }}>
+          <Text style={styles.buttonText}>Start Shopping</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -308,6 +307,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#fff',
+  },
+  container2: {
+    flex: 1, // Takes up the full space of the screen
+    justifyContent: 'center', // Centers content vertically
+    alignItems: 'center', // Centers content horizontally
+    backgroundColor: '#fff', // Optional: sets the background color of the screen
   },
   header: {
     alignItems: 'center',
@@ -344,14 +349,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
     color: '#333333',
   },
-  downloadButton: {
+  button3: {
     alignItems: 'center',
     paddingVertical: 10,
+    paddingHorizontal: 40, // Optional: add horizontal padding for better button shape
     backgroundColor: colors.main,
     borderRadius: 5,
     marginTop: 20,
+    alignSelf: 'center', // This will keep it centered horizontally within its container
   },
-  downloadButtonText: {
+
+  buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
@@ -364,6 +372,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     backgroundColor: '#ffffff', // White background
   },
+
 });
 
 export default InvoiceScreen;

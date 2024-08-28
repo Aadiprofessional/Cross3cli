@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: sizes.topImageHeight,
     resizeMode: 'contain',
-    marginTop: -27,
+    marginTop: -15,
   },
   logo: {
     width: sizes.logoWidth,

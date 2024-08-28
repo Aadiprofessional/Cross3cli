@@ -15,11 +15,13 @@ import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import firestore from '@react-native-firebase/firestore';
 import {colors} from '../styles/color';
+import {useNavigation} from '@react-navigation/native';
 
 const InvoiceScreen2 = ({route}) => {
   const {quotationId, orderId} = route.params; // Expecting both quotationId and orderId from route params
   const [invoiceData, setInvoiceData] = useState(null);
   const [pdfPath, setPdfPath] = useState('');
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -140,7 +142,7 @@ const InvoiceScreen2 = ({route}) => {
         <section id="invoice">
             <div class="container my-5 py-5">
                 <div class="text-center pb-5">
-                    <img src="https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/Main%2FSmartphones%2FCategory%2FApple%2FProducts%2FIphone%2013%2FAttribute%201%2F256%20GB%2FAttribute%202%2F16%20GB%2FLogo%2FFrame%2061%20(1).png?alt=media" alt="Company Logo" class="logo">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/logo.png?alt=media&token=b7622c61-0fff-4083-ac26-a202a0cd970d" alt="Company Logo" class="logo">
                 </div>
 
                 <div class="invoice-section">
@@ -349,9 +351,26 @@ const InvoiceScreen2 = ({route}) => {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.downloadButton} onPress={openPdf}>
-        <Text style={styles.downloadButtonText}>Download Invoice PDF</Text>
-      </TouchableOpacity>
+      <View style={styles.container2}>
+        <TouchableOpacity
+          style={styles.button3}
+          onPress={() => {
+            try {
+              navigation.reset({
+                index: 0,
+                routes: [
+                  {
+                    name: 'HomeTab',
+                  },
+                ],
+              });
+            } catch (error) {
+              console.error('Navigation error:', error);
+            }
+          }}>
+          <Text style={styles.buttonText}>Start Shopping</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -408,6 +427,28 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontFamily: 'Outfit-Medium',
+  },
+  container2: {
+    flex: 1, // Takes up the full space of the screen
+    justifyContent: 'center', // Centers content vertically
+    alignItems: 'center', // Centers content horizontally
+    backgroundColor: '#fff', // Optional: sets the background color of the screen
+  },
+  button3: {
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 40, // Optional: add horizontal padding for better button shape
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    marginTop: 20,
+    alignSelf: 'center', // This will keep it centered horizontally within its container
+  },
+
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
 });
 

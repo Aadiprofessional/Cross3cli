@@ -16,34 +16,6 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
   const route = useRoute();
   const [profileImage, setProfileImage] = useState(null);
 
-  useEffect(() => {
-    const user = auth().currentUser;
-
-    if (user) {
-      const unsubscribe = firestore()
-        .collection('users')
-        .doc(user.uid)
-        .onSnapshot(
-          snapshot => {
-            const userData = snapshot.data();
-            if (userData && typeof userData.profilePicture === 'string') {
-              setProfileImage(userData.profilePicture);
-            } else {
-              setProfileImage(null); // Default to null if no valid URL
-            }
-          },
-          error => {
-            console.error('Error fetching profile image: ', error);
-            Alert.alert('Error', 'Unable to fetch profile image.');
-            setProfileImage(null);
-          },
-        );
-
-      // Cleanup subscription on unmount
-      return () => unsubscribe();
-    }
-  }, []);
-
   const handleSearchPress = () => {
     navigation.navigate('SearchScreen');
   };
@@ -125,7 +97,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     width: 35,
     height: 37,
-    borderRadius: 18.5, // Make it circular
   },
 });
 

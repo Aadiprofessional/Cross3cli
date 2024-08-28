@@ -11,13 +11,14 @@ import {
 import CartItem from '../components/CartItem';
 import {colors} from '../styles/color';
 import {sizes} from '../styles/size';
-import {data} from '../data/data';
+
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CheckBox from '@react-native-community/checkbox';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import CompanyDropdown from '../components/CompanyDropdown';
+import {ActivityIndicator} from 'react-native-paper';
 
 const OrderSummaryScreen = ({route, navigation}) => {
   const {
@@ -32,7 +33,40 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [coupons, setCoupons] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    fetchRewardPoints();
+  }, []);
+
+  const fetchRewardPoints = async () => {
+    try {
+      const userId = auth().currentUser.uid;
+      const response = await axios.get(
+        `https://crossbee-server.vercel.app/getUserDetails?uid=${userId}`,
+      );
+      const rewardPoints = response.data.rewardPoints;
+
+      setData(prevData => ({
+        ...prevData,
+        rewardPointsPrice: Math.min(totalAmount, rewardPoints),
+      }));
+    } catch (error) {
+      console.error('Error fetching reward points:', error);
+    }
+  };
+
+  // Update useEffect to recalculate totalAmount when reward points are fetched
+  useEffect(() => {
+    const newTotalAmount = calculateTotalAmount();
+    setTotalAmount(newTotalAmount);
+  }, [cartItems, useRewardPoints, appliedCoupon]);
+
+  const [data, setData] = useState({
+    rewardPointsPrice: 10,
+    shippingCharges: 0,
+    additionalDiscount: totalAdditionalDiscount,
+  });
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
@@ -66,10 +100,10 @@ const OrderSummaryScreen = ({route, navigation}) => {
       amount -= data.rewardPointsPrice;
     }
     if (appliedCoupon) {
-      amount -= Number(appliedCoupon.value); // Convert to number
+      amount -= Number(appliedCoupon.value);
     }
     amount += data.shippingCharges - totalAdditionalDiscount;
-    return amount;
+    return Math.max(0, amount); // Ensure total amount does not go below zero
   };
 
   const calculateSubtotal = () => {
@@ -80,7 +114,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
     if (appliedCoupon && !isNaN(appliedCoupon.value)) {
       subtotal -= appliedCoupon.value;
     }
-    return subtotal;
+    return Math.max(0, subtotal); // Ensure subtotal does not go below zero
   };
 
   {
@@ -143,6 +177,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
       );
       return;
     }
+    setIsLoading(true);
 
     try {
       const userId = auth().currentUser.uid;
@@ -152,6 +187,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
           totalAmount,
           data,
           useRewardPoints,
+
           appliedCoupon,
           cartItems,
           uid: userId,
@@ -175,7 +211,15 @@ const OrderSummaryScreen = ({route, navigation}) => {
           autoHide: true,
           bottomOffset: 50,
         });
-        navigation.navigate('InvoiceScreen', {invoiceData: response.data.data});
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'InvoiceScreen',
+              params: {invoiceData: response.data.data},
+            },
+          ],
+        });
       } else {
         console.error('Failed to checkout');
       }
@@ -330,8 +374,14 @@ const OrderSummaryScreen = ({route, navigation}) => {
       <View style={styles.checkoutContainer}>
         <TouchableOpacity
           style={styles.checkoutButton}
-          onPress={handleCheckout}>
-          <Text style={styles.checkoutButtonText}>Checkout</Text>
+          onPress={handleCheckout}
+          disabled={isLoading} // <-- Disable button while loading
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" /> // <-- Loading animation
+          ) : (
+            <Text style={styles.checkoutButtonText}>Checkout</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -533,7 +583,7 @@ const styles = StyleSheet.create({
   },
   checkoutButtonText: {
     color: '#fff',
-  
+
     fontSize: sizes.body,
     fontFamily: 'Outfit-Medium',
   },
