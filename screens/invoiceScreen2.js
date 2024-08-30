@@ -9,13 +9,15 @@ import {
   Image,
   PermissionsAndroid,
   Platform,
+  ToastAndroid,
 } from 'react-native';
-import RNFS from 'react-native-fs';
+import RNFS, {DownloadDirectoryPath, downloadFile} from 'react-native-fs';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import firestore from '@react-native-firebase/firestore';
 import {colors} from '../styles/color';
 import {useNavigation} from '@react-navigation/native';
+import {Notifications} from 'react-native-notifications';
 
 const InvoiceScreen2 = ({route}) => {
   const {quotationId, orderId} = route.params; // Expecting both quotationId and orderId from route params
@@ -277,40 +279,33 @@ const InvoiceScreen2 = ({route}) => {
     </html>
   `;
 
-    const fileName = `invoice_${invoiceData.orderId}`;
+    const fileName = `invoice_${invoiceData.orderId}.pdf`;
+    const downloadsDir = RNFS.DownloadDirectoryPath; // This should point to the main Downloads directory on Android
+    const filePath = `${downloadsDir}/${fileName}`;
+
     const options = {
       html: htmlContent,
       fileName: fileName,
-      directory: 'Documents',
+      directory: 'Download', // Use 'Download' instead of 'downloadsDir' to specify the main Downloads directory
     };
-
     try {
-      const {filePath} = await RNHTMLtoPDF.convert(options);
-      setPdfPath(filePath);
-      Alert.alert('Success', 'PDF generated successfully.');
+      const {filePath: generatedFilePath} = await RNHTMLtoPDF.convert(options);
+
+      // Notify user
+      ToastAndroid.show('PDF downloaded successfully.', ToastAndroid.SHORT);
+
+      // Refresh the media scanner on Android
+      await RNFS.scanFile(generatedFilePath);
+
+      setPdfPath(generatedFilePath);
+      Alert.alert(
+        'Success',
+        `PDF generated and saved to Downloads: ${generatedFilePath}`,
+      );
     } catch (error) {
       Alert.alert('Error', `Failed to generate PDF: ${error.message}`);
     }
   };
-
-  const openPdf = async () => {
-    if (pdfPath) {
-      try {
-        // Attempt to open the PDF with FileViewer
-        await FileViewer.open(pdfPath, {showOpenWithDialog: true});
-      } catch (error) {
-        // Fallback to opening with Linking if FileViewer fails
-        try {
-          await Linking.openURL(`file://${pdfPath}`);
-        } catch (linkingError) {
-          Alert.alert('Error', `Cannot open PDF: ${linkingError.message}`);
-        }
-      }
-    } else {
-      Alert.alert('Error', 'Failed to generate the PDF.');
-    }
-  };
-
   if (!invoiceData) {
     return (
       <View style={styles.container}>

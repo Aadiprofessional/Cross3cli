@@ -19,6 +19,7 @@ import {sizes} from '../styles/size';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 import SmsRetriever from 'react-native-sms-retriever'; // Import SmsRetriever for auto-reading OTP
+import defaultBannerImage from '../assets/login_top.png';
 
 // Configure Google Sign-In
 GoogleSignin.configure({
@@ -40,6 +41,7 @@ const OTPVerificationScreen = ({navigation}) => {
       .fill(null)
       .map(() => React.createRef()),
   );
+  const [banner, setBanner] = useState(defaultBannerImage);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -74,6 +76,23 @@ const OTPVerificationScreen = ({navigation}) => {
       textInputRefs.current[0].current.focus();
     }
   }, [otpSent]);
+  useEffect(() => {
+    const fetchBanner = async () => {
+      try {
+        const response = await axios.get(
+          'https://crossbee-server.vercel.app/banners/login',
+        );
+        if (response.data && response.data.url) {
+          setBanner({uri: response.data.url});
+        }
+      } catch (error) {
+        console.error('Error fetching banner, using default image:', error);
+        // No need to setBanner here because it's already initialized with the default image
+      }
+    };
+
+    fetchBanner();
+  }, []);
 
   useEffect(() => {
     // Start SMS Retriever when OTP is sent
@@ -236,7 +255,7 @@ const OTPVerificationScreen = ({navigation}) => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.container}>
           <Image
-            source={require('../assets/login_top.png')}
+            source={banner} // This will either be the fetched banner or the default image
             style={styles.topImage}
           />
           <Image source={require('../assets/logo.png')} style={styles.logo} />
@@ -331,13 +350,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     backgroundColor: colors.background,
-    paddingVertical: sizes.paddingVertical,
   },
   topImage: {
     width: '100%',
-    height: sizes.topImageHeight,
-    resizeMode: 'contain',
-    marginTop: -15,
+    height: undefined, // This allows the height to adjust based on the image's aspect ratio
+    aspectRatio: 3, // Adjust this value based on your image's aspect ratio (e.g., 3 for a 3:1 aspect ratio)
+    resizeMode: 'contain', // Or 'cover' based on your preference
+    marginTop: 0,
   },
   logo: {
     width: sizes.logoWidth,

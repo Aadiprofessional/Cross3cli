@@ -7,7 +7,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  Platform,
 } from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {colors} from '../styles/color';
@@ -18,9 +17,9 @@ import auth from '@react-native-firebase/auth';
 
 const ProfileScreen = ({navigation}) => {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [userName, setUserName] = useState('Your Name'); // Default value
-  const [rewardPoints, setRewardPoints] = useState('0'); // Default value
-  const [profileImage, setProfileImage] = useState(null); // State for profile image
+  const [userName, setUserName] = useState('Your Name');
+  const [rewardPoints, setRewardPoints] = useState('0');
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
     const fetchPhoneNumber = async () => {
@@ -48,7 +47,7 @@ const ProfileScreen = ({navigation}) => {
         }
       } catch (error) {
         console.error('Error fetching user data: ', error);
-        setUserName('Your Name'); // Fallback value
+        setUserName('Your Name');
         setRewardPoints('0');
       }
     };
@@ -104,6 +103,11 @@ const ProfileScreen = ({navigation}) => {
 
   const options = [
     {
+      iconName: 'star-outline',
+      text: `Reward Points: ${rewardPoints}`,
+      screen: null,
+    },
+    {
       iconName: 'office-building-outline',
       text: 'Manage Companies',
       screen: 'UserCompaniesScreen',
@@ -132,23 +136,22 @@ const ProfileScreen = ({navigation}) => {
 
   const handleLogout = async () => {
     try {
-      const user = auth().currentUser;
-      if (user) {
-        await auth().signOut();
-        await AsyncStorage.removeItem('loggedIn');
-        await AsyncStorage.removeItem('phoneNumber');
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'OTPVerification'}],
-        });
-        Alert.alert('Logged Out', 'You have been successfully logged out.');
-      } else {
-        console.error('No user is currently signed in.');
-        Alert.alert('Error', 'No user is currently signed in.');
-      }
+      // Clear AsyncStorage to remove any stored login information
+      await AsyncStorage.removeItem('loggedIn');
+      await AsyncStorage.removeItem('phoneNumber');
+
+      // Sign out from Firebase
+      await auth().signOut();
+
+      console.log('Signed out successfully.');
+
+      // Reset navigation to OTPVerification screen
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'OTPVerification'}],
+      });
     } catch (error) {
-      console.error('Logout failed', error);
-      Alert.alert('Error', 'Logout failed. Please try again.');
+      console.error('Logout failed:', error);
     }
   };
 
@@ -173,9 +176,6 @@ const ProfileScreen = ({navigation}) => {
               {phoneNumber ? `+91 ${phoneNumber}` : 'N/A'}
             </Text>
           </Text>
-          <Text style={styles.rewardPointsText}>
-            Reward Points: {rewardPoints}
-          </Text>
         </View>
         <Image
           source={require('../assets/profile2.png')}
@@ -189,8 +189,8 @@ const ProfileScreen = ({navigation}) => {
           style={styles.optionContainer}
           onPress={() => {
             if (option.text === 'Log out') {
-              handleLogout();
-            } else {
+              handleLogout(); // Ensure this is called directly
+            } else if (option.screen) {
               navigation.navigate(option.screen);
             }
           }}>

@@ -19,6 +19,9 @@ import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import CompanyDropdown from '../components/CompanyDropdown';
 import {ActivityIndicator} from 'react-native-paper';
+import CompanyDropdown2 from '../components/CompanyDropdown copy';
+import CompanyDropdown3 from '../components/CompanyDropdown copy 3';
+import CompanyDropdown4 from '../components/CompanyDropdown copy 2';
 
 const OrderSummaryScreen = ({route, navigation}) => {
   const {
@@ -71,7 +74,8 @@ const OrderSummaryScreen = ({route, navigation}) => {
     const fetchCoupons = async () => {
       try {
         const response = await axios.get(
-          'https://crossbee-server.vercel.app/coupons',
+          'https://crossbee-server.vercel.app/coupons/' +
+            auth().currentUser.uid,
         );
         setCoupons(response.data);
       } catch (error) {
@@ -215,7 +219,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
           index: 0,
           routes: [
             {
-              name: 'InvoiceScreen',
+              name: 'ThankYouScreen',
               params: {invoiceData: response.data.data},
             },
           ],
@@ -362,6 +366,9 @@ const OrderSummaryScreen = ({route, navigation}) => {
           )}
         </View>
         <CompanyDropdown onSelectCompany={handleSelectCompany} />
+        <CompanyDropdown2 onSelectCompany={handleSelectCompany} />
+        <CompanyDropdown3 onSelectCompany={handleSelectCompany} />
+        <CompanyDropdown4 onSelectCompany={handleSelectCompany} />
         {cartItems.map(item => (
           <CartItem
             key={item.id}

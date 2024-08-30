@@ -15,7 +15,7 @@ const AutoImageSlider = () => {
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        const response = await fetch('https://crossbee-server.vercel.app/banners');
+        const response = await fetch('https://crossbee-server.vercel.app/banners/upper');
         const data = await response.json();
         const imagesWithDuplicates = [
           data[data.length - 1],

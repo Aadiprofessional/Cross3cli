@@ -12,52 +12,61 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { colors } from '../styles/color';
 
-const AllCategoriesScreen = () => {
+const SubCategoryScreen2 = ({ route }) => {
+  const { name } = route.params || {};  // Use `name` to fetch data
   const navigation = useNavigation();
-  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchCategories = useCallback(async () => {
+  const fetchProducts = useCallback(async () => {
     try {
-      const response = await axios.get(
-        'https://crossbee-server.vercel.app/getMain'
+      const response = await axios.post(
+        'https://crossbee-server.vercel.app/getCategories',
+        {
+          main: name,  // Use `name` as main category parameter
+        }
       );
-      console.log('Fetched categories:', response.data); // Log the fetched data
-      setCategories(response.data);
+
+      console.log('Fetched products:', response.data); // Log the fetched data
+      setProducts(response.data);
       setLoading(false);
     } catch (error) {
-      console.error('Error fetching categories: ', error);
+      console.error('Error fetching products: ', error);
       setLoading(false);
     }
-  }, []);
+  }, [name]);
 
   useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    if (name) {
+      fetchProducts();
+    }
+  }, [name, fetchProducts]);
 
-  const navigateToSubCategory2 = useCallback(
-    (name) => {
-      navigation.navigate('SubCategoryScreen2', { name });  // Navigate to SubCategoryScreen2 with `name`
+  const navigateToSubCategory = useCallback(
+    (mainId, categoryId) => {
+      navigation.navigate('SubCategoryScreen', { mainId, categoryId });
     },
     [navigation]
   );
 
-  // Optimize category list rendering
-  const categoryItems = useMemo(
+  const productItems = useMemo(
     () =>
-      categories.map(({ id, name, image }) => (
+      products.map(product => (
         <TouchableOpacity
-          key={id}
-          style={styles.categoryItem}
-          onPress={() => navigateToSubCategory2(name)}  // Navigate to SubCategoryScreen2
+          key={product.id}
+          style={styles.productItem}
+          onPress={() => navigateToSubCategory(name, product.id)}  // Navigate to SubCategoryScreen with mainId and categoryId
         >
-          <View style={styles.categoryImageContainer}>
-            <Image source={{ uri: image }} style={styles.categoryImage} />
+          <View style={styles.productImageContainer}>
+            <Image
+              source={{ uri: product.image }}  // Use product.image
+              style={styles.productImage}
+            />
           </View>
-          <Text style={styles.categoryName}>{name}</Text>
+          <Text style={styles.productName}>{product.name}</Text>
         </TouchableOpacity>
       )),
-    [categories, navigateToSubCategory2]
+    [products, navigateToSubCategory]
   );
 
   return (
@@ -65,15 +74,14 @@ const AllCategoriesScreen = () => {
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading...</Text>
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          {categoryItems.length > 0 ? (
-            categoryItems
+          {productItems.length > 0 ? (
+            productItems
           ) : (
-            <View style={styles.noCategoriesContainer}>
-              <Text style={styles.noCategoriesText}>No categories found</Text>
+            <View style={styles.noProductsContainer}>
+              <Text style={styles.noProductsText}>No products found</Text>
             </View>
           )}
         </ScrollView>
@@ -94,12 +102,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
-  categoryItem: {
+  productItem: {
     width: '30%',
     marginBottom: 20,
     marginLeft: '3.33%', // Add some right margin for spacing
   },
-  categoryImageContainer: {
+  productImageContainer: {
     backgroundColor: '#FFF',
     borderRadius: 10,
     borderWidth: 1,
@@ -108,12 +116,12 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     marginTop: 10,
   },
-  categoryImage: {
+  productImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
   },
-  categoryName: {
+  productName: {
     fontSize: 16,
     fontFamily: 'Outfit-Medium',
     textAlign: 'center',
@@ -124,22 +132,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 18,
-    fontFamily: 'Outfit-Medium',
-    color: colors.TextBlack,
-  },
-  noCategoriesContainer: {
+  noProductsContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  noCategoriesText: {
+  noProductsText: {
     fontSize: 18,
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
 });
 
-export default AllCategoriesScreen;
+export default SubCategoryScreen2;

@@ -33,6 +33,8 @@ import OTPscreen from './screens/OTPscreen';
 import AllCategoriesScreen from './screens/AllCategoriesScreen';
 import UserCompaniesScreen from './screens/UserCompaniesScreen';
 import AddCompanyScreen from './screens/AddCompanyScreen';
+import ThankYouScreen from './screens/ThankYou';
+import SubCategoryScreen2 from './screens/SubCategoryScreen copy';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -98,11 +100,7 @@ const App = () => {
             component={HomeScreen}
             options={{headerShown: false}}
           />
-          <Stack.Screen
-            name="OTPVerificationScreen"
-            component={OTPVerificationScreen}
-            options={{headerShown: false}}
-          />
+
           <Stack.Screen
             name="OTPscreen"
             component={OTPScreen}
@@ -196,6 +194,16 @@ const App = () => {
             }}
           />
           <Stack.Screen
+            name="SubCategoryScreen2"
+            component={SubCategoryScreen2}
+            options={{
+              title: 'Subcategory',
+              headerStyle: {backgroundColor: colors.main},
+              headerTintColor: '#fff',
+              headerTitleStyle: {fontWeight: 'bold'},
+            }}
+          />
+          <Stack.Screen
             name="AllCategoriesScreen"
             component={AllCategoriesScreen}
             options={{
@@ -219,6 +227,16 @@ const App = () => {
           <Stack.Screen
             name="InvoiceScreen"
             component={InvoiceScreen}
+            options={{
+              title: 'Invoice Screen',
+              headerStyle: {backgroundColor: colors.main},
+              headerTintColor: '#fff',
+              headerTitleStyle: {fontWeight: 'bold'},
+            }}
+          />
+          <Stack.Screen
+            name="ThankYouScreen"
+            component={ThankYouScreen}
             options={{
               title: 'Invoice Screen',
               headerStyle: {backgroundColor: colors.main},

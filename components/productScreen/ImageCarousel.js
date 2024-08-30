@@ -7,17 +7,58 @@ import {
   StyleSheet,
   Text,
 } from 'react-native';
-import { colors } from '../../styles/color';
+import YoutubeIframe from 'react-native-youtube-iframe';
+import {colors} from '../../styles/color';
 
-const ImageCarousel = ({ images, onPrevious, onNext, imageIndex, loading, colorDeliveryTime }) => {
+const ImageCarousel = ({
+  images,
+  onPrevious,
+  onNext,
+  imageIndex,
+  loading,
+  colorDeliveryTime,
+}) => {
+  // Function to extract YouTube video ID from URL
+  const getVideoIdFromUrl = url => {
+    const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+
+  const renderMedia = () => {
+    const currentSource = images[imageIndex];
+    if (currentSource?.startsWith('https://www.youtube.com')) {
+      const videoId = getVideoIdFromUrl(currentSource);
+      if (videoId) {
+        return (
+          <View style={styles.videoContainer}>
+            <YoutubeIframe
+              height={200} // Set the height you need
+              play={true}
+              videoId={videoId}
+              style={styles.youtubeIframe}
+              webViewProps={{
+                javaScriptEnabled: true,
+                domStorageEnabled: true,
+                allowsInlineMediaPlayback: true,
+              }}
+              videoParams={{
+                modestbranding: 1, // Hide the YouTube logo
+                showinfo: 0, // Hide video title and uploader
+                controls: 0, // Hide controls
+                rel: 0, // Prevent related videos from showing
+              }}
+            />
+          </View>
+        );
+      }
+    }
+    return <Image source={{uri: currentSource}} style={styles.image} />;
+  };
+
   return (
     <View style={styles.imageContainer}>
-      {images.length > 0 && (
-        <Image
-          source={{ uri: images[imageIndex] }}
-          style={styles.image}
-        />
-      )}
+      {renderMedia()}
       {loading && (
         <ActivityIndicator
           size="large"
@@ -26,15 +67,13 @@ const ImageCarousel = ({ images, onPrevious, onNext, imageIndex, loading, colorD
         />
       )}
       <TouchableOpacity
-        style={[styles.arrowButton, { left: 10 }]}
-        onPress={onPrevious}
-      >
+        style={[styles.arrowButton, {left: 10}]}
+        onPress={onPrevious}>
         <Text style={styles.arrowText}>{'<'}</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.arrowButton, { right: 10 }]}
-        onPress={onNext}
-      >
+        style={[styles.arrowButton, {right: 10}]}
+        onPress={onNext}>
         <Text style={styles.arrowText}>{'>'}</Text>
       </TouchableOpacity>
       <View style={styles.pagination}>
@@ -76,6 +115,13 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     alignSelf: 'center',
     margin: '5%',
+  },
+  videoContainer: {
+    marginTop: 70,
+  },
+  youtubeIframe: {
+    width: '90%',
+    height: '90%',
   },
   arrowButton: {
     position: 'absolute',
@@ -119,7 +165,6 @@ const styles = StyleSheet.create({
   truckText: {
     color: '#333333',
     fontSize: 16,
-
     fontFamily: 'Outfit-Medium',
   },
   truckIcon: {

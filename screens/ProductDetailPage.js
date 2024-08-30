@@ -30,6 +30,7 @@ const ProductDetailPage = ({route}) => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const {addToCart} = useCart();
+  const [imageIndex, setImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -99,6 +100,16 @@ const ProductDetailPage = ({route}) => {
         }
       }
     }
+  };
+
+  const handleNextImage = () => {
+    setImageIndex(prevIndex => (prevIndex + 1) % uniqueImages.length);
+  };
+
+  const handlePreviousImage = () => {
+    setImageIndex(
+      prevIndex => (prevIndex - 1 + uniqueImages.length) % uniqueImages.length,
+    );
   };
 
   const getMinCartValue = () => {
@@ -289,11 +300,20 @@ const ProductDetailPage = ({route}) => {
           selectedAttribute2
         ]?.[selectedAttribute3]
       : {};
-  const images = currentProduct?.images || [];
+
   const additionalDiscount = currentProduct?.additionalDiscount;
   const attribute1Id = currentProduct?.attribute1Id;
   const attribute2Id = currentProduct?.attribute2Id;
   const attribute3Id = currentProduct?.attribute3Id;
+  const images = currentProduct?.images || [];
+  const videoLink = currentProduct?.videoLink;
+
+  const uniqueImages = Array.from(
+    new Set(images.concat(videoLink).filter(Boolean)),
+  );
+  if (videoLink) {
+    images.push(videoLink); // Add the video link to the images array
+  }
 
   console.log(images);
 
@@ -343,13 +363,14 @@ const ProductDetailPage = ({route}) => {
       <CustomHeader2 title="Product Details" />
       <ScrollView style={styles.container}>
         <ImageCarousel
-          images={images}
-          onPrevious={() => {}}
-          onNext={() => {}}
-          imageIndex={0}
+          images={uniqueImages}
+          onPrevious={handlePreviousImage}
+          onNext={handleNextImage}
+          imageIndex={imageIndex}
           loading={loading}
           colorDeliveryTime={currentProduct?.deliveryTime}
         />
+
         <ProductHeader
           name={productName}
           description={currentProduct?.description || 'N/A'}

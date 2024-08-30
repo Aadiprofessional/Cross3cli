@@ -1,83 +1,101 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import { colors } from '../styles/color';
-
-const categories = [
-  {
-    id: 1,
-    name: 'Electronics',
-    image: require('../assets/Categories.png'),
-    screen: 'SubCategoryScreen',
-  },
-  {
-    id: 2,
-    name: 'Stationary',
-    image: require('../assets/Categories3.png'),
-    screen: 'SubCategoryScreen',
-  },
-  {
-    id: 3,
-    name: 'Tools',
-    image: require('../assets/Categories2.png'),
-    screen: 'SubCategoryScreen',
-  },
-  {
-    id: 4,
-    name: 'Furniture',
-    image: require('../assets/Categories4.png'),
-    screen: 'SubCategoryScreen',
-  },
-  {
-    id: 5,
-    name: 'All Categories',
-    image: require('../assets/Categories5.png'),
-    screen: 'SubCategoryScreen',
-  },
-];
+import {colors} from '../styles/color';
 
 const Categories = () => {
+  const [categories, setCategories] = useState([]);
   const navigation = useNavigation();
 
-  const handleCategoryPress = (category) => {
+  useEffect(() => {
+    // Fetch data from API
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(
+          'https://crossbee-server.vercel.app/getMain',
+        );
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleCategoryPress = category => {
     // Show a toast message
     Toast.show({
       type: 'success',
       text1: `Navigating to ${category.name}`,
     });
 
-    // Navigate to the specified screen
-    navigation.navigate(category.screen);
+    // Navigate to the specified screen with category name as parameter
+    navigation.navigate('SubCategoryScreen2', {name: category.name});
+  };
+
+  const handleAllCategoriesPress = () => {
+    navigation.navigate('AllCategoriesScreen'); // Navigate to AllCategoriesScreen
+  };
+
+  // Add a new button for "All Categories"
+  const allCategoriesButton = {
+    id: 'allCategories',
+    name: 'All Categories',
+    image: 'https://path-to-your-all-categories-image.jpg', // Use an appropriate image URL
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Categories</Text>
-      <View style={styles.categoriesContainer}>
-        {categories.map((category) => (
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.title}>Categories</Text>
+        <View style={styles.categoriesContainer}>
+          {categories.map(category => (
+            <TouchableOpacity
+              key={category.id}
+              onPress={() => handleCategoryPress(category)}
+              style={styles.categoryItem}>
+              <View style={styles.circle}>
+                <Image source={{uri: category.image}} style={styles.image} />
+              </View>
+              <Text style={styles.text}>{category.name}</Text>
+            </TouchableOpacity>
+          ))}
           <TouchableOpacity
-            key={category.id}
-            onPress={() => handleCategoryPress(category)}
-            style={styles.categoryItem}
-          >
+            key={allCategoriesButton.id}
+            onPress={handleAllCategoriesPress}
+            style={styles.categoryItem}>
             <View style={styles.circle}>
-              <Image source={category.image} style={styles.image} />
+              <Image
+                source={require('../assets/Categories5.png')}
+                style={styles.image}
+              />
             </View>
-            <Text style={styles.text}>{category.name}</Text>
+            <Text style={styles.text}>{allCategoriesButton.name}</Text>
           </TouchableOpacity>
-        ))}
-      </View>
-     
+        </View>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: 0,
+    flex: 1,
     backgroundColor: '#fff',
-    marginBottom: 10,
+    padding: 0,
+  },
+  scrollContainer: {
+    // Make room for the footer button if needed
   },
   title: {
     fontSize: 20,
@@ -89,9 +107,9 @@ const styles = StyleSheet.create({
   },
   categoriesContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap', // Wrap items to next line
     justifyContent: 'space-around',
     alignItems: 'center',
-    marginHorizontal: 10,
   },
   categoryItem: {
     alignItems: 'center',

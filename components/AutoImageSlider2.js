@@ -26,7 +26,7 @@ const AutoImageSlider2 = () => {
   const fetchImages = async () => {
     try {
       const response = await fetch(
-        'https://crossbee-server.vercel.app/banners',
+        'https://crossbee-server.vercel.app/banners/middle',
       );
       const data = await response.json();
       setImages(data);

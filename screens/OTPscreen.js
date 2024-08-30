@@ -16,7 +16,9 @@ import Toast from 'react-native-toast-message';
 import {sizes} from '../styles/size';
 import {colors} from '../styles/color';
 import SmsRetriever from 'react-native-sms-retriever';
-
+import defaultBannerImage from '../assets/login_top.png';
+import auth from '@react-native-firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const OTPScreen = ({route, navigation}) => {
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
@@ -27,16 +29,42 @@ const OTPScreen = ({route, navigation}) => {
       .fill(null)
       .map(() => React.createRef()),
   );
-
+  const [banner, setBanner] = useState(defaultBannerImage);
+  const {phoneNumber, orderId, companyName, gst, email, address, ownerName} =
+    route.params;
   // Extract phoneNumber and orderId from route params
-  const {phoneNumber, orderId} = route.params;
 
   // Log phoneNumber and orderId
   useEffect(() => {
     console.log('Phone Number:', phoneNumber);
     console.log('Order ID:', orderId);
   }, [phoneNumber, orderId]);
+  useEffect(() => {
+    console.log('Phone Number:', phoneNumber);
+    console.log('Order ID:', orderId);
+    console.log('Company Name:', companyName);
+    console.log('GST:', gst);
+    console.log('Email:', email);
+    console.log('Address:', address);
+    console.log('Owner Name:', ownerName);
+  }, [phoneNumber, orderId, companyName, gst, email, address, ownerName]);
+  useEffect(() => {
+    const fetchBanner = async () => {
+      try {
+        const response = await axios.get(
+          'https://crossbee-server.vercel.app/banners/login',
+        );
+        if (response.data && response.data.url) {
+          setBanner({uri: response.data.url});
+        }
+      } catch (error) {
+        console.error('Error fetching banner, using default image:', error);
+        // No need to setBanner here because it's already initialized with the default image
+      }
+    };
 
+    fetchBanner();
+  }, []);
   // Start SMS Retriever
   useEffect(() => {
     const startSMSListener = async () => {
@@ -94,17 +122,35 @@ const OTPScreen = ({route, navigation}) => {
     setLoading(true); // Start loading animation
     try {
       const completeCode = code.join('');
-      let response = await axios.get(
-        'https://crossbee-server.vercel.app/verifyOtp?phoneNumber=91' +
+      const response = await axios.get(
+        'https://crossbee-server.vercel.app/verifyOtp?phoneNumber=' +
           phoneNumber +
           '&orderId=' +
           orderId +
           '&otp=' +
           completeCode,
       );
+
+      // Request to get custom token
+
       if (response.data.isOTPVerified) {
-        showToast('success', 'Success', 'OTP verified!');
-        navigation.replace('HomeTab'); // Navigate to the next screen
+        let tokenResponse = await axios.post(
+          'https://crossbee-server.vercel.app/getRegisterCustomToken',
+          {
+            phoneNumber: phoneNumber,
+            companyName: companyName,
+            gst: gst,
+            email: email,
+            address: address,
+            ownerName: ownerName,
+            orderId: orderId, // Add orderId to the request
+          },
+        );
+        await auth().signInWithCustomToken(tokenResponse.data.token);
+        await AsyncStorage.setItem('loggedIn', 'true');
+        await AsyncStorage.setItem('phoneNumber', phoneNumber);
+        showToast('success', 'Success', 'Phone number verified!');
+        navigation.replace('HomeTab');
       } else {
         showToast('error', 'Invalid OTP', 'Please enter the correct OTP.');
       }
@@ -112,7 +158,7 @@ const OTPScreen = ({route, navigation}) => {
       console.error('Error confirming code:', error);
       showToast('error', 'Error', 'Failed to verify OTP. Please try again.');
     } finally {
-      setLoading(false); // Stop loading animation
+      setLoading(false);
     }
   };
 
@@ -162,12 +208,11 @@ const OTPScreen = ({route, navigation}) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.topImageContainer}>
-          <Image
-            source={require('../assets/login_top.png')}
-            style={styles.topImage}
-          />
-        </View>
+        <Image
+          source={banner} // This will either be the fetched banner or the default image
+          style={styles.topImage}
+        />
+
         <Image source={require('../assets/logo.png')} style={styles.logo} />
         <Text style={styles.welcomeText}>Welcome to Cross Bee</Text>
         <Text style={styles.otpText}>
@@ -226,19 +271,14 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 20,
-  },
-  topImageContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 20,
+    backgroundColor: colors.background,
   },
   topImage: {
     width: '100%',
-    height: sizes.topImageHeight,
-    resizeMode: 'contain',
-    marginTop: -43,
+    height: undefined, // This allows the height to adjust based on the image's aspect ratio
+    aspectRatio: 3, // Adjust this value based on your image's aspect ratio (e.g., 3 for a 3:1 aspect ratio)
+    resizeMode: 'contain', // Or 'cover' based on your preference
+    marginTop: 0,
   },
   logo: {
     width: sizes.logoWidth,

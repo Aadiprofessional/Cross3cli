@@ -10,6 +10,7 @@ import {
   Linking,
   Platform,
   PermissionsAndroid,
+  ToastAndroid,
 } from 'react-native';
 import RNFS from 'react-native-fs';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
@@ -228,22 +229,33 @@ const InvoiceScreen = ({route}) => {
     </html>
     `;
 
-    const fileName = `invoice_${invoiceData.orderId}`;
+    const fileName = `invoice_${invoiceData.orderId}.pdf`;
+    const downloadsDir = RNFS.DownloadDirectoryPath; // This should point to the main Downloads directory on Android
+    const filePath = `${downloadsDir}/${fileName}`;
+
     const options = {
       html: htmlContent,
       fileName: fileName,
-      directory: 'Documents',
+      directory: 'Download', // Use 'Download' instead of 'downloadsDir' to specify the main Downloads directory
     };
-
     try {
-      const {filePath} = await RNHTMLtoPDF.convert(options);
-      setPdfPath(filePath);
-      Alert.alert('Success', 'PDF generated successfully.');
+      const {filePath: generatedFilePath} = await RNHTMLtoPDF.convert(options);
+
+      // Notify user
+      ToastAndroid.show('PDF downloaded successfully.', ToastAndroid.SHORT);
+
+      // Refresh the media scanner on Android
+      await RNFS.scanFile(generatedFilePath);
+
+      setPdfPath(generatedFilePath);
+      Alert.alert(
+        'Success',
+        `PDF generated and saved to Downloads: ${generatedFilePath}`,
+      );
     } catch (error) {
       Alert.alert('Error', `Failed to generate PDF: ${error.message}`);
     }
   };
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -372,7 +384,6 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     backgroundColor: '#ffffff', // White background
   },
-
 });
 
 export default InvoiceScreen;

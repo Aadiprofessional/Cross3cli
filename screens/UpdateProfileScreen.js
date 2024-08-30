@@ -87,57 +87,32 @@ const UpdateProfileScreen = () => {
       Alert.alert('Missing Fields', 'Please fill in all required fields.');
       return;
     }
-
+  
     if (!isValidEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-
+  
     setLoading(true);
     try {
       // Request to get the orderId
       const otpResponse = await axios.get(
         `https://crossbee-server.vercel.app/sendRegisterOtp?phoneNumber=91${phoneNumber}`,
       );
-
+  
       const orderId = otpResponse.data.orderId;
       console.log(orderId);
-
-      // Request to get custom token
-      const response = await axios.post(
-        'https://crossbee-server.vercel.app/getRegisterCustomToken',
-        {
-          phoneNumber: `91${phoneNumber}`,
-          companyName: CompanyName,
-          gst: GST,
-          email: email,
-          address: `${mainAddress}, ${
-            optionalAddress ? optionalAddress + ', ' : ''
-          }${city}, ${state} ${pincode}`,
-          ownerName: OwnerName,
-          orderId: orderId, // Add orderId to the request
-        },
-      );
-
-      if (response.data && response.data.token) {
-        // Sign in with the custom token
-        await auth().signInWithCustomToken(response.data.token);
-        await AsyncStorage.setItem('loggedIn', 'true');
-        await AsyncStorage.setItem('phoneNumber', phoneNumber);
-
-        // Reset navigation to prevent going back
-        navigation.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'OTPscreen',
-              params: {token: response.data.token, orderId, phoneNumber},
-            },
-          ],
-        });
-      } else {
-        Alert.alert('Error', 'Failed to get custom token.');
-      }
+  
+      // Navigate to OTP screen with necessary data
+      navigation.navigate('OTPscreen', {
+        phoneNumber: `91${phoneNumber}`,
+        orderId: orderId,
+        companyName: CompanyName,
+        gst: GST,
+        email: email,
+        address: `${mainAddress}, ${optionalAddress ? optionalAddress + ', ' : ''}${city}, ${state} ${pincode}`,
+        ownerName: OwnerName,
+      });
     } catch (error) {
       console.error('Error updating profile: ', error);
       Alert.alert('Error', 'There was a problem updating your profile.');
@@ -145,6 +120,7 @@ const UpdateProfileScreen = () => {
       setLoading(false);
     }
   };
+  
 
   if (loading) {
     return (
