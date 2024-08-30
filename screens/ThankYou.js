@@ -1,15 +1,35 @@
-import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React, { useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, BackHandler, Platform } from 'react-native';
 import LottieView from 'lottie-react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { colors } from '../styles/color';
 
 const ThankYouScreen = () => {
   const navigation = useNavigation();
 
+  const handleBackButtonPress = useCallback(() => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'HomeTab' }],
+    });
+    return true; // Prevent default behavior (going back to previous screen)
+  }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === 'android') {
+        BackHandler.addEventListener('hardwareBackPress', handleBackButtonPress);
+      }
+      return () => {
+        if (Platform.OS === 'android') {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackButtonPress);
+        }
+      };
+    }, [handleBackButtonPress])
+  );
+
   return (
     <View style={styles.container}>
-   
       <LottieView
         source={require('../assets/Animation - 1724952662598.json')} // Replace with your tick animation file
         autoPlay
@@ -24,11 +44,7 @@ const ThankYouScreen = () => {
             try {
               navigation.reset({
                 index: 0,
-                routes: [
-                  {
-                    name: 'HomeTab',
-                  },
-                ],
+                routes: [{ name: 'HomeTab' }],
               });
             } catch (error) {
               console.error('Navigation error:', error);
@@ -59,14 +75,6 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 20,
   },
-  button: {
-    backgroundColor: '#FFD700', // Yellow color
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-
   button3: {
     alignItems: 'center',
     paddingVertical: 10,
@@ -76,21 +84,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center', // This will keep it centered horizontally within its container
   },
-
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     fontFamily: 'Outfit-Bold',
   },
-
-  tableRowAlt: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 5,
-    backgroundColor: '#ffffff', // White background
-  },
-
   container2: {
     flex: 1, // Takes up the full space of the screen
     justifyContent: 'center', // Centers content vertically

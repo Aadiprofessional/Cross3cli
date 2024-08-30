@@ -24,17 +24,18 @@ import OrderSummaryScreen from './screens/OrderSummaryScreen';
 import SearchResultsScreen from './screens/SearchResultsScreen';
 import InvoiceScreen from './screens/InvoiceScreen';
 import OTPVerificationScreen from './screens/OTPVerificationScreen';
-import InvoiceScreen2 from './screens/invoiceScreen2';
+
 import UpdateProfileScreen from './screens/UpdateProfileScreen';
 import Toast from 'react-native-toast-message';
 import SplashScreen from './screens/SplashScreen';
 import OTPScreen from './screens/OTPscreen';
-import OTPscreen from './screens/OTPscreen';
+
 import AllCategoriesScreen from './screens/AllCategoriesScreen';
 import UserCompaniesScreen from './screens/UserCompaniesScreen';
 import AddCompanyScreen from './screens/AddCompanyScreen';
 import ThankYouScreen from './screens/ThankYou';
 import SubCategoryScreen2 from './screens/SubCategoryScreen copy';
+import EditCompanyScreen from './components/editCompanyScreen';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -100,7 +101,6 @@ const App = () => {
             component={HomeScreen}
             options={{headerShown: false}}
           />
-
           <Stack.Screen
             name="OTPscreen"
             component={OTPScreen}
@@ -156,6 +156,11 @@ const App = () => {
           <Stack.Screen
             name="AddCompanyScreen"
             component={AddCompanyScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="EditCompanyScreen"
+            component={EditCompanyScreen}
             options={{headerShown: false}}
           />
           <Stack.Screen
@@ -237,16 +242,6 @@ const App = () => {
           <Stack.Screen
             name="ThankYouScreen"
             component={ThankYouScreen}
-            options={{
-              title: 'Invoice Screen',
-              headerStyle: {backgroundColor: colors.main},
-              headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
-            }}
-          />
-          <Stack.Screen
-            name="InvoiceScreen2"
-            component={InvoiceScreen2}
             options={{
               title: 'Invoice Screen',
               headerStyle: {backgroundColor: colors.main},

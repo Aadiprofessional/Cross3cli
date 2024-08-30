@@ -1,17 +1,17 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
-const CompanyDetail = ({company, onRemove}) => {
+const CompanyDetail = ({ company, onRemove, navigation }) => {
   const handleRemove = async () => {
     try {
       const uid = auth().currentUser.uid;
-      console.log(uid);
-      console.log(company.id);
+      console.log('User ID:', uid);
+      console.log('Company ID:', company.id);
 
       // Request to remove the company
       const response = await axios.post(
@@ -22,8 +22,12 @@ const CompanyDetail = ({company, onRemove}) => {
         },
       );
 
+      // Check response
+      console.log('Response:', response.data);
+
       // Handle successful response
       if (response.status === 200 && response.data.text === 'Successful') {
+        console.log('Company removed successfully');
         onRemove(company.id);
         Toast.show({
           type: 'success',
@@ -31,6 +35,7 @@ const CompanyDetail = ({company, onRemove}) => {
           text2: 'Company removed successfully!',
         });
       } else {
+        console.log('Failed to remove company');
         Toast.show({
           type: 'error',
           text1: 'Error',
@@ -47,6 +52,10 @@ const CompanyDetail = ({company, onRemove}) => {
     }
   };
 
+  const handleEdit = () => {
+    navigation.navigate('EditCompanyScreen', { company });
+  };
+
   return (
     <View
       style={[
@@ -57,9 +66,16 @@ const CompanyDetail = ({company, onRemove}) => {
         },
       ]}>
       {company.type === 'Added' && (
-        <TouchableOpacity style={styles.removeButton} onPress={handleRemove}>
-          <Icon name="delete-empty-outline" size={24} color={colors.red} />
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+            <Icon name="pencil-outline" size={24} color={colors.blue} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.removeButton}
+            onPress={handleRemove}>
+            <Icon name="delete-empty-outline" size={24} color={colors.red} />
+          </TouchableOpacity>
+        </>
       )}
       {company.type === 'Primary' && (
         <Text style={styles.primaryText}>Primary</Text>
@@ -93,6 +109,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     position: 'relative',
     borderRadius: 10,
+  },
+  editButton: {
+    position: 'absolute',
+    top: 8,
+    right: 40, // Adjust this to position it next to the remove button
   },
   removeButton: {
     position: 'absolute',

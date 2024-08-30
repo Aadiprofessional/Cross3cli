@@ -13,6 +13,7 @@ import {colors} from '../styles/color';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
+import {Linking} from 'react-native';
 
 const QuotesScreen = () => {
   const navigation = useNavigation();
@@ -78,13 +79,6 @@ const QuotesScreen = () => {
     setActiveButton('orders');
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const navigateToInvoice = useCallback(data => {
-    navigation.navigate('InvoiceScreen2', {
-      quotationId: activeButton === 'quotes' ? data.id : null,
-      orderId: activeButton === 'orders' ? data.id : null,
-    });
-  });
 
   const handleQuoteCheckout = quote => {
     // Calculate the total additional discount from all cart items
@@ -99,9 +93,18 @@ const QuotesScreen = () => {
     });
   };
 
+  const handleOpenInvoice = url => {
+    if (url) {
+      Linking.openURL(url).catch(err =>
+        console.error('Failed to open URL:', err),
+      );
+    } else {
+      console.log('No invoice URL provided');
+    }
+  };
+
   const renderOrderItem = useMemo(
     () =>
-      // eslint-disable-next-line react/no-unstable-nested-components
       ({item}) =>
         (
           <View style={styles.orderItem}>
@@ -121,24 +124,24 @@ const QuotesScreen = () => {
                 <Text style={styles.boldText}>{cartItem.price}</Text>
               </Text>
             ))}
-            <TouchableOpacity
-              style={styles.downloadButton}
-              onPress={() => navigateToInvoice(item)}>
-              <Icon name="download" size={20} color={colors.main} />
-            </TouchableOpacity>
+            {item.invoice ? (
+              <TouchableOpacity
+                style={styles.downloadButton}
+                onPress={() => handleOpenInvoice(item.invoice)}>
+                <Icon name="download" size={20} color={colors.main} />
+              </TouchableOpacity>
+            ) : null}
           </View>
         ),
-    [navigateToInvoice],
+    [handleOpenInvoice],
   );
 
   const renderQuoteItem = useMemo(
     () =>
-      // eslint-disable-next-line react/no-unstable-nested-components
       ({item}) =>
         (
           <View style={styles.orderItem}>
             <Text style={styles.statusText}>{item.status}</Text>
-
             <Text style={styles.orderText}>
               Quote ID: <Text style={styles.boldText}>{item.id}</Text>
             </Text>
@@ -154,11 +157,13 @@ const QuotesScreen = () => {
                 <Text style={styles.boldText}>{cartItem.price}</Text>
               </Text>
             ))}
-            <TouchableOpacity
-              style={styles.downloadButton}
-              onPress={() => navigateToInvoice(item)}>
-              <Icon name="download" size={20} color={colors.main} />
-            </TouchableOpacity>
+            {item.invoice ? (
+              <TouchableOpacity
+                style={styles.downloadButton}
+                onPress={() => handleOpenInvoice(item.invoice)}>
+                <Icon name="download" size={20} color={colors.main} />
+              </TouchableOpacity>
+            ) : null}
             <TouchableOpacity
               style={styles.placeOrderButton}
               onPress={() => handleQuoteCheckout(item)}>
@@ -166,7 +171,7 @@ const QuotesScreen = () => {
             </TouchableOpacity>
           </View>
         ),
-    [navigateToInvoice],
+    [handleQuoteCheckout, handleOpenInvoice],
   );
 
   if (loading) {

@@ -103,7 +103,10 @@ const CartScreen = () => {
 
       if (response.data.text) {
         console.log('Quotation generated successfully');
-        navigation.navigate('InvoiceScreen', {invoiceData: response.data.data});
+        navigation.navigate('InvoiceScreen', {
+          invoiceData: response.data.data,
+          quotationId: response.data.quotationId,
+        });
       } else {
         console.error('Failed to generate quotation');
       }

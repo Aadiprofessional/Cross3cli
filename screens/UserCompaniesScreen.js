@@ -112,6 +112,7 @@ const UserCompaniesScreen = ({navigation}) => {
                 key={company.id}
                 company={company}
                 onRemove={handleRemove}
+                navigation={navigation} // Pass navigation prop here
               />
             ))
           ) : (
