@@ -22,7 +22,7 @@ const UpdateProfileScreen = () => {
   const [OwnerName, setOwnerName] = useState('');
   const [GST, setGST] = useState('');
   const [mainAddress, setMainAddress] = useState('');
-  const [optionalAddress, setOptionalAddress] = useState('');
+
   const [pincode, setPincode] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
@@ -87,22 +87,22 @@ const UpdateProfileScreen = () => {
       Alert.alert('Missing Fields', 'Please fill in all required fields.');
       return;
     }
-  
+
     if (!isValidEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
-  
+
     setLoading(true);
     try {
       // Request to get the orderId
       const otpResponse = await axios.get(
         `https://crossbee-server.vercel.app/sendRegisterOtp?phoneNumber=91${phoneNumber}`,
       );
-  
+
       const orderId = otpResponse.data.orderId;
       console.log(orderId);
-  
+
       // Navigate to OTP screen with necessary data
       navigation.navigate('OTPscreen', {
         phoneNumber: `91${phoneNumber}`,
@@ -110,7 +110,7 @@ const UpdateProfileScreen = () => {
         companyName: CompanyName,
         gst: GST,
         email: email,
-        address: `${mainAddress}, ${optionalAddress ? optionalAddress + ', ' : ''}${city}, ${state} ${pincode}`,
+        address: `${mainAddress},${city}, ${state} ${pincode}`,
         ownerName: OwnerName,
       });
     } catch (error) {
@@ -120,7 +120,6 @@ const UpdateProfileScreen = () => {
       setLoading(false);
     }
   };
-  
 
   if (loading) {
     return (
@@ -173,6 +172,7 @@ const UpdateProfileScreen = () => {
             placeholderTextColor={colors.placeholder}
             value={GST}
             onChangeText={setGST}
+            maxLength={15}
           />
           <Text style={styles.label}>
             Main Address <Text style={styles.requiredStar}>*</Text>
@@ -184,14 +184,7 @@ const UpdateProfileScreen = () => {
             value={mainAddress}
             onChangeText={setMainAddress}
           />
-          <Text style={styles.label}>Optional Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Optional Address"
-            placeholderTextColor={colors.placeholder}
-            value={optionalAddress}
-            onChangeText={setOptionalAddress}
-          />
+
           <Text style={styles.label}>
             Pincode <Text style={styles.requiredStar}>*</Text>
           </Text>
@@ -202,6 +195,7 @@ const UpdateProfileScreen = () => {
             value={pincode}
             onChangeText={setPincode}
             keyboardType="numeric"
+            maxLength={6}
           />
           <Text style={styles.label}>City</Text>
           <TextInput

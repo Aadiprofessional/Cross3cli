@@ -4,7 +4,7 @@ import {colors} from '../styles/color';
 import {useNavigation} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 
-const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
+const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
   const {
     cartId,
     name,
@@ -77,37 +77,42 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem}) => {
       </TouchableOpacity>
       <View style={styles.productDetails}>
         <Text style={styles.productName}>{productId}</Text>
+
         <Text style={styles.productPrice}>
           ₹{(discountedPrice * itemQuantity).toFixed(2)}{' '}
           {/* Use discounted price */}
         </Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, {backgroundColor: colors.main}]}>
+          <View style={[styles.itemColor, {backgroundColor: colors.TextWhite}]}>
             <Text style={styles.itemColorText}>{attributeSelected3}</Text>
           </View>
-          <TouchableOpacity
-            style={styles.removeButton}
-            onPress={handleRemoveItem}>
-            <Text style={styles.removeButtonText}>Remove</Text>
-          </TouchableOpacity>
+          {!isOrderSummary && (
+            <>
+              <View style={styles.quantityContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.quantityButton,
+                    itemQuantity <= colorminCartValue && styles.disabledButton,
+                  ]}
+                  onPress={handleDecreaseQuantity}
+                  disabled={itemQuantity <= colorminCartValue}>
+                  <Text style={styles.quantityButtonText}>-</Text>
+                </TouchableOpacity>
+                <Text style={styles.quantityText}>{itemQuantity}</Text>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={handleIncreaseQuantity}>
+                  <Text style={styles.quantityButtonText}>+</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={handleRemoveItem}>
+                <Text style={styles.removeButtonText}>Remove</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
-      </View>
-      <View style={styles.quantityContainer}>
-        <TouchableOpacity
-          style={[
-            styles.quantityButton,
-            itemQuantity <= colorminCartValue && styles.disabledButton,
-          ]}
-          onPress={handleDecreaseQuantity}
-          disabled={itemQuantity <= colorminCartValue}>
-          <Text style={styles.quantityButtonText}>-</Text>
-        </TouchableOpacity>
-        <Text style={styles.quantityText}>{itemQuantity}</Text>
-        <TouchableOpacity
-          style={styles.quantityButton}
-          onPress={handleIncreaseQuantity}>
-          <Text style={styles.quantityButtonText}>+</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -118,8 +123,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    backgroundColor: colors.primary,
-    padding: 10,
+    backgroundColor: '#ffffff',
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
@@ -128,13 +132,15 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   productImageContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
+    width: 110, // Increased width
+    height: 110,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 15,
+    padding: 10,
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
   },
   productImage: {
     width: '100%',
@@ -143,17 +149,16 @@ const styles = StyleSheet.create({
   },
   productDetails: {
     flex: 1,
+    justifyContent: 'space-between', // Adjust content positioning
   },
   productName: {
     fontSize: 16,
-    
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   productPrice: {
     fontSize: 18,
     marginTop: 5,
-   
     fontFamily: 'Outfit-SemiBold',
     color: colors.TextBlack,
   },
@@ -170,36 +175,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   itemColorText: {
-    color: colors.TextWhite,
-
+    color: colors.black,
     fontFamily: 'Outfit-Medium',
   },
   quantityContainer: {
+    position: 'absolute', // Position it absolutely
+    bottom: 10, // Adjust the position
+    right: 10, // Adjust the position
     flexDirection: 'row',
     alignItems: 'center',
   },
   quantityButton: {
-    backgroundColor: colors.main,
-    width: 30,
-    height: 30,
+    backgroundColor: colors.TextWhite,
+    width: 25, // Smaller size
+    height: 25, // Smaller size
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 15,
+    borderRadius: 12.5, // Adjust border radius accordingly
+    borderColor: '#000000',
+    borderWidth: 1,
   },
   disabledButton: {
-    backgroundColor: colors.mainlight, // Change this to a color that indicates disabled
+    backgroundColor: '#C2C2C288',
   },
   quantityButtonText: {
-    fontSize: 18,
-    color: '#fff',
-    
+    fontSize: 16, // Adjust font size
+    color: '#000',
     fontFamily: 'Outfit-Medium',
   },
   quantityText: {
-    fontSize: 18,
+    fontSize: 16, // Adjust font size
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
-    marginHorizontal: 10,
+    marginHorizontal: 5, // Adjust margin
   },
   removeButton: {
     marginLeft: 10,

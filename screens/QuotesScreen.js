@@ -21,7 +21,27 @@ const QuotesScreen = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeButton, setActiveButton] = useState('quotes');
+  const formatDate = timestamp => {
+    if (!timestamp) return 'Unknown Date'; // Handle undefined timestamps
 
+    let date;
+    if (timestamp.toDate) {
+      // Firestore Timestamp
+      date = timestamp.toDate();
+    } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+      // Unix timestamp or date string
+      date = new Date(timestamp);
+    } else {
+      // Unknown format
+      console.error('Unsupported timestamp format:', timestamp);
+      return 'Invalid Date';
+    }
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/ ${month}/ ${year}`;
+  };
   const fetchProductData = useCallback(async () => {
     const user = auth().currentUser;
     if (user) {
@@ -79,7 +99,6 @@ const QuotesScreen = () => {
     setActiveButton('orders');
   };
 
-
   const handleQuoteCheckout = quote => {
     // Calculate the total additional discount from all cart items
     const totalAdditionalDiscount = quote.cartItems.reduce((total, item) => {
@@ -108,62 +127,89 @@ const QuotesScreen = () => {
       ({item}) =>
         (
           <View style={styles.orderItem}>
-            <Text style={styles.statusText}>{item.status}</Text>
-            <Text style={styles.orderText}>
-              Order ID: <Text style={styles.boldText}>{item.id}</Text>
-            </Text>
-            <Text style={styles.orderText}>
-              Total Amount: ₹
-              <Text style={styles.boldText}>{item.totalAmount}</Text>
-            </Text>
-            <Text style={styles.orderText}>Items:</Text>
+            <View style={styles.orderRow}>
+              <View>
+                <Text style={styles.orderIdText}>Order ID:</Text>
+                <Text style={styles.productOrderIdText}>{item.id}</Text>
+              </View>
+              <View style={styles.rightAligned}>
+                <Text style={styles.orderIdText}>Order Date:</Text>
+                <Text style={styles.productOrderIdText}>
+                  {formatDate(item.timestamp)}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.orderRow}>
+              <Text style={styles.orderDetailText}>Items</Text>
+              <Text style={styles.orderDetailText}>Qty</Text>
+              <Text style={styles.orderDetailText}>Amount</Text>
+              <Text style={styles.orderDetailText}>Total</Text>
+            </View>
             {item.cartItems.map(cartItem => (
-              <Text key={cartItem.id} style={styles.orderText}>
-                <Text style={styles.boldText}>{cartItem.name}</Text> -{' '}
-                {cartItem.quantity} x ₹
-                <Text style={styles.boldText}>{cartItem.price}</Text>
-              </Text>
+              <View key={cartItem.id} style={styles.orderRow}>
+                <Text style={styles.itemDetailText}>{cartItem.name}</Text>
+                <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
+                <Text style={styles.itemDetailText}>₹{cartItem.price}</Text>
+                <Text style={styles.itemDetailText}>₹{item.totalAmount}</Text>
+              </View>
             ))}
-            {item.invoice ? (
+            <View style={styles.statusContainer}>
+              <Text style={styles.statusText}>Status:</Text>
+              <Text style={styles.orderStatusText}>{item.status}</Text>
+            </View>
+            {item.invoice && (
               <TouchableOpacity
                 style={styles.downloadButton}
                 onPress={() => handleOpenInvoice(item.invoice)}>
                 <Icon name="download" size={20} color={colors.main} />
               </TouchableOpacity>
-            ) : null}
+            )}
           </View>
         ),
     [handleOpenInvoice],
   );
-
   const renderQuoteItem = useMemo(
     () =>
       ({item}) =>
         (
           <View style={styles.orderItem}>
-            <Text style={styles.statusText}>{item.status}</Text>
-            <Text style={styles.orderText}>
-              Quote ID: <Text style={styles.boldText}>{item.id}</Text>
-            </Text>
-            <Text style={styles.orderText}>
-              Total Amount: ₹
-              <Text style={styles.boldText}>{item.totalAmount}</Text>
-            </Text>
-            <Text style={styles.orderText}>Items:</Text>
+            <View style={styles.orderRow}>
+              <View>
+                <Text style={styles.orderIdText}>Quote ID:</Text>
+                <Text style={styles.productOrderIdText}>{item.id}</Text>
+              </View>
+              <View style={styles.rightAligned}>
+                <Text style={styles.orderIdText}>Quote Date:</Text>
+                <Text style={styles.productOrderIdText}>
+                  {formatDate(item.timestamp)}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.orderRow}>
+              <Text style={styles.orderDetailText}>Items</Text>
+              <Text style={styles.orderDetailText}>Qty</Text>
+              <Text style={styles.orderDetailText}>Amount</Text>
+              <Text style={styles.orderDetailText}>Total</Text>
+            </View>
             {item.cartItems.map(cartItem => (
-              <Text key={cartItem.id} style={styles.orderText}>
-                <Text style={styles.boldText}>{cartItem.name}</Text> -{' '}
-                {cartItem.quantity} x ₹
-                <Text style={styles.boldText}>{cartItem.price}</Text>
-              </Text>
+              <View key={cartItem.id} style={styles.orderRow}>
+                <Text style={styles.itemDetailText}>{cartItem.name}</Text>
+                <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
+                <Text style={styles.itemDetailText}>₹{cartItem.price}</Text>
+                <Text style={styles.itemDetailText}>₹{item.totalAmount}</Text>
+              </View>
             ))}
-            {item.invoice ? (
+            <View style={styles.statusContainer}>
+              <Text style={styles.statusText}>Status:</Text>
+              <Text style={styles.orderStatusText}>{item.status}</Text>
+            </View>
+            {item.invoice && (
               <TouchableOpacity
                 style={styles.downloadButton}
                 onPress={() => handleOpenInvoice(item.invoice)}>
                 <Icon name="download" size={20} color={colors.main} />
               </TouchableOpacity>
-            ) : null}
+            )}
             <TouchableOpacity
               style={styles.placeOrderButton}
               onPress={() => handleQuoteCheckout(item)}>
@@ -173,7 +219,6 @@ const QuotesScreen = () => {
         ),
     [handleQuoteCheckout, handleOpenInvoice],
   );
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -260,10 +305,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   statusText: {
-    color: colors.orange,
+    color: '#333',
     fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Regular',
   },
   image: {
     width: 300,
@@ -298,7 +343,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
   },
   orderList: {
-    width: '100%',
+    width: '300%',
   },
   orderItem: {
     backgroundColor: colors.primary,
@@ -311,6 +356,9 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
     position: 'relative',
+    width: '100%', // Make the container stretch to full width
+    paddingHorizontal: '5%', // Add padding to create a gap from each side
+    boxSizing: 'border-box', // Ensure padding is included in the width
   },
   orderText: {
     fontSize: 16,
@@ -366,6 +414,49 @@ const styles = StyleSheet.create({
     right: 40,
 
     borderRadius: 5,
+  },
+  rightAligned: {
+    alignItems: 'flex-end',
+  },
+
+  orderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+
+  orderIdText: {
+    fontSize: 16,
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Regular',
+  },
+
+  productOrderIdText: {
+    fontSize: 12,
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Bold',
+  },
+
+  orderDetailText: {
+    fontSize: 16,
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Regular',
+  },
+
+  itemDetailText: {
+    fontSize: 20,
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Medium',
+  },
+
+  statusContainer: {
+    marginTop: 10,
+  },
+
+  orderStatusText: {
+    fontSize: 20,
+    color: colors.orange,
+    fontFamily: 'Outfit-Bold',
   },
 });
 

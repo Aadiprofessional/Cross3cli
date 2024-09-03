@@ -126,13 +126,13 @@ const styles = StyleSheet.create({
   arrowButton: {
     position: 'absolute',
     top: '40%',
-    backgroundColor: colors.main,
+  
     borderRadius: 50,
     padding: 10,
   },
   arrowText: {
-    color: 'white',
-    fontSize: 30,
+    color: '#E0E0E0',
+    fontSize: 40,
     fontFamily: 'Outfit-Medium',
   },
   pagination: {

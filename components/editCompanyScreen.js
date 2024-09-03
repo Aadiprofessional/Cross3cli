@@ -21,7 +21,7 @@ const EditCompanyScreen = () => {
   const [ownerName, setOwnerName] = useState('');
   const [gst, setGst] = useState('');
   const [mainAddress, setMainAddress] = useState('');
-  const [optionalAddress, setOptionalAddress] = useState('');
+
   const [pincode, setPincode] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
@@ -37,7 +37,7 @@ const EditCompanyScreen = () => {
     if (company) {
       const addressParts = company.address.split(',');
       const addressMain = addressParts[0];
-      const addressOptional = addressParts[1] || '';
+
       const addressSubParts = (addressParts[1] || '').split('-');
       const addressPincode = addressSubParts[1]?.trim().split(' ')[1] || '';
       const addressCity = addressSubParts[0] || '';
@@ -47,7 +47,7 @@ const EditCompanyScreen = () => {
       setOwnerName(company.owner);
       setGst(company.gst);
       setMainAddress(addressMain);
-      setOptionalAddress(addressOptional);
+
       setPincode(addressPincode);
       setCity(addressCity);
       setState(addressState);
@@ -82,13 +82,14 @@ const EditCompanyScreen = () => {
 
   const handleSaveCompany = async () => {
     if (
-      !companyName ||
-      !ownerName ||
-      !gst ||
-      !mainAddress ||
-      !email ||
-      pincode.length !== 6 ||
-      phoneNumber.length !== 10
+      company.type !== 'Primary' &&
+      (!companyName ||
+        !ownerName ||
+        !gst ||
+        !mainAddress ||
+        !email ||
+        pincode.length !== 6 ||
+        phoneNumber.length !== 10)
     ) {
       Alert.alert('Missing Fields', 'Please fill in all required fields.');
       return;
@@ -113,13 +114,15 @@ const EditCompanyScreen = () => {
           uid,
           companyId: company.id, // Pass the company ID to identify which company to edit
           phoneNumber: phoneNumber.replace(/^\+91/, ''), // Remove +91 if present
-          companyName,
-          gst,
-          email,
-          address: `${mainAddress}${
-            optionalAddress ? ', ' + optionalAddress : ''
-          }, ${city}, ${state} - ${pincode}`,
-          ownerName,
+          companyName: company.type !== 'Primary' ? companyName : company.name,
+          gst: company.type !== 'Primary' ? gst : company.gst,
+          email: company.type !== 'Primary' ? email : company.email,
+          address:
+            company.type !== 'Primary'
+              ? `${mainAddress}
+                , ${city}, ${state} - ${pincode}`
+              : company.address,
+          ownerName: company.type !== 'Primary' ? ownerName : company.owner,
         },
       );
 
@@ -157,7 +160,7 @@ const EditCompanyScreen = () => {
           <Icon
             name="arrow-left"
             size={24}
-            color="#FFFFFF"
+            color="#fff" // Dark black color for icon
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -188,6 +191,7 @@ const EditCompanyScreen = () => {
             }}
             keyboardType="phone-pad"
             maxLength={10}
+            editable={company.type !== 'Primary'}
           />
           <Text style={styles.label}>
             Owner Name <Text style={styles.requiredStar}>*</Text>
@@ -208,6 +212,7 @@ const EditCompanyScreen = () => {
             placeholderTextColor="#999"
             value={gst}
             onChangeText={setGst}
+            maxLength={15}
           />
           <Text style={styles.label}>
             Main Address <Text style={styles.requiredStar}>*</Text>
@@ -219,14 +224,7 @@ const EditCompanyScreen = () => {
             value={mainAddress}
             onChangeText={setMainAddress}
           />
-          <Text style={styles.label}>Optional Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Optional Address"
-            placeholderTextColor="#999"
-            value={optionalAddress}
-            onChangeText={setOptionalAddress}
-          />
+
           <Text style={styles.label}>
             Pincode <Text style={styles.requiredStar}>*</Text>
           </Text>
@@ -249,6 +247,7 @@ const EditCompanyScreen = () => {
             placeholder="City"
             placeholderTextColor="#999"
             value={city}
+            onChangeText={setCity}
             editable={false}
           />
           <Text style={styles.label}>State</Text>
@@ -257,6 +256,7 @@ const EditCompanyScreen = () => {
             placeholder="State"
             placeholderTextColor="#999"
             value={state}
+            onChangeText={setState}
             editable={false}
           />
           <Text style={styles.label}>
@@ -268,75 +268,73 @@ const EditCompanyScreen = () => {
             placeholderTextColor="#999"
             value={email}
             onChangeText={setEmail}
-            keyboardType="email-address"
           />
         </View>
-        <TouchableOpacity style={styles.saveButton} onPress={handleSaveCompany}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
       </ScrollView>
+      <TouchableOpacity style={styles.saveButton} onPress={handleSaveCompany}>
+        <Text style={styles.saveButtonText}>Save</Text>
+      </TouchableOpacity>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#f8f8f8',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
+    padding: 15,
+  },
+  backIcon: {
+    marginRight: 15,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   scrollView: {
-    padding: 16,
+    padding: 20,
   },
   inputContainer: {
     marginBottom: 20,
   },
   label: {
-    marginBottom: 4,
-    fontFamily: 'Outfit-Medium',
+    fontSize: 16,
     color: '#333',
+    marginBottom: 5,
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    backgroundColor: '#fff',
   },
   requiredStar: {
     color: 'red',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 15,
-  },
-  backIcon: {
-    marginRight: 10,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontFamily: 'Outfit-Medium',
-    color: '#FFFFFF',
-  },
-  input: {
-    backgroundColor: '#F0F0F0',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    fontSize: 16,
-    color: '#333',
-    cursorColor: colors.main, // Note: This will only work on specific platforms
-  },
   saveButton: {
     backgroundColor: colors.main,
-    borderRadius: 8,
-    paddingVertical: 14,
+    padding: 15,
     alignItems: 'center',
+    borderRadius: 5,
+    margin: 20,
   },
   saveButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    color: '#fff',
+    fontSize: 18,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
 });
 

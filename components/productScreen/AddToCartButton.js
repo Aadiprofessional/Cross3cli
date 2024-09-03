@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
  
-    fontFamily: 'Outfit-Medium',
+    fontFamily: 'Outfit-Regular',
   },
 });
 

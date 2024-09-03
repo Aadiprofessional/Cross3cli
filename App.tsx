@@ -118,7 +118,7 @@ const App = () => {
               title: 'Search',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
             }}
           />
           <Stack.Screen
@@ -128,7 +128,9 @@ const App = () => {
               title: 'Search Results',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+              },
             }}
           />
           <Stack.Screen
@@ -180,7 +182,9 @@ const App = () => {
               title: 'Cart',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+              },
             }}
           />
           <Stack.Screen
@@ -195,7 +199,7 @@ const App = () => {
               title: 'Subcategory',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
             }}
           />
           <Stack.Screen
@@ -205,7 +209,7 @@ const App = () => {
               title: 'Subcategory',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
             }}
           />
           <Stack.Screen
@@ -215,7 +219,7 @@ const App = () => {
               title: 'Category',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
             }}
           />
 
@@ -226,7 +230,7 @@ const App = () => {
               title: 'Order Summary',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
             }}
           />
           <Stack.Screen
@@ -236,7 +240,7 @@ const App = () => {
               title: 'Invoice Screen',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
             }}
           />
           <Stack.Screen
@@ -246,7 +250,7 @@ const App = () => {
               title: 'Invoice Screen',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontWeight: 'bold'},
+              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
             }}
           />
         </Stack.Navigator>

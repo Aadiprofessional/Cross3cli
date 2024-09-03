@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, ActivityIndicator, Alert} from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
-import { Picker } from '@react-native-picker/picker'; // Updated import
-import { colors } from '../styles/color';
+import {Picker} from '@react-native-picker/picker';
+import {colors} from '../styles/color';
 
-const CompanyDropdown = ({ onSelectCompany }) => {
+const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,18 +27,21 @@ const CompanyDropdown = ({ onSelectCompany }) => {
       try {
         const response = await axios.post(
           'https://crossbee-server.vercel.app/getCompanies',
-          { uid },
+          {uid},
         );
 
         if (response.status === 200) {
           const companiesData = response.data;
           setCompanies(companiesData);
 
-          // Set the first company as the default selection
           if (companiesData.length > 0) {
-            setSelectedCompanyId(companiesData[0].id);
+            const firstCompany = companiesData[0];
+            setSelectedCompanyId(firstCompany.id);
             if (onSelectCompany) {
-              onSelectCompany(companiesData[0].id);
+              onSelectCompany(firstCompany.id);
+            }
+            if (onPincodeChange) {
+              onPincodeChange(firstCompany.pincode); // Pass the pincode of the first company
             }
           }
         } else {
@@ -46,7 +49,7 @@ const CompanyDropdown = ({ onSelectCompany }) => {
         }
       } catch (err) {
         setError('Failed to load companies');
-        Alert.alert('Error', err.message); // Show error alert
+        Alert.alert('Error', err.message);
       } finally {
         setLoading(false);
       }
@@ -56,9 +59,13 @@ const CompanyDropdown = ({ onSelectCompany }) => {
   }, []);
 
   const handleSelect = companyId => {
+    const selectedCompany = companies.find(company => company.id === companyId);
     setSelectedCompanyId(companyId);
     if (onSelectCompany) {
       onSelectCompany(companyId);
+    }
+    if (onPincodeChange && selectedCompany) {
+      onPincodeChange(selectedCompany.pincode); // Pass the pincode of the selected company
     }
   };
 

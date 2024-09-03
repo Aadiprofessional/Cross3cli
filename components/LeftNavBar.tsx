@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,10 @@ import {
   AppState,
   AppStateStatus,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
 interface LeftNavBarProps {
   toggleNavBar: () => void;
@@ -19,7 +19,7 @@ interface LeftNavBarProps {
 // In-memory cache to store categories data for the session
 let categoriesCache: any[] | null = null;
 
-const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
+const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState<any[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -78,7 +78,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   };
 
   const navigateToSubCategory = (mainId: string, categoryId: string) => {
-    navigation.navigate('SubCategoryScreen', { mainId, categoryId });
+    navigation.navigate('SubCategoryScreen', {mainId, categoryId});
     toggleNavBar();
   };
 
@@ -89,7 +89,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
 
   const renderSubCategoryItem = (companies: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
-      {companies.map(({ id, name }) => (
+      {companies.map(({id, name}) => (
         <TouchableOpacity
           key={id}
           style={styles.subcategoryItem}
@@ -157,10 +157,6 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       ) : (
         <Text>No categories available</Text>
       )}
-      <View style={styles.footerContainer}>
-        <Text style={styles.footerText}>Design And Developed By</Text>
-        <Text style={styles.footerText}>AppYard</Text>
-      </View>
     </View>
   );
 };

@@ -5,7 +5,7 @@ import auth from '@react-native-firebase/auth';
 import {Picker} from '@react-native-picker/picker'; // Updated import
 import {colors} from '../styles/color';
 
-const CompanyDropdown3 = ({onSelectCompany}) => {
+const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,10 +25,12 @@ const CompanyDropdown3 = ({onSelectCompany}) => {
       const uid = currentUser.uid;
 
       try {
-        const response = await axios.get(
-          'https://crossbee-server.vercel.app/Logistics',
+        const response = await axios.post(
+          'https://crossbee-server.vercel.app/logistics',
+          {
+            pincode: pincode, // Send pincode in the body
+          },
         );
-
         if (response.status === 200) {
           const companiesData = response.data;
           setCompanies(companiesData);

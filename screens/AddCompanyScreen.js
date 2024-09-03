@@ -14,16 +14,14 @@ import auth from '@react-native-firebase/auth';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Feather';
-import { colors } from '../styles/color';
-
-
+import {colors} from '../styles/color';
 
 const AddCompanyScreen = () => {
   const [companyName, setCompanyName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [gst, setGst] = useState('');
   const [mainAddress, setMainAddress] = useState('');
-  const [optionalAddress, setOptionalAddress] = useState('');
+
   const [pincode, setPincode] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
@@ -96,9 +94,8 @@ const AddCompanyScreen = () => {
           companyName,
           gst,
           email,
-          address: `${mainAddress}${
-            optionalAddress ? ', ' + optionalAddress : ''
-          }, ${city}, ${state} - ${pincode}`,
+          address: `${mainAddress}
+     ${city}, ${state} - ${pincode}`,
           ownerName,
         },
       );
@@ -188,6 +185,7 @@ const AddCompanyScreen = () => {
             placeholderTextColor="#999"
             value={gst}
             onChangeText={setGst}
+            maxLength={15}
           />
           <Text style={styles.label}>
             Main Address <Text style={styles.requiredStar}>*</Text>
@@ -199,14 +197,7 @@ const AddCompanyScreen = () => {
             value={mainAddress}
             onChangeText={setMainAddress}
           />
-          <Text style={styles.label}>Optional Address</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Optional Address"
-            placeholderTextColor="#999"
-            value={optionalAddress}
-            onChangeText={setOptionalAddress}
-          />
+
           <Text style={styles.label}>
             Pincode <Text style={styles.requiredStar}>*</Text>
           </Text>
@@ -278,7 +269,7 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 4,
     fontFamily: 'Outfit-Medium',
-  
+
     color: '#333',
   },
   requiredStar: {

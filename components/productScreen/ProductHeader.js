@@ -1,12 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
-import { colors } from '../../styles/color';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Linking,
+} from 'react-native';
+import {colors} from '../../styles/color';
 
-const ProductHeader = ({ name, description, price }) => {
+const ProductHeader = ({name, description, price}) => {
   const handleCall = () => {
     const phoneNumber = '9924686611';
     const url = `tel:${phoneNumber}`;
-    Linking.openURL(url).catch(err => console.error('Error opening dialer:', err));
+    Linking.openURL(url).catch(err =>
+      console.error('Error opening dialer:', err),
+    );
   };
 
   return (
@@ -33,8 +42,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Medium',
+   
+    fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
   },

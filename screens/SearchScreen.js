@@ -1,10 +1,16 @@
 import React, {useState, useEffect, useMemo, useCallback} from 'react';
-import {View, TextInput, StyleSheet, ScrollView, Text} from 'react-native';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {fetchProducts} from '../services/apiService';
 import ProductComponent from '../components/ProductComponent';
-import {ActivityIndicator} from 'react-native-paper';
 import {debounce} from 'lodash';
 
 const SearchScreen = () => {
@@ -44,7 +50,6 @@ const SearchScreen = () => {
     loadProducts();
   }, [loadProducts]);
 
-  // Debounced search handler
   const debouncedSearch = useMemo(
     () =>
       debounce(query => {
@@ -58,7 +63,6 @@ const SearchScreen = () => {
           );
         }
 
-        // Flatten products with multiple items
         const productMap = new Map();
         filteredProducts.forEach(product => {
           if (!productMap.has(product.productId)) {
@@ -89,8 +93,6 @@ const SearchScreen = () => {
         sortedProducts.sort(
           (a, b) => parseFloat(b.price) - parseFloat(a.price),
         );
-      } else if (sortValue === 'newest') {
-        // Add logic if you have a date field
       }
 
       setSortedResults(sortedProducts);
@@ -101,7 +103,6 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Search box */}
       <View style={styles.searchBox}>
         <Icon name="search" size={20} color="#484848" style={styles.icon} />
         <TextInput
@@ -115,7 +116,6 @@ const SearchScreen = () => {
         />
       </View>
 
-      {/* Sorting and Filtering buttons */}
       <View style={styles.buttonsContainer}>
         <View style={styles.buttonWrapper}>
           <DropDownPicker
@@ -163,30 +163,15 @@ const SearchScreen = () => {
         </View>
       </View>
 
-      {/* Loading Indicator */}
       {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color="#FFB800" />
-        </View>
+        <ActivityIndicator size="large" color="#FFB800" style={styles.loader} />
+      ) : sortedResults.length === 0 ? (
+        <Text style={styles.noResultsText}>No results found</Text>
       ) : (
         <ScrollView contentContainerStyle={styles.productList}>
-          {sortedResults.length > 0 ? (
-            sortedResults.map(product => (
-              <ProductComponent
-                key={product.productId}
-                id={product.productId}
-                productName={product.displayName}
-                imageSource={product.image} // Use the image URL from API
-                price={product.price}
-                categoryId={product.categoryId}
-                mainId={product.mainId}
-              />
-            ))
-          ) : (
-            <View style={styles.noResultsContainer}>
-              <Text style={styles.noResultsText}>No products found</Text>
-            </View>
-          )}
+          {sortedResults.map(product => (
+            <ProductComponent key={product.productId} product={product} />
+          ))}
         </ScrollView>
       )}
     </View>

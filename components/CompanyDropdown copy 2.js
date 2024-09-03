@@ -26,8 +26,8 @@ const CompanyDropdown4 = ({onSelectCompany}) => {
 
       try {
         const response = await axios.post(
-          'https://crossbee-server.vercel.app/getCompanies',
-          {uid},
+          'https://crossbee-server.vercel.app/booking-stations',
+          
         );
 
         if (response.status === 200) {

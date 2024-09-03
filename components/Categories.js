@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,9 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -20,7 +20,7 @@ const Categories = () => {
     const fetchCategories = async () => {
       try {
         const response = await fetch(
-          'https://crossbee-server.vercel.app/getMain',
+          'https://crossbee-server.vercel.app/getMain'
         );
         const data = await response.json();
         setCategories(data);
@@ -32,7 +32,7 @@ const Categories = () => {
     fetchCategories();
   }, []);
 
-  const handleCategoryPress = category => {
+  const handleCategoryPress = (category) => {
     // Show a toast message
     Toast.show({
       type: 'success',
@@ -40,38 +40,34 @@ const Categories = () => {
     });
 
     // Navigate to the specified screen with category name as parameter
-    navigation.navigate('SubCategoryScreen2', {name: category.name});
+    navigation.navigate('SubCategoryScreen2', { name: category.name });
   };
 
   const handleAllCategoriesPress = () => {
     navigation.navigate('AllCategoriesScreen'); // Navigate to AllCategoriesScreen
   };
 
-  // Add a new button for "All Categories"
-  const allCategoriesButton = {
-    id: 'allCategories',
-    name: 'All Categories',
-    image: 'https://path-to-your-all-categories-image.jpg', // Use an appropriate image URL
-  };
+  // Limit the categories to only the first 4
+  const displayedCategories = categories.slice(0, 4);
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.title}>Categories</Text>
         <View style={styles.categoriesContainer}>
-          {categories.map(category => (
+          {displayedCategories.map((category) => (
             <TouchableOpacity
               key={category.id}
               onPress={() => handleCategoryPress(category)}
               style={styles.categoryItem}>
               <View style={styles.circle}>
-                <Image source={{uri: category.image}} style={styles.image} />
+                <Image source={{ uri: category.image }} style={styles.image} />
               </View>
               <Text style={styles.text}>{category.name}</Text>
             </TouchableOpacity>
           ))}
           <TouchableOpacity
-            key={allCategoriesButton.id}
+            key="allCategories"
             onPress={handleAllCategoriesPress}
             style={styles.categoryItem}>
             <View style={styles.circle}>
@@ -80,7 +76,7 @@ const Categories = () => {
                 style={styles.image}
               />
             </View>
-            <Text style={styles.text}>{allCategoriesButton.name}</Text>
+            <Text style={styles.text}>All Categories</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -113,11 +109,11 @@ const styles = StyleSheet.create({
   },
   categoryItem: {
     alignItems: 'center',
-    marginHorizontal: 10,
+    marginHorizontal: 5,
   },
   circle: {
-    width: 65,
-    height: 65,
+    width: 60,
+    height: 60,
     borderRadius: 35,
     backgroundColor: '#FFE8C4',
     justifyContent: 'center',

@@ -32,8 +32,8 @@ const styles = StyleSheet.create({
   },
   specificationsTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+    
+    fontFamily: 'Outfit-Medium',
     color: '#333',
     marginBottom: 8,
   },

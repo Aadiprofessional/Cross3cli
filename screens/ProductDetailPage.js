@@ -360,7 +360,7 @@ const ProductDetailPage = ({route}) => {
 
   return (
     <View style={styles.container2}>
-      <CustomHeader2 title="Product Details" />
+      <CustomHeader2 title="Product" />
       <ScrollView style={styles.container}>
         <ImageCarousel
           images={uniqueImages}
@@ -482,10 +482,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   Head: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
-    fontWeight: 'bold',
   },
   regularText: {
     fontSize: 16,
@@ -503,8 +502,7 @@ const styles = StyleSheet.create({
   addToCartButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontFamily: 'Outfit-Medium',
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Regular',
   },
   outOfStockContainer: {
     alignItems: 'center',
@@ -514,9 +512,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'red',
     fontWeight: 'bold',
+    fontFamily: 'Outfit-Medium',
   },
   arrivalDateText: {
     fontSize: 16,
+    fontFamily: 'Outfit-Medium',
     color: 'gray',
     marginTop: 5,
     marginBottom: 20,

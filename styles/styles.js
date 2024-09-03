@@ -16,6 +16,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 10,
     color: colors.TextBlack,
+    textAlign: 'left', // Align title text to the left
   },
   productList: {
     flexDirection: 'row',
@@ -27,59 +28,160 @@ const styles = StyleSheet.create({
   },
   productContainer: {
     width: '100%',
-    aspectRatio: 1, // Ensure a square aspect ratio
-    backgroundColor: colors.primary,
+    backgroundColor: '#fff',
     borderRadius: 10,
     overflow: 'hidden', // Ensure contents don't overflow the rounded corners
+    borderWidth: 1, // Add border width
+    borderColor: '#ddd', // Border color
+  },
+  productContainer2: {
+    width: '48%', // This makes two products fit in one row
+    marginBottom: 16, // Add some spacing between rows
+    borderWidth: 1,
+    borderColor: '#ECECEC',
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: '#FFFFFF',
   },
   productContent: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 2,
-    alignItems: 'center',
-    borderWidth: 1,
+    padding: 10, // Add padding for better spacing
+    alignItems: 'flex-start', // Align items to the left
   },
   imageContainer: {
     width: '100%',
-    height: '70%', // 60% of the productContent height
-    aspectRatio: 1, // Ensure a square aspect ratio for the image container
-    marginBottom: 1,
-    marginTop: 3,
+    height: 100, // Adjust height for the image
     alignItems: 'center',
+    borderBottomWidth: 1, // Add border to the bottom of the image container
+    borderBottomColor: '#ddd', // Border color
   },
   imageBox: {
-    width: '130%', // Adjust as needed for the size of the white box
-    height: '100%', // Take full height of the image container
-    backgroundColor: 'white',
-    borderRadius: 5,
-    overflow: 'hidden',
-    alignItems: 'center', // Center the image inside the white box
-    justifyContent: 'center', // Center the image inside the white box
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   productImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain', // Ensure image fits inside without cropping
+    resizeMode: 'contain', // Ensure image fits inside without stretching
   },
   productName: {
-    fontSize: 14,
-    fontWeight: 'bold', // Bold font for product name
+    fontSize: 12,
+    fontWeight: 'bold',
     color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  productPrice: {
-    fontSize: 16,
-    fontFamily: 'Outfit-Bold',
-    color: colors.TextBlack,
-    textAlign: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    textAlign: 'left',
+    marginVertical: 5,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
     alignItems: 'center',
+  },
+  wishlistIcon: {
+    marginLeft: 'auto', // Push the icon to the right end
+  },
+  discountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  discountText: {
+    fontSize: 10,
+    color: 'green',
+    fontWeight: 'bold',
+    marginRight: 5,
+    fontFamily: 'Outfit-Bold',
+  },
+  cutPriceText: {
+    fontSize: 10,
+    textDecorationLine: 'line-through',
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Medium',
+    marginRight: 5,
+  },
+  originalPriceText: {
+    fontSize: 15,
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Bold',
+  },
+
+  hotDealsContainer: {
+    borderRadius: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  hotDealsText: {
+    fontSize: 8,
+    color: '#333',
+  },
+  actionButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+  },
+  addToCartButton: {
+    backgroundColor: '#FCCC51',
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginLeft: -9,
+  },
+  addToCartText: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 12,
+  },
+  productDetailButton: {
+    borderColor: '#333', // Use borderColor instead of border for correct application
+    borderWidth: 1, // Ensure border width is set for visibility
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginLeft: 15,
+    backgroundColor: '#fff', // Example background color
+    color: '#333', // Example text color, if you are using text-based components
+  },
+  productDetailText: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 12,
+  },
+  addToCartButton2: {
+    backgroundColor: '#FCCC51',
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginLeft: -17,
+  },
+  addToCartText2: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 8,
+  },
+  productDetailButton2: {
+    borderColor: '#333', // Use borderColor instead of border for correct application
+    borderWidth: 1, // Ensure border width is set for visibility
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginLeft: 10,
+    backgroundColor: '#fff', // Example background color
+    color: '#333', // Example text color, if you are using text-based components
+  },
+  productDetailText2: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 8,
   },
   //Auto Image Slider
   containerImageSlider: {

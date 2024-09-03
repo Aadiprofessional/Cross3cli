@@ -35,7 +35,9 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const [useRewardPoints, setUseRewardPoints] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [coupons, setCoupons] = useState([]);
+
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [selectedPincode, setSelectedPincode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -146,6 +148,13 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const handleRemoveItem = id => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
+  const handleSelectCompany = companyId => {
+    setSelectedCompanyId(companyId);
+  };
+
+  const handlePincodeChange = pincode => {
+    setSelectedPincode(pincode);
+  };
 
   const handleApplyCoupon = () => {
     const coupon = coupons.find(c => c.code === couponCode);
@@ -191,21 +200,21 @@ const OrderSummaryScreen = ({route, navigation}) => {
           totalAmount,
           data,
           useRewardPoints,
-
           appliedCoupon,
           cartItems,
           uid: userId,
           companyId: selectedCompanyId,
         },
       );
+      console.log('Checkout response:', response.data);
 
-      // Check for cartError in the response
-      if (response.data.data.cartError) {
+      if (response.data.cartError) {
         Alert.alert(
           'Out of Stock',
           'Some items in your cart are out of stock. Please review your cart.',
         );
-      } else if (response.data.data) {
+      } else if (response.data.orderId) {
+        // Updated line
         console.log('Item added to cart successfully');
         Toast.show({
           type: 'success',
@@ -220,7 +229,10 @@ const OrderSummaryScreen = ({route, navigation}) => {
           routes: [
             {
               name: 'ThankYouScreen',
-              params: {invoiceData: response.data.data},
+              params: {
+                invoiceData: response.data.data,
+                orderId: response.data.orderId, // Ensure orderId is being passed correctly
+              },
             },
           ],
         });
@@ -234,10 +246,6 @@ const OrderSummaryScreen = ({route, navigation}) => {
         'Some items in your cart are out of stock. Please review your cart.',
       );
     }
-  };
-
-  const handleSelectCompany = companyId => {
-    setSelectedCompanyId(companyId);
   };
 
   return (
@@ -365,16 +373,29 @@ const OrderSummaryScreen = ({route, navigation}) => {
             </TouchableOpacity>
           )}
         </View>
-        <CompanyDropdown onSelectCompany={handleSelectCompany} />
-        <CompanyDropdown2 onSelectCompany={handleSelectCompany} />
-        <CompanyDropdown3 onSelectCompany={handleSelectCompany} />
-        <CompanyDropdown4 onSelectCompany={handleSelectCompany} />
+        <CompanyDropdown
+          onSelectCompany={handleSelectCompany}
+          onPincodeChange={handlePincodeChange}
+        />
+        <CompanyDropdown2
+          onSelectCompany={handleSelectCompany}
+          pincode={selectedPincode}
+        />
+        <CompanyDropdown3
+          onSelectCompany={handleSelectCompany}
+          pincode={selectedPincode}
+        />
+        <CompanyDropdown4
+          onSelectCompany={handleSelectCompany}
+          pincode={selectedPincode}
+        />
         {cartItems.map(item => (
           <CartItem
             key={item.id}
             item={item}
             onUpdateQuantity={handleUpdateQuantity}
             onRemoveItem={handleRemoveItem}
+            isOrderSummary={true} // Pass true if accessing from OrderSummaryScreen
           />
         ))}
       </ScrollView>
