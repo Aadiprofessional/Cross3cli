@@ -26,7 +26,7 @@ const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
 
       try {
         const response = await axios.post(
-          'https://crossbee-server.vercel.app/getCompanies',
+          'https://crossbee-server-1036279390366.asia-south1.run.app/getCompanies',
           {uid},
         );
 
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-  
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginBottom: 8,

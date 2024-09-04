@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, ActivityIndicator, Alert} from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
-import { Picker } from '@react-native-picker/picker'; // Updated import
-import { colors } from '../styles/color';
+import {Picker} from '@react-native-picker/picker'; // Updated import
+import {colors} from '../styles/color';
 
-const CompanyDropdown2 = ({ onSelectCompany }) => {
+const CompanyDropdown2 = ({onSelectCompany}) => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,8 +26,8 @@ const CompanyDropdown2 = ({ onSelectCompany }) => {
 
       try {
         const response = await axios.post(
-          'https://crossbee-server.vercel.app/getCompanies',
-          { uid },
+          'https://crossbee-server-1036279390366.asia-south1.run.app/getCompanies',
+          {uid},
         );
 
         if (response.status === 200) {
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-  
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginBottom: 8,

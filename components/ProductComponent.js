@@ -89,7 +89,7 @@ const ProductComponent = ({product}) => {
           <TouchableOpacity
             style={styles.productDetailButton2}
             onPress={handlePress}>
-            <Text style={styles.productDetailText2}>Product Details</Text>
+            <Text style={styles.productDetailText2}>Details</Text>
           </TouchableOpacity>
         </View>
       </View>

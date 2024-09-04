@@ -22,7 +22,7 @@ const SubCategoryScreen = ({route}) => {
   const fetchProducts = useCallback(async () => {
     try {
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/products',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/products',
         {
           main: mainId,
           category: categoryId,

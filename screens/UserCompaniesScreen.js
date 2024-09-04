@@ -38,7 +38,7 @@ const UserCompaniesScreen = ({navigation}) => {
 
     try {
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/getCompanies',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/getCompanies',
         {uid},
       );
 

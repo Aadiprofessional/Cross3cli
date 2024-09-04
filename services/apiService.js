@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'https://crossbee-server.vercel.app/searchItems';
+const API_URL =
+  'https://crossbee-server-1036279390366.asia-south1.run.app/searchItems';
 
 export const fetchProducts = async () => {
   try {

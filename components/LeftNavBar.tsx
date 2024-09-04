@@ -63,7 +63,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
   const fetchAndCacheData = async () => {
     try {
       const response = await axios.get(
-        'https://crossbee-server.vercel.app/drawer',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/drawer',
       );
       console.log('Fetched data:', response.data);
       setCategories(response.data);
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 20,
-  
+
     fontFamily: 'Outfit-Regular',
     marginLeft: 10,
     marginRight: 'auto',
@@ -194,14 +194,14 @@ const styles = StyleSheet.create({
   },
   subcategoryText: {
     fontSize: 18,
-  
+
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
   },
   subcategoryText2: {
     fontSize: 18,
     fontFamily: 'Outfit-Regular',
-  
+
     color: colors.TextBlack,
     marginLeft: 17,
   },

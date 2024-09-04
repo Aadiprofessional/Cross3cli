@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,9 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
 const AllCategoriesScreen = () => {
   const navigation = useNavigation();
@@ -20,7 +20,7 @@ const AllCategoriesScreen = () => {
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(
-        'https://crossbee-server.vercel.app/getMain'
+        'https://crossbee-server-1036279390366.asia-south1.run.app/getMain',
       );
       console.log('Fetched categories:', response.data); // Log the fetched data
       setCategories(response.data);
@@ -36,28 +36,28 @@ const AllCategoriesScreen = () => {
   }, [fetchCategories]);
 
   const navigateToSubCategory2 = useCallback(
-    (name) => {
-      navigation.navigate('SubCategoryScreen2', { name });  // Navigate to SubCategoryScreen2 with `name`
+    name => {
+      navigation.navigate('SubCategoryScreen2', {name}); // Navigate to SubCategoryScreen2 with `name`
     },
-    [navigation]
+    [navigation],
   );
 
   // Optimize category list rendering
   const categoryItems = useMemo(
     () =>
-      categories.map(({ id, name, image }) => (
+      categories.map(({id, name, image}) => (
         <TouchableOpacity
           key={id}
           style={styles.categoryItem}
-          onPress={() => navigateToSubCategory2(name)}  // Navigate to SubCategoryScreen2
+          onPress={() => navigateToSubCategory2(name)} // Navigate to SubCategoryScreen2
         >
           <View style={styles.categoryImageContainer}>
-            <Image source={{ uri: image }} style={styles.categoryImage} />
+            <Image source={{uri: image}} style={styles.categoryImage} />
           </View>
           <Text style={styles.categoryName}>{name}</Text>
         </TouchableOpacity>
       )),
-    [categories, navigateToSubCategory2]
+    [categories, navigateToSubCategory2],
   );
 
   return (

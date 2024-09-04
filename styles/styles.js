@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignItems: 'center',
-    marginLeft: -17,
+    marginLeft: -9,
   },
   addToCartText2: {
     color: '#333',
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignItems: 'center',
-    marginLeft: 10,
+    marginLeft: 15,
     backgroundColor: '#fff', // Example background color
     color: '#333', // Example text color, if you are using text-based components
   },

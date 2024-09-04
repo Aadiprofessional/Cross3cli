@@ -1,23 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
-const CompanyDetail = ({ company, onRemove, navigation }) => {
+const CompanyDetail = ({company, onRemove, navigation}) => {
   const handleRemove = async () => {
     try {
       const uid = auth().currentUser.uid;
 
       // Request to remove the company
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/removeCompany',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/removeCompany',
         {
           uid,
           companyId: company.id,
-        }
+        },
       );
 
       // Handle successful response
@@ -45,7 +45,7 @@ const CompanyDetail = ({ company, onRemove, navigation }) => {
   };
 
   const handleEdit = () => {
-    navigation.navigate('EditCompanyScreen', { company });
+    navigation.navigate('EditCompanyScreen', {company});
   };
 
   return (
@@ -53,10 +53,10 @@ const CompanyDetail = ({ company, onRemove, navigation }) => {
       style={[
         styles.container,
         {
-          backgroundColor: company.type === 'Primary' ? colors.primary : colors.primary,
+          backgroundColor:
+            company.type === 'Primary' ? colors.primary : colors.primary,
         },
-      ]}
-    >
+      ]}>
       {company.type === 'Added' && (
         <>
           <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
@@ -117,14 +117,14 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     fontSize: 16,
-   
+
     fontFamily: 'Outfit-Regular',
     color: colors.orange,
     marginBottom: 8,
   },
   title: {
     fontSize: 18,
-   
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },

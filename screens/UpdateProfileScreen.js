@@ -97,7 +97,7 @@ const UpdateProfileScreen = () => {
     try {
       // Request to get the orderId
       const otpResponse = await axios.get(
-        `https://crossbee-server.vercel.app/sendRegisterOtp?phoneNumber=91${phoneNumber}`,
+        `https://crossbee-server-1036279390366.asia-south1.run.app/sendRegisterOtp?phoneNumber=91${phoneNumber}`,
       );
 
       const orderId = otpResponse.data.orderId;

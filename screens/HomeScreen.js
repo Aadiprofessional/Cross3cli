@@ -72,7 +72,15 @@ const HomeScreen = () => {
             headerShown: false, // Hide the default header added by the bottom tab navigator
             tabBarActiveTintColor: '#FFB800', // Change to your desired active color
             tabBarInactiveTintColor: '#8A8A8A',
-            tabBarStyle: { backgroundColor: '#FFFFFF' },
+            tabBarStyle: {
+              backgroundColor: '#FFFFFF',
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              elevation: 0, // Remove elevation if it's adding extra space
+              borderTopWidth: 0, // Remove border if it's adding space
+            },
             tabBarLabelStyle: { display: 'none' }, // Hide labels
           }}
           tabBar={props => <CustomTabBar {...props} />} // Use custom tab bar

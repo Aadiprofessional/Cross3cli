@@ -47,7 +47,7 @@ export const CartProvider = ({children}) => {
     if (user) {
       try {
         const response = await axios.post(
-          `https://crossbee-server.vercel.app/addItem`,
+          `https://crossbee-server-1036279390366.asia-south1.run.app/addItem`,
           {
             uid: user.uid,
             item,
@@ -117,7 +117,7 @@ export const CartProvider = ({children}) => {
     if (user) {
       try {
         const response = await axios.post(
-          `https://crossbee-server.vercel.app/removeItem`,
+          `https://crossbee-server-1036279390366.asia-south1.run.app/removeItem`,
           {
             uid: user.uid,
             id: cartId,

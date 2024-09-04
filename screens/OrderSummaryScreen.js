@@ -48,7 +48,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
     try {
       const userId = auth().currentUser.uid;
       const response = await axios.get(
-        `https://crossbee-server.vercel.app/getUserDetails?uid=${userId}`,
+        `https://crossbee-server-1036279390366.asia-south1.run.app/getUserDetails?uid=${userId}`,
       );
       const rewardPoints = response.data.rewardPoints;
 
@@ -76,7 +76,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
     const fetchCoupons = async () => {
       try {
         const response = await axios.get(
-          'https://crossbee-server.vercel.app/coupons/' +
+          'https://crossbee-server-1036279390366.asia-south1.run.app/coupons/' +
             auth().currentUser.uid,
         );
         setCoupons(response.data);
@@ -195,7 +195,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
     try {
       const userId = auth().currentUser.uid;
       const response = await axios.post(
-        `https://crossbee-server.vercel.app/checkout`,
+        `https://crossbee-server-1036279390366.asia-south1.run.app/checkout`,
         {
           totalAmount,
           data,
@@ -333,7 +333,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
                   <Text
                     style={{
                       color: colors.main,
-                   
+
                       fontFamily: 'Outfit-Medium',
                     }}>
                     {coupon.code}
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   },
   itemCount: {
     fontSize: sizes.body,
-    
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -563,13 +563,13 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: sizes.body,
-  
+
     fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   totalValue: {
     fontSize: 18,
-   
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
   },
   applicableCoupons: {
     fontSize: sizes.body,
-  
+
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
@@ -705,13 +705,13 @@ const styles = StyleSheet.create({
   },
   itemCount: {
     fontSize: sizes.body,
-   
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   subtotal: {
     fontSize: sizes.body,
-  
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -756,7 +756,7 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: sizes.body,
-  
+
     fontFamily: 'Outfit-Medium',
     color: '#333',
   },
@@ -803,7 +803,7 @@ const styles = StyleSheet.create({
   },
   checkoutButtonText: {
     color: '#fff',
-  
+
     fontSize: sizes.body,
     fontFamily: 'Outfit-Bold',
   },

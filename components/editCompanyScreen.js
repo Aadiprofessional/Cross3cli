@@ -109,7 +109,7 @@ const EditCompanyScreen = () => {
     try {
       const uid = auth().currentUser.uid;
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/saveCompany',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/saveCompany',
         {
           uid,
           companyId: company.id, // Pass the company ID to identify which company to edit

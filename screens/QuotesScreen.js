@@ -48,12 +48,18 @@ const QuotesScreen = () => {
       setLoading(true);
       try {
         const [quotationsResponse, ordersResponse] = await Promise.all([
-          axios.post('https://crossbee-server.vercel.app/getQuotations', {
-            uid: user.uid,
-          }),
-          axios.post('https://crossbee-server.vercel.app/getOrders', {
-            uid: user.uid,
-          }),
+          axios.post(
+            'https://crossbee-server-1036279390366.asia-south1.run.app/getQuotations',
+            {
+              uid: user.uid,
+            },
+          ),
+          axios.post(
+            'https://crossbee-server-1036279390366.asia-south1.run.app/getOrders',
+            {
+              uid: user.uid,
+            },
+          ),
         ]);
 
         if (quotationsResponse.data) {
@@ -317,7 +323,7 @@ const styles = StyleSheet.create({
   },
   noQuoteText: {
     fontSize: 24,
-    
+
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,

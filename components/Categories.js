@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,9 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
@@ -20,7 +20,7 @@ const Categories = () => {
     const fetchCategories = async () => {
       try {
         const response = await fetch(
-          'https://crossbee-server.vercel.app/getMain'
+          'https://crossbee-server-1036279390366.asia-south1.run.app/getMain',
         );
         const data = await response.json();
         setCategories(data);
@@ -32,7 +32,7 @@ const Categories = () => {
     fetchCategories();
   }, []);
 
-  const handleCategoryPress = (category) => {
+  const handleCategoryPress = category => {
     // Show a toast message
     Toast.show({
       type: 'success',
@@ -40,7 +40,7 @@ const Categories = () => {
     });
 
     // Navigate to the specified screen with category name as parameter
-    navigation.navigate('SubCategoryScreen2', { name: category.name });
+    navigation.navigate('SubCategoryScreen2', {name: category.name});
   };
 
   const handleAllCategoriesPress = () => {
@@ -55,13 +55,13 @@ const Categories = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={styles.title}>Categories</Text>
         <View style={styles.categoriesContainer}>
-          {displayedCategories.map((category) => (
+          {displayedCategories.map(category => (
             <TouchableOpacity
               key={category.id}
               onPress={() => handleCategoryPress(category)}
               style={styles.categoryItem}>
               <View style={styles.circle}>
-                <Image source={{ uri: category.image }} style={styles.image} />
+                <Image source={{uri: category.image}} style={styles.image} />
               </View>
               <Text style={styles.text}>{category.name}</Text>
             </TouchableOpacity>
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-  
+
     fontFamily: 'Outfit-Medium',
     marginBottom: 10,
     color: colors.TextBlack,
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 5,
     fontSize: 10,
-  
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },

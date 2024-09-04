@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
-import { colors } from '../styles/color';
+import {colors} from '../styles/color';
 
-const SubCategoryScreen2 = ({ route }) => {
-  const { name } = route.params || {};  // Use `name` to fetch data
+const SubCategoryScreen2 = ({route}) => {
+  const {name} = route.params || {}; // Use `name` to fetch data
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,10 +21,10 @@ const SubCategoryScreen2 = ({ route }) => {
   const fetchProducts = useCallback(async () => {
     try {
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/getCategories',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/getCategories',
         {
-          main: name,  // Use `name` as main category parameter
-        }
+          main: name, // Use `name` as main category parameter
+        },
       );
 
       console.log('Fetched products:', response.data); // Log the fetched data
@@ -44,9 +44,9 @@ const SubCategoryScreen2 = ({ route }) => {
 
   const navigateToSubCategory = useCallback(
     (mainId, categoryId) => {
-      navigation.navigate('SubCategoryScreen', { mainId, categoryId });
+      navigation.navigate('SubCategoryScreen', {mainId, categoryId});
     },
-    [navigation]
+    [navigation],
   );
 
   const productItems = useMemo(
@@ -55,18 +55,18 @@ const SubCategoryScreen2 = ({ route }) => {
         <TouchableOpacity
           key={product.id}
           style={styles.productItem}
-          onPress={() => navigateToSubCategory(name, product.id)}  // Navigate to SubCategoryScreen with mainId and categoryId
+          onPress={() => navigateToSubCategory(name, product.id)} // Navigate to SubCategoryScreen with mainId and categoryId
         >
           <View style={styles.productImageContainer}>
             <Image
-              source={{ uri: product.image }}  // Use product.image
+              source={{uri: product.image}} // Use product.image
               style={styles.productImage}
             />
           </View>
           <Text style={styles.productName}>{product.name}</Text>
         </TouchableOpacity>
       )),
-    [products, navigateToSubCategory]
+    [products, navigateToSubCategory],
   );
 
   return (

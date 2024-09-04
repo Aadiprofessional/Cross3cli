@@ -80,7 +80,7 @@ const OTPVerificationScreen = ({navigation}) => {
     const fetchBanner = async () => {
       try {
         const response = await axios.get(
-          'https://crossbee-server.vercel.app/banners/login',
+          'https://crossbee-server-1036279390366.asia-south1.run.app/banners/login',
         );
         if (response.data && response.data.url) {
           setBanner({uri: response.data.url});
@@ -136,7 +136,7 @@ const OTPVerificationScreen = ({navigation}) => {
 
     try {
       let response = await axios.get(
-        'https://crossbee-server.vercel.app/sendOtp?phoneNumber=91' +
+        'https://crossbee-server-1036279390366.asia-south1.run.app/sendOtp?phoneNumber=91' +
           phoneNumber,
       );
       setOrderId(response.data.orderId);
@@ -168,7 +168,7 @@ const OTPVerificationScreen = ({navigation}) => {
     setLoading(true);
     try {
       let response = await axios.get(
-        'https://crossbee-server.vercel.app/verifyOtp?phoneNumber=91' +
+        'https://crossbee-server-1036279390366.asia-south1.run.app/verifyOtp?phoneNumber=91' +
           phoneNumber +
           '&orderId=' +
           orderId +
@@ -177,7 +177,7 @@ const OTPVerificationScreen = ({navigation}) => {
       );
       if (response.data.isOTPVerified) {
         let tokenResponse = await axios.get(
-          'https://crossbee-server.vercel.app/getCustomToken?phoneNumber=91' +
+          'https://crossbee-server-1036279390366.asia-south1.run.app/getCustomToken?phoneNumber=91' +
             phoneNumber,
         );
         await auth().signInWithCustomToken(tokenResponse.data.token);
@@ -216,7 +216,8 @@ const OTPVerificationScreen = ({navigation}) => {
     if (canResend) {
       try {
         await axios.get(
-          'https://crossbee-server.vercel.app/resendOtp?orderId=' + orderId,
+          'https://crossbee-server-1036279390366.asia-south1.run.app/resendOtp?orderId=' +
+            orderId,
         );
         setOtpSent(true);
         setTimer(60);
@@ -399,7 +400,7 @@ const styles = StyleSheet.create({
     borderRadius: sizes.borderRadius,
     backgroundColor: colors.inputBackground,
     fontSize: sizes.inputFontSize,
- 
+
     fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     placeholderTextColor: colors.placeholder,
@@ -436,7 +437,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-  
+
     fontFamily: 'Outfit-Medium',
     color: colors.background,
   },

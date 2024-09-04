@@ -118,7 +118,7 @@ const LatestProducts = () => {
     const fetchProducts = async () => {
       try {
         const response = await fetch(
-          'https://crossbee-server.vercel.app/latestProducts',
+          'https://crossbee-server-1036279390366.asia-south1.run.app/latestProducts',
         );
         const data = await response.json();
         setProducts(data);

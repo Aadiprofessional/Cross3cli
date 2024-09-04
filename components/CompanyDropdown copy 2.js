@@ -26,8 +26,7 @@ const CompanyDropdown4 = ({onSelectCompany}) => {
 
       try {
         const response = await axios.post(
-          'https://crossbee-server.vercel.app/booking-stations',
-          
+          'https://crossbee-server-1036279390366.asia-south1.run.app/booking-stations',
         );
 
         if (response.status === 200) {
@@ -96,7 +95,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-  
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginBottom: 8,

@@ -52,7 +52,7 @@ const OTPScreen = ({route, navigation}) => {
     const fetchBanner = async () => {
       try {
         const response = await axios.get(
-          'https://crossbee-server.vercel.app/banners/login',
+          'https://crossbee-server-1036279390366.asia-south1.run.app/banners/login',
         );
         if (response.data && response.data.url) {
           setBanner({uri: response.data.url});
@@ -123,7 +123,7 @@ const OTPScreen = ({route, navigation}) => {
     try {
       const completeCode = code.join('');
       const response = await axios.get(
-        'https://crossbee-server.vercel.app/verifyOtp?phoneNumber=' +
+        'https://crossbee-server-1036279390366.asia-south1.run.app/verifyOtp?phoneNumber=' +
           phoneNumber +
           '&orderId=' +
           orderId +
@@ -135,7 +135,7 @@ const OTPScreen = ({route, navigation}) => {
 
       if (response.data.isOTPVerified) {
         let tokenResponse = await axios.post(
-          'https://crossbee-server.vercel.app/getRegisterCustomToken',
+          'https://crossbee-server-1036279390366.asia-south1.run.app/getRegisterCustomToken',
           {
             phoneNumber: phoneNumber,
             companyName: companyName,
@@ -178,7 +178,7 @@ const OTPScreen = ({route, navigation}) => {
     if (canResend) {
       try {
         await axios.get(
-          `https://crossbee-server.vercel.app/resendOtp?orderId=${orderId}`,
+          `https://crossbee-server-1036279390366.asia-south1.run.app/resendOtp?orderId=${orderId}`,
         );
         setTimer(60);
         setCanResend(false);
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 24,
-  
+
     fontFamily: 'Outfit-Bold',
     color: colors.textPrimary,
     marginBottom: sizes.marginVertical,

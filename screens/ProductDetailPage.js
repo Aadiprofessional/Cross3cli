@@ -38,7 +38,7 @@ const ProductDetailPage = ({route}) => {
         const userId = auth().currentUser?.uid; // Get the user ID from the authentication module
 
         const response = await axios.post(
-          'https://crossbee-server.vercel.app/productInfo',
+          'https://crossbee-server-1036279390366.asia-south1.run.app/productInfo',
           {
             main: mainId,
             category: categoryId,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
   outOfStockText: {
     fontSize: 18,
     color: 'red',
-  
+
     fontFamily: 'Outfit-Medium',
   },
   arrivalDateText: {

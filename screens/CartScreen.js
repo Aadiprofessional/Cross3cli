@@ -62,7 +62,7 @@ const CartScreen = () => {
       }
 
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/getCompanies',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/getCompanies',
         {uid: user.uid},
       );
 
@@ -93,7 +93,7 @@ const CartScreen = () => {
       }
 
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/quotationCheckout',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/quotationCheckout',
         {
           cartItems,
           uid: user.uid,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    
+
     marginBottom: 10,
     fontFamily: 'Outfit-Bold',
   },
