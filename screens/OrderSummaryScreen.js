@@ -333,7 +333,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
                   <Text
                     style={{
                       color: colors.main,
-                      fontWeight: 'bold',
+                   
                       fontFamily: 'Outfit-Medium',
                     }}>
                     {coupon.code}
@@ -513,13 +513,12 @@ const styles = StyleSheet.create({
   },
   itemCount: {
     fontSize: sizes.body,
-    fontWeight: 'bold',
+    
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   subtotal: {
     fontSize: sizes.body,
-    fontWeight: 'bold',
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -564,13 +563,13 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: sizes.body,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   totalValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+   
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -656,7 +655,7 @@ const styles = StyleSheet.create({
   },
   applicableCoupons: {
     fontSize: sizes.body,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
@@ -688,7 +687,7 @@ const styles = StyleSheet.create({
   },
   removeCouponButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+
     fontFamily: 'Outfit-Bold',
   },
   separator: {
@@ -706,13 +705,13 @@ const styles = StyleSheet.create({
   },
   itemCount: {
     fontSize: sizes.body,
-    fontWeight: 'bold',
+   
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
   subtotal: {
     fontSize: sizes.body,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -757,13 +756,13 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: sizes.body,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Medium',
     color: '#333',
   },
   totalValue: {
     fontSize: 18,
-    fontWeight: 'bold',
+
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
@@ -804,7 +803,7 @@ const styles = StyleSheet.create({
   },
   checkoutButtonText: {
     color: '#fff',
-    fontWeight: 'bold',
+  
     fontSize: sizes.body,
     fontFamily: 'Outfit-Bold',
   },

@@ -56,16 +56,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 10,
     marginBottom: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
   },
   colorButton: {
     backgroundColor: '#F1F1F1',
     borderWidth: 1,
     borderColor: '#484848A1',
     borderRadius: 6,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginRight: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginRight: 5,
     shadowColor: '#000',
     shadowOffset: {width: 2, height: 2},
     shadowOpacity: 0.3,
@@ -86,10 +86,10 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   colorButtonText: {
-    fontSize: 16,
+    fontSize: 12,
     fontFamily: 'Outfit-Regular',
     color: '#4848485C',
-    fontWeight: 'bold',
+    
   },
   selectedText: {
     color: '#fff',

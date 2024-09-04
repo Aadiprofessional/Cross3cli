@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
   outOfStockText: {
     fontSize: 18,
     color: 'red',
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Medium',
   },
   arrivalDateText: {

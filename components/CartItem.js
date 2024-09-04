@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   removeButtonText: {
     color: colors.orange,
     fontSize: 13,
-    fontWeight: 'bold',
+   
     fontFamily: 'Outfit-Bold',
   },
 });

@@ -366,14 +366,14 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 24,
-    fontWeight: '700',
+
     fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     marginBottom: sizes.marginVertical,
   },
   label: {
     fontSize: sizes.labelTextSize,
-    fontWeight: '400',
+
     fontFamily: 'Outfit-Medium',
     alignSelf: 'flex-start',
     marginTop: 10,
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     borderRadius: sizes.borderRadius,
     backgroundColor: colors.inputBackground,
     fontSize: sizes.inputFontSize,
-    fontWeight: '400',
+ 
     fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     placeholderTextColor: colors.placeholder,
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '500',
+  
     fontFamily: 'Outfit-Medium',
     color: colors.background,
   },
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
   },
   guestButtonText: {
     fontSize: 16,
-    fontWeight: '500',
+
     fontFamily: 'Outfit-Medium',
     color: '#333333',
   },
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     fontSize: 16,
-    fontWeight: '500',
+
     fontFamily: 'Outfit-Medium',
     color: '#333333',
     marginLeft: 10,

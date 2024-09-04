@@ -98,14 +98,14 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontFamily: 'Outfit-Medium',
     fontSize: sizes.welcomeTextSize,
-    fontWeight: '500',
+ 
     marginBottom: sizes.marginMax * 5,
     color: colors.textPrimary,
   },
   label: {
     fontFamily: 'Outfit-Regular',
     fontSize: sizes.labelTextSize,
-    fontWeight: '400',
+   
     alignSelf: 'flex-start',
     marginLeft: '10%',
     marginTop: 10,
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.inputBackground,
     fontFamily: 'Outfit-Regular',
     fontSize: sizes.inputFontSize,
-    fontWeight: '400',
+   
     color: colors.textPrimary,
   },
   button: {
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Outfit-Medium',
     fontSize: 16,
-    fontWeight: '500',
+  
     color: colors.background,
   },
 });

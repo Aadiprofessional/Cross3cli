@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 24,
-    fontWeight: '700',
+  
     fontFamily: 'Outfit-Bold',
     color: colors.textPrimary,
     marginBottom: sizes.marginVertical,

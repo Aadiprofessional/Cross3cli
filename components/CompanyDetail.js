@@ -117,14 +117,14 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     fontSize: 16,
-    fontWeight: 'bold',
+   
     fontFamily: 'Outfit-Regular',
     color: colors.orange,
     marginBottom: 8,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+   
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },

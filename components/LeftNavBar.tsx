@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   navText: {
     fontSize: 20,
-    fontWeight: '500',
+  
     fontFamily: 'Outfit-Regular',
     marginLeft: 10,
     marginRight: 'auto',
@@ -194,14 +194,14 @@ const styles = StyleSheet.create({
   },
   subcategoryText: {
     fontSize: 18,
-    fontWeight: '500',
+  
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
   },
   subcategoryText2: {
     fontSize: 18,
     fontFamily: 'Outfit-Regular',
-    fontWeight: '400',
+  
     color: colors.TextBlack,
     marginLeft: 17,
   },

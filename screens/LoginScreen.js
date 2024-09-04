@@ -142,14 +142,14 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: sizes.welcomeTextSize,
-    fontWeight: '500',
+ 
     fontFamily: 'Outfit-Medium',
     marginBottom: sizes.marginMax * 5,
     color: colors.textPrimary,
   },
   label: {
     fontSize: sizes.labelTextSize,
-    fontWeight: '400',
+    
     fontFamily: 'Outfit-Medium',
     alignSelf: 'flex-start',
     marginLeft: '10%',
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '500',
+
     fontFamily: 'Outfit-Medium',
     color: colors.background,
   },
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     borderRadius: sizes.borderRadius,
     backgroundColor: colors.inputBackground,
     fontSize: sizes.inputFontSize,
-    fontWeight: '400',
+   
     fontFamily: 'Outfit-Medium',
     color: colors.textPrimary,
     borderWidth: 1,
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
   resendButtonText: {
     fontSize: 16,
-    fontWeight: '500',
+
     fontFamily: 'Outfit-Medium',
     color: colors.second,
     marginTop: sizes.marginVertical,

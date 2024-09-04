@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+  
+    fontFamily: 'Outfit-Medium',
     marginBottom: 10,
     color: colors.TextBlack,
     marginLeft: 15,
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 5,
     fontSize: 10,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },

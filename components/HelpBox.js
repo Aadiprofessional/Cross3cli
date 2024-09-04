@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   mainText: {
     fontFamily: 'Outfit-SemiBold',
-    fontWeight: 'bold',
+   
     fontSize: 16,
     marginBottom: 5,
     color: colors.TextBlack,

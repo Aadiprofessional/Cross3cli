@@ -20,16 +20,13 @@ import CartScreen from './screens/CartScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import SubCategoryScreen from './screens/SubCategoryScreen';
 import OrderSummaryScreen from './screens/OrderSummaryScreen';
-
 import SearchResultsScreen from './screens/SearchResultsScreen';
 import InvoiceScreen from './screens/InvoiceScreen';
 import OTPVerificationScreen from './screens/OTPVerificationScreen';
-
 import UpdateProfileScreen from './screens/UpdateProfileScreen';
 import Toast from 'react-native-toast-message';
 import SplashScreen from './screens/SplashScreen';
 import OTPScreen from './screens/OTPscreen';
-
 import AllCategoriesScreen from './screens/AllCategoriesScreen';
 import UserCompaniesScreen from './screens/UserCompaniesScreen';
 import AddCompanyScreen from './screens/AddCompanyScreen';
@@ -118,7 +115,14 @@ const App = () => {
               title: 'Search',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
+                flex: 1,
+                textAlign: 'left',
+                justifyContent: 'center',
+              },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
           <Stack.Screen
@@ -130,15 +134,15 @@ const App = () => {
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
               },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
           <Stack.Screen
             name="ProductDetailPage"
             component={ProductDetailPage}
-            options={{
-              headerShown: false,
-            }}
+            options={{headerShown: false}}
           />
           <Stack.Screen
             name="NeedHelp"
@@ -184,7 +188,9 @@ const App = () => {
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
               },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
           <Stack.Screen
@@ -199,7 +205,11 @@ const App = () => {
               title: 'Subcategory',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
+              },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
           <Stack.Screen
@@ -209,7 +219,11 @@ const App = () => {
               title: 'Subcategory',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
+              },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
           <Stack.Screen
@@ -219,10 +233,13 @@ const App = () => {
               title: 'Category',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
+              },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
-
           <Stack.Screen
             name="OrderSummary"
             component={OrderSummaryScreen}
@@ -230,7 +247,11 @@ const App = () => {
               title: 'Order Summary',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
+              },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
           <Stack.Screen
@@ -240,17 +261,25 @@ const App = () => {
               title: 'Invoice Screen',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
+              },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
           <Stack.Screen
             name="ThankYouScreen"
             component={ThankYouScreen}
             options={{
-              title: 'Invoice Screen',
+              title: 'Thank You',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
-              headerTitleStyle: {fontFamily: 'Outfit-Medium'},
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
+              },
+              headerTitleAlign: 'left', // Align header title to left
             }}
           />
         </Stack.Navigator>

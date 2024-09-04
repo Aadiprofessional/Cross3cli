@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Bold',
     color: '#FFFFFF',
   },
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   mediumText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },

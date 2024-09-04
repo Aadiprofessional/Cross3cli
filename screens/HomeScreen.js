@@ -1,36 +1,29 @@
-// screens/HomeScreen.js
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
   Animated,
   TouchableWithoutFeedback,
 } from 'react-native';
-import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; // Import bottom tab navigator
 import Icon from 'react-native-vector-icons/Ionicons';
 import CustomHeader from '../components/CustomHeader';
 import WhatsAppButton from '../components/WhatsAppButton';
-import HelpBox from '../components/HelpBox';
-import Categories from '../components/Categories';
-import {colors} from '../styles/color';
-import AutoImageSlider2 from '../components/AutoImageSlider2';
-import BestDeals from '../components/BestDeals';
-import LatestProducts from '../components/LatestProducts';
-import UpcomingProducts from '../components/UpcomingProducts';
+import LeftNavBar from '../components/LeftNavBar';
+import HomeContent from './HomeContent';
 import CartScreen from './CartScreen';
 import ProfileScreen from './ProfileScreen';
 import QuotesScreen from './QuotesScreen';
-import LeftNavBar from '../components/LeftNavBar';
-import HomeContent from './HomeContent';
 import { useCart } from '../components/CartContext';
 import { Text } from 'react-native-paper';
+import CustomTabBar from '../components/CustomTabBar'; // Import custom tab bar
 
-const Tab = createMaterialBottomTabNavigator();
+const Tab = createBottomTabNavigator(); // Use bottom tab navigator
 
 const HomeScreen = () => {
   const [isNavBarVisible, setNavBarVisible] = useState(false);
   const [slideAnim] = useState(new Animated.Value(-250));
-  const {cartItemCount} = useCart(); // Access cart item count from context
+  const { cartItemCount } = useCart(); // Access cart item count from context
 
   const toggleNavBar = () => {
     if (isNavBarVisible) {
@@ -63,8 +56,9 @@ const HomeScreen = () => {
             <Animated.View
               style={[
                 styles.navContainer,
-                {transform: [{translateX: slideAnim}]},
-              ]}>
+                { transform: [{ translateX: slideAnim }] },
+              ]}
+            >
               <LeftNavBar toggleNavBar={toggleNavBar} />
             </Animated.View>
           </View>
@@ -73,37 +67,41 @@ const HomeScreen = () => {
       <View style={styles.contentContainer}>
         <CustomHeader toggleNavBar={toggleNavBar} />
         <Tab.Navigator
-          initialRouteName="HomeTab"
-          activeColor={colors.main}
-          inactiveColor="#8A8A8A"
-          barStyle={{backgroundColor: '#FFFFFF'}}>
+          initialRouteName="Home"
+          screenOptions={{
+            headerShown: false, // Hide the default header added by the bottom tab navigator
+            tabBarActiveTintColor: '#FFB800', // Change to your desired active color
+            tabBarInactiveTintColor: '#8A8A8A',
+            tabBarStyle: { backgroundColor: '#FFFFFF' },
+            tabBarLabelStyle: { display: 'none' }, // Hide labels
+          }}
+          tabBar={props => <CustomTabBar {...props} />} // Use custom tab bar
+        >
           <Tab.Screen
             name="Home"
             component={HomeContent}
             options={{
-              tabBarIcon: ({color}) => (
-                <Icon name="home-outline" color={color} size={22} />
+              tabBarIcon: ({ color }) => (
+                <Icon name="home-outline" color={color} size={26} />
               ),
-              tabBarLabel: 'Home',
             }}
           />
           <Tab.Screen
             name="Quotes"
             component={QuotesScreen}
             options={{
-              tabBarIcon: ({color}) => (
-                <Icon name="document-outline" color={color} size={22} />
+              tabBarIcon: ({ color }) => (
+                <Icon name="document-outline" color={color} size={26} />
               ),
-              tabBarLabel: 'Quotes',
             }}
           />
           <Tab.Screen
             name="Cart"
             component={CartScreen}
             options={{
-              tabBarIcon: ({color}) => (
+              tabBarIcon: ({ color }) => (
                 <View>
-                  <Icon name="cart-outline" color={color} size={22} />
+                  <Icon name="cart-outline" color={color} size={26} />
                   {cartItemCount > 0 && (
                     <View style={styles.badge}>
                       <Text style={styles.badgeText}>{cartItemCount}</Text>
@@ -111,17 +109,15 @@ const HomeScreen = () => {
                   )}
                 </View>
               ),
-              tabBarLabel: 'Cart',
             }}
           />
           <Tab.Screen
             name="Profile"
             component={ProfileScreen}
             options={{
-              tabBarIcon: ({color}) => (
-                <Icon name="person-outline" color={color} size={22} />
+              tabBarIcon: ({ color }) => (
+                <Icon name="person-outline" color={color} size={26} />
               ),
-              tabBarLabel: 'Profile',
             }}
           />
         </Tab.Navigator>
@@ -172,7 +168,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#fff',
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Regular',
   },
 });
 

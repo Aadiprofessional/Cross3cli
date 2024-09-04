@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+   
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Bold',
   },
 

@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+   
     fontFamily: 'Outfit-Bold',
     color: '#FFFFFF',
   },
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   mediumText: {
     fontSize: 16,
-    fontWeight: 'bold',
+   
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   thankYouText: {
     fontSize: 24,
-    fontWeight: 'bold',
+   
     color: '#333',
     marginBottom: 20,
   },
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Bold',
   },
   container2: {

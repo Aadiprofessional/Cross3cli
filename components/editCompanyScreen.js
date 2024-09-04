@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     color: '#fff',
   },
   scrollView: {

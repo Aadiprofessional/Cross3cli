@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Bold',
   },
 });

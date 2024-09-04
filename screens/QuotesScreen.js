@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   noQuoteText: {
     fontSize: 24,
-    fontWeight: '600',
+    
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Medium',
   },
   boldText: {
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   header: {
     flexDirection: 'row',
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   },
   headerButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
   quotesButton: {
     backgroundColor: '#FFFFFF',

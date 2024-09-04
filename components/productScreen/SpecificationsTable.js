@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   specificationKey: {
     fontSize: 14,
     color: '#333',
-    fontWeight: 'bold',
+ 
     fontFamily: 'Outfit-Bold',
   },
   specificationValue: {

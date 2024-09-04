@@ -58,8 +58,8 @@ const styles = StyleSheet.create({
     color: '#fff', // Color of the header text
     fontSize: 18,
     fontFamily: 'Outfit-Medium',
-    textAlign: 'center',
     flex: 1, // Allow header text to take up available space
+    marginLeft: 10, // Adjust margin to space text from the left icon
   },
   cartButton: {
     marginLeft: 20, // Adjust spacing between icons
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#fff',
     fontSize: 12,
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
   },
 });
 

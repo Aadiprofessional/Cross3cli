@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Medium',
     marginBottom: 10,
     marginLeft: 10,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 12,
-    fontWeight: 'bold',
+  
     color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',
     textAlign: 'left',
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   discountText: {
     fontSize: 10,
     color: 'green',
-    fontWeight: 'bold',
+  
     marginRight: 5,
     fontFamily: 'Outfit-Bold',
   },

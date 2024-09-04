@@ -9,10 +9,13 @@ import LatestProducts from '../components/LatestProducts';
 import UpcomingProducts from '../components/UpcomingProducts';
 import WhatsAppButton from '../components/WhatsAppButton';
 import {colors} from '../styles/color';
+import CustomTabBar from '../components/CustomTabBar';
+import CustomHeader from '../components/CustomHeader';
 
 const HomeContent = () => {
   return (
     <View style={{flex: 1}}>
+     
       <ScrollView style={styles.container}>
         <AutoImageSlider />
 
@@ -28,7 +31,6 @@ const HomeContent = () => {
         <View style={styles.endTextContainer}>
           <Text style={styles.crossBee}>CrossBee se nahi toh</Text>
           <Text style={styles.AppYard3}>Kahin se nahi</Text>
-
         </View>
       </ScrollView>
     </View>
@@ -47,7 +49,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+
     fontFamily: 'Outfit-Medium',
     marginLeft: 25,
     color: colors.TextBlack,
@@ -59,7 +61,7 @@ const styles = StyleSheet.create({
   },
   endText: {
     fontSize: 40,
-    fontWeight: 'bold',
+
     fontFamily: 'Outfit-Medium',
     opacity: 0.1,
     color: colors.TextBlack,
@@ -78,7 +80,7 @@ const styles = StyleSheet.create({
   },
   crossBee: {
     fontSize: 24,
-    fontWeight: '600',
+
     fontFamily: 'Outfit-Bold',
     opacity: 0.1,
 
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
   },
   AppYard3: {
     fontSize: 24,
-    fontWeight: '600',
+
     fontFamily: 'Outfit-Bold',
     opacity: 0.1,
 
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
   },
   AppYard: {
     fontSize: 14,
-    fontWeight: '600',
+
     fontFamily: 'Outfit-Regular',
     opacity: 0.1,
 

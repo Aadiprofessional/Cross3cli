@@ -306,8 +306,8 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: '#fff',
-    fontWeight: 'bold',
-    fontFamily: 'Outfit-Bold',
+
+    fontFamily: 'Outfit-Medium',
   },
   button2: {
     height: 40,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    
     marginBottom: 10,
     fontFamily: 'Outfit-Bold',
   },
@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   },
   loginPromptText: {
     fontSize: 18,
-    fontWeight: 'bold',
+
     textAlign: 'center',
     color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',

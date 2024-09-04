@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
+  
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginBottom: 8,
