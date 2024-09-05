@@ -84,15 +84,6 @@ const ImageCarousel = ({
           />
         ))}
       </View>
-      <View style={styles.truckIcon}>
-        <Image
-          source={require('../../assets/truck.png')}
-          style={styles.truckImage}
-        />
-      </View>
-      <View style={styles.truckTextContainer}>
-        <Text style={styles.truckText}>{colorDeliveryTime} Days</Text>
-      </View>
     </View>
   );
 };
@@ -126,7 +117,7 @@ const styles = StyleSheet.create({
   arrowButton: {
     position: 'absolute',
     top: '40%',
-  
+
     borderRadius: 50,
     padding: 10,
   },

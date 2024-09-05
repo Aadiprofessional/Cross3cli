@@ -112,16 +112,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   circle: {
-    width: 60,
-    height: 60,
+    width: 55,
+    height: 55,
     borderRadius: 35,
     backgroundColor: '#FFE8C4',
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    width: 40,
-    height: 40,
+    width: 35,
+    height: 35,
   },
   text: {
     marginTop: 5,

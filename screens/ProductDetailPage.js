@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,22 +15,23 @@ import ImageCarousel from '../components/productScreen/ImageCarousel';
 import QuantityControl from '../components/productScreen/QuantityControl';
 import SpecificationsTable from '../components/productScreen/SpecificationsTable';
 import AddToCartButton from '../components/productScreen/AddToCartButton';
-import {useCart} from '../components/CartContext';
-import {colors} from '../styles/color';
-import {ActivityIndicator} from 'react-native-paper';
+import { useCart } from '../components/CartContext';
+import { colors } from '../styles/color';
+import { ActivityIndicator } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
 import CustomHeader2 from '../components/CustomHeader2';
 
-const ProductDetailPage = ({route}) => {
-  const {mainId, categoryId, productId} = route.params || {};
+const ProductDetailPage = ({ route }) => {
+  const { mainId, categoryId, productId } = route.params || {};
   const [productData, setProductData] = useState(null);
   const [selectedAttribute1, setSelectedAttribute1] = useState(null);
   const [selectedAttribute2, setSelectedAttribute2] = useState(null);
   const [selectedAttribute3, setSelectedAttribute3] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const {addToCart} = useCart();
+  const { addToCart } = useCart();
   const [imageIndex, setImageIndex] = useState(0);
+  const scrollViewRef = useRef(null);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -92,7 +93,7 @@ const ProductDetailPage = ({route}) => {
 
         const colorOptions = Object.keys(
           data.data[attribute1][firstAttribute1]?.[attribute2]?.[
-            firstAttribute2
+          firstAttribute2
           ] || {},
         );
         if (colorOptions.length > 0) {
@@ -125,7 +126,7 @@ const ProductDetailPage = ({route}) => {
 
       const currentProduct =
         productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
-          selectedAttribute2
+        selectedAttribute2
         ]?.[selectedAttribute3];
       if (currentProduct) {
         return parseInt(currentProduct.minCartValue || '1', 10);
@@ -150,7 +151,7 @@ const ProductDetailPage = ({route}) => {
         // Fetch new color options based on the updated attribute2 selection
         const colorOptions = Object.keys(
           productData.data[attribute1]?.[attribute2Key]?.[firstAttribute2] ||
-            {},
+          {},
         );
         if (colorOptions.length > 0) {
           setSelectedAttribute3(colorOptions[0]);
@@ -169,7 +170,7 @@ const ProductDetailPage = ({route}) => {
 
       const colorOptions = Object.keys(
         productData.data[attribute1]?.[selectedAttribute1]?.[attribute2Key]?.[
-          attribute2
+        attribute2
         ] || {},
       );
       if (colorOptions.length > 0) {
@@ -248,7 +249,8 @@ const ProductDetailPage = ({route}) => {
         attribute1Id: attribute1Id,
         attribute2Id: attribute2Id,
         attribute3Id: attribute3Id,
-        additionalDiscount: additionalDiscount || 0, // Ensure additionalDiscount is passed
+        additionalDiscount: discountPercentage || 0, // Ensure additionalDiscount is passed
+        discountedPrice: cutPrice,
         mainId, // Added mainId
         categoryId, // Added categoryId
       };
@@ -283,22 +285,22 @@ const ProductDetailPage = ({route}) => {
   const ramOptions =
     selectedAttribute1 && attribute1
       ? Object.keys(
-          productData.data[attribute1][selectedAttribute1]?.[attribute2] || {},
-        )
+        productData.data[attribute1][selectedAttribute1]?.[attribute2] || {},
+      )
       : [];
   const colorOptions =
     selectedAttribute1 && selectedAttribute2 && attribute1
       ? Object.keys(
-          productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
-            selectedAttribute2
-          ] || {},
-        )
+        productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+        selectedAttribute2
+        ] || {},
+      )
       : [];
   const currentProduct =
     selectedAttribute1 && selectedAttribute2 && selectedAttribute3 && attribute1
       ? productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
-          selectedAttribute2
-        ]?.[selectedAttribute3]
+      selectedAttribute2
+      ]?.[selectedAttribute3]
       : {};
 
   const additionalDiscount = currentProduct?.additionalDiscount;
@@ -307,6 +309,8 @@ const ProductDetailPage = ({route}) => {
   const attribute3Id = currentProduct?.attribute3Id;
   const images = currentProduct?.images || [];
   const videoLink = currentProduct?.videoLink;
+  const discountPercentage = currentProduct.additionalDiscount;
+  const cutPrice = (currentProduct.price * (1 - discountPercentage / 100)).toFixed(0);
 
   const uniqueImages = Array.from(
     new Set(images.concat(videoLink).filter(Boolean)),
@@ -329,7 +333,7 @@ const ProductDetailPage = ({route}) => {
 
       const currentProduct =
         productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
-          selectedAttribute2
+        selectedAttribute2
         ]?.[selectedAttribute3];
       return currentProduct ? currentProduct.outOfStock : false;
     }
@@ -348,7 +352,7 @@ const ProductDetailPage = ({route}) => {
 
       const currentProduct =
         productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
-          selectedAttribute2
+        selectedAttribute2
         ]?.[selectedAttribute3];
       return currentProduct ? currentProduct.estdArrivalDate : null;
     }
@@ -361,31 +365,33 @@ const ProductDetailPage = ({route}) => {
   return (
     <View style={styles.container2}>
       <CustomHeader2 title="Product" />
-      <ScrollView style={styles.container}>
+      <ScrollView ref={scrollViewRef} style={styles.container}>
         <ImageCarousel
           images={uniqueImages}
           onPrevious={handlePreviousImage}
           onNext={handleNextImage}
           imageIndex={imageIndex}
           loading={loading}
-          colorDeliveryTime={currentProduct?.deliveryTime}
         />
 
         <ProductHeader
           name={productName}
           description={currentProduct?.description || 'N/A'}
-          price={currentProduct?.price || 'N/A'}
-          onCall={() => {}}
+          price={currentProduct.price || 'N/A'}
+          discountedPrice={cutPrice || 'N/A'}
+          scrollViewRef={scrollViewRef} // Pass the ref to ProductHeader
+          onCall={() => { }}
+          colorDeliveryTime={currentProduct?.deliveryTime}
         />
         <AttributesSelector
-          attributeData={storageOptions.map(item => ({id: item, value: item}))}
+          attributeData={storageOptions.map(item => ({ id: item, value: item }))}
           selectedValue={selectedAttribute1}
           onSelect={handleAttribute1Change}
           attributeName={attribute1}
         />
         {selectedAttribute1 && (
           <AttributesSelector
-            attributeData={ramOptions.map(item => ({id: item, value: item}))}
+            attributeData={ramOptions.map(item => ({ id: item, value: item }))}
             selectedValue={selectedAttribute2}
             onSelect={handleAttribute2Change}
             attributeName={attribute2}
@@ -435,10 +441,10 @@ const ProductDetailPage = ({route}) => {
                     marginBottom: 25,
                     opacity:
                       !selectedAttribute1 ||
-                      !selectedAttribute2 ||
-                      !selectedAttribute3 ||
-                      !currentProduct?.price || // Check if price is available
-                      currentProduct?.price === 'N/A' // Check if price is 'N/A'
+                        !selectedAttribute2 ||
+                        !selectedAttribute3 ||
+                        !currentProduct?.price || // Check if price is available
+                        currentProduct?.price === 'N/A' // Check if price is 'N/A'
                         ? 0.5
                         : 1,
                   },
@@ -485,6 +491,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
+    marginTop: 10,
   },
   regularText: {
     fontSize: 16,

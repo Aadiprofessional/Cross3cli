@@ -58,7 +58,7 @@ const NeedHelpScreen = () => {
         <Image source={require('../assets/call.png')} style={styles.icon} />
         <View style={styles.textContainer}>
           <Text style={[styles.mediumText, {color: colors.main}]}>Call</Text>
-          <Text style={styles.regularText}>Click the Chat with our staffs</Text>
+          <Text style={styles.regularText}>Call us in case of queries</Text>
         </View>
       </TouchableOpacity>
 
@@ -66,7 +66,7 @@ const NeedHelpScreen = () => {
         <Image source={require('../assets/mail.png')} style={styles.icon} />
         <View style={styles.textContainer}>
           <Text style={[styles.mediumText, {color: colors.main}]}>Mail</Text>
-          <Text style={styles.regularText}>Click the Chat with our staffs</Text>
+          <Text style={styles.regularText}>Write to us directly!</Text>
         </View>
       </TouchableOpacity>
     </View>

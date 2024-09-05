@@ -17,6 +17,7 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
     mainId,
     categoryId,
     productId,
+    discountedPrice,
   } = item;
 
   const [itemQuantity, setItemQuantity] = useState(quantity);
@@ -60,9 +61,15 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
       text1: 'Removing item from cart',
     });
   };
+  const formatPrice = price => {
+    return price
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
+  };
 
   // Calculate discounted price
-  const discountedPrice = price - additionalDiscount;
+ 
 
   return (
     <View style={styles.cartItemContainer}>
@@ -79,7 +86,7 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
         <Text style={styles.productName}>{productId}</Text>
 
         <Text style={styles.productPrice}>
-          ₹{(discountedPrice * itemQuantity).toFixed(2)}{' '}
+          ₹{formatPrice((discountedPrice * itemQuantity).toFixed(2))}{' '}
           {/* Use discounted price */}
         </Text>
         <View style={styles.itemColorContainer}>
@@ -220,7 +227,7 @@ const styles = StyleSheet.create({
   removeButtonText: {
     color: colors.orange,
     fontSize: 13,
-   
+
     fontFamily: 'Outfit-Bold',
   },
 });

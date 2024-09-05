@@ -72,6 +72,12 @@ const InvoiceScreen = ({route}) => {
       return false;
     }
   };
+  const formatPrice = price => {
+    return price
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
+  };
 
   const generatePdf = async () => {
     const htmlContent = `
@@ -131,9 +137,15 @@ const InvoiceScreen = ({route}) => {
                   <div class="invoice-header d-flex justify-content-between align-items-center">
                       <h2 class="text-start">Invoice</h2>
                       <div class="text-end">
-                          <p class="m-0"><span class="fw-medium">Invoice No:</span> ${invoiceData.uid || 'N/A'}</p>
-                          <p class="m-0"><span class="fw-medium">Invoice Date:</span> ${invoiceData.timestamp.split('T')[0]}</p>
-                          <p class="m-0"><span class="fw-medium">Due Date:</span> ${invoiceData.timestamp.split('T')[0]}</p>
+                          <p class="m-0"><span class="fw-medium">Invoice No:</span> ${
+                            invoiceData.uid || 'N/A'
+                          }</p>
+                          <p class="m-0"><span class="fw-medium">Invoice Date:</span> ${
+                            invoiceData.timestamp.split('T')[0]
+                          }</p>
+                          <p class="m-0"><span class="fw-medium">Due Date:</span> ${
+                            invoiceData.timestamp.split('T')[0]
+                          }</p>
                       </div>
                   </div>
   
@@ -159,7 +171,9 @@ const InvoiceScreen = ({route}) => {
                               <td>${item.productName || 'N/A'}</td>
                               <td>${item.price || '0.00'}</td>
                               <td>${item.quantity || 0}</td>
-                              <td>${(item.price * item.quantity).toFixed(2)}</td>
+                              <td>${(item.price * item.quantity).toFixed(
+                                2,
+                              )}</td>
                           </tr>`,
                             )
                             .join('')}
@@ -175,14 +189,16 @@ const InvoiceScreen = ({route}) => {
                               <td></td>
                               <td></td>
                               <td>TAX ${invoiceData.taxRate || 0}%</td>
-                              <td>${invoiceData.taxAmount || 0.00}</td>
+                              <td>${invoiceData.taxAmount || 0.0}</td>
                           </tr>
                           <tr>
                               <td></td>
                               <td></td>
                               <td></td>
                               <td class="text-primary fs-5 fw-bold">Grand-Total</td>
-                              <td class="text-primary fs-5 fw-bold">${invoiceData.totalAmount.toFixed(2)}</td>
+                              <td class="text-primary fs-5 fw-bold">${invoiceData.totalAmount.toFixed(
+                                2,
+                              )}</td>
                           </tr>
                       </tbody>
                   </table>
@@ -283,13 +299,15 @@ const InvoiceScreen = ({route}) => {
 
       <View style={styles.section}>
         <Text style={styles.subtitle}>
-          Total Amount: ₹{invoiceData.totalAmount.toFixed(2)}
+          Total Amount: ₹{formatPrice(invoiceData.totalAmount.toFixed(2))}
         </Text>
         <Text style={styles.subtitle}>
-          Shipping Charges: ₹{invoiceData.shippingCharges.toFixed(2)}
+          Shipping Charges: ₹
+          {formatPrice(invoiceData.shippingCharges.toFixed(2))}
         </Text>
         <Text style={styles.subtitle}>
-          Additional Discount: ₹{invoiceData.additionalDiscount.toFixed(2)}
+          Additional Discount: ₹
+          {formatPrice(invoiceData.additionalDiscount.toFixed(2))}
         </Text>
       </View>
 
@@ -300,7 +318,7 @@ const InvoiceScreen = ({route}) => {
             <Text style={styles.tableData}>{item.name}</Text>
             <Text style={styles.tableData}>{item.quantity}</Text>
             <Text style={styles.tableData}>
-              ₹{(item.price * item.quantity).toFixed(2)}
+              ₹{formatPrice((item.price * item.quantity).toFixed(2))}
             </Text>
           </View>
         ))}
@@ -322,7 +340,7 @@ const InvoiceScreen = ({route}) => {
               console.error('Navigation error:', error);
             }
           }}>
-          <Text style={styles.buttonText}>Start Shopping</Text>
+          <Text style={styles.buttonText}>Explore More</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -361,7 +379,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-   
+
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
@@ -389,7 +407,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-  
+
     fontFamily: 'Outfit-Bold',
   },
 

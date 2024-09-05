@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-  
+
     fontFamily: 'Outfit-Medium',
     marginBottom: 10,
     marginLeft: 10,
@@ -50,6 +50,9 @@ const styles = StyleSheet.create({
     padding: 10, // Add padding for better spacing
     alignItems: 'flex-start', // Align items to the left
   },
+
+  outOfStockText: {color: '#FF0000', fontFamily: 'Outfit-Medium', fontSize: 14},
+
   imageContainer: {
     width: '100%',
     height: 100, // Adjust height for the image
@@ -71,7 +74,7 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 12,
-  
+
     color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',
     textAlign: 'left',
@@ -92,7 +95,7 @@ const styles = StyleSheet.create({
   discountText: {
     fontSize: 10,
     color: 'green',
-  
+
     marginRight: 5,
     fontFamily: 'Outfit-Bold',
   },

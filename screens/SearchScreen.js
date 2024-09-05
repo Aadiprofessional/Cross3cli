@@ -1,17 +1,21 @@
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   TextInput,
   StyleSheet,
-  ScrollView,
+  FlatList,
   Text,
   ActivityIndicator,
+  TouchableOpacity,
+  Modal,
+  Pressable, // Import Pressable for handling touch outside
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
-import {fetchProducts} from '../services/apiService';
+import { fetchProducts } from '../services/apiService';
 import ProductComponent from '../components/ProductComponent';
-import {debounce} from 'lodash';
+import FilterComponent from '../components/FilterDropdown'; // Updated component
+import { debounce } from 'lodash';
 
 const SearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,17 +25,12 @@ const SearchScreen = () => {
   const [openSort, setOpenSort] = useState(false);
   const [sortValue, setSortValue] = useState(null);
   const [sortItems, setSortItems] = useState([
-    {label: 'Low to High', value: 'low_to_high'},
-    {label: 'High to Low', value: 'high_to_low'},
-    {label: 'Newest', value: 'newest'},
+    { label: 'Low to High', value: 'low_to_high' },
+    { label: 'High to Low', value: 'high_to_low' },
+    { label: 'Newest', value: 'newest' },
   ]);
-  const [openFilter, setOpenFilter] = useState(false);
-  const [filterValue, setFilterValue] = useState(null);
-  const [filterItems, setFilterItems] = useState([
-    {label: 'Category 1', value: 'category1'},
-    {label: 'Category 2', value: 'category2'},
-    {label: 'Category 3', value: 'category3'},
-  ]);
+  const [filterVisible, setFilterVisible] = useState(false); // State to control filter visibility
+  const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
 
   const loadProducts = useCallback(async () => {
@@ -57,24 +56,51 @@ const SearchScreen = () => {
           product.searchName.toLowerCase().includes(query.toLowerCase()),
         );
 
-        if (filterValue) {
+        if (filterOptions.category) {
           filteredProducts = filteredProducts.filter(
-            product => product.category === filterValue,
+            product => product.category === filterOptions.category,
           );
         }
 
-        const productMap = new Map();
-        filteredProducts.forEach(product => {
-          if (!productMap.has(product.productId)) {
-            productMap.set(product.productId, []);
-          }
-          productMap.get(product.productId).push(product);
-        });
+        if (filterOptions.priceRange) {
+          filteredProducts = filteredProducts.filter(product => {
+            switch (filterOptions.priceRange) {
+              case 'below_500':
+                return product.price < 500;
+              case '500_1000':
+                return product.price >= 500 && product.price <= 1000;
+              case 'above_1000':
+                return product.price > 1000;
+              default:
+                return true;
+            }
+          });
+        }
 
-        const flattenedProducts = Array.from(productMap.values()).flat();
-        setSearchResults(query ? flattenedProducts : originalProducts);
+        if (filterOptions.discount) {
+          filteredProducts = filteredProducts.filter(product => {
+            switch (filterOptions.discount) {
+              case '10_above':
+                return product.discount >= 10;
+              case '20_above':
+                return product.discount >= 20;
+              case '30_above':
+                return product.discount >= 30;
+              default:
+                return true;
+            }
+          });
+        }
+
+        if (filterOptions.excludeOutOfStock) {
+          filteredProducts = filteredProducts.filter(
+            product => !product.outOfStock,
+          );
+        }
+
+        setSearchResults(query ? filteredProducts : originalProducts);
       }, 300),
-    [originalProducts, filterValue],
+    [originalProducts, filterOptions],
   );
 
   useEffect(() => {
@@ -100,6 +126,13 @@ const SearchScreen = () => {
 
     sortProducts();
   }, [sortValue, searchResults]);
+
+  const applyFilters = filters => {
+    setFilterOptions(filters);
+    setFilterVisible(false); // Close the filter component
+  };
+
+  const renderItem = ({ item }) => <ProductComponent product={item} />;
 
   return (
     <View style={styles.container}>
@@ -129,7 +162,7 @@ const SearchScreen = () => {
             style={styles.smallButton}
             dropDownContainerStyle={styles.smallDropDownContainer}
             textStyle={styles.buttonText}
-            ArrowDownIconComponent={({style}) => (
+            ArrowDownIconComponent={({ style }) => (
               <Icon
                 name="chevron-down"
                 size={16}
@@ -140,26 +173,12 @@ const SearchScreen = () => {
           />
         </View>
         <View style={styles.buttonWrapper}>
-          <DropDownPicker
-            open={openFilter}
-            value={filterValue}
-            items={filterItems}
-            setOpen={setOpenFilter}
-            setValue={setFilterValue}
-            setItems={setFilterItems}
-            placeholder="Filter"
+          <TouchableOpacity
             style={styles.smallButton}
-            dropDownContainerStyle={styles.smallDropDownContainer}
-            textStyle={styles.buttonText}
-            ArrowDownIconComponent={({style}) => (
-              <Icon
-                name="chevron-down"
-                size={16}
-                color="#484848"
-                style={style}
-              />
-            )}
-          />
+            onPress={() => setFilterVisible(true)}>
+            <Text style={styles.buttonText}>Filter</Text>
+            <Icon name="chevron-down" size={16} color="#484848" />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -168,12 +187,33 @@ const SearchScreen = () => {
       ) : sortedResults.length === 0 ? (
         <Text style={styles.noResultsText}>No results found</Text>
       ) : (
-        <ScrollView contentContainerStyle={styles.productList}>
-          {sortedResults.map(product => (
-            <ProductComponent key={product.productId} product={product} />
-          ))}
-        </ScrollView>
+        <FlatList
+          data={sortedResults}
+          renderItem={renderItem}
+          keyExtractor={item => item.productId}
+          contentContainerStyle={styles.productList}
+          numColumns={2} // Display two products per row
+        />
       )}
+
+      {/* Filter Modal */}
+      <Modal
+        visible={filterVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setFilterVisible(false)}>
+        <Pressable
+          style={styles.modalBackground}
+          onPress={() => setFilterVisible(false)} // Close modal on press outside
+        >
+          <View style={styles.modalContainer}>
+            <FilterComponent
+              applyFilters={applyFilters}
+              onClose={() => setFilterVisible(false)}
+            />
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -203,11 +243,11 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between', // Changed to space-between for alignment
     marginBottom: 10,
   },
   buttonWrapper: {
-    marginRight: 10,
+    marginHorizontal: 5, // Adjusted margin for better spacing
   },
   smallButton: {
     flexDirection: 'row',
@@ -217,11 +257,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     width: 120,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   smallDropDownContainer: {
     borderRadius: 10,
@@ -235,19 +270,26 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   productList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  noResultsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexGrow: 1,
   },
   noResultsText: {
     fontSize: 18,
     fontFamily: 'Outfit-Medium',
     color: '#484848',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '80%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 20,
   },
 });
 

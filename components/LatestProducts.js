@@ -5,25 +5,22 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
-  TouchableHighlight,
   ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import styles from '../styles/styles'; // Import the styles
 import {colors} from '../styles/color';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Ensure you have this library installed
 import {useCart} from '../components/CartContext'; // Adjust the path to your CartContext
+import auth from '@react-native-firebase/auth';
 
 const ProductComponent = ({product}) => {
   const navigation = useNavigation();
   const {addToCart} = useCart(); // Get the addToCart function from CartContext
   const [isWished, setIsWished] = useState(false);
 
-  // Convert minCartValue to an integer
   const minCartValue = parseInt(product.minCartValue, 10) || 1;
   const [quantity, setQuantity] = useState(minCartValue); // Default quantity based on minCartValue
 
-  // Handle press function
   const handlePress = () => {
     console.log(
       `Navigating to ProductDetailPage with productId: ${product.productId}`,
@@ -35,14 +32,12 @@ const ProductComponent = ({product}) => {
     });
   };
 
-  // Handle wishlist icon press
   const handleWishlistPress = () => {
     setIsWished(!isWished);
   };
 
-  // Handle add to cart
   const handleAddToCart = () => {
-    if (product && quantity > 0) {
+    if (!product.outOfStock && product && quantity > 0) {
       const item = {
         productName: product.displayName,
         productId: product.productId,
@@ -69,9 +64,15 @@ const ProductComponent = ({product}) => {
     }
   };
 
-  const discountPercentage = 49;
-  const cutPrice = (product.price * (1 + discountPercentage / 100)).toFixed(2);
+  const formatPrice = price => {
+    return price
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
+  };
 
+  const discountPercentage = product.additionalDiscount;
+  const cutPrice = (product.price * (1-discountPercentage / 100)).toFixed(0);
   return (
     <TouchableOpacity style={styles.productContainer} onPress={handlePress}>
       <View style={styles.productContent}>
@@ -88,17 +89,25 @@ const ProductComponent = ({product}) => {
         </View>
         <View style={styles.discountContainer}>
           <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
-          <Text style={styles.cutPriceText}>₹{cutPrice}</Text>
+          <Text style={styles.cutPriceText}>₹{formatPrice(product.price)}</Text>
         </View>
         <View style={styles.hotDealsContainer}>
-          <Text style={styles.originalPriceText}>₹{product.price}</Text>
+          <Text style={styles.originalPriceText}>
+            ₹{formatPrice(cutPrice)}
+          </Text>
         </View>
         <View style={styles.actionButtonContainer}>
-          <TouchableOpacity
-            style={styles.addToCartButton}
-            onPress={handleAddToCart}>
-            <Text style={styles.addToCartText}>Add to Cart</Text>
-          </TouchableOpacity>
+          {product.outOfStock ? (
+            <View style={styles.outOfStockButton}>
+              <Text style={styles.outOfStockText}>Out of Stock</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.addToCartButton}
+              onPress={handleAddToCart}>
+              <Text style={styles.addToCartText}>Add to Cart</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.productDetailButton}
             onPress={handlePress}>
@@ -116,9 +125,10 @@ const LatestProducts = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const userId = auth().currentUser.uid;
       try {
         const response = await fetch(
-          'https://crossbee-server-1036279390366.asia-south1.run.app/latestProducts',
+          'https://crossbee-server-1036279390366.asia-south1.run.app/latestProducts?uid='+ userId,
         );
         const data = await response.json();
         setProducts(data);

@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -13,16 +13,16 @@ import {
   Image,
   style,
 } from 'react-native';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import {useCart} from '../components/CartContext'; // Adjust this import if necessary
-import {colors} from '../styles/color';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useCart } from '../components/CartContext'; // Adjust this import if necessary
+import { colors } from '../styles/color';
 import CartItem from '../components/CartItem';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
 import CustomHeader2 from '../components/CustomHeader2';
 
 const CartScreen = () => {
-  const {cartItems, updateCartItemQuantity, removeCartItem} = useCart(); // Assuming CartContext is used
+  const { cartItems, updateCartItemQuantity, removeCartItem } = useCart(); // Assuming CartContext is used
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
 
@@ -63,7 +63,7 @@ const CartScreen = () => {
 
       const response = await axios.post(
         'https://crossbee-server-1036279390366.asia-south1.run.app/getCompanies',
-        {uid: user.uid},
+        { uid: user.uid },
       );
 
       if (response.status === 200) {
@@ -122,15 +122,18 @@ const CartScreen = () => {
     );
 
     // Calculate total additional discount
-    const totalAdditionalDiscount = cartItems.reduce(
-      (sum, item) => sum + (item.additionalDiscount || 0) * item.quantity,
-      0,
-    );
+    const totalAdditionalDiscount = (
+      cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0) -
+      cartItems.reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0)
+    ).toFixed(0); // .toFixed(0) will give you a string representation
+
+    const totalAdditionalDiscountValue = parseFloat(totalAdditionalDiscount); // Convert to a number if needed
+
 
     navigation.navigate('OrderSummary', {
       cartItems,
       totalAmount,
-      totalAdditionalDiscount, // Pass the total additional discount
+      totalAdditionalDiscountValue, // Pass the total additional discount
     });
     console.log(totalAdditionalDiscount);
   };
@@ -142,6 +145,13 @@ const CartScreen = () => {
       </View>
     );
   }
+  const formatPrice = price => {
+    return price
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
+  };
+
 
   return (
     <View style={styles.container}>
@@ -154,9 +164,11 @@ const CartScreen = () => {
           <Text style={styles.subtotalText}>Subtotal:</Text>
           <Text style={styles.totalAmountText}>
             ₹
-            {cartItems
-              .reduce((sum, item) => sum + item.price * item.quantity, 0)
-              .toFixed(2)}
+            {formatPrice(
+              cartItems
+                .reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0)
+                .toFixed(0),
+            )}
           </Text>
         </View>
       </View>
@@ -187,13 +199,13 @@ const CartScreen = () => {
       </ScrollView>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={[styles.button, {backgroundColor: colors.second}]}
+          style={[styles.button, { backgroundColor: colors.second }]}
           onPress={fetchCompanies}
           disabled={cartItems.length === 0}>
           <Text style={styles.buttonText}>Get Quotation</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, {backgroundColor: colors.main}]}
+          style={[styles.button, { backgroundColor: colors.main }]}
           onPress={handlePlaceOrder}
           disabled={cartItems.length === 0}>
           <Text style={styles.buttonText}>Place Order</Text>
@@ -212,7 +224,7 @@ const CartScreen = () => {
             <FlatList
               data={companies}
               keyExtractor={item => item.id}
-              renderItem={({item}) => (
+              renderItem={({ item }) => (
                 <Pressable
                   style={[
                     styles.companyItem,

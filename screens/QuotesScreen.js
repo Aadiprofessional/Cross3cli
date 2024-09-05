@@ -127,6 +127,12 @@ const QuotesScreen = () => {
       console.log('No invoice URL provided');
     }
   };
+  const formatPrice = price => {
+    return price
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
+  };
 
   const renderOrderItem = useMemo(
     () =>
@@ -145,18 +151,28 @@ const QuotesScreen = () => {
                 </Text>
               </View>
             </View>
-            <View style={styles.orderRow}>
-              <Text style={styles.orderDetailText}>Items</Text>
-              <Text style={styles.orderDetailText}>Qty</Text>
-              <Text style={styles.orderDetailText}>Amount</Text>
-              <Text style={styles.orderDetailText}>Total</Text>
-            </View>
             {item.cartItems.map(cartItem => (
               <View key={cartItem.id} style={styles.orderRow}>
-                <Text style={styles.itemDetailText}>{cartItem.name}</Text>
-                <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
-                <Text style={styles.itemDetailText}>₹{cartItem.price}</Text>
-                <Text style={styles.itemDetailText}>₹{item.totalAmount}</Text>
+                <View>
+                  <Text style={styles.orderIdText}>Items</Text>
+                  <Text style={styles.itemDetailText}>{cartItem.name}</Text>
+                </View>
+                <View>
+                  <Text style={styles.orderIdText}>Qty</Text>
+                  <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
+                </View>
+                <View>
+                  <Text style={styles.orderIdText}>Amount</Text>
+                  <Text style={styles.itemDetailText}>
+                    ₹{formatPrice(cartItem.price)}
+                  </Text>
+                </View>
+                <View>
+                  <Text style={styles.orderIdText}>Total</Text>
+                  <Text style={styles.itemDetailText}>
+                    ₹{formatPrice(item.totalAmount)}
+                  </Text>
+                </View>
               </View>
             ))}
             <View style={styles.statusContainer}>
@@ -191,20 +207,31 @@ const QuotesScreen = () => {
                 </Text>
               </View>
             </View>
-            <View style={styles.orderRow}>
-              <Text style={styles.orderDetailText}>Items</Text>
-              <Text style={styles.orderDetailText}>Qty</Text>
-              <Text style={styles.orderDetailText}>Amount</Text>
-              <Text style={styles.orderDetailText}>Total</Text>
-            </View>
             {item.cartItems.map(cartItem => (
               <View key={cartItem.id} style={styles.orderRow}>
-                <Text style={styles.itemDetailText}>{cartItem.name}</Text>
-                <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
-                <Text style={styles.itemDetailText}>₹{cartItem.price}</Text>
-                <Text style={styles.itemDetailText}>₹{item.totalAmount}</Text>
+                <View>
+                  <Text style={styles.orderIdText}>Items</Text>
+                  <Text style={styles.itemDetailText}>{cartItem.name}</Text>
+                </View>
+                <View>
+                  <Text style={styles.orderIdText}>Qty</Text>
+                  <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
+                </View>
+                <View>
+                  <Text style={styles.orderIdText}>Amount</Text>
+                  <Text style={styles.itemDetailText}>
+                    ₹{formatPrice(cartItem.price)}
+                  </Text>
+                </View>
+                <View>
+                  <Text style={styles.orderIdText}>Total</Text>
+                  <Text style={styles.itemDetailText}>
+                    ₹{formatPrice(item.totalAmount)}
+                  </Text>
+                </View>
               </View>
             ))}
+
             <View style={styles.statusContainer}>
               <Text style={styles.statusText}>Status:</Text>
               <Text style={styles.orderStatusText}>{item.status}</Text>
@@ -450,7 +477,7 @@ const styles = StyleSheet.create({
   },
 
   itemDetailText: {
-    fontSize: 20,
+    fontSize: 14,
     color: colors.TextBlack,
     fontFamily: 'Outfit-Medium',
   },

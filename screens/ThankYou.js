@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -15,18 +15,18 @@ import {
   useFocusEffect,
   useRoute,
 } from '@react-navigation/native';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 import Icon from 'react-native-vector-icons/Feather';
 
 const ThankYouScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const {orderId, invoiceData} = route.params;
+  const { orderId, invoiceData } = route.params;
 
   const handleBackButtonPress = useCallback(() => {
     navigation.reset({
       index: 0,
-      routes: [{name: 'HomeTab'}],
+      routes: [{ name: 'HomeTab' }],
     });
     return true; // Prevent default behavior (going back to previous screen)
   }, [navigation]);
@@ -71,6 +71,7 @@ const ThankYouScreen = () => {
         loop={false}
         style={styles.animation}
       />
+      <Text style={styles.thankYouText2}>Thanks for shopping with us </Text>
       <Text style={styles.thankYouText}>Your order is in processing</Text>
       <Text>Your Order ID is: {orderId}</Text>
       <View style={styles.container2}>
@@ -80,7 +81,7 @@ const ThankYouScreen = () => {
             try {
               navigation.reset({
                 index: 0,
-                routes: [{name: 'HomeTab'}],
+                routes: [{ name: 'HomeTab' }],
               });
             } catch (error) {
               console.error('Navigation error:', error);
@@ -95,7 +96,7 @@ const ThankYouScreen = () => {
               style={styles.icon}
             />
             <View style={styles.textContainer}>
-              <Text style={[styles.mediumText, {color: colors.main}]}>
+              <Text style={[styles.mediumText, { color: colors.main }]}>
                 WhatsApp
               </Text>
               <Text style={styles.regularText}>
@@ -107,11 +108,12 @@ const ThankYouScreen = () => {
           <TouchableOpacity style={styles.rectangle} onPress={handleCall}>
             <Image source={require('../assets/call.png')} style={styles.icon} />
             <View style={styles.textContainer}>
-              <Text style={[styles.mediumText, {color: colors.main}]}>
+              <Text style={[styles.mediumText, { color: colors.main }]}>
                 Call
               </Text>
               <Text style={styles.regularText}>
-                Click the Chat with our staffs
+                Call us in case of queries
+
               </Text>
             </View>
           </TouchableOpacity>
@@ -119,11 +121,11 @@ const ThankYouScreen = () => {
           <TouchableOpacity style={styles.rectangle} onPress={handleMail}>
             <Image source={require('../assets/mail.png')} style={styles.icon} />
             <View style={styles.textContainer}>
-              <Text style={[styles.mediumText, {color: colors.main}]}>
+              <Text style={[styles.mediumText, { color: colors.main }]}>
                 Mail
               </Text>
               <Text style={styles.regularText}>
-                Click the Chat with our staffs
+                Write to us directly!
               </Text>
             </View>
           </TouchableOpacity>
@@ -157,7 +159,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-   
+
     fontFamily: 'Outfit-Bold',
     color: '#FFFFFF',
   },
@@ -166,7 +168,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -187,7 +189,7 @@ const styles = StyleSheet.create({
   },
   mediumText: {
     fontSize: 16,
-   
+
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -198,10 +200,16 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
   },
   thankYouText: {
-    fontSize: 24,
-   
+    fontSize: 20,
+    fontFamily: 'Outfit-Regular',
     color: '#333',
     marginBottom: 20,
+  },
+  thankYouText2: {
+    fontSize: 26,
+    fontFamily: 'Outfit-Medium',
+    color: '#333',
+
   },
   orderIdText: {
     fontSize: 18,
@@ -220,7 +228,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-  
+
     fontFamily: 'Outfit-Bold',
   },
   container2: {

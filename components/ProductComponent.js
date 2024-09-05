@@ -12,6 +12,7 @@ import {colors} from '../styles/color';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useCart} from '../components/CartContext'; // Ensure this path is correct
 
+
 const ProductComponent = ({product}) => {
   const navigation = useNavigation();
   const {addToCart} = useCart();
@@ -53,8 +54,8 @@ const ProductComponent = ({product}) => {
     }
   };
 
-  const discountPercentage = 49;
-  const cutPrice = (product.price * (1 + discountPercentage / 100)).toFixed(2);
+  const discountPercentage = product.additionalDiscount;
+  const cutPrice = (product.price * (1-discountPercentage / 100)).toFixed(0);
 
   return (
     <TouchableOpacity style={styles.productContainer2} onPress={handlePress}>
@@ -75,10 +76,10 @@ const ProductComponent = ({product}) => {
         </View>
         <View style={styles.discountContainer}>
           <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
-          <Text style={styles.cutPriceText}>₹{cutPrice}</Text>
+          <Text style={styles.cutPriceText}>₹{product.price}</Text>
         </View>
         <View style={styles.hotDealsContainer}>
-          <Text style={styles.originalPriceText}>₹{product.price}</Text>
+          <Text style={styles.originalPriceText}>₹{cutPrice}</Text>
         </View>
         <View style={styles.actionButtonContainer}>
           <TouchableOpacity

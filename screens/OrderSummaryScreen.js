@@ -1,4 +1,5 @@
-import React, {useState, useEffect} from 'react';
+
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,8 +10,8 @@ import {
   Alert,
 } from 'react-native';
 import CartItem from '../components/CartItem';
-import {colors} from '../styles/color';
-import {sizes} from '../styles/size';
+import { colors } from '../styles/color';
+import { sizes } from '../styles/size';
 
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
@@ -18,16 +19,16 @@ import CheckBox from '@react-native-community/checkbox';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import CompanyDropdown from '../components/CompanyDropdown';
-import {ActivityIndicator} from 'react-native-paper';
+import { ActivityIndicator } from 'react-native-paper';
 import CompanyDropdown2 from '../components/CompanyDropdown copy';
 import CompanyDropdown3 from '../components/CompanyDropdown copy 3';
 import CompanyDropdown4 from '../components/CompanyDropdown copy 2';
 
-const OrderSummaryScreen = ({route, navigation}) => {
+const OrderSummaryScreen = ({ route, navigation }) => {
   const {
     cartItems: initialCartItems,
     totalAmount: initialTotalAmount,
-    totalAdditionalDiscount,
+    totalAdditionalDiscountValue,
   } = route.params;
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
@@ -70,14 +71,14 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const [data, setData] = useState({
     rewardPointsPrice: 10,
     shippingCharges: 0,
-    additionalDiscount: totalAdditionalDiscount,
+    additionalDiscount: totalAdditionalDiscountValue,
   });
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
         const response = await axios.get(
           'https://crossbee-server-1036279390366.asia-south1.run.app/coupons/' +
-            auth().currentUser.uid,
+          auth().currentUser.uid,
         );
         setCoupons(response.data);
       } catch (error) {
@@ -108,7 +109,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
     if (appliedCoupon) {
       amount -= Number(appliedCoupon.value);
     }
-    amount += data.shippingCharges - totalAdditionalDiscount;
+    amount += data.shippingCharges - totalAdditionalDiscountValue;
     return Math.max(0, amount); // Ensure total amount does not go below zero
   };
 
@@ -139,7 +140,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
   const handleUpdateQuantity = (id, quantity) => {
     setCartItems(prevItems => {
       const updatedItems = prevItems.map(item =>
-        item.id === id ? {...item, quantity} : item,
+        item.id === id ? { ...item, quantity } : item,
       );
       return updatedItems.filter(item => item.quantity > 0);
     });
@@ -162,7 +163,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
       // Convert value to number
       const couponValue = Number(coupon.value);
       if (!isNaN(couponValue)) {
-        setAppliedCoupon({...coupon, value: couponValue});
+        setAppliedCoupon({ ...coupon, value: couponValue });
         Alert.alert('Coupon applied', 'Coupon applied successfully!');
       } else {
         Alert.alert('Invalid coupon', 'Coupon value is not valid.');
@@ -247,13 +248,22 @@ const OrderSummaryScreen = ({route, navigation}) => {
       );
     }
   };
+  const formatPrice = price => {
+    return price
+      .toString()
+      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
+  };
+
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={styles.header}>
           <Text style={styles.itemCount}>{cartItems.length} items:</Text>
-          <Text style={styles.subtotal}>₹{calculateSubtotal().toFixed(2)}</Text>
+          <Text style={styles.subtotal}>
+            ₹{formatPrice(calculateSubtotal().toFixed(2))}
+          </Text>
         </View>
         <View style={styles.summaryContainer}>
           <View style={styles.summaryRow}>
@@ -265,26 +275,30 @@ const OrderSummaryScreen = ({route, navigation}) => {
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Additional Discount:</Text>
             <Text style={styles.summaryValue}>
-              -₹{totalAdditionalDiscount.toFixed(2)}
+              -₹{totalAdditionalDiscountValue.toFixed(0)}
             </Text>
           </View>
           {appliedCoupon && (
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Coupon Discount:</Text>
-              <Text style={styles.couponDiscount}>-₹{appliedCoupon.value}</Text>
+              <Text style={styles.couponDiscount}>
+                -₹{formatPrice(appliedCoupon.value)}
+              </Text>
             </View>
           )}
           {useRewardPoints && (
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Reward Points Discount:</Text>
               <Text style={styles.couponDiscount}>
-                -₹{data.rewardPointsPrice.toFixed(2)}
+                -₹{formatPrice(data.rewardPointsPrice.toFixed(2))}
               </Text>
             </View>
           )}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total:</Text>
-            <Text style={styles.totalValue}>₹{totalAmount.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>
+              ₹{formatPrice(totalAmount.toFixed(2))}
+            </Text>
           </View>
         </View>
 
@@ -298,7 +312,7 @@ const OrderSummaryScreen = ({route, navigation}) => {
             value={useRewardPoints}
             onValueChange={handleToggleRewardPoints}
             boxType="square"
-            tintColors={{true: colors.main, false: '#dcdcdc'}}
+            tintColors={{ true: colors.main, false: '#dcdcdc' }}
           />
         </TouchableOpacity>
 
@@ -430,7 +444,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -528,7 +542,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -623,7 +637,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -721,7 +735,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
