@@ -45,6 +45,7 @@ const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
             }
           }
         } else {
+      
           throw new Error(`Failed to load companies: ${response.status}`);
         }
       } catch (err) {
@@ -57,6 +58,7 @@ const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
 
     fetchCompanies();
   }, []);
+  
 
   const handleSelect = companyId => {
     const selectedCompany = companies.find(company => company.id === companyId);

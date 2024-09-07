@@ -155,6 +155,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
   const handlePincodeChange = pincode => {
     setSelectedPincode(pincode);
+    
   };
 
   const handleApplyCoupon = () => {

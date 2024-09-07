@@ -57,6 +57,7 @@ const ProductComponent = ({ product }) => {
         additionalDiscount: product.additionalDiscount || 0,
         mainId: product.mainId,
         categoryId: product.categoryId,
+        discountedPrice: cutPrice,
       };
 
       addToCart(item); // Call the addToCart function from CartContext
@@ -79,7 +80,10 @@ const ProductComponent = ({ product }) => {
       <View style={styles.productContent}>
         <View style={styles.imageContainer}>
           <View style={styles.imageBox}>
-            <Image source={{ uri: product.image }} style={styles.productImage} />
+          <Image
+              source={{uri: product.image || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656'}}
+              style={styles.productImage}
+            />
           </View>
         </View>
         <View

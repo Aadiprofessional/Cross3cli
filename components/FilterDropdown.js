@@ -1,27 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import Slider from '@react-native-community/slider';
 import DropDownPicker from 'react-native-dropdown-picker';
-import Slider from '@react-native-community/slider'; // Updated import
 import { colors } from '../styles/color'; // Adjust path as needed
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Modal } from 'react-native';
+import axios from 'axios';
 
-const FilterDropdown = ({ open, setOpen, setFilterOptions, applyFilters }) => {
-  const [priceRange, setPriceRange] = useState([0, 9999999]);
-  const [category, setCategory] = useState(null);
-  const [discount, setDiscount] = useState(null);
-  const [excludeOutOfStock, setExcludeOutOfStock] = useState(false);
+const FilterDropdown = ({ filterOptions, applyFilters }) => {
+  const [minPrice, setMinPrice] = useState(filterOptions.minPrice || 0);
+  const [maxPrice, setMaxPrice] = useState(filterOptions.maxPrice || 9999999);
+  const [category, setCategory] = useState(filterOptions.category || null);
+  const [discount, setDiscount] = useState(filterOptions.discount || null);
+  const [excludeOutOfStock, setExcludeOutOfStock] = useState(filterOptions.excludeOutOfStock || false);
+ 
+  const [categories, setCategories] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
 
-  const priceRanges = [
-    { label: 'Below ₹500', value: 'below_500' },
-    { label: '₹500 - ₹1000', value: '500_1000' },
-    { label: 'Above ₹1000', value: 'above_1000' },
-  ];
 
-  const categories = [
-    { label: 'Electronics', value: 'electronics' },
-    { label: 'Clothing', value: 'clothing' },
-    { label: 'Home Appliances', value: 'home_appliances' },
-  ];
+
+  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
+  const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
+  useEffect(() => {
+    // Fetch categories from the API
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/drawer');
+        const categoryData = response.data.map((cat) => ({
+          label: cat.name,
+          value: cat.id,
+        }));
+        setCategories(categoryData);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const discounts = [
     { label: '10% and above', value: '10_above' },
@@ -29,28 +45,45 @@ const FilterDropdown = ({ open, setOpen, setFilterOptions, applyFilters }) => {
     { label: '30% and above', value: '30_above' },
   ];
 
-  const handlePriceRangeChange = (value) => {
-    setPriceRange(value);
-    setSelectedFilters((prev) => [...prev, `Price: ₹${value[0]} - ₹${value[1]}`]);
-  };
-
   const handleCategoryChange = (value) => {
     setCategory(value);
-    setSelectedFilters((prev) => [...prev, `Category: ${categories.find(cat => cat.value === value)?.label}`]);
+    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Category:')).concat(`Category: ${categories.find(cat => cat.value === value)?.label}`));
+    setIsCategoryModalVisible(false); // Close modal after selection
   };
-
+  const handleApplyFilters = () => {
+    applyFilters({
+      minPrice,
+      maxPrice,
+      category,
+      discount,
+      excludeOutOfStock,
+    });
+  };
   const handleDiscountChange = (value) => {
     setDiscount(value);
-    setSelectedFilters((prev) => [...prev, `Discount: ${discounts.find(disc => disc.value === value)?.label}`]);
+    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Discount:')).concat(`Discount: ${discounts.find(disc => disc.value === value)?.label}`));
+    setIsDiscountModalVisible(false); // Close modal after selection
   };
+
+
+  const handleMinPriceChange = (value) => {
+    setMinPrice(value);
+    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Min Price:')).concat(`Min Price: ₹${value}`));
+  };
+
+  const handleMaxPriceChange = (value) => {
+    setMaxPrice(value);
+    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Max Price:')).concat(`Max Price: ₹${value}`));
+  };
+
 
   const handleExcludeOutOfStockChange = () => {
     setExcludeOutOfStock(prev => !prev);
-    setSelectedFilters((prev) => [...prev, 'Exclude Out of Stock']);
+    setSelectedFilters(prev => prev.includes('Exclude Out of Stock') ? prev.filter(f => f !== 'Exclude Out of Stock') : [...prev, 'Exclude Out of Stock']);
   };
 
   const removeFilter = (filter) => {
-    setSelectedFilters((prev) => prev.filter(f => f !== filter));
+    setSelectedFilters(prev => prev.filter(f => f !== filter));
     // Additional logic to update the corresponding state
   };
 
@@ -69,51 +102,79 @@ const FilterDropdown = ({ open, setOpen, setFilterOptions, applyFilters }) => {
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.priceContainer}>
-          <Text style={styles.priceLabel}>Price Range: ₹{priceRange[0]} - ₹{priceRange[1]}</Text>
-          <Slider
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={9999999}
-            step={100}
-            value={priceRange}
-            onValueChange={handlePriceRangeChange}
-            minimumTrackTintColor={colors.main}
-            maximumTrackTintColor="#d3d3d3"
-          />
+          <Text style={styles.priceLabel}>Price Range: ₹{minPrice} - ₹{maxPrice}</Text>
+          <View style={styles.sliderContainer}>
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={9999999}
+              step={100}
+              value={minPrice}
+              onValueChange={handleMinPriceChange}
+              minimumTrackTintColor={colors.main}
+              maximumTrackTintColor="#d3d3d3"
+            />
+            <Slider
+              style={styles.slider}
+              minimumValue={minPrice}
+              maximumValue={9999999}
+              step={100}
+              value={maxPrice}
+              onValueChange={handleMaxPriceChange}
+              minimumTrackTintColor={colors.main}
+              maximumTrackTintColor="#d3d3d3"
+            />
+          </View>
         </View>
 
-        <DropDownPicker
-          open={open}
-          value={category}
-          items={categories}
-          setOpen={setOpen}
-          setValue={handleCategoryChange}
-          placeholder="Category"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
-        />
 
-        <DropDownPicker
-          open={open}
-          value={discount}
-          items={discounts}
-          setOpen={setOpen}
-          setValue={handleDiscountChange}
-          placeholder="Discount"
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
-        />
+        {/* Category Dropdown */}
+        <TouchableOpacity onPress={() => setIsCategoryModalVisible(true)} style={styles.dropdown}>
+          <Text  style={styles.priceLabel}>{category ? categories.find(cat => cat.value === category)?.label : "Select Category"}</Text>
+        </TouchableOpacity>
+        <Modal visible={isCategoryModalVisible} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            {categories.map((cat) => (
+              <TouchableOpacity key={cat.value} onPress={() => handleCategoryChange(cat.value)} style={styles.modalItem}>
+                <Text  style={styles.priceLabel}>{cat.label}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity onPress={() => setIsCategoryModalVisible(false)} style={styles.modalCloseButton}>
+              <Text  style={styles.priceLabel}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
+        {/* Discount Dropdown */}
+        <TouchableOpacity onPress={() => setIsDiscountModalVisible(true)} style={styles.dropdown}>
+          <Text  style={styles.priceLabel}>{discount ? discounts.find(disc => disc.value === discount)?.label : "Select Discount"}</Text>
+        </TouchableOpacity>
+        <Modal visible={isDiscountModalVisible} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            {discounts.map((disc) => (
+              <TouchableOpacity key={disc.value} onPress={() => handleDiscountChange(disc.value)} style={styles.modalItem}>
+                <Text  style={styles.priceLabel}>{disc.label}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity onPress={() => setIsDiscountModalVisible(false)} style={styles.modalCloseButton}>
+              <Text  style={styles.priceLabel}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
 
         <View style={styles.excludeContainer}>
           <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.checkboxContainer}>
-            <View style={[styles.checkbox, excludeOutOfStock && styles.checkboxChecked]} />
+            <View style={[styles.checkbox, excludeOutOfStock && styles.checkboxChecked]}>
+              {excludeOutOfStock && <MaterialCommunityIcons name="check" size={16} color="white" />}
+            </View>
             <Text style={styles.excludeText}>Exclude Out of Stock</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity onPress={() => applyFilters({ priceRange, category, discount, excludeOutOfStock })} style={styles.applyButton}>
-          <Text style={styles.applyButtonText}>Apply Filters</Text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={handleApplyFilters} style={styles.applyButton}>
+        <Text style={styles.applyButtonText}>Apply Filters</Text>
+      </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -126,9 +187,10 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     padding: 10,
   },
-  dropdown: {
-    backgroundColor: '#FFFFFF',
-    marginBottom: 10,
+
+  dropdownList: {
+    zIndex: 3000, // Ensure dropdown appears above
+    elevation: 5, // For Android shadow effect
   },
   scrollView: {
     maxHeight: 400,
@@ -138,8 +200,42 @@ const styles = StyleSheet.create({
   },
   priceLabel: {
     fontSize: 16,
-    color: colors.text,
+    color: colors.TextBlack,
+ 
+    fontFamily: 'Outfit-Medium',
     marginBottom: 5,
+  },
+  sliderContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalItem: {
+    backgroundColor: 'white',
+    padding: 10,
+    marginVertical: 5,
+    width: '80%',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  modalCloseButton: {
+    backgroundColor: '#ccc',
+    padding: 10,
+    marginTop: 10,
+    borderRadius: 5,
+  },
+  dropdown: {
+    backgroundColor: '#FFFFFF',
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 5,
+    borderColor: '#ccc',
+    borderWidth: 1,
   },
   slider: {
     width: '100%',
@@ -161,13 +257,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   checkboxChecked: {
     backgroundColor: colors.main,
   },
   excludeText: {
     fontSize: 16,
-    color: colors.text,
+    color: colors.textPrimary,
+    fontFamily: 'Outfit-Medium',
+
   },
   applyButton: {
     backgroundColor: colors.main,
@@ -185,7 +285,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   filterTag: {
-    backgroundColor: colors.tagBackground,
     borderRadius: 15,
     padding: 5,
     margin: 5,
@@ -194,14 +293,18 @@ const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: 14,
-    color: colors.text,
+
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
   },
   removeFilterButton: {
     marginLeft: 10,
   },
   removeFilterText: {
     fontSize: 16,
-    color: colors.remove,
+  
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
   },
 });
 

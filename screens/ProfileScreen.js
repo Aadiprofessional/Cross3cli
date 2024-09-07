@@ -20,6 +20,7 @@ const ProfileScreen = ({navigation}) => {
   const [userName, setUserName] = useState('Your Name');
   const [rewardPoints, setRewardPoints] = useState('0');
   const [profileImage, setProfileImage] = useState(null);
+  const [billing, setBilling] = useState({});
 
   useEffect(() => {
     const fetchPhoneNumber = async () => {
@@ -40,6 +41,8 @@ const ProfileScreen = ({navigation}) => {
                 setUserName(userData.name || 'Your Name');
                 setRewardPoints(userData.rewardPoints || '0');
                 setProfileImage(userData.profilePicture || null);
+                setBilling(userData.billing || {} );
+
               }
             });
 
@@ -136,16 +139,12 @@ const ProfileScreen = ({navigation}) => {
 
   const handleLogout = async () => {
     try {
-      // Clear AsyncStorage to remove any stored login information
       await AsyncStorage.removeItem('loggedIn');
       await AsyncStorage.removeItem('phoneNumber');
-
-      // Sign out from Firebase
       await auth().signOut();
 
       console.log('Signed out successfully.');
 
-      // Reset navigation to OTPVerification screen
       navigation.reset({
         index: 0,
         routes: [{name: 'OTPVerification'}],
@@ -189,7 +188,7 @@ const ProfileScreen = ({navigation}) => {
           style={styles.optionContainer}
           onPress={() => {
             if (option.text === 'Log out') {
-              handleLogout(); // Ensure this is called directly
+              handleLogout();
             } else if (option.screen) {
               navigation.navigate(option.screen);
             }
@@ -203,6 +202,15 @@ const ProfileScreen = ({navigation}) => {
           <Text style={styles.optionText}>{option.text}</Text>
         </TouchableOpacity>
       ))}
+
+      {/* Card with Virtual ID, IFSC, Branch Name */}
+      <TouchableOpacity
+        style={styles.cardContainer}
+        onPress={() => navigation.navigate('AddTransactionScreen')}>
+        <Text style={styles.cardText}>Virtual Id: {billing.virtualId||'NA'}</Text>
+        <Text style={styles.cardText}>IFSC: {billing.ifsc||'NA'}</Text>
+        <Text style={styles.cardText}>Branch Name: {billing.branch||'NA'}</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -258,12 +266,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
     color: colors.TextBlack,
   },
-  rewardPointsText: {
-    fontSize: 14,
-    fontFamily: 'Outfit-Medium',
-    marginTop: 10,
-    color: colors.TextBlack,
-  },
   optionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -286,6 +288,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
+  },
+  cardContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 5,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  cardText: {
+    fontSize: 16,
+    fontFamily: 'Outfit-Medium',
+    color: '#333',
+    marginBottom: 5,
   },
 });
 

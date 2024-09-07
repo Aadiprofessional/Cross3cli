@@ -33,6 +33,7 @@ import AddCompanyScreen from './screens/AddCompanyScreen';
 import ThankYouScreen from './screens/ThankYou';
 import SubCategoryScreen2 from './screens/SubCategoryScreen copy';
 import EditCompanyScreen from './components/editCompanyScreen';
+import TransactionScreen from './screens/Transation';
 
 // Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
@@ -113,6 +114,23 @@ const App = () => {
             component={SearchScreen}
             options={{
               title: 'Search',
+              headerStyle: {backgroundColor: colors.main},
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left', // Left-align text
+                flex: 1,
+                textAlign: 'left',
+                justifyContent: 'center',
+              },
+              headerTitleAlign: 'left', // Align header title to left
+            }}
+          />
+           <Stack.Screen
+            name="AddTransactionScreen"
+            component={TransactionScreen}
+            options={{
+              title: 'Your Transactions',
               headerStyle: {backgroundColor: colors.main},
               headerTintColor: '#fff',
               headerTitleStyle: {

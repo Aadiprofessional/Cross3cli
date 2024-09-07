@@ -46,6 +46,7 @@ const ProductComponent = ({product}) => {
         attributeSelected2: product.attribute2,
         attributeSelected3: product.attribute3,
         additionalDiscount: product.additionalDiscount || 0,
+        discountedPrice: cutPrice,
         mainId: product.mainId,
         categoryId: product.categoryId,
       };
@@ -63,7 +64,7 @@ const ProductComponent = ({product}) => {
         <View style={styles.imageContainer}>
           <View style={styles.imageBox}>
             <Image
-              source={{uri: product.image || 'default_image_url'}}
+              source={{uri: product.image || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656'}}
               style={styles.productImage}
             />
           </View>
@@ -82,15 +83,21 @@ const ProductComponent = ({product}) => {
           <Text style={styles.originalPriceText}>₹{cutPrice}</Text>
         </View>
         <View style={styles.actionButtonContainer}>
-          <TouchableOpacity
-            style={styles.addToCartButton2}
-            onPress={handleAddToCart}>
-            <Text style={styles.addToCartText2}>Add to Cart</Text>
-          </TouchableOpacity>
+          {product.outOfStock ? (
+            <View style={styles.outOfStockButton}>
+              <Text style={styles.outOfStockText}>Out of Stock</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.addToCartButton}
+              onPress={handleAddToCart}>
+              <Text style={styles.addToCartText}>Add to Cart</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.productDetailButton2}
             onPress={handlePress}>
-            <Text style={styles.productDetailText2}>Details</Text>
+            <Text style={styles.productDetailText3}>Details</Text>
           </TouchableOpacity>
         </View>
       </View>

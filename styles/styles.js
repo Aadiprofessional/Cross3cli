@@ -5,7 +5,7 @@ import {sizes} from './size';
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     backgroundColor: '#fff',
     paddingVertical: 10,
   },
@@ -26,6 +26,10 @@ const styles = StyleSheet.create({
     width: 180, // Adjust width to control the size of the product container
     marginRight: 10, // Space between product containers
   },
+  productImage: {
+    width: 100, // Set your desired width
+    height: 100, // Set your desired height
+  },
   productContainer: {
     width: '100%',
     backgroundColor: '#fff',
@@ -34,15 +38,22 @@ const styles = StyleSheet.create({
     borderWidth: 1, // Add border width
     borderColor: '#ddd', // Border color
   },
-  productContainer2: {
-    width: '48%', // This makes two products fit in one row
-    marginBottom: 16, // Add some spacing between rows
-    borderWidth: 1,
-    borderColor: '#ECECEC',
-    borderRadius: 10,
-    padding: 10,
-    backgroundColor: '#FFFFFF',
+  productList2: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 8, // Adjust horizontal padding for equal margins
   },
+ productContainer2: {
+  width: '48%', // Ensures two products per row with space in between
+  marginBottom: 16, // Space between rows
+  marginLeft: '1%', // Space on the left of each product
+  marginRight: '1%', // Space on the right of each product
+  backgroundColor: '#fff',
+  borderRadius: 10,
+  padding: 10,
+  borderWidth: 1,
+  borderColor: '#ECECEC',
+},
   productContent: {
     flex: 1,
     backgroundColor: '#fff',
@@ -163,12 +174,12 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignItems: 'center',
-    marginLeft: -9,
+    marginLeft: -14,
   },
   addToCartText2: {
     color: '#333',
     fontFamily: 'Outfit-Medium',
-    fontSize: 8,
+    fontSize: 12,
   },
   productDetailButton2: {
     borderColor: '#333', // Use borderColor instead of border for correct application
@@ -177,14 +188,43 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignItems: 'center',
-    marginLeft: 15,
+    marginLeft: 5,
     backgroundColor: '#fff', // Example background color
     color: '#333', // Example text color, if you are using text-based components
   },
   productDetailText2: {
     color: '#333',
     fontFamily: 'Outfit-Medium',
+    fontSize:8,
+  },
+  addToCartButton3: {
+    backgroundColor: '#FCCC51',
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginLeft: -14,
+  },
+  addToCartText3: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
     fontSize: 8,
+  },
+  productDetailButton3: {
+    borderColor: '#333', // Use borderColor instead of border for correct application
+    borderWidth: 1, // Ensure border width is set for visibility
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginLeft: 5,
+    backgroundColor: '#fff', // Example background color
+    color: '#333', // Example text color, if you are using text-based components
+  },
+  productDetailText3: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 12,
   },
   //Auto Image Slider
   containerImageSlider: {

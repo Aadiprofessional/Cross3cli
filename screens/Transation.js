@@ -1,0 +1,196 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  ScrollView,
+} from 'react-native';
+import auth from '@react-native-firebase/auth';
+import axios from 'axios';
+import { colors } from '../styles/color';  // Assuming colors.primary is defined here
+
+const TransactionScreen = () => {
+  const [transactionId, setTransactionId] = useState('');
+  const [amount, setAmount] = useState('');
+  const [transactions, setTransactions] = useState([]);
+
+  const fetchTransactions = async () => {
+    try {
+      const user = auth().currentUser;
+      if (user) {
+        const response = await axios.get(
+          `https://crossbee-server-1036279390366.asia-south1.run.app/getTransactions?uid=${user.uid}`
+        );
+        setTransactions(response.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      Alert.alert('Error', 'Failed to fetch transactions. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    fetchTransactions(); // Fetch transactions on component load
+  }, []);
+
+  const handleSubmit = async () => {
+    try {
+      const user = auth().currentUser;
+      if (!user) {
+        Alert.alert('Error', 'User not authenticated');
+        return;
+      }
+
+      if (!transactionId || !amount) {
+        Alert.alert('Error', 'Please fill out all fields');
+        return;
+      }
+
+      const body = {
+        uid: user.uid,
+        transactionId,
+        amount,
+      };
+
+      await axios.post(
+        'https://crossbee-server-1036279390366.asia-south1.run.app/createTransaction',
+        body
+      );
+
+      Alert.alert('Success', 'Transaction created successfully');
+      setTransactionId('');
+      setAmount('');
+      fetchTransactions(); // Refresh transactions after submission
+    } catch (error) {
+      console.error('Error creating transaction:', error);
+      Alert.alert('Error', 'Failed to create transaction. Please try again.');
+    }
+  };
+
+  const formatDate = timestamp => {
+    const date = new Date(timestamp._seconds * 1000);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Transaction ID"
+          value={transactionId}
+          onChangeText={setTransactionId}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Amount"
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+        <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
+          <Text style={styles.submitButtonText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Transaction History */}
+      <View style={styles.transactionHistoryContainer}>
+        <Text style={styles.historyTitle}>Transaction History</Text>
+        {transactions.length > 0 ? (
+          transactions.map((transaction, index) => (
+            <View key={index} style={styles.transactionCard}>
+              <Text style={styles.transactionText}>
+                Transaction ID: {transaction.id}
+              </Text>
+              <Text style={styles.transactionText}>
+                Amount: ₹{transaction.amount}
+              </Text>
+              <Text style={styles.transactionText}>
+                Name: {transaction.name}
+              </Text>
+              <Text style={styles.transactionText}>
+                Phone: {transaction.phone}
+              </Text>
+              
+              <Text style={styles.transactionText}>
+                Date: {formatDate(transaction.timestamp)}
+              </Text>
+              <Text style={styles.transactionText2}>
+                {transaction.status}
+              </Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.noTransactionsText}>No transactions found.</Text>
+        )}
+      </View>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: '#fff',
+    fontFamily: 'Outfit-Medium',
+  },
+  submitButton: {
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Outfit-Medium',
+  },
+  transactionHistoryContainer: {
+    marginTop: 20,
+  },
+  historyTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  transactionCard: {
+    backgroundColor: colors.primary,  // Using colors.primary for background
+    borderRadius: 5,
+    padding: 15,
+    marginBottom: 10,
+  },
+  transactionText: {
+    fontSize: 16,
+    color: '#333', // White text for better contrast on primary background
+    fontFamily: 'Outfit-Medium',
+  },
+  transactionText2: {
+    fontSize: 24,
+    color: colors.orange, // White text for better contrast on primary background
+    fontFamily: 'Outfit-Medium',
+  },
+  noTransactionsText: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    fontFamily: 'Outfit-Medium',
+    marginTop: 20,
+  },
+});
+
+export default TransactionScreen;

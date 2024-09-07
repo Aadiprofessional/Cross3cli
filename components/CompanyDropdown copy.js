@@ -73,7 +73,7 @@ const CompanyDropdown2 = ({onSelectCompany}) => {
           onValueChange={handleSelect}
           style={styles.picker}>
           {companies.length === 0 && (
-            <Picker.Item label="No companies available" value={null} />
+            <Picker.Item label="No Brand available" value={null} />
           )}
           {companies.map(company => (
             <Picker.Item

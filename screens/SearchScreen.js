@@ -8,13 +8,13 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Modal,
-  Pressable, // Import Pressable for handling touch outside
+  Pressable,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { fetchProducts } from '../services/apiService';
 import ProductComponent from '../components/ProductComponent';
-import FilterComponent from '../components/FilterDropdown'; // Updated component
+import FilterComponent from '../components/FilterDropdown';
 import { debounce } from 'lodash';
 
 const SearchScreen = () => {
@@ -27,12 +27,12 @@ const SearchScreen = () => {
   const [sortItems, setSortItems] = useState([
     { label: 'Low to High', value: 'low_to_high' },
     { label: 'High to Low', value: 'high_to_low' },
-    { label: 'Newest', value: 'newest' },
   ]);
-  const [filterVisible, setFilterVisible] = useState(false); // State to control filter visibility
+  const [filterVisible, setFilterVisible] = useState(false);
   const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
 
+  // Load products on mount
   const loadProducts = useCallback(async () => {
     try {
       const products = await fetchProducts();
@@ -49,6 +49,7 @@ const SearchScreen = () => {
     loadProducts();
   }, [loadProducts]);
 
+  // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
       debounce(query => {
@@ -56,42 +57,41 @@ const SearchScreen = () => {
           product.searchName.toLowerCase().includes(query.toLowerCase()),
         );
 
+        // Apply Category Filter
+
         if (filterOptions.category) {
+          console.log(filterOptions.category,filteredProducts[0].mainId);
+          
           filteredProducts = filteredProducts.filter(
-            product => product.category === filterOptions.category,
+            product => product.mainId === filterOptions.category,
           );
         }
 
-        if (filterOptions.priceRange) {
-          filteredProducts = filteredProducts.filter(product => {
-            switch (filterOptions.priceRange) {
-              case 'below_500':
-                return product.price < 500;
-              case '500_1000':
-                return product.price >= 500 && product.price <= 1000;
-              case 'above_1000':
-                return product.price > 1000;
-              default:
-                return true;
-            }
-          });
-        }
-
+        // Apply Discount Filter
         if (filterOptions.discount) {
           filteredProducts = filteredProducts.filter(product => {
             switch (filterOptions.discount) {
               case '10_above':
-                return product.discount >= 10;
+                return product.additionalDiscount >= 10;
               case '20_above':
-                return product.discount >= 20;
+                return product.additionalDiscount >= 20;
               case '30_above':
-                return product.discount >= 30;
+                return product.additionalDiscount >= 30;
               default:
                 return true;
             }
           });
         }
+        if (filterOptions.minPrice || filterOptions.maxPrice) {
+          filteredProducts = filteredProducts.filter(product => {
+            const price = parseFloat(product.price);
+            return (
+              price >= filterOptions.minPrice && price <= filterOptions.maxPrice
+            );
+          });
+        }
 
+        // Exclude Out of Stock products
         if (filterOptions.excludeOutOfStock) {
           filteredProducts = filteredProducts.filter(
             product => !product.outOfStock,
@@ -99,7 +99,10 @@ const SearchScreen = () => {
         }
 
         setSearchResults(query ? filteredProducts : originalProducts);
+        setSortedResults(filteredProducts ?? originalProducts);
+        setSortValue(null);
       }, 300),
+
     [originalProducts, filterOptions],
   );
 
@@ -107,6 +110,7 @@ const SearchScreen = () => {
     debouncedSearch(searchQuery);
   }, [searchQuery, debouncedSearch]);
 
+  // Sort products based on price
   useEffect(() => {
     const sortProducts = () => {
       let sortedProducts = [...searchResults];
@@ -127,9 +131,11 @@ const SearchScreen = () => {
     sortProducts();
   }, [sortValue, searchResults]);
 
+ 
+  // Apply filter options
   const applyFilters = filters => {
     setFilterOptions(filters);
-    setFilterVisible(false); // Close the filter component
+    setFilterVisible(false); // Close the filter modal after applying filters
   };
 
   const renderItem = ({ item }) => <ProductComponent product={item} />;
@@ -145,7 +151,6 @@ const SearchScreen = () => {
           value={searchQuery}
           onChangeText={setSearchQuery}
           returnKeyType="search"
-          autoFocus
         />
       </View>
 
@@ -162,14 +167,6 @@ const SearchScreen = () => {
             style={styles.smallButton}
             dropDownContainerStyle={styles.smallDropDownContainer}
             textStyle={styles.buttonText}
-            ArrowDownIconComponent={({ style }) => (
-              <Icon
-                name="chevron-down"
-                size={16}
-                color="#484848"
-                style={style}
-              />
-            )}
           />
         </View>
         <View style={styles.buttonWrapper}>
@@ -192,28 +189,30 @@ const SearchScreen = () => {
           renderItem={renderItem}
           keyExtractor={item => item.productId}
           contentContainerStyle={styles.productList}
+          style={styles.flatList}
           numColumns={2} // Display two products per row
+          showsVerticalScrollIndicator={false}
         />
       )}
 
       {/* Filter Modal */}
       <Modal
-        visible={filterVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setFilterVisible(false)}>
-        <Pressable
-          style={styles.modalBackground}
-          onPress={() => setFilterVisible(false)} // Close modal on press outside
-        >
-          <View style={styles.modalContainer}>
-            <FilterComponent
-              applyFilters={applyFilters}
-              onClose={() => setFilterVisible(false)}
-            />
-          </View>
-        </Pressable>
-      </Modal>
+      visible={filterVisible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setFilterVisible(false)}>
+      <Pressable
+        style={styles.modalBackground}
+        onPress={() => setFilterVisible(false)}>
+        <View style={styles.modalContainer}>
+          <FilterComponent
+            filterOptions={filterOptions}  // Pass current filter options to the component
+            applyFilters={applyFilters}
+            onClose={() => setFilterVisible(false)}
+          />
+        </View>
+      </Pressable>
+    </Modal>
     </View>
   );
 };
@@ -221,7 +220,7 @@ const SearchScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 5, // Adds equal padding from left and right
     backgroundColor: '#FFFFFF',
   },
   searchBox: {
@@ -231,6 +230,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 20,
+    marginTop: 20,
   },
   icon: {
     marginRight: 10,
@@ -243,11 +243,11 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Changed to space-between for alignment
+    alignItems: 'center', // Align items to the center vertically
     marginBottom: 10,
   },
   buttonWrapper: {
-    marginHorizontal: 5, // Adjusted margin for better spacing
+    marginRight: 15, // Adjust margin for equal spacing between buttons
   },
   smallButton: {
     flexDirection: 'row',
@@ -271,6 +271,8 @@ const styles = StyleSheet.create({
   },
   productList: {
     flexGrow: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 8, // Adjust horizontal padding for equal margins
   },
   noResultsText: {
     fontSize: 18,

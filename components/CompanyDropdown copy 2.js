@@ -5,7 +5,7 @@ import auth from '@react-native-firebase/auth';
 import {Picker} from '@react-native-picker/picker'; // Updated import
 import {colors} from '../styles/color';
 
-const CompanyDropdown4 = ({onSelectCompany}) => {
+const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,10 +25,14 @@ const CompanyDropdown4 = ({onSelectCompany}) => {
       const uid = currentUser.uid;
 
       try {
+        console.log(pincode);
         const response = await axios.post(
+          
           'https://crossbee-server-1036279390366.asia-south1.run.app/booking-stations',
+          {
+            pincode: pincode, // Send pincode in the body
+          },
         );
-
         if (response.status === 200) {
           const companiesData = response.data;
           setCompanies(companiesData);
@@ -52,7 +56,7 @@ const CompanyDropdown4 = ({onSelectCompany}) => {
     };
 
     fetchCompanies();
-  }, []);
+  }, [pincode]);
 
   const handleSelect = companyId => {
     setSelectedCompanyId(companyId);
@@ -65,14 +69,14 @@ const CompanyDropdown4 = ({onSelectCompany}) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Select a Transit location:</Text>
+      <Text style={styles.label}>Select a Booking Station:</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={selectedCompanyId}
           onValueChange={handleSelect}
           style={styles.picker}>
           {companies.length === 0 && (
-            <Picker.Item label="No companies available" value={null} />
+            <Picker.Item label="No Booking Station available" value={null} />
           )}
           {companies.map(company => (
             <Picker.Item
@@ -115,7 +119,8 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     textAlign: 'center',
+    marginTop: 20,
   },
 });
 
-export default CompanyDropdown4;
+export default CompanyDropdown3;

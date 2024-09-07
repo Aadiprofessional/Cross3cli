@@ -25,7 +25,9 @@ const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
       const uid = currentUser.uid;
 
       try {
+        console.log(pincode);
         const response = await axios.post(
+          
           'https://crossbee-server-1036279390366.asia-south1.run.app/logistics',
           {
             pincode: pincode, // Send pincode in the body
@@ -54,7 +56,7 @@ const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
     };
 
     fetchCompanies();
-  }, []);
+  }, [pincode]);
 
   const handleSelect = companyId => {
     setSelectedCompanyId(companyId);
@@ -74,7 +76,7 @@ const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
           onValueChange={handleSelect}
           style={styles.picker}>
           {companies.length === 0 && (
-            <Picker.Item label="No companies available" value={null} />
+            <Picker.Item label="No Logistics available" value={null} />
           )}
           {companies.map(company => (
             <Picker.Item
