@@ -76,22 +76,20 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
+        const userId = auth().currentUser.uid;
         const response = await axios.get(
-          'https://crossbee-server-1036279390366.asia-south1.run.app/coupons/' +
-          auth().currentUser.uid,
+          `https://crossbee-server-1036279390366.asia-south1.run.app/coupons/${userId}?amount=${totalAmount}`
         );
         setCoupons(response.data);
       } catch (error) {
         console.error('Error fetching coupons:', error);
-        Alert.alert(
-          'Error',
-          'Failed to fetch coupons. Please try again later.',
-        );
+        Alert.alert('Error', 'Failed to fetch coupons. Please try again later.');
       }
     };
-
+  
     fetchCoupons();
-  }, []);
+  }, [totalAmount]); // Ensure that totalAmount is passed in as a dependency
+  
 
   useEffect(() => {
     const newTotalAmount = calculateTotalAmount();
@@ -129,7 +127,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       <View style={styles.summaryRow}>
         <Text style={styles.summaryLabel}>Coupon Discount:</Text>
         <Text style={styles.couponDiscount}>
-          -₹{Number(appliedCoupon.value)}
+          -{Number(appliedCoupon.value)}
         </Text>
       </View>
     );
@@ -249,73 +247,102 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       );
     }
   };
-  const formatPrice = price => {
-    return price
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
-  };
-
+  
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.header}>
-          <Text style={styles.itemCount}>{cartItems.length} items:</Text>
-          <Text style={styles.subtotal}>
-            ₹{formatPrice(calculateSubtotal().toFixed(2))}
+    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <View style={styles.header}>
+        <Text style={styles.itemCount}>{cartItems.length} items:</Text>
+        <Text style={styles.subtotal}>
+          {Number(calculateSubtotal().toFixed(2)).toLocaleString("en-IN", {
+            maximumFractionDigits: 0,
+            style: 'currency',
+            currency: 'INR',
+          })}
+        </Text>
+      </View>
+      
+      <View style={styles.summaryContainer}>
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Shipping Charges:</Text>
+          <Text style={styles.summaryValue}>
+            {Number(data.shippingCharges.toFixed(2)).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
           </Text>
         </View>
-        <View style={styles.summaryContainer}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Shipping Charges:</Text>
-            <Text style={styles.summaryValue}>
-              ₹{data.shippingCharges.toFixed(2)}
-            </Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Additional Discount:</Text>
-            <Text style={styles.summaryValue}>
-              -₹{totalAdditionalDiscountValue.toFixed(0)}
-            </Text>
-          </View>
-          {appliedCoupon && (
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Coupon Discount:</Text>
-              <Text style={styles.couponDiscount}>
-                -₹{formatPrice(appliedCoupon.value)}
-              </Text>
-            </View>
-          )}
-          {useRewardPoints && (
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Reward Points Discount:</Text>
-              <Text style={styles.couponDiscount}>
-                -₹{formatPrice(data.rewardPointsPrice.toFixed(2))}
-              </Text>
-            </View>
-          )}
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total:</Text>
-            <Text style={styles.totalValue}>
-              ₹{formatPrice(totalAmount.toFixed(2))}
-            </Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={styles.rewardPointsToggle}
-          onPress={handleToggleRewardPoints}>
-          <Text style={styles.rewardPointsText}>
-            Use Reward Points (-₹{data.rewardPointsPrice.toFixed(2)})
+        
+        <View style={styles.summaryRow}>
+          <Text style={styles.summaryLabel}>Additional Discount:</Text>
+          <Text style={styles.summaryValue}>
+            -{Number(totalAdditionalDiscountValue.toFixed(0)).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
           </Text>
-          <CheckBox
-            value={useRewardPoints}
-            onValueChange={handleToggleRewardPoints}
-            boxType="square"
-            tintColors={{ true: colors.main, false: '#dcdcdc' }}
-          />
-        </TouchableOpacity>
+        </View>
+  
+        {appliedCoupon && (
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Coupon Discount:</Text>
+            <Text style={styles.couponDiscount}>
+              -{Number(appliedCoupon.value).toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
+            </Text>
+          </View>
+        )}
+  
+        {useRewardPoints && (
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Reward Points Discount:</Text>
+            <Text style={styles.couponDiscount}>
+              -{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
+            </Text>
+          </View>
+        )}
+  
+        <View style={styles.totalRow}>
+          <Text style={styles.totalLabel}>Total:</Text>
+          <Text style={styles.totalValue}>
+            {Number(totalAmount.toFixed(2)).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
+          </Text>
+        </View>
+      </View>
+  
+      <TouchableOpacity
+        style={styles.rewardPointsToggle}
+        onPress={handleToggleRewardPoints}
+      >
+        <Text style={styles.rewardPointsText}>
+          Use Reward Points (-{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
+            maximumFractionDigits: 0,
+            style: 'currency',
+            currency: 'INR',
+          })})
+        </Text>
+        <CheckBox
+          value={useRewardPoints}
+          onValueChange={handleToggleRewardPoints}
+          boxType="square"
+          tintColors={{ true: colors.main, false: '#dcdcdc' }}
+        />
+      </TouchableOpacity>
+  
 
         <View style={styles.couponContainer}>
           <View style={styles.inputContainer}>

@@ -44,6 +44,18 @@ const TransactionScreen = () => {
         return;
       }
 
+      // Check if transaction ID has exactly 12 digits
+      if (transactionId.length !== 12) {
+        Alert.alert('Failed', 'Transaction ID must be exactly 12 digits');
+        return;
+      }
+
+      // Check if amount is a valid number and has at most 8 digits
+      if (!/^\d{1,8}$/.test(amount)) {
+        Alert.alert('Error', 'Amount must be a numeric value with up to 8 digits');
+        return;
+      }
+
       if (!transactionId || !amount) {
         Alert.alert('Error', 'Please fill out all fields');
         return;
@@ -74,21 +86,27 @@ const TransactionScreen = () => {
     const date = new Date(timestamp._seconds * 1000);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   };
+ 
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Transaction ID"
+          placeholderTextColor="#484848"
           value={transactionId}
-          onChangeText={setTransactionId}
+          onChangeText={text => setTransactionId(text.replace(/[^0-9]/g, '').slice(0, 12))}  // Restrict input to digits and limit to 12
           style={styles.input}
+          maxLength={12}
+          keyboardType="numeric"
         />
         <TextInput
           placeholder="Amount"
           value={amount}
-          onChangeText={setAmount}
+          placeholderTextColor="#484848"
+          onChangeText={text => setAmount(text.replace(/[^0-9]/g, '').slice(0, 8))}  // Restrict input to digits and limit to 8
           keyboardType="numeric"
+          maxLength={8}
           style={styles.input}
         />
         <TouchableOpacity onPress={handleSubmit} style={styles.submitButton}>
@@ -106,7 +124,11 @@ const TransactionScreen = () => {
                 Transaction ID: {transaction.id}
               </Text>
               <Text style={styles.transactionText}>
-                Amount: ₹{transaction.amount}
+                Amount: {Number(transaction.amount).toLocaleString("en-IN", {
+                  maximumFractionDigits: 0,
+                  style: 'currency',
+                  currency: 'INR',
+                })}
               </Text>
               <Text style={styles.transactionText}>
                 Name: {transaction.name}
@@ -114,7 +136,7 @@ const TransactionScreen = () => {
               <Text style={styles.transactionText}>
                 Phone: {transaction.phone}
               </Text>
-              
+
               <Text style={styles.transactionText}>
                 Date: {formatDate(transaction.timestamp)}
               </Text>
@@ -148,6 +170,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: '#fff',
     fontFamily: 'Outfit-Medium',
+    color: '#484848',
   },
   submitButton: {
     backgroundColor: colors.main,
@@ -165,7 +188,7 @@ const styles = StyleSheet.create({
   },
   historyTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontFamily: 'Outfit-Bold',
     marginBottom: 10,
   },
   transactionCard: {

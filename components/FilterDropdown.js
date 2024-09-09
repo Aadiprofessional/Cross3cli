@@ -1,28 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import Slider from '@react-native-community/slider';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { colors } from '../styles/color'; // Adjust path as needed
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal } from 'react-native';
 import axios from 'axios';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { colors } from '../styles/color'; // Adjust path as needed
 
 const FilterDropdown = ({ filterOptions, applyFilters }) => {
-  const [minPrice, setMinPrice] = useState(filterOptions.minPrice || 0);
-  const [maxPrice, setMaxPrice] = useState(filterOptions.maxPrice || 9999999);
+  const [minPrice, setMinPrice] = useState(filterOptions.minPrice || '');
+  const [maxPrice, setMaxPrice] = useState(filterOptions.maxPrice || '');
   const [category, setCategory] = useState(filterOptions.category || null);
   const [discount, setDiscount] = useState(filterOptions.discount || null);
   const [excludeOutOfStock, setExcludeOutOfStock] = useState(filterOptions.excludeOutOfStock || false);
- 
+
   const [categories, setCategories] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
 
-
-
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
+
   useEffect(() => {
-    // Fetch categories from the API
     const fetchCategories = async () => {
       try {
         const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/drawer');
@@ -48,8 +43,9 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
   const handleCategoryChange = (value) => {
     setCategory(value);
     setSelectedFilters(prev => prev.filter(f => !f.startsWith('Category:')).concat(`Category: ${categories.find(cat => cat.value === value)?.label}`));
-    setIsCategoryModalVisible(false); // Close modal after selection
+    setIsCategoryModalVisible(false);
   };
+
   const handleApplyFilters = () => {
     applyFilters({
       minPrice,
@@ -59,32 +55,32 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
       excludeOutOfStock,
     });
   };
+
   const handleDiscountChange = (value) => {
     setDiscount(value);
     setSelectedFilters(prev => prev.filter(f => !f.startsWith('Discount:')).concat(`Discount: ${discounts.find(disc => disc.value === value)?.label}`));
-    setIsDiscountModalVisible(false); // Close modal after selection
+    setIsDiscountModalVisible(false);
   };
-
-
-  const handleMinPriceChange = (value) => {
-    setMinPrice(value);
-    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Min Price:')).concat(`Min Price: ₹${value}`));
-  };
-
-  const handleMaxPriceChange = (value) => {
-    setMaxPrice(value);
-    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Max Price:')).concat(`Max Price: ₹${value}`));
-  };
-
 
   const handleExcludeOutOfStockChange = () => {
     setExcludeOutOfStock(prev => !prev);
     setSelectedFilters(prev => prev.includes('Exclude Out of Stock') ? prev.filter(f => f !== 'Exclude Out of Stock') : [...prev, 'Exclude Out of Stock']);
   };
 
+  const handlePriceChange = (text, isMaxPrice) => {
+    // Ensure only numeric input and limit to 9 digits
+    const cleanedText = text.replace(/[^0-9]/g, '');
+    if (cleanedText.length <= 9) {
+      if (isMaxPrice) {
+        setMaxPrice(cleanedText);
+      } else {
+        setMinPrice(cleanedText);
+      }
+    }
+  };
+
   const removeFilter = (filter) => {
     setSelectedFilters(prev => prev.filter(f => f !== filter));
-    // Additional logic to update the corresponding state
   };
 
   return (
@@ -101,67 +97,60 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
       </View>
 
       <ScrollView style={styles.scrollView}>
-        <View style={styles.priceContainer}>
-          <Text style={styles.priceLabel}>Price Range: ₹{minPrice} - ₹{maxPrice}</Text>
-          <View style={styles.sliderContainer}>
-            <Slider
-              style={styles.slider}
-              minimumValue={0}
-              maximumValue={9999999}
-              step={100}
-              value={minPrice}
-              onValueChange={handleMinPriceChange}
-              minimumTrackTintColor={colors.main}
-              maximumTrackTintColor="#d3d3d3"
-            />
-            <Slider
-              style={styles.slider}
-              minimumValue={minPrice}
-              maximumValue={9999999}
-              step={100}
-              value={maxPrice}
-              onValueChange={handleMaxPriceChange}
-              minimumTrackTintColor={colors.main}
-              maximumTrackTintColor="#d3d3d3"
-            />
-          </View>
-        </View>
+        {/* Min and Max Price Input */}
+        <View style={styles.priceInputContainer}>
+          <Text style={styles.priceLabel}>Min Price:</Text>
+          <TextInput
+            style={styles.priceInput}
 
+            keyboardType='numeric'
+            value={minPrice}
+            onChangeText={(text) => handlePriceChange(text, false)}
+          />
+        </View>
+        <View style={styles.priceInputContainer}>
+          <Text style={styles.priceLabel}>Max Price:</Text>
+          <TextInput
+            style={styles.priceInput}
+            keyboardType='numeric'
+            value={maxPrice}
+            onChangeText={(text) => handlePriceChange(text, true)}
+          />
+        </View>
 
         {/* Category Dropdown */}
         <TouchableOpacity onPress={() => setIsCategoryModalVisible(true)} style={styles.dropdown}>
-          <Text  style={styles.priceLabel}>{category ? categories.find(cat => cat.value === category)?.label : "Select Category"}</Text>
+          <Text style={styles.priceLabel}>{category ? categories.find(cat => cat.value === category)?.label : "Select Category"}</Text>
         </TouchableOpacity>
         <Modal visible={isCategoryModalVisible} transparent={true} animationType="slide">
           <View style={styles.modalContainer}>
             {categories.map((cat) => (
               <TouchableOpacity key={cat.value} onPress={() => handleCategoryChange(cat.value)} style={styles.modalItem}>
-                <Text  style={styles.priceLabel}>{cat.label}</Text>
+                <Text style={styles.priceLabel}>{cat.label}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity onPress={() => setIsCategoryModalVisible(false)} style={styles.modalCloseButton}>
-              <Text  style={styles.priceLabel}>Close</Text>
+              <Text style={styles.priceLabel}>Close</Text>
             </TouchableOpacity>
           </View>
         </Modal>
 
         {/* Discount Dropdown */}
         <TouchableOpacity onPress={() => setIsDiscountModalVisible(true)} style={styles.dropdown}>
-          <Text  style={styles.priceLabel}>{discount ? discounts.find(disc => disc.value === discount)?.label : "Select Discount"}</Text>
+          <Text style={styles.priceLabel}>{discount ? discounts.find(disc => disc.value === discount)?.label : "Select Discount"}</Text>
         </TouchableOpacity>
         <Modal visible={isDiscountModalVisible} transparent={true} animationType="slide">
           <View style={styles.modalContainer}>
             {discounts.map((disc) => (
               <TouchableOpacity key={disc.value} onPress={() => handleDiscountChange(disc.value)} style={styles.modalItem}>
-                <Text  style={styles.priceLabel}>{disc.label}</Text>
+                <Text style={styles.priceLabel}>{disc.label}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity onPress={() => setIsDiscountModalVisible(false)} style={styles.modalCloseButton}>
-              <Text  style={styles.priceLabel}>Close</Text>
+              <Text style={styles.priceLabel}>Close</Text>
             </TouchableOpacity>
           </View>
         </Modal>
-
 
         <View style={styles.excludeContainer}>
           <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.checkboxContainer}>
@@ -173,8 +162,8 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
         </View>
 
         <TouchableOpacity onPress={handleApplyFilters} style={styles.applyButton}>
-        <Text style={styles.applyButtonText}>Apply Filters</Text>
-      </TouchableOpacity>
+          <Text style={styles.applyButtonText}>Apply Filters</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -187,59 +176,28 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     padding: 10,
   },
-
-  dropdownList: {
-    zIndex: 3000, // Ensure dropdown appears above
-    elevation: 5, // For Android shadow effect
-  },
   scrollView: {
     maxHeight: 400,
   },
-  priceContainer: {
+  priceInputContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 10,
   },
   priceLabel: {
     fontSize: 16,
     color: colors.TextBlack,
- 
     fontFamily: 'Outfit-Medium',
     marginBottom: 5,
   },
-  sliderContainer: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalItem: {
-    backgroundColor: 'white',
-    padding: 10,
-    marginVertical: 5,
-    width: '80%',
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  modalCloseButton: {
-    backgroundColor: '#ccc',
-    padding: 10,
-    marginTop: 10,
-    borderRadius: 5,
-  },
-  dropdown: {
-    backgroundColor: '#FFFFFF',
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: 5,
-    borderColor: '#ccc',
+  priceInput: {
     borderWidth: 1,
-  },
-  slider: {
-    width: '100%',
-    height: 40,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    fontFamily: 'Outfit-Medium',
+    color: '#333',
+    width: '45%',
   },
   excludeContainer: {
     flexDirection: 'row',
@@ -267,7 +225,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textPrimary,
     fontFamily: 'Outfit-Medium',
-
   },
   applyButton: {
     backgroundColor: colors.main,
@@ -290,21 +247,46 @@ const styles = StyleSheet.create({
     margin: 5,
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: colors.primary,
   },
   filterText: {
+    color: '#FFFFFF',
     fontSize: 14,
-
-    color: '#333',
-    fontFamily: 'Outfit-Medium',
+    marginRight: 5,
   },
   removeFilterButton: {
-    marginLeft: 10,
+    backgroundColor: colors.danger,
+    borderRadius: 10,
+    padding: 2,
   },
   removeFilterText: {
-    fontSize: 16,
-  
-    color: '#333',
-    fontFamily: 'Outfit-Medium',
+    color: '#FFFFFF',
+    fontSize: 12,
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    margin: 20,
+  },
+  modalItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  modalCloseButton: {
+    padding: 10,
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    alignItems: 'center',
   },
 });
 

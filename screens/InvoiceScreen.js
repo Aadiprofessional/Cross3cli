@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,12 +17,12 @@ import storage from '@react-native-firebase/storage';
 import RNFS from 'react-native-fs';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
-import {colors} from '../styles/color';
-import {useNavigation} from '@react-navigation/native';
+import { colors } from '../styles/color';
+import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 
-const InvoiceScreen = ({route}) => {
-  const {invoiceData, quotationId} = route.params; // Destructure invoiceData from route params
+const InvoiceScreen = ({ route }) => {
+  const { invoiceData, quotationId } = route.params; // Destructure invoiceData from route params
   const [pdfPath, setPdfPath] = useState('');
   const navigation = useNavigation();
   const userId = auth().currentUser?.uid;
@@ -72,12 +72,7 @@ const InvoiceScreen = ({route}) => {
       return false;
     }
   };
-  const formatPrice = price => {
-    return price
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
-  };
+
 
   const generatePdf = async () => {
     const htmlContent = `
@@ -137,15 +132,12 @@ const InvoiceScreen = ({route}) => {
                   <div class="invoice-header d-flex justify-content-between align-items-center">
                       <h2 class="text-start">Invoice</h2>
                       <div class="text-end">
-                          <p class="m-0"><span class="fw-medium">Invoice No:</span> ${
-                            invoiceData.uid || 'N/A'
-                          }</p>
-                          <p class="m-0"><span class="fw-medium">Invoice Date:</span> ${
-                            invoiceData.timestamp.split('T')[0]
-                          }</p>
-                          <p class="m-0"><span class="fw-medium">Due Date:</span> ${
-                            invoiceData.timestamp.split('T')[0]
-                          }</p>
+                          <p class="m-0"><span class="fw-medium">Invoice No:</span> ${invoiceData.uid || 'N/A'
+      }</p>
+                          <p class="m-0"><span class="fw-medium">Invoice Date:</span> ${invoiceData.timestamp.split('T')[0]
+      }</p>
+                          <p class="m-0"><span class="fw-medium">Due Date:</span> ${invoiceData.timestamp.split('T')[0]
+      }</p>
                       </div>
                   </div>
   
@@ -164,19 +156,19 @@ const InvoiceScreen = ({route}) => {
                       </thead>
                       <tbody>
                           ${invoiceData.cartItems
-                            .map(
-                              (item, index) => `
+        .map(
+          (item, index) => `
                           <tr>
                               <td>${index + 1}</td>
                               <td>${item.productName || 'N/A'}</td>
                               <td>${item.price || '0.00'}</td>
                               <td>${item.quantity || 0}</td>
                               <td>${(item.price * item.quantity).toFixed(
-                                2,
-                              )}</td>
+            2,
+          )}</td>
                           </tr>`,
-                            )
-                            .join('')}
+        )
+        .join('')}
                           <tr>
                               <td></td>
                               <td></td>
@@ -197,8 +189,8 @@ const InvoiceScreen = ({route}) => {
                               <td></td>
                               <td class="text-primary fs-5 fw-bold">Grand-Total</td>
                               <td class="text-primary fs-5 fw-bold">${invoiceData.totalAmount.toFixed(
-                                2,
-                              )}</td>
+          2,
+        )}</td>
                           </tr>
                       </tbody>
                   </table>
@@ -256,7 +248,7 @@ const InvoiceScreen = ({route}) => {
 
     try {
       // Generate PDF
-      const {filePath: generatedFilePath} = await RNHTMLtoPDF.convert(options);
+      const { filePath: generatedFilePath } = await RNHTMLtoPDF.convert(options);
 
       // Upload PDF to Firebase Storage
       const reference = storage().ref(`users/${userId}/${quotationId}`);
@@ -285,7 +277,7 @@ const InvoiceScreen = ({route}) => {
 
       // Set the download URL or handle it as needed
       setPdfPath(downloadURL);
-    } catch (error) {}
+    } catch (error) { }
   };
   return (
     <ScrollView style={styles.container}>
@@ -299,15 +291,25 @@ const InvoiceScreen = ({route}) => {
 
       <View style={styles.section}>
         <Text style={styles.subtitle}>
-          Total Amount: ₹{formatPrice(invoiceData.totalAmount.toFixed(2))}
+          Total Amount: {Number(invoiceData.totalAmount.toFixed(2)).toLocaleString("en-IN", {
+            maximumFractionDigits: 0,
+            style: 'currency',
+            currency: 'INR',
+          })}
         </Text>
         <Text style={styles.subtitle}>
-          Shipping Charges: ₹
-          {formatPrice(invoiceData.shippingCharges.toFixed(2))}
+          Shipping Charges: {Number(invoiceData.shippingCharges.toFixed(2)).toLocaleString("en-IN", {
+            maximumFractionDigits: 0,
+            style: 'currency',
+            currency: 'INR',
+          })}
         </Text>
         <Text style={styles.subtitle}>
-          Additional Discount: ₹
-          {formatPrice(invoiceData.additionalDiscount.toFixed(2))}
+          Additional Discount: {Number(invoiceData.additionalDiscount.toFixed(2)).toLocaleString("en-IN", {
+            maximumFractionDigits: 0,
+            style: 'currency',
+            currency: 'INR',
+          })}
         </Text>
       </View>
 
@@ -318,11 +320,16 @@ const InvoiceScreen = ({route}) => {
             <Text style={styles.tableData}>{item.name}</Text>
             <Text style={styles.tableData}>{item.quantity}</Text>
             <Text style={styles.tableData}>
-              ₹{formatPrice((item.price * item.quantity).toFixed(2))}
+              {Number((item.price * item.quantity).toFixed(2)).toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
             </Text>
           </View>
         ))}
       </View>
+
       <View style={styles.container2}>
         <TouchableOpacity
           style={styles.button3}
@@ -339,11 +346,13 @@ const InvoiceScreen = ({route}) => {
             } catch (error) {
               console.error('Navigation error:', error);
             }
-          }}>
+          }}
+        >
           <Text style={styles.buttonText}>Explore More</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
+
   );
 };
 

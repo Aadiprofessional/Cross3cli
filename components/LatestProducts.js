@@ -58,6 +58,7 @@ const ProductComponent = ({product}) => {
         mainId: product.mainId,
         discountedPrice: cutPrice,
         categoryId: product.categoryId,
+        name: product.attribute3
       };
 
       addToCart(item); // Call the addToCart function from CartContext
@@ -65,13 +66,7 @@ const ProductComponent = ({product}) => {
     }
   };
 
-  const formatPrice = price => {
-    return price
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
-  };
-
+ 
   const discountPercentage = product.additionalDiscount;
   const cutPrice = (product.price * (1-discountPercentage / 100)).toFixed(0);
   return (
@@ -93,11 +88,19 @@ const ProductComponent = ({product}) => {
         </View>
         <View style={styles.discountContainer}>
           <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
-          <Text style={styles.cutPriceText}>₹{formatPrice(product.price)}</Text>
+          <Text style={styles.cutPriceText}>{Number(product.price).toLocaleString("en-IN", {
+            maximumFractionDigits: 0,
+            style: 'currency',
+            currency: 'INR',
+          })}</Text>
         </View>
         <View style={styles.hotDealsContainer}>
           <Text style={styles.originalPriceText}>
-            ₹{formatPrice(cutPrice)}
+            {Number(cutPrice).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
           </Text>
         </View>
         <View style={styles.actionButtonContainer}>

@@ -18,19 +18,9 @@ const ProductHeader = ({
   colorDeliveryTime,
   discountedPrice
 }) => {
-  const handleCall = () => {
-    const phoneNumber = '9924686611';
-    const url = `tel:${phoneNumber}`;
-    Linking.openURL(url).catch(err =>
-      console.error('Error opening dialer:', err),
-    );
-  };
-
-  const formatPrice = price => {
-    return price
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
+  const handleCallPress = () => {
+    const phoneNumber = '+919924686611';
+    Linking.openURL(`tel:${phoneNumber}`);
   };
 
   const handleViewMore = () => {
@@ -64,15 +54,26 @@ const ProductHeader = ({
         )}
       </View>
 
-      <View style={styles.priceContainer}>
-      <Text style={styles.priceText}>Price:</Text>
-        <Text style={styles.priceText2}>₹{formatPrice(price)}</Text>
-        <Text style={styles.priceText}>₹{formatPrice(discountedPrice)}</Text>
-        <TouchableOpacity onPress={handleCall}>
-          <Image
-            source={require('../../assets/call.png')}
-            style={styles.callIcon}
-          />
+      <View style={styles.priceRow}>
+        <View style={styles.priceDetails}>
+        <Text style={styles.priceText}>Price:</Text>
+          <Text style={styles.priceText}>
+            {Number(discountedPrice).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
+          </Text>
+          <Text style={styles.discountedText}>
+            {Number(price).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
+          </Text>
+        </View>
+        <TouchableOpacity onPress={handleCallPress}>
+          <Image style={styles.callIcon} source={require('../../assets/call.png')} />
         </TouchableOpacity>
       </View>
     </View>
@@ -102,11 +103,27 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
   },
-  priceContainer: {
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Space between price details and call icon
+    alignItems: 'center', // Vertically align items
+    marginTop: 10,
+  },
+  priceDetails: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
+  },
+  priceText: {
+    fontSize: 24,
+    fontFamily: 'Outfit-Medium',
+    color: colors.TextBlack,
+    marginRight: 10, // Gap between price and discounted price
+  },
+  discountedText: {
+    fontSize: 18,
+    textDecorationLine: 'line-through', // Strikethrough for the discounted price
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Medium',
   },
   priceContainer2: {
     flexDirection: 'row',
@@ -132,26 +149,9 @@ const styles = StyleSheet.create({
     width: 25,
     height: 25,
   },
-  priceText: {
-    fontSize: 24,
-    fontFamily: 'Outfit-Medium',
-    color: colors.TextBlack,
-  },
-  priceText2: {
-    fontSize: 18,
-    textDecorationLine: 'line-through',
-    color: colors.TextBlack,
-    fontFamily: 'Outfit-Medium',
-    marginRight: -80,
-    marginLeft : -85,
-  },
   callIcon: {
-    width: 65,
-    height: 65,
-    position: 'absolute',
-    bottom: -50,
-    right: -20,
-    zIndex: 100,
+    width: 60,
+    height: 60,
   },
 });
 

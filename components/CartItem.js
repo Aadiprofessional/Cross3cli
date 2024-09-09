@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
-import {colors} from '../styles/color';
-import {useNavigation} from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { colors } from '../styles/color';
+import { useNavigation } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 
-const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
+const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
   const {
     cartId,
     name,
@@ -50,7 +50,7 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
   };
 
   const handleImagePress = () => {
-    navigation.navigate('ProductDetailPage', {productId, mainId, categoryId}); // Pass additional IDs
+    navigation.navigate('ProductDetailPage', { productId, mainId, categoryId }); // Pass additional IDs
   };
 
   const handleRemoveItem = () => {
@@ -61,15 +61,10 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
       text1: 'Removing item from cart',
     });
   };
-  const formatPrice = price => {
-    return price
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
-  };
+
 
   // Calculate discounted price
- 
+
 
   return (
     <View style={styles.cartItemContainer}>
@@ -77,7 +72,7 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
         style={styles.productImageContainer}
         onPress={handleImagePress}>
         <Image
-          source={{uri: image}}
+          source={{ uri: image }}
           style={styles.productImage}
           resizeMode="contain"
         />
@@ -86,11 +81,15 @@ const CartItem = ({item, onUpdateQuantity, onRemoveItem, isOrderSummary}) => {
         <Text style={styles.productName}>{productId}</Text>
 
         <Text style={styles.productPrice}>
-          ₹{formatPrice((discountedPrice * itemQuantity).toFixed(2))}{' '}
+          {Number((discountedPrice * itemQuantity).toFixed(2)).toLocaleString("en-IN", {
+            maximumFractionDigits: 2,
+            style: 'currency',
+            currency: 'INR',
+          })}{' '}
           {/* Use discounted price */}
         </Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, {backgroundColor: colors.TextWhite}]}>
+          <View style={[styles.itemColor, { backgroundColor: colors.TextWhite }]}>
             <Text style={styles.itemColorText}>{attributeSelected3}</Text>
           </View>
           {!isOrderSummary && (
@@ -133,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,

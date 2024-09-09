@@ -48,7 +48,7 @@ const SearchScreen = () => {
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
-
+  
   // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
@@ -58,18 +58,19 @@ const SearchScreen = () => {
         );
 
         // Apply Category Filter
-
+        
         if (filterOptions.category) {
-          console.log(filterOptions.category,filteredProducts[0].mainId);
+          console.log(filterOptions.category, filteredProducts[0].mainId);
           
           filteredProducts = filteredProducts.filter(
             product => product.mainId === filterOptions.category,
           );
         }
-
+        
         // Apply Discount Filter
         if (filterOptions.discount) {
           filteredProducts = filteredProducts.filter(product => {
+            console.log(product);
             switch (filterOptions.discount) {
               case '10_above':
                 return product.additionalDiscount >= 10;
@@ -131,7 +132,7 @@ const SearchScreen = () => {
     sortProducts();
   }, [sortValue, searchResults]);
 
- 
+
   // Apply filter options
   const applyFilters = filters => {
     setFilterOptions(filters);
@@ -197,22 +198,22 @@ const SearchScreen = () => {
 
       {/* Filter Modal */}
       <Modal
-      visible={filterVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={() => setFilterVisible(false)}>
-      <Pressable
-        style={styles.modalBackground}
-        onPress={() => setFilterVisible(false)}>
-        <View style={styles.modalContainer}>
-          <FilterComponent
-            filterOptions={filterOptions}  // Pass current filter options to the component
-            applyFilters={applyFilters}
-            onClose={() => setFilterVisible(false)}
-          />
-        </View>
-      </Pressable>
-    </Modal>
+        visible={filterVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setFilterVisible(false)}>
+        <Pressable
+          style={styles.modalBackground}
+          onPress={() => setFilterVisible(false)}>
+          <View style={styles.modalContainer}>
+            <FilterComponent
+              filterOptions={filterOptions}  // Pass current filter options to the component
+              applyFilters={applyFilters}
+              onClose={() => setFilterVisible(false)}
+            />
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };

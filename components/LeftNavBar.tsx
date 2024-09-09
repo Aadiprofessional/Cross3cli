@@ -92,9 +92,9 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
       {companies.map(({id, name}) => (
         <TouchableOpacity
           key={id}
-          style={styles.subcategoryItem}
+          style={styles.subcategoryItem3}
           onPress={() => navigateToSubCategory(mainId, id)}>
-          <Text style={styles.subcategoryText}>{name}</Text>
+          <Text style={styles.subcategoryText3}>{name}</Text>
           <Icon name="chevron-forward" size={24} color={colors.second} />
         </TouchableOpacity>
       ))}
@@ -150,7 +150,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
           <TouchableOpacity
             style={styles.subcategoryItem} // Use subcategoryItem style for consistency
             onPress={handleAllCategoriesPress}>
-            <Text style={styles.subcategoryText2}>All Categories</Text>
+            <Text style={styles.subcategoryText3}>All Categories</Text>
             <Icon name="chevron-forward" size={24} color={colors.second} />
           </TouchableOpacity>
         </>
@@ -189,12 +189,26 @@ const styles = StyleSheet.create({
   subcategoryItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    justifyContent: 'space-between',
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between', //
   },
   subcategoryText: {
     fontSize: 18,
 
+    fontFamily: 'Outfit-Regular',
+    color: colors.TextBlack,
+  },
+   subcategoryItem3: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    justifyContent: 'space-between', // Ensures space between text and icon
+  },
+  
+  subcategoryText3: {
+    fontSize: 18,
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
   },

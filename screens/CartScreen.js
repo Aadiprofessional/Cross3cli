@@ -145,12 +145,6 @@ const CartScreen = () => {
       </View>
     );
   }
-  const formatPrice = price => {
-    return price
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
-  };
 
 
   return (
@@ -163,13 +157,17 @@ const CartScreen = () => {
         <View style={styles.headerRight}>
           <Text style={styles.subtotalText}>Subtotal:</Text>
           <Text style={styles.totalAmountText}>
-            ₹
-            {formatPrice(
+            {Number(
               cartItems
                 .reduce((sum, item) => sum + item.discountedPrice * item.quantity, 0)
-                .toFixed(0),
-            )}
+                .toFixed(0)
+            ).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
           </Text>
+
         </View>
       </View>
       <ScrollView style={styles.cartItemsContainer}>

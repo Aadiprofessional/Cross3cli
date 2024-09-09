@@ -207,9 +207,9 @@ const ProfileScreen = ({navigation}) => {
       <TouchableOpacity
         style={styles.cardContainer}
         onPress={() => navigation.navigate('AddTransactionScreen')}>
-        <Text style={styles.cardText}>Virtual Id: {billing.virtualId||'NA'}</Text>
-        <Text style={styles.cardText}>IFSC: {billing.ifsc||'NA'}</Text>
-        <Text style={styles.cardText}>Branch Name: {billing.branch||'NA'}</Text>
+        <Text style={styles.cardText}>Virtual Id: {billing.virtualId||'pending'}</Text>
+        <Text style={styles.cardText}>IFSC: {billing.ifsc||'pending'}</Text>
+        <Text style={styles.cardText}>Branch Name: {billing.branch||'pending'}</Text>
       </TouchableOpacity>
     </ScrollView>
   );

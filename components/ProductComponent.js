@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,16 +6,16 @@ import {
   TouchableOpacity,
   TouchableHighlight,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import styles from '../styles/styles'; // Ensure this path is correct
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {useCart} from '../components/CartContext'; // Ensure this path is correct
+import { useCart } from '../components/CartContext'; // Ensure this path is correct
 
 
-const ProductComponent = ({product}) => {
+const ProductComponent = ({ product }) => {
   const navigation = useNavigation();
-  const {addToCart} = useCart();
+  const { addToCart } = useCart();
   const [isWished, setIsWished] = useState(false);
 
   const minCartValue = parseInt(product.minCartValue, 10) || 1;
@@ -49,6 +49,7 @@ const ProductComponent = ({product}) => {
         discountedPrice: cutPrice,
         mainId: product.mainId,
         categoryId: product.categoryId,
+        name: product.attribute3
       };
 
       addToCart(item);
@@ -56,7 +57,7 @@ const ProductComponent = ({product}) => {
   };
 
   const discountPercentage = product.additionalDiscount;
-  const cutPrice = (product.price * (1-discountPercentage / 100)).toFixed(0);
+  const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
 
   return (
     <TouchableOpacity style={styles.productContainer2} onPress={handlePress}>
@@ -64,23 +65,33 @@ const ProductComponent = ({product}) => {
         <View style={styles.imageContainer}>
           <View style={styles.imageBox}>
             <Image
-              source={{uri: product.image || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656'}}
+              source={{ uri: product.image ||product.mainImage || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656' }}
               style={styles.productImage}
             />
           </View>
         </View>
         <View
-          style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
+          style={{ flexDirection: 'row', alignItems: 'center', width: '100%' }}>
           <Text style={styles.productName} numberOfLines={1}>
             {product.displayName}
           </Text>
         </View>
         <View style={styles.discountContainer}>
           <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
-          <Text style={styles.cutPriceText}>₹{product.price}</Text>
+          <Text style={styles.cutPriceText}>{Number(product.price).toLocaleString("en-IN", {
+            maximumFractionDigits: 0,
+            style: 'currency',
+            currency: 'INR',
+          })}</Text>
         </View>
         <View style={styles.hotDealsContainer}>
-          <Text style={styles.originalPriceText}>₹{cutPrice}</Text>
+          <Text style={styles.originalPriceText}>
+            {Number(cutPrice).toLocaleString("en-IN", {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
+          </Text>
         </View>
         <View style={styles.actionButtonContainer}>
           {product.outOfStock ? (
@@ -89,7 +100,7 @@ const ProductComponent = ({product}) => {
             </View>
           ) : (
             <TouchableOpacity
-              style={styles.addToCartButton}
+              style={styles.addToCartButton2}
               onPress={handleAddToCart}>
               <Text style={styles.addToCartText}>Add to Cart</Text>
             </TouchableOpacity>

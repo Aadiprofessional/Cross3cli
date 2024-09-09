@@ -1,4 +1,4 @@
-import React, {useCallback, useState, useMemo} from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import {colors} from '../styles/color';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { colors } from '../styles/color';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/Feather';
 import axios from 'axios';
-import {Linking} from 'react-native';
+import { Linking } from 'react-native';
 
 const QuotesScreen = () => {
   const navigation = useNavigation();
@@ -127,129 +127,140 @@ const QuotesScreen = () => {
       console.log('No invoice URL provided');
     }
   };
-  const formatPrice = price => {
-    return price
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-      .replace(/\d(?=(\d{2})+\d{3}\b)/g, '$&,');
-  };
+
 
   const renderOrderItem = useMemo(
     () =>
-      ({item}) =>
-        (
-          <View style={styles.orderItem}>
-            <View style={styles.orderRow}>
+      ({ item }) =>
+      (
+        <View style={styles.orderItem}>
+          <View style={styles.orderRow}>
+            <View>
+              <Text style={styles.orderIdText}>Order ID:</Text>
+              <Text style={styles.productOrderIdText}>{item.id}</Text>
+            </View>
+            <View style={styles.rightAligned}>
+              <Text style={styles.orderIdText}>Order Date:</Text>
+              <Text style={styles.productOrderIdText}>
+                {formatDate(item.timestamp)}
+              </Text>
+            </View>
+          </View>
+          {item.cartItems.map(cartItem => (
+            <View key={cartItem.id} style={styles.orderRow}>
               <View>
-                <Text style={styles.orderIdText}>Order ID:</Text>
-                <Text style={styles.productOrderIdText}>{item.id}</Text>
+                <Text style={styles.orderIdText}>Items</Text>
+                <Text style={styles.itemDetailText}>{cartItem.name}</Text>
               </View>
-              <View style={styles.rightAligned}>
-                <Text style={styles.orderIdText}>Order Date:</Text>
-                <Text style={styles.productOrderIdText}>
-                  {formatDate(item.timestamp)}
+              <View>
+                <Text style={styles.orderIdText}>Qty</Text>
+                <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
+              </View>
+              <View>
+                <Text style={styles.orderIdText}>Amount</Text>
+                <Text style={styles.itemDetailText}>
+                  {Number(cartItem.price).toLocaleString("en-IN", {
+                    maximumFractionDigits: 0,
+                    style: 'currency',
+                    currency: 'INR',
+                  })}
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.orderIdText}>Total</Text>
+                <Text style={styles.itemDetailText}>
+                  {Number(item.totalAmount).toLocaleString("en-IN", {
+                    maximumFractionDigits: 0,
+                    style: 'currency',
+                    currency: 'INR',
+                  })}
                 </Text>
               </View>
             </View>
-            {item.cartItems.map(cartItem => (
-              <View key={cartItem.id} style={styles.orderRow}>
-                <View>
-                  <Text style={styles.orderIdText}>Items</Text>
-                  <Text style={styles.itemDetailText}>{cartItem.name}</Text>
-                </View>
-                <View>
-                  <Text style={styles.orderIdText}>Qty</Text>
-                  <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
-                </View>
-                <View>
-                  <Text style={styles.orderIdText}>Amount</Text>
-                  <Text style={styles.itemDetailText}>
-                    ₹{formatPrice(cartItem.price)}
-                  </Text>
-                </View>
-                <View>
-                  <Text style={styles.orderIdText}>Total</Text>
-                  <Text style={styles.itemDetailText}>
-                    ₹{formatPrice(item.totalAmount)}
-                  </Text>
-                </View>
-              </View>
-            ))}
-            <View style={styles.statusContainer}>
-              <Text style={styles.statusText}>Status:</Text>
-              <Text style={styles.orderStatusText}>{item.status}</Text>
-            </View>
-            {item.invoice && (
-              <TouchableOpacity
-                style={styles.downloadButton}
-                onPress={() => handleOpenInvoice(item.invoice)}>
-                <Icon name="download" size={20} color={colors.main} />
-              </TouchableOpacity>
-            )}
+          ))}
+          <View style={styles.statusContainer}>
+            <Text style={styles.statusText}>Status:</Text>
+            <Text style={styles.orderStatusText}>{item.status}</Text>
           </View>
-        ),
+          {item.invoice && (
+            <TouchableOpacity
+              style={styles.downloadButton}
+              onPress={() => handleOpenInvoice(item.invoice)}>
+              <Icon name="download" size={20} color={colors.main} />
+            </TouchableOpacity>
+          )}
+        </View>
+      ),
     [handleOpenInvoice],
   );
   const renderQuoteItem = useMemo(
     () =>
-      ({item}) =>
-        (
-          <View style={styles.orderItem}>
-            <View style={styles.orderRow}>
+      ({ item }) =>
+      (
+        <View style={styles.orderItem}>
+          <View style={styles.orderRow}>
+            <View>
+              <Text style={styles.orderIdText}>Quote ID:</Text>
+              <Text style={styles.productOrderIdText}>{item.id}</Text>
+            </View>
+            <View style={styles.rightAligned}>
+              <Text style={styles.orderIdText}>Quote Date:</Text>
+              <Text style={styles.productOrderIdText}>
+                {formatDate(item.timestamp)}
+              </Text>
+            </View>
+          </View>
+          {item.cartItems.map(cartItem => (
+            <View key={cartItem.id} style={styles.orderRow}>
               <View>
-                <Text style={styles.orderIdText}>Quote ID:</Text>
-                <Text style={styles.productOrderIdText}>{item.id}</Text>
+                <Text style={styles.orderIdText}>Items</Text>
+                <Text style={styles.itemDetailText}>{cartItem.name}</Text>
               </View>
-              <View style={styles.rightAligned}>
-                <Text style={styles.orderIdText}>Quote Date:</Text>
-                <Text style={styles.productOrderIdText}>
-                  {formatDate(item.timestamp)}
+              <View>
+                <Text style={styles.orderIdText}>Qty</Text>
+                <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
+              </View>
+              <View>
+                <Text style={styles.orderIdText}>Amount</Text>
+                <Text style={styles.itemDetailText}>
+                  {Number(cartItem.price).toLocaleString("en-IN", {
+                    maximumFractionDigits: 0,
+                    style: 'currency',
+                    currency: 'INR',
+                  })}
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.orderIdText}>Total</Text>
+                <Text style={styles.itemDetailText}>
+                  {Number(item.totalAmount).toLocaleString("en-IN", {
+                    maximumFractionDigits: 0,
+                    style: 'currency',
+                    currency: 'INR',
+                  })}
                 </Text>
               </View>
             </View>
-            {item.cartItems.map(cartItem => (
-              <View key={cartItem.id} style={styles.orderRow}>
-                <View>
-                  <Text style={styles.orderIdText}>Items</Text>
-                  <Text style={styles.itemDetailText}>{cartItem.name}</Text>
-                </View>
-                <View>
-                  <Text style={styles.orderIdText}>Qty</Text>
-                  <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
-                </View>
-                <View>
-                  <Text style={styles.orderIdText}>Amount</Text>
-                  <Text style={styles.itemDetailText}>
-                    ₹{formatPrice(cartItem.price)}
-                  </Text>
-                </View>
-                <View>
-                  <Text style={styles.orderIdText}>Total</Text>
-                  <Text style={styles.itemDetailText}>
-                    ₹{formatPrice(item.totalAmount)}
-                  </Text>
-                </View>
-              </View>
-            ))}
+          ))}
 
-            <View style={styles.statusContainer}>
-              <Text style={styles.statusText}>Status:</Text>
-              <Text style={styles.orderStatusText}>{item.status}</Text>
-            </View>
-            {item.invoice && (
-              <TouchableOpacity
-                style={styles.downloadButton}
-                onPress={() => handleOpenInvoice(item.invoice)}>
-                <Icon name="download" size={20} color={colors.main} />
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              style={styles.placeOrderButton}
-              onPress={() => handleQuoteCheckout(item)}>
-              <Icon name="external-link" size={20} color={colors.main} />
-            </TouchableOpacity>
+          <View style={styles.statusContainer}>
+            <Text style={styles.statusText}>Status:</Text>
+            <Text style={styles.orderStatusText}>{item.status}</Text>
           </View>
-        ),
+          {item.invoice && (
+            <TouchableOpacity
+              style={styles.downloadButton}
+              onPress={() => handleOpenInvoice(item.invoice)}>
+              <Icon name="download" size={20} color={colors.main} />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles.placeOrderButton}
+            onPress={() => handleQuoteCheckout(item)}>
+            <Icon name="external-link" size={20} color={colors.main} />
+          </TouchableOpacity>
+        </View>
+      ),
     [handleQuoteCheckout, handleOpenInvoice],
   );
   if (loading) {
@@ -276,7 +287,7 @@ const QuotesScreen = () => {
           <Text
             style={[
               styles.headerButtonText,
-              {color: activeButton === 'quotes' ? '#fff' : '#00000070'},
+              { color: activeButton === 'quotes' ? '#fff' : '#00000070' },
             ]}>
             Quotes
           </Text>
@@ -292,7 +303,7 @@ const QuotesScreen = () => {
           <Text
             style={[
               styles.headerButtonText,
-              {color: activeButton === 'orders' ? '#fff' : '#00000070'},
+              { color: activeButton === 'orders' ? '#fff' : '#00000070' },
             ]}>
             Orders
           </Text>
@@ -384,7 +395,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
