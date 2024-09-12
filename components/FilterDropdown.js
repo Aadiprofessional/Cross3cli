@@ -38,6 +38,13 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
     { label: '10% and above', value: '10_above' },
     { label: '20% and above', value: '20_above' },
     { label: '30% and above', value: '30_above' },
+    { label: '40% and above', value: '40_above' },
+    { label: '50% and above', value: '50_above' },
+    { label: '60% and above', value: '60_above' },
+    { label: '70% and above', value: '70_above' },
+    { label: '80% and above', value: '80_above' },
+    { label: '90% and above', value: '90_above' },
+   
   ];
 
   const handleCategoryChange = (value) => {
@@ -152,14 +159,14 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
           </View>
         </Modal>
 
-        <View style={styles.excludeContainer}>
+        {/* <View style={styles.excludeContainer}>
           <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.checkboxContainer}>
             <View style={[styles.checkbox, excludeOutOfStock && styles.checkboxChecked]}>
               {excludeOutOfStock && <MaterialCommunityIcons name="check" size={16} color="white" />}
             </View>
             <Text style={styles.excludeText}>Exclude Out of Stock</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <TouchableOpacity onPress={handleApplyFilters} style={styles.applyButton}>
           <Text style={styles.applyButtonText}>Apply Filters</Text>
@@ -235,6 +242,7 @@ const styles = StyleSheet.create({
   applyButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
+    fontFamily: 'Outfit-Medium',
   },
   selectedFiltersContainer: {
     flexDirection: 'row',
@@ -253,6 +261,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     marginRight: 5,
+    fontFamily: 'Outfit-Medium',
   },
   removeFilterButton: {
     backgroundColor: colors.danger,
@@ -262,6 +271,7 @@ const styles = StyleSheet.create({
   removeFilterText: {
     color: '#FFFFFF',
     fontSize: 12,
+    fontFamily: 'Outfit-Medium',
   },
   dropdown: {
     borderWidth: 1,

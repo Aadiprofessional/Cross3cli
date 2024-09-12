@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import styles from '../styles/styles'; // Import the styles
+import styles2 from '../styles/styles copy'; // Import the styles2
 import {colors} from '../styles/color';
 import {useCart} from '../components/CartContext'; // Adjust the path to your CartContext
 import auth from '@react-native-firebase/auth';
@@ -51,14 +51,15 @@ const ProductComponent = ({product}) => {
         attribute1: product.attribute1,
         attribute2: product.attribute2,
         attribute3: product.attribute3,
-        attribute1Id: product.attribute1Id,
-        attribute2Id: product.attribute2Id,
-        attribute3Id: product.attribute3Id,
+        attribute1Id: product.attribute1,
+        attribute2Id: product.attribute2,
+        attribute3Id: product.attribute3,
         additionalDiscount: product.additionalDiscount || 0,
         mainId: product.mainId,
         discountedPrice: cutPrice,
         categoryId: product.categoryId,
-        name: product.attribute3
+        name: product.attribute3,
+        colormaxCartValue : product.inventory,
       };
 
       addToCart(item); // Call the addToCart function from CartContext
@@ -69,62 +70,76 @@ const ProductComponent = ({product}) => {
  
   const discountPercentage = product.additionalDiscount;
   const cutPrice = (product.price * (1-discountPercentage / 100)).toFixed(0);
-  return (
-    <TouchableOpacity style={styles.productContainer} onPress={handlePress}>
-      <View style={styles.productContent}>
-        <View style={styles.imageContainer}>
-          <View style={styles.imageBox}>
-          <Image
-              source={{uri: product.image || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656'}}
-              style={styles.productImage}
+
+    return (
+      <TouchableOpacity style={styles2.productContainer} onPress={handlePress}>
+        <View style={styles2.productContent}>
+          {/* Show Lowest Price Label if available */}
+          {product.lowestPrice && (
+            <View style={styles2.lowestPriceLabel}>
+              <Text style={styles2.lowestPriceText}>Lowest price</Text>
+            </View>
+          )}
+          <View style={styles2.imageContainer}>
+            <Image
+              source={{
+                uri: product.image || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
+              }}
+              style={styles2.productImage}
             />
           </View>
-        </View>
-        <View
-          style={{flexDirection: 'row', alignItems: 'center', width: '100%'}}>
-          <Text style={styles.productName} numberOfLines={1}>
+  
+          <Text style={styles2.productName} numberOfLines={1}>
             {product.displayName}
           </Text>
-        </View>
-        <View style={styles.discountContainer}>
-          <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
-          <Text style={styles.cutPriceText}>{Number(product.price).toLocaleString("en-IN", {
-            maximumFractionDigits: 0,
-            style: 'currency',
-            currency: 'INR',
-          })}</Text>
-        </View>
-        <View style={styles.hotDealsContainer}>
-          <Text style={styles.originalPriceText}>
-            {Number(cutPrice).toLocaleString("en-IN", {
-              maximumFractionDigits: 0,
-              style: 'currency',
-              currency: 'INR',
-            })}
-          </Text>
-        </View>
-        <View style={styles.actionButtonContainer}>
-          {product.outOfStock ? (
-            <View style={styles.outOfStockButton}>
-              <Text style={styles.outOfStockText}>Out of Stock</Text>
+  
+          {discountPercentage ? (
+            <View style={styles2.discountContainer}>
+              <Text style={styles2.discountText}>{discountPercentage}% OFF</Text>
+              <Text style={styles2.cutPriceText}>
+                {Number(product.price).toLocaleString('en-IN', {
+                  maximumFractionDigits: 0,
+                  style: 'currency',
+                  currency: 'INR',
+                })}
+              </Text>
             </View>
-          ) : (
+          ) : null}
+  
+          <View style={styles2.hotDealsContainer}>
+            <Text style={styles2.originalPriceText}>
+              {Number(cutPrice).toLocaleString('en-IN', {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
+            </Text>
+          </View>
+  
+          <View style={styles2.actionButtonContainer}>
+            {product.outOfStock ? (
+              <View style={styles2.outOfStockButton}>
+                <Text style={styles2.outOfStockText}>Out of Stock</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles2.addToCartButton}
+                onPress={handleAddToCart}
+              >
+                <Text style={styles2.addToCartText}>Add to Cart</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
-              style={styles.addToCartButton}
-              onPress={handleAddToCart}>
-              <Text style={styles.addToCartText}>Add to Cart</Text>
+              style={styles2.productDetailButton}
+              onPress={handlePress}
+            >
+              <Text style={styles2.productDetailText}>Details</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            style={styles.productDetailButton}
-            onPress={handlePress}>
-            <Text style={styles.productDetailText}>Details</Text>
-          </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
+      </TouchableOpacity>
+    );
+  };
 
 const LatestProducts = () => {
   const [products, setProducts] = useState([]);
@@ -151,21 +166,21 @@ const LatestProducts = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={styles2.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Latest Products</Text>
+    <View style={styles2.container}>
+      <Text style={styles2.title}>Latest Products</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.productList}>
+        contentContainerStyle={styles2.productList}>
         {products.map(product => (
-          <View key={product.productId} style={styles.productWrapper}>
+          <View key={product.productId} style={styles2.productWrapper}>
             <ProductComponent product={product} />
           </View>
         ))}

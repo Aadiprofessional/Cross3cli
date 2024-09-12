@@ -19,6 +19,7 @@ import { debounce } from 'lodash';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth'; // Ensure Firebase auth is imported
 import axios from 'axios'; // Ensure axios is imported
+import CustomHeader2 from '../components/CustomHeader2';
 
 
 const SubCategoryScreen = ({ route }) => {
@@ -87,7 +88,7 @@ const SubCategoryScreen = ({ route }) => {
   };
 
 
- 
+
   // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
@@ -97,15 +98,15 @@ const SubCategoryScreen = ({ route }) => {
         );
 
         // Apply Category Filter
-        
+
         if (filterOptions.category) {
           console.log(filterOptions.category, filteredProducts[0].mainId);
-          
+
           filteredProducts = filteredProducts.filter(
             product => product.mainId === filterOptions.category,
           );
         }
-        
+
         // Apply Discount Filter
         if (filterOptions.discount) {
           filteredProducts = filteredProducts.filter(product => {
@@ -117,6 +118,20 @@ const SubCategoryScreen = ({ route }) => {
                 return product.additionalDiscount >= 20;
               case '30_above':
                 return product.additionalDiscount >= 30;
+
+              case '40_above':
+                return product.additionalDiscount >= 40;
+              case '50_above':
+                return product.additionalDiscount >= 50;
+              case '60_above':
+                return product.additionalDiscount >= 60;
+              case '70_above':
+                return product.additionalDiscount >= 70;
+              case '80_above':
+                return product.additionalDiscount >= 80;
+              case '90_above':
+                return product.additionalDiscount >= 90;
+
               default:
                 return true;
             }
@@ -125,11 +140,11 @@ const SubCategoryScreen = ({ route }) => {
         if (filterOptions.minPrice || filterOptions.maxPrice) {
           filteredProducts = filteredProducts.filter(product => {
             const price = parseFloat(product.price);
-        
+
             // Ensure both minPrice and maxPrice are valid numbers for comparison
             const min = filterOptions.minPrice ? parseFloat(filterOptions.minPrice) : 0;
             const max = filterOptions.maxPrice ? parseFloat(filterOptions.maxPrice) : Infinity;
-        
+
             // Filter products within the price range
             return price >= min && price <= max;
           });
@@ -185,78 +200,81 @@ const SubCategoryScreen = ({ route }) => {
   const renderItem = ({ item }) => <ProductComponent product={item} />;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchBox}>
-        <Icon name="search" size={20} color="#484848" style={styles.icon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search your products"
-          placeholderTextColor="#484848"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          returnKeyType="search"
-        />
-      </View>
-
-      <View style={styles.buttonsContainer}>
-        <View style={styles.buttonWrapper}>
-          <DropDownPicker
-            open={openSort}
-            value={sortValue}
-            items={sortItems}
-            setOpen={setOpenSort}
-            setValue={setSortValue}
-            setItems={setSortItems}
-            placeholder="Sort By"
-            style={styles.smallButton}
-            dropDownContainerStyle={styles.smallDropDownContainer}
-            textStyle={styles.buttonText}
+    <View style={styles.container2}>
+      <CustomHeader2 title={categoryId} />
+      <View style={styles.container}>
+        <View style={styles.searchBox}>
+          <Icon name="search" size={20} color="#484848" style={styles.icon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search your products"
+            placeholderTextColor="#484848"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
           />
         </View>
-        <View style={styles.buttonWrapper}>
-          <TouchableOpacity
-            style={styles.smallButton}
-            onPress={() => setFilterVisible(true)}>
-            <Text style={styles.buttonText}>Filter</Text>
-            <Icon name="chevron-down" size={16} color="#484848" />
-          </TouchableOpacity>
-        </View>
-      </View>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#FFB800" style={styles.loader} />
-      ) : sortedResults.length === 0 ? (
-        <Text style={styles.noResultsText}>No results found</Text>
-      ) : (
-        <FlatList
-          data={sortedResults}
-          renderItem={renderItem}
-          keyExtractor={item => item.productId}
-          contentContainerStyle={styles.productList}
-          style={styles.flatList}
-          numColumns={2} // Display two products per row
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-
-      {/* Filter Modal */}
-      <Modal
-        visible={filterVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setFilterVisible(false)}>
-        <Pressable
-          style={styles.modalBackground}
-          onPress={() => setFilterVisible(false)}>
-          <View style={styles.modalContainer}>
-            <FilterComponent
-              filterOptions={filterOptions}  // Pass current filter options to the component
-              applyFilters={applyFilters}
-              onClose={() => setFilterVisible(false)}
+        <View style={styles.buttonsContainer}>
+          <View style={styles.buttonWrapper}>
+            <DropDownPicker
+              open={openSort}
+              value={sortValue}
+              items={sortItems}
+              setOpen={setOpenSort}
+              setValue={setSortValue}
+              setItems={setSortItems}
+              placeholder="Sort By"
+              style={styles.smallButton}
+              dropDownContainerStyle={styles.smallDropDownContainer}
+              textStyle={styles.buttonText}
             />
           </View>
-        </Pressable>
-      </Modal>
+          <View style={styles.buttonWrapper}>
+            <TouchableOpacity
+              style={styles.smallButton}
+              onPress={() => setFilterVisible(true)}>
+              <Text style={styles.buttonText}>Filter</Text>
+              <Icon name="chevron-down" size={16} color="#484848" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {loading ? (
+          <ActivityIndicator size="large" color="#FFB800" style={styles.loader} />
+        ) : sortedResults.length === 0 ? (
+          <Text style={styles.noResultsText}>No results found</Text>
+        ) : (
+          <FlatList
+            data={sortedResults}
+            renderItem={renderItem}
+            keyExtractor={item => item.productId}
+            contentContainerStyle={styles.productList}
+            style={styles.flatList}
+            numColumns={2} // Display two products per row
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+
+        {/* Filter Modal */}
+        <Modal
+          visible={filterVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setFilterVisible(false)}>
+          <Pressable
+            style={styles.modalBackground}
+            onPress={() => setFilterVisible(false)}>
+            <View style={styles.modalContainer}>
+              <FilterComponent
+                filterOptions={filterOptions}  // Pass current filter options to the component
+                applyFilters={applyFilters}
+                onClose={() => setFilterVisible(false)}
+              />
+            </View>
+          </Pressable>
+        </Modal>
+      </View>
     </View>
   );
 };
@@ -265,6 +283,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 5, // Adds equal padding from left and right
+    backgroundColor: '#FFFFFF',
+  },
+  container2: {
+    flex: 1,
+    // Adds equal padding from left and right
     backgroundColor: '#FFFFFF',
   },
   searchBox: {

@@ -1,11 +1,32 @@
-import React, {useEffect} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import Gif from 'react-native-gif';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 
-const SplashScreen = ({navigation}) => {
+const SplashScreen = ({ navigation }) => {
   useEffect(() => {
+    const checkUserStatus = async () => {
+      const user = auth().currentUser;
+      if (user) {
+        try {
+          const docSnapshot = await firestore().collection('users').doc(user.uid).get();
+          if (docSnapshot.exists) {
+            navigation.replace('HomeTab');
+          } else {
+            navigation.replace('OTPVerification');
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          navigation.replace('OTPVerification');
+        }
+      } else {
+        navigation.replace('OTPVerification');
+      }
+    };
+
     const timer = setTimeout(() => {
-      navigation.replace('Login');
+      checkUserStatus();
     }, 4000);
 
     return () => clearTimeout(timer);

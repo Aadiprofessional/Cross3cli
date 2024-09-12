@@ -134,7 +134,27 @@ const ProductDetailPage = ({ route }) => {
     }
     return 1; // Default value if no attributes or color are selected
   };
+  const getMaxCartValue = () => {
+    if (
+      productData &&
+      selectedAttribute1 &&
+      selectedAttribute2 &&
+      selectedAttribute3
+    ) {
+      const attribute1 = productData.attribute1;
+      const attribute2 = productData.attribute2;
+      const attribute3 = productData.attribute3;
 
+      const currentProduct =
+        productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
+        selectedAttribute2
+        ]?.[selectedAttribute3];
+      if (currentProduct) {
+        return parseInt(currentProduct.inventory || '0', 10);
+      }
+    }
+    return 0;
+  };
   const handleAttribute1Change = attribute1 => {
     if (productData) {
       setSelectedAttribute1(attribute1);
@@ -184,13 +204,23 @@ const ProductDetailPage = ({ route }) => {
   };
 
   const handleIncrease = () => {
-    setQuantity(quantity + 1);
-    Toast.show({
-      type: 'success',
-      text1: 'Quantity Increased',
-      text2: `Quantity is now ${quantity + 1}`,
-    });
+    const maxQuantity = getMaxCartValue();
+    if (quantity < maxQuantity) {
+      setQuantity(quantity + 1);
+      Toast.show({
+        type: 'success',
+        text1: 'Quantity Increased',
+        text2: `Quantity is now ${quantity + 1}`,
+      });
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Max Quantity Reached',
+        text2: `You cannot exceed ${maxQuantity}`,
+      });
+    }
   };
+
 
   const handleDecrease = () => {
     const minCartValue = getMinCartValue();
@@ -240,6 +270,10 @@ const ProductDetailPage = ({ route }) => {
           productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
             selectedAttribute2
           ]?.[selectedAttribute3]?.minCartValue,
+          colormaxCartValue:
+          productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+            selectedAttribute2
+          ]?.[selectedAttribute3]?.inventory,
         attributeSelected1: selectedAttribute1,
         attributeSelected2: selectedAttribute2,
         attributeSelected3: selectedAttribute3,
@@ -253,7 +287,9 @@ const ProductDetailPage = ({ route }) => {
         discountedPrice: cutPrice,
         mainId, // Added mainId
         categoryId, // Added categoryId
+        
       };
+      console.log(item);
 
       // Add item to cart in Firebase
       addToCart(item);
@@ -411,6 +447,7 @@ const ProductDetailPage = ({ route }) => {
             <QuantityControl
               quantity={quantity}
               minValue={getMinCartValue()} // Pass the minCartValue
+              maxValue={getMaxCartValue()}
               onIncrease={handleIncrease}
               onDecrease={handleDecrease}
             />
@@ -423,7 +460,7 @@ const ProductDetailPage = ({ route }) => {
             <SpecificationsTable
               specifications={currentProduct?.specifications || []}
             />
-            {stockStatus ? (
+             {stockStatus ? (
               <View style={styles.outOfStockContainer}>
                 <Text style={styles.outOfStockText}>Out Of Stock</Text>
                 {estdArrivalDate && (
@@ -432,37 +469,37 @@ const ProductDetailPage = ({ route }) => {
                   </Text>
                 )}
               </View>
-            ) : (
-              <TouchableOpacity
-                style={[
-                  styles.addToCartButton,
-                  {
-                    backgroundColor: colors.main,
-                    marginBottom: 25,
-                    opacity:
-                      !selectedAttribute1 ||
-                        !selectedAttribute2 ||
-                        !selectedAttribute3 ||
-                        !currentProduct?.price || // Check if price is available
-                        currentProduct?.price === 'N/A' // Check if price is 'N/A'
-                        ? 0.5
-                        : 1,
-                  },
-                ]}
-                onPress={handleAddToCart}
-                disabled={
-                  !selectedAttribute1 ||
-                  !selectedAttribute2 ||
-                  !selectedAttribute3 ||
-                  !currentProduct?.price || // Disable button if price is not available
-                  currentProduct?.price === 'N/A' // Disable button if price is 'N/A'
-                }>
-                <Text style={styles.addToCartButtonText}>Add to Cart</Text>
-              </TouchableOpacity>
-            )}
+            ) : null}
           </>
         )}
       </ScrollView>
+      {!stockStatus && (
+        <TouchableOpacity
+          style={[
+            styles.addToCartButton,
+            {
+              backgroundColor: colors.main,
+              opacity:
+                !selectedAttribute1 ||
+                !selectedAttribute2 ||
+                !selectedAttribute3 ||
+                !currentProduct?.price ||
+                currentProduct?.price === 'N/A'
+                  ? 0.5
+                  : 1,
+            },
+          ]}
+          onPress={handleAddToCart}
+          disabled={
+            !selectedAttribute1 ||
+            !selectedAttribute2 ||
+            !selectedAttribute3 ||
+            !currentProduct?.price ||
+            currentProduct?.price === 'N/A'
+          }>
+          <Text style={styles.addToCartButtonText}>Add to Cart</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -470,13 +507,14 @@ const ProductDetailPage = ({ route }) => {
 const styles = StyleSheet.create({
   container2: {
     flex: 1,
-
     backgroundColor: '#fff',
+  
   },
   container: {
     flex: 1,
     padding: 10,
     backgroundColor: '#fff',
+    marginBottom: 50,
   },
   productDetails: {
     width: '90%',
@@ -499,10 +537,12 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
   },
   addToCartButton: {
-    marginTop: 10,
+    position: 'absolute',
+    bottom: 0,
+    
+    width: '100%',
     paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -518,7 +558,6 @@ const styles = StyleSheet.create({
   outOfStockText: {
     fontSize: 18,
     color: 'red',
-
     fontFamily: 'Outfit-Medium',
   },
   arrivalDateText: {

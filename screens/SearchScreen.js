@@ -48,7 +48,7 @@ const SearchScreen = () => {
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
-  
+
   // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
@@ -58,15 +58,15 @@ const SearchScreen = () => {
         );
 
         // Apply Category Filter
-        
+
         if (filterOptions.category) {
           console.log(filterOptions.category, filteredProducts[0].mainId);
-          
+
           filteredProducts = filteredProducts.filter(
             product => product.mainId === filterOptions.category,
           );
         }
-        
+
         // Apply Discount Filter
         if (filterOptions.discount) {
           filteredProducts = filteredProducts.filter(product => {
@@ -78,6 +78,20 @@ const SearchScreen = () => {
                 return product.additionalDiscount >= 20;
               case '30_above':
                 return product.additionalDiscount >= 30;
+
+              case '40_above':
+                return product.additionalDiscount >= 40;
+              case '50_above':
+                return product.additionalDiscount >= 50;
+              case '60_above':
+                return product.additionalDiscount >= 60;
+              case '70_above':
+                return product.additionalDiscount >= 70;
+              case '80_above':
+                return product.additionalDiscount >= 80;
+              case '90_above':
+                return product.additionalDiscount >= 90;
+
               default:
                 return true;
             }

@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, ActivityIndicator, Alert} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
-import {Picker} from '@react-native-picker/picker';
-import {colors} from '../styles/color';
+import { Picker } from '@react-native-picker/picker';
+import { colors } from '../styles/color';
 
-const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
+const CompanyDropdown = ({ onSelectCompany, onPincodeChange }) => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,13 +27,14 @@ const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
       try {
         const response = await axios.post(
           'https://crossbee-server-1036279390366.asia-south1.run.app/getCompanies',
-          {uid},
+          { uid },
         );
 
         if (response.status === 200) {
           const companiesData = response.data;
           setCompanies(companiesData);
 
+          // Ensure the first company is selected by default
           if (companiesData.length > 0) {
             const firstCompany = companiesData[0];
             setSelectedCompanyId(firstCompany.id);
@@ -41,11 +42,10 @@ const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
               onSelectCompany(firstCompany.id);
             }
             if (onPincodeChange) {
-              onPincodeChange(firstCompany.pincode); // Pass the pincode of the first company
+              onPincodeChange(firstCompany.pincode);
             }
           }
         } else {
-      
           throw new Error(`Failed to load companies: ${response.status}`);
         }
       } catch (err) {
@@ -58,16 +58,20 @@ const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
 
     fetchCompanies();
   }, []);
-  
 
-  const handleSelect = companyId => {
-    const selectedCompany = companies.find(company => company.id === companyId);
+  const handleSelect = (companyId) => {
+    if (companyId === null || companyId === selectedCompanyId) {
+      return; // Avoid re-selecting the same company or null
+    }
+
+    const selectedCompany = companies.find((company) => company.id === companyId);
     setSelectedCompanyId(companyId);
+
     if (onSelectCompany) {
       onSelectCompany(companyId);
     }
     if (onPincodeChange && selectedCompany) {
-      onPincodeChange(selectedCompany.pincode); // Pass the pincode of the selected company
+      onPincodeChange(selectedCompany.pincode);
     }
   };
 
@@ -79,12 +83,12 @@ const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={selectedCompanyId}
-          onValueChange={handleSelect}
+          onValueChange={(itemValue) => handleSelect(itemValue)} // Update value on change
           style={styles.picker}>
           {companies.length === 0 && (
             <Picker.Item label="No companies available" value={null} />
           )}
-          {companies.map(company => (
+          {companies.map((company) => (
             <Picker.Item
               key={company.id}
               label={company.name}
@@ -100,12 +104,11 @@ const CompanyDropdown = ({onSelectCompany, onPincodeChange}) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 12,
     backgroundColor: colors.white,
   },
   label: {
     fontSize: 16,
-
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginBottom: 8,
@@ -113,19 +116,24 @@ const styles = StyleSheet.create({
   pickerContainer: {
     borderWidth: 1,
     borderColor: colors.TextBlack,
-    borderRadius: 12, // Rounder corners
+    borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: colors.white,
+    height: 40,
+    justifyContent: 'center',
   },
   picker: {
-    height: 50,
+    fontFamily: 'Outfit-Medium',
+    height: '100%',
     width: '100%',
     color: colors.TextBlack,
+    textAlign: 'left',
   },
   errorText: {
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
+    fontFamily: 'Outfit-Medium',
   },
 });
 

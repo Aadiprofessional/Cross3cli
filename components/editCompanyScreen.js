@@ -20,6 +20,7 @@ const EditCompanyScreen = () => {
   const [companyName, setCompanyName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [gst, setGst] = useState('');
+  const [alternateNumber, setAlternateNumber] = useState('');
   const [mainAddress, setMainAddress] = useState('');
 
   const [pincode, setPincode] = useState('');
@@ -47,7 +48,7 @@ const EditCompanyScreen = () => {
       setOwnerName(company.owner);
       setGst(company.gst);
       setMainAddress(addressMain);
-
+      setAlternateNumber(company.alternateNumber.replace(/^\+91/, ''))
       setPincode(addressPincode);
       setCity(addressCity);
       setState(addressState);
@@ -86,6 +87,7 @@ const EditCompanyScreen = () => {
       (!companyName ||
         !ownerName ||
         !gst ||
+        !alternateNumber ||
         !mainAddress ||
         !email ||
         pincode.length !== 6 ||
@@ -114,6 +116,7 @@ const EditCompanyScreen = () => {
           uid,
           companyId: company.id, // Pass the company ID to identify which company to edit
           phoneNumber: phoneNumber.replace(/^\+91/, ''), // Remove +91 if present
+          alternateNumber: alternateNumber.replace(/^\+91/, ''),
           companyName: company.type !== 'Primary' ? companyName : company.name,
           gst: company.type !== 'Primary' ? gst : company.gst,
           email: company.type !== 'Primary' ? email : company.email,
@@ -192,6 +195,20 @@ const EditCompanyScreen = () => {
             keyboardType="phone-pad"
             maxLength={10}
             editable={company.type !== 'Primary'}
+          />
+           <Text style={styles.label}>Alternate Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Alternate Number"
+            placeholderTextColor="#999"
+            value={alternateNumber}
+            onChangeText={text => {
+              if (text.length <= 10 && /^[0-9]*$/.test(text)) {
+                setAlternateNumber(text.replace(/^\+91/, '')); // Remove +91 if present
+              }
+            }}
+            keyboardType="phone-pad"
+            maxLength={10}
           />
           <Text style={styles.label}>
             Owner Name <Text style={styles.requiredStar}>*</Text>
@@ -293,7 +310,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#fff',
   },
   scrollView: {
@@ -308,13 +325,13 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#F0F0F0',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+    fontSize: 16,
+    color: '#333',
+    cursorColor: colors.main, // Note: This will only work on specific platforms
   },
   requiredStar: {
     color: 'red',

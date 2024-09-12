@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   AppState,
   AppStateStatus,
+  Linking,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 interface LeftNavBarProps {
   toggleNavBar: () => void;
@@ -19,7 +20,7 @@ interface LeftNavBarProps {
 // In-memory cache to store categories data for the session
 let categoriesCache: any[] | null = null;
 
-const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
+const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState<any[]>([]);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -78,7 +79,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
   };
 
   const navigateToSubCategory = (mainId: string, categoryId: string) => {
-    navigation.navigate('SubCategoryScreen', {mainId, categoryId});
+    navigation.navigate('SubCategoryScreen', { mainId, categoryId });
     toggleNavBar();
   };
 
@@ -89,7 +90,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
 
   const renderSubCategoryItem = (companies: any[], mainId: string) => (
     <View style={styles.subcategoryContainer}>
-      {companies.map(({id, name}) => (
+      {companies.map(({ id, name }) => (
         <TouchableOpacity
           key={id}
           style={styles.subcategoryItem3}
@@ -101,24 +102,16 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
     </View>
   );
 
-  const renderCategoryItem = ({
-    id,
-    name,
-    companies,
-  }: {
-    id: string;
-    name: string;
-    companies?: any[];
-  }) => {
-    const isExpanded = expandedCategory === id;
+  const renderCategoryItem = (category: { id: string; name: string; companies?: any[] }) => {
+    const isExpanded = expandedCategory === category.id;
 
     return (
-      <View key={id}>
+      <View key={category.id}>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => toggleCategory(id)}>
-          <Text style={styles.navText}>{name}</Text>
-          {companies && (
+          onPress={() => toggleCategory(category.id)}>
+          <Text style={styles.navText}>{category.name}</Text>
+          {category.companies && (
             <Icon
               name={isExpanded ? 'chevron-up' : 'chevron-down'}
               size={24}
@@ -126,9 +119,14 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
             />
           )}
         </TouchableOpacity>
-        {isExpanded && companies && renderSubCategoryItem(companies, id)}
+        {isExpanded && category.companies && renderSubCategoryItem(category.companies, category.id)}
       </View>
     );
+  };
+
+  const handleCallPress = () => {
+    const phoneNumber = '9924686611';
+    Linking.openURL(`tel:${phoneNumber}`);
   };
 
   return (
@@ -157,6 +155,14 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({toggleNavBar}) => {
       ) : (
         <Text>No categories available</Text>
       )}
+      {/* Footer with phone icon */}
+      <View style={styles.footerContainer}>
+        <TouchableOpacity style={styles.footerButton} onPress={handleCallPress}>
+          <Icon name="call" size={32} color={colors.main} />
+          <Text style={styles.footerText}>Customer Support</Text>
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 };
@@ -171,12 +177,11 @@ const styles = StyleSheet.create({
   navItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: 5,
     paddingHorizontal: 10,
   },
   navText: {
     fontSize: 20,
-
     fontFamily: 'Outfit-Regular',
     marginLeft: 10,
     marginRight: 'auto',
@@ -191,22 +196,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 5,
     paddingHorizontal: 20,
-    justifyContent: 'space-between', //
+    justifyContent: 'space-between',
   },
   subcategoryText: {
     fontSize: 18,
-
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
   },
-   subcategoryItem3: {
+  subcategoryItem3: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 5,
     paddingHorizontal: 15,
-    justifyContent: 'space-between', // Ensures space between text and icon
+    justifyContent: 'space-between',
   },
-  
   subcategoryText3: {
     fontSize: 18,
     fontFamily: 'Outfit-Regular',
@@ -215,7 +218,6 @@ const styles = StyleSheet.create({
   subcategoryText2: {
     fontSize: 18,
     fontFamily: 'Outfit-Regular',
-
     color: colors.TextBlack,
     marginLeft: 17,
   },
@@ -238,12 +240,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
   },
-  footerText: {
-    fontSize: 12,
-    fontFamily: 'Outfit-Regular',
-    color: colors.TextBlack,
-    opacity: 0.3,
+
+  footerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
   },
+  footerText: {
+    fontSize: 16, // Adjust font size as needed
+    fontFamily: 'Outfit-Regular',
+    color: colors.second,
+    marginLeft: 10, // Adjust spacing between text and icon
+  },
+ 
 });
 
 export default LeftNavBar;

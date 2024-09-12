@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,12 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Feather';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 const AddCompanyScreen = () => {
   const [companyName, setCompanyName] = useState('');
@@ -27,6 +27,7 @@ const AddCompanyScreen = () => {
   const [state, setState] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [alternateNumber, setAlternateNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
@@ -39,7 +40,8 @@ const AddCompanyScreen = () => {
       mainAddress &&
       email &&
       pincode.length === 6 &&
-      phoneNumber.length === 10
+      phoneNumber.length === 10 &&
+      alternateNumber.length === 10
     );
   };
 
@@ -54,7 +56,7 @@ const AddCompanyScreen = () => {
         `https://api.postalpincode.in/pincode/${pincode}`,
       );
       if (response.data[0].Status === 'Success') {
-        const {District, State} = response.data[0].PostOffice[0];
+        const { District, State } = response.data[0].PostOffice[0];
         setCity(District);
         setState(State);
       } else {
@@ -87,11 +89,12 @@ const AddCompanyScreen = () => {
     try {
       const uid = auth().currentUser.uid;
       const response = await axios.post(
-        'https://crossbee-server.vercel.app/addCompany',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/addCompany',
         {
           uid,
           phoneNumber,
           companyName,
+          alternateNumber,
           gst,
           email,
           address: `${mainAddress}
@@ -129,7 +132,7 @@ const AddCompanyScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, {backgroundColor: colors.main}]}>
+      <View style={[styles.header, { backgroundColor: colors.main }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon
             name="arrow-left"
@@ -163,6 +166,16 @@ const AddCompanyScreen = () => {
                 setPhoneNumber(text);
               }
             }}
+            keyboardType="phone-pad"
+            maxLength={10}
+          />
+          <Text style={styles.label}>Alternate Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Alternate Number"
+            placeholderTextColor="#999"
+            value={alternateNumber}
+            onChangeText={setAlternateNumber}
             keyboardType="phone-pad"
             maxLength={10}
           />
@@ -310,7 +323,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
-  
+
     fontFamily: 'Outfit-Bold',
   },
 });

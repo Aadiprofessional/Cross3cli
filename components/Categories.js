@@ -60,23 +60,27 @@ const Categories = () => {
               key={category.id}
               onPress={() => handleCategoryPress(category)}
               style={styles.categoryItem}>
-              <View style={styles.circle}>
-                <Image source={{uri: category.image}} style={styles.image} />
+              <View style={styles.categoryContent}>
+                <View style={styles.circle}>
+                  <Image source={{uri: category.image}} style={styles.image} />
+                </View>
+                <Text style={styles.text}>{category.name}</Text>
               </View>
-              <Text style={styles.text}>{category.name}</Text>
             </TouchableOpacity>
           ))}
           <TouchableOpacity
             key="allCategories"
             onPress={handleAllCategoriesPress}
             style={styles.categoryItem}>
-            <View style={styles.circle}>
-              <Image
-                source={require('../assets/Categories5.png')}
-                style={styles.image}
-              />
+            <View style={styles.categoryContent}>
+              <View style={styles.circle}>
+                <Image
+                  source={require('../assets/Categories5.png')}
+                  style={styles.image}
+                />
+              </View>
+              <Text style={styles.text}>All Categories</Text>
             </View>
-            <Text style={styles.text}>All Categories</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -91,11 +95,10 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   scrollContainer: {
-    // Make room for the footer button if needed
+    // Additional room for scrolling if necessary
   },
   title: {
     fontSize: 20,
-
     fontFamily: 'Outfit-Medium',
     marginBottom: 10,
     color: colors.TextBlack,
@@ -103,13 +106,16 @@ const styles = StyleSheet.create({
   },
   categoriesContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap', // Wrap items to next line
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    flexWrap: 'wrap', // Allows wrapping of category items
+    justifyContent: 'space-around', // Ensure even spacing around items
   },
   categoryItem: {
-    alignItems: 'center',
     marginHorizontal: 5,
+    alignItems: 'center',
+  },
+  categoryContent: {
+    alignItems: 'center', // Align both image and text to center
+    width: 70, // Set a fixed width for each category item
   },
   circle: {
     width: 55,
@@ -126,9 +132,11 @@ const styles = StyleSheet.create({
   text: {
     marginTop: 5,
     fontSize: 10,
-
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
+    textAlign: 'center', // Ensure text is center-aligned
+    flexWrap: 'wrap', // Allow text to wrap onto the next line if necessary
+    maxWidth: 70, // Keep the text contained within the width of the item
   },
 });
 

@@ -44,14 +44,14 @@ const OTPVerificationScreen = ({navigation}) => {
   const [banner, setBanner] = useState(defaultBannerImage);
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const loggedIn = await AsyncStorage.getItem('loggedIn');
-      if (loggedIn === 'true') {
-        navigation.replace('HomeTab');
-      }
-    };
+    // const checkLoginStatus = async () => {
+    //   const loggedIn = await AsyncStorage.getItem('loggedIn');
+    //   if (loggedIn === 'true') {
+    //     navigation.replace('HomeTab');
+    //   }
+    // };
 
-    checkLoginStatus();
+    // checkLoginStatus();
   }, [navigation]);
 
   useEffect(() => {
@@ -181,7 +181,7 @@ const OTPVerificationScreen = ({navigation}) => {
             phoneNumber,
         );
         await auth().signInWithCustomToken(tokenResponse.data.token);
-        await AsyncStorage.setItem('loggedIn', 'true');
+        // await AsyncStorage.setItem('loggedIn', 'true');
         await AsyncStorage.setItem('phoneNumber', phoneNumber);
         showToast('success', 'Success', 'Phone number verified!');
         navigation.replace('HomeTab');

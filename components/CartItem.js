@@ -13,6 +13,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
     attributeSelected3,
     image,
     colorminCartValue,
+    colormaxCartValue,
     additionalDiscount,
     mainId,
     categoryId,
@@ -30,9 +31,18 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
   const handleIncreaseQuantity = () => {
     const newQuantity = itemQuantity + 1;
     setItemQuantity(newQuantity);
-    onUpdateQuantity(cartId, newQuantity);
+    if (newQuantity > colormaxCartValue) {
+      setItemQuantity(colormaxCartValue);
+      Toast.show({
+        type: 'info',
+        position: 'bottom',
+        text1: `Minimum quantity is ${colormaxCartValue}`,
+        text2: 'Cannot Increase quantity further',
+      });
+    } else {
+      onUpdateQuantity(cartId, newQuantity);
+    }
   };
-
   const handleDecreaseQuantity = () => {
     const newQuantity = itemQuantity - 1;
     setItemQuantity(newQuantity);
@@ -106,8 +116,12 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
                 </TouchableOpacity>
                 <Text style={styles.quantityText}>{itemQuantity}</Text>
                 <TouchableOpacity
-                  style={styles.quantityButton}
-                  onPress={handleIncreaseQuantity}>
+                 style={[
+                    styles.quantityButton,
+                    itemQuantity >= colormaxCartValue && styles.disabledButton,
+                  ]}
+                  onPress={handleIncreaseQuantity}
+                  disabled={itemQuantity >= colormaxCartValue}>
                   <Text style={styles.quantityButtonText}>+</Text>
                 </TouchableOpacity>
               </View>

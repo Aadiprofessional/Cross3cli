@@ -1,64 +1,75 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Image,
-  TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
-  Text,
+  Dimensions,
 } from 'react-native';
+import Swiper from 'react-native-swiper';
 import YoutubeIframe from 'react-native-youtube-iframe';
-import {colors} from '../../styles/color';
+import { useFocusEffect } from '@react-navigation/native';
+import { colors } from '../../styles/color';
 
-const ImageCarousel = ({
-  images,
-  onPrevious,
-  onNext,
-  imageIndex,
-  loading,
-  colorDeliveryTime,
-}) => {
+const { width } = Dimensions.get('window'); // Get the device width for responsive swiper
+
+const ImageCarousel = ({ images, loading }) => {
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+
   // Function to extract YouTube video ID from URL
   const getVideoIdFromUrl = url => {
-    const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/;
     const match = url.match(regex);
     return match ? match[1] : null;
   };
 
-  const renderMedia = () => {
-    const currentSource = images[imageIndex];
-    if (currentSource?.startsWith('https://www.youtube.com')) {
-      const videoId = getVideoIdFromUrl(currentSource);
-      if (videoId) {
-        return (
-          <View style={styles.videoContainer}>
-            <YoutubeIframe
-              height={200} // Set the height you need
-              play={true}
-              videoId={videoId}
-              style={styles.youtubeIframe}
-              webViewProps={{
-                javaScriptEnabled: true,
-                domStorageEnabled: true,
-                allowsInlineMediaPlayback: true,
-              }}
-              videoParams={{
-                modestbranding: 1, // Hide the YouTube logo
-                showinfo: 0, // Hide video title and uploader
-                controls: 0, // Hide controls
-                rel: 0, // Prevent related videos from showing
-              }}
-            />
-          </View>
-        );
-      }
+  useFocusEffect(
+    useCallback(() => {
+      // When the screen is focused, set video to play
+      setIsVideoPlaying(true);
+
+      // Cleanup when leaving the screen, pause the video
+      return () => setIsVideoPlaying(false);
+    }, [])
+  );
+
+  const renderMedia = source => {
+    const videoId = getVideoIdFromUrl(source);
+    if (videoId) {
+      return (
+        <View style={styles.videoContainer}>
+          <YoutubeIframe
+            height={200} // Set the height you need
+            play={isVideoPlaying} // Use state to control play
+            videoId={videoId}
+            style={styles.youtubeIframe}
+            webViewProps={{
+              javaScriptEnabled: true,
+              domStorageEnabled: true,
+              allowsInlineMediaPlayback: true,
+            }}
+            onChangeState={event => {
+              if (event === 'ended') {
+                setIsVideoPlaying(false);
+              }
+            }}
+            videoParams={{
+              modestbranding: 1,
+              showinfo: 0,
+              controls: 0,
+              rel: 0,
+            }}
+          />
+        </View>
+      );
     }
-    return <Image source={{uri: currentSource}} style={styles.image} />;
+
+    // Return the image if it's not a video link
+    return <Image source={{ uri: source }} style={styles.image} />;
   };
 
   return (
     <View style={styles.imageContainer}>
-      {renderMedia()}
       {loading && (
         <ActivityIndicator
           size="large"
@@ -66,24 +77,22 @@ const ImageCarousel = ({
           style={styles.imageLoader}
         />
       )}
-      <TouchableOpacity
-        style={[styles.arrowButton, {left: 10}]}
-        onPress={onPrevious}>
-        <Text style={styles.arrowText}>{'<'}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.arrowButton, {right: 10}]}
-        onPress={onNext}>
-        <Text style={styles.arrowText}>{'>'}</Text>
-      </TouchableOpacity>
-      <View style={styles.pagination}>
-        {images.map((_, index) => (
-          <View
-            key={index}
-            style={[styles.dot, index === imageIndex && styles.activeDot]}
-          />
+
+      <Swiper
+        showsPagination={true}
+        loop={false}
+        autoplay={false} // Autoplay can be enabled if needed
+        activeDotColor={colors.main}
+        dotStyle={styles.dot}
+        activeDotStyle={styles.activeDot}
+        containerStyle={styles.swiperContainer}
+      >
+        {images.map((source, index) => (
+          <View key={index} style={styles.slide}>
+            {renderMedia(source)}
+          </View>
         ))}
-      </View>
+      </Swiper>
     </View>
   );
 };
@@ -101,76 +110,36 @@ const styles = StyleSheet.create({
     borderColor: '#B3B3B39D',
   },
   image: {
-    width: '85%',
-    height: '85%',
+    width: '100%',
+    height: '100%',
     resizeMode: 'contain',
-    alignSelf: 'center',
-    margin: '5%',
   },
   videoContainer: {
-    marginTop: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
   },
   youtubeIframe: {
     width: '90%',
-    height: '90%',
+    height: 200,
   },
-  arrowButton: {
-    position: 'absolute',
-    top: '40%',
-
-    borderRadius: 50,
-    padding: 10,
+  swiperContainer: {
+    height: 250,
   },
-  arrowText: {
-    color: '#E0E0E0',
-    fontSize: 40,
-    fontFamily: 'Outfit-Medium',
-  },
-  pagination: {
-    position: 'absolute',
-    bottom: 5,
-    flexDirection: 'row',
+  slide: {
+    flex: 1,
     justifyContent: 'center',
-    width: '100%',
-    paddingVertical: 5,
+    alignItems: 'center',
   },
   dot: {
+    backgroundColor: '#A7A7A7',
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#A7A7A7',
-    marginHorizontal: 5,
   },
   activeDot: {
-    width: 16,
     backgroundColor: '#316487',
-  },
-  truckTextContainer: {
-    position: 'absolute',
-    top: 15,
-    left: 50,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-  },
-  truckText: {
-    color: '#333333',
-    fontSize: 16,
-    fontFamily: 'Outfit-Medium',
-  },
-  truckIcon: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: colors.second,
-    borderRadius: 20,
-    padding: 10,
-    zIndex: 1000,
-  },
-  truckImage: {
-    width: 24,
-    height: 24,
-    tintColor: 'white',
+    width: 16,
   },
 });
 

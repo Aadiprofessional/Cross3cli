@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,26 +7,22 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Image,
   ScrollView,
-  Platform,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import auth from '@react-native-firebase/auth';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 const UpdateProfileScreen = () => {
   const [CompanyName, setCompanyName] = useState('');
   const [OwnerName, setOwnerName] = useState('');
   const [GST, setGST] = useState('');
   const [mainAddress, setMainAddress] = useState('');
-
   const [pincode, setPincode] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [email, setEmail] = useState('');
+  const [alternateNumber, setAlternateNumber] = useState(''); // New alternate number state
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
@@ -57,7 +53,7 @@ const UpdateProfileScreen = () => {
         `https://api.postalpincode.in/pincode/${pincode}`,
       );
       if (response.data[0].Status === 'Success') {
-        const {District, State} = response.data[0].PostOffice[0];
+        const { District, State } = response.data[0].PostOffice[0];
         setCity(District);
         setState(State);
       } else {
@@ -74,13 +70,6 @@ const UpdateProfileScreen = () => {
       fetchLocationFromPincode(pincode);
     }
   }, [pincode]);
-
-  useEffect(() => {
-    // Check if form is valid when any of the required fields change
-    if (isFormValid()) {
-      // Enable navigation only if form is valid
-    }
-  }, [CompanyName, OwnerName, GST, mainAddress, email, pincode]);
 
   const handleUpdateProfile = async () => {
     if (!isFormValid()) {
@@ -101,11 +90,11 @@ const UpdateProfileScreen = () => {
       );
 
       const orderId = otpResponse.data.orderId;
-      console.log(orderId);
 
       // Navigate to OTP screen with necessary data
       navigation.navigate('OTPscreen', {
         phoneNumber: `91${phoneNumber}`,
+        alternateNumber: alternateNumber, // Passing the alternate number
         orderId: orderId,
         companyName: CompanyName,
         gst: GST,
@@ -153,6 +142,16 @@ const UpdateProfileScreen = () => {
             placeholderTextColor={colors.placeholder}
             editable={false} // Set to false to avoid user editing
           />
+          <Text style={styles.label}>Alternate Number</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Alternate Number"
+            placeholderTextColor={colors.placeholder}
+            value={alternateNumber}
+            onChangeText={setAlternateNumber} // Allow user to input alternate number
+            keyboardType="numeric"
+            maxLength={10}
+          />
           <Text style={styles.label}>
             Owner Name <Text style={styles.requiredStar}>*</Text>
           </Text>
@@ -184,7 +183,6 @@ const UpdateProfileScreen = () => {
             value={mainAddress}
             onChangeText={setMainAddress}
           />
-
           <Text style={styles.label}>
             Pincode <Text style={styles.requiredStar}>*</Text>
           </Text>
@@ -253,13 +251,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
   },
-  backIcon: {
-    marginRight: 16,
-  },
   headerTitle: {
     color: '#FFFFFF',
     fontSize: 18,
-
     fontFamily: 'Outfit-Regular',
   },
   scrollView: {
@@ -270,7 +264,6 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: 4,
-
     fontFamily: 'Outfit-Medium',
     color: '#333',
   },

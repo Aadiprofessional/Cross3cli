@@ -60,22 +60,26 @@ const CompanyDetail = ({company, onRemove, navigation}) => {
       {company.type === 'Added' && (
         <>
           <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-            <Icon name="pencil-outline" size={24} color="#000000" />
+            <Icon name="pencil-outline" size={24} color="#333" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.removeButton} onPress={handleRemove}>
-            <Icon name="delete-empty-outline" size={24} color="#000000" />
+            <Icon name="delete-empty-outline" size={24} color="#333" />
           </TouchableOpacity>
         </>
       )}
       {company.type === 'Primary' && (
         <>
           <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-            <Icon name="pencil-outline" size={24} color="#000000" />
+            <Icon name="pencil-outline" size={24} color="#333" />
           </TouchableOpacity>
           <Text style={styles.primaryText}>Primary</Text>
         </>
       )}
       <Text style={styles.title}>{company.name}</Text>
+      <View>
+        <Text style={styles.title}>Alternate Number:</Text>
+        <Text style={styles.content}>{company.alternateNumber || 'N/A'}</Text>
+      </View>
       <View>
         <Text style={styles.title}>Address:</Text>
         <Text style={styles.content}>{company.address || 'N/A'}</Text>
@@ -108,6 +112,7 @@ const styles = StyleSheet.create({
   editButton: {
     position: 'absolute',
     top: 8,
+    
     right: 8,
   },
   removeButton: {
@@ -116,20 +121,20 @@ const styles = StyleSheet.create({
     right: 40,
   },
   primaryText: {
-    fontSize: 16,
+    fontSize: 19,
 
-    fontFamily: 'Outfit-Regular',
+    fontFamily: 'Outfit-Medium',
     color: colors.orange,
     marginBottom: 8,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
 
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
   content: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
   },

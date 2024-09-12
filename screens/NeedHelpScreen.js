@@ -41,7 +41,7 @@ const NeedHelpScreen = () => {
             style={styles.backIcon}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Contact us</Text>
+        <Text style={styles.headerTitle}>Customer Support</Text>
       </View>
 
       <TouchableOpacity style={styles.rectangle} onPress={handleWhatsApp}>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
   
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#FFFFFF',
   },
   rectangle: {

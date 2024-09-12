@@ -1,14 +1,14 @@
-import React, {useState, useEffect} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, { useState, useEffect, useRef } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import auth from '@react-native-firebase/auth';
 import firebase from '@react-native-firebase/app';
-import {colors} from './styles/color';
+import { colors } from './styles/color';
 import LeftNavBar from './components/LeftNavBar';
-import {CartProvider} from './components/CartContext';
+import { CartProvider } from './components/CartContext';
+import firestore from '@react-native-firebase/firestore';
 
-import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import SearchScreen from './screens/SearchScreen';
 import ProductDetailPage from './screens/ProductDetailPage';
@@ -34,8 +34,10 @@ import ThankYouScreen from './screens/ThankYou';
 import SubCategoryScreen2 from './screens/SubCategoryScreen copy';
 import EditCompanyScreen from './components/editCompanyScreen';
 import TransactionScreen from './screens/Transation';
+import CustomHeader from './components/CustomHeader';
+import CustomHeader2 from './components/CustomHeader2';
+import CustomHeader3 from './components/CustomHeader2 copy';
 
-// Initialize Firebase if it hasn't been initialized already
 if (!firebase.apps.length) {
   firebase.initializeApp();
 }
@@ -47,22 +49,42 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavBarVisible, setIsNavBarVisible] = useState(false);
 
+  const navigationRef = useRef(null);
+
   useEffect(() => {
-    const checkAuthState = async () => {
-      try {
-        const user = auth().currentUser;
-        const loggedIn = await AsyncStorage.getItem('loggedIn');
-        if (user || loggedIn === 'true') {
-          setIsLoggedIn(true);
+    const checkUserStatus = async () => {
+      const user = auth().currentUser;
+      if (user) {
+        try {
+          const docSnapshot = await firestore().collection('users').doc(user.uid).get();
+          if (docSnapshot.exists) {
+            setIsLoggedIn(true);
+          } else {
+            await auth().signOut();
+            setIsLoggedIn(false);
+            Toast.show({
+              type: 'error',
+              text1: 'Authentication Error',
+              text2: 'User data not found. Logging out.',
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          await auth().signOut();
+          setIsLoggedIn(false);
+          Toast.show({
+            type: 'error',
+            text1: 'Authentication Error',
+            text2: 'User data not found. Logging out.',
+          });
         }
-      } catch (error) {
-        console.error('Error checking authentication state:', error);
-      } finally {
-        setIsLoading(false); // Stop loading after check
+      } else {
+        setIsLoggedIn(false);
       }
+      setIsLoading(false);
     };
 
-    checkAuthState();
+    checkUserStatus();
   }, []);
 
   const toggleNavBar = () => {
@@ -70,14 +92,13 @@ const App = () => {
   };
 
   if (isLoading) {
-    // You can return a custom splash/loading screen here
     return (
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
             name="Splash"
-            component={SplashScreen} // Replace with your splash screen component
-            options={{headerShown: false}}
+            component={SplashScreen}
+            options={{ headerShown: false }}
           />
         </Stack.Navigator>
       </NavigationContainer>
@@ -88,59 +109,55 @@ const App = () => {
     <CartProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName={isLoggedIn ? 'HomeTab' : 'OTPVerification'}>
+          initialRouteName={isLoggedIn ? 'HomeTab' : 'OTPVerification'}
+        >
           <Stack.Screen
             name="OTPVerification"
             component={OTPVerificationScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="HomeTab"
             component={HomeScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="OTPscreen"
             component={OTPScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="SearchScreen"
             component={SearchScreen}
             options={{
               title: 'Search',
-              headerStyle: {backgroundColor: colors.main},
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
+                textAlign: 'left',
                 flex: 1,
                 textAlign: 'left',
                 justifyContent: 'center',
               },
-              headerTitleAlign: 'left', // Align header title to left
+              headerTitleAlign: 'left',
             }}
           />
-           <Stack.Screen
+          <Stack.Screen
             name="AddTransactionScreen"
             component={TransactionScreen}
             options={{
               title: 'Your Transactions',
-              headerStyle: {backgroundColor: colors.main},
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
+                textAlign: 'left',
                 flex: 1,
                 textAlign: 'left',
                 justifyContent: 'center',
               },
-              headerTitleAlign: 'left', // Align header title to left
+              headerTitleAlign: 'left',
             }}
           />
           <Stack.Screen
@@ -148,100 +165,89 @@ const App = () => {
             component={SearchResultsScreen}
             options={{
               title: 'Search Results',
-              headerStyle: {backgroundColor: colors.main},
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
+                textAlign: 'left',
               },
-              headerTitleAlign: 'left', // Align header title to left
+              headerTitleAlign: 'left',
             }}
           />
           <Stack.Screen
             name="ProductDetailPage"
             component={ProductDetailPage}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="NeedHelp"
             component={NeedHelpScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="PrivacyPolicyScreen"
             component={PrivacyPolicyScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="UpdateProfileScreen"
             component={UpdateProfileScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="AddCompanyScreen"
             component={AddCompanyScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="EditCompanyScreen"
             component={EditCompanyScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="UserCompaniesScreen"
             component={UserCompaniesScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="TermsConditionsScreen"
             component={TermsConditionsScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="Cart"
             component={CartScreen}
-            options={{
-              title: 'Cart',
-              headerStyle: {backgroundColor: colors.main},
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
-              },
-              headerTitleAlign: 'left', // Align header title to left
-            }}
+            options={({ navigation }) => ({
+              header: () => (
+                <CustomHeader3
+                  title="Cart"
+                  onBackPress={() => navigation.goBack()} // Handle back button press
+                />
+              ),
+            })}
           />
           <Stack.Screen
             name="Profile"
             component={ProfileScreen}
-            options={{headerShown: false}}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="SubCategoryScreen"
             component={SubCategoryScreen}
-            options={{
-              title: 'Subcategory',
-              headerStyle: {backgroundColor: colors.main},
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
-              },
-              headerTitleAlign: 'left', // Align header title to left
-            }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen
             name="SubCategoryScreen2"
             component={SubCategoryScreen2}
             options={{
               title: 'Subcategory',
-              headerStyle: {backgroundColor: colors.main},
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
+                textAlign: 'left',
               },
-              headerTitleAlign: 'left', // Align header title to left
+              headerTitleAlign: 'left',
             }}
           />
           <Stack.Screen
@@ -249,13 +255,13 @@ const App = () => {
             component={AllCategoriesScreen}
             options={{
               title: 'Category',
-              headerStyle: {backgroundColor: colors.main},
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
+                textAlign: 'left',
               },
-              headerTitleAlign: 'left', // Align header title to left
+              headerTitleAlign: 'left',
             }}
           />
           <Stack.Screen
@@ -263,13 +269,13 @@ const App = () => {
             component={OrderSummaryScreen}
             options={{
               title: 'Order Summary',
-              headerStyle: {backgroundColor: colors.main},
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
+                textAlign: 'left',
               },
-              headerTitleAlign: 'left', // Align header title to left
+              headerTitleAlign: 'left',
             }}
           />
           <Stack.Screen
@@ -277,13 +283,13 @@ const App = () => {
             component={InvoiceScreen}
             options={{
               title: 'Invoice Screen',
-              headerStyle: {backgroundColor: colors.main},
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
+                textAlign: 'left',
               },
-              headerTitleAlign: 'left', // Align header title to left
+              headerTitleAlign: 'left',
             }}
           />
           <Stack.Screen
@@ -291,13 +297,13 @@ const App = () => {
             component={ThankYouScreen}
             options={{
               title: 'Thank You',
-              headerStyle: {backgroundColor: colors.main},
+              headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {
                 fontFamily: 'Outfit-Medium',
-                textAlign: 'left', // Left-align text
+                textAlign: 'left',
               },
-              headerTitleAlign: 'left', // Align header title to left
+              headerTitleAlign: 'left',
             }}
           />
         </Stack.Navigator>

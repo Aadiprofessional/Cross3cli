@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -12,38 +11,49 @@ import {
 import CartItem from '../components/CartItem';
 import { colors } from '../styles/color';
 import { sizes } from '../styles/size';
-
-import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import CheckBox from '@react-native-community/checkbox';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import CompanyDropdown from '../components/CompanyDropdown';
 import { ActivityIndicator } from 'react-native-paper';
+import AddCommentComponent from '../components/AddCommentComponent'; // Import the AddCommentComponent
 import CompanyDropdown2 from '../components/CompanyDropdown copy';
 import CompanyDropdown3 from '../components/CompanyDropdown copy 3';
-import CompanyDropdown4 from '../components/CompanyDropdown copy 2';
 
 const OrderSummaryScreen = ({ route, navigation }) => {
   const {
     cartItems: initialCartItems,
     totalAmount: initialTotalAmount,
     totalAdditionalDiscountValue,
+    comment: passedComment, // Extract the passed comment if available
   } = route.params;
+
   const [cartItems, setCartItems] = useState(initialCartItems);
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
   const [useRewardPoints, setUseRewardPoints] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [coupons, setCoupons] = useState([]);
-
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [selectedPincode, setSelectedPincode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState([]);
+  const [unavailableCoupons, setUnavailableCoupons] = useState([]);
+  const [comment, setComment] = useState(passedComment || ''); // Store the comment
 
+  // Fetch reward points (existing logic)
   useEffect(() => {
     fetchRewardPoints();
   }, []);
+
+  // Update comment if passed through route
+  useEffect(() => {
+    if (comment) {
+      console.log("Received comment:", comment);
+    }
+  }, [comment]);
+
 
   const fetchRewardPoints = async () => {
     try {
@@ -72,7 +82,10 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     rewardPointsPrice: 10,
     shippingCharges: 0,
     additionalDiscount: totalAdditionalDiscountValue,
+    comment: comment,
   });
+
+
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
@@ -80,16 +93,23 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         const response = await axios.get(
           `https://crossbee-server-1036279390366.asia-south1.run.app/coupons/${userId}?amount=${totalAmount}`
         );
-        setCoupons(response.data);
+        const fetchedCoupons = response.data;
+
+        const filteredAvailableCoupons = fetchedCoupons.filter(coupon => coupon.min_amount <= totalAmount);
+        const filteredUnavailableCoupons = fetchedCoupons.filter(coupon => coupon.min_amount > totalAmount);
+
+        setCoupons(fetchedCoupons);
+        setAvailableCoupons(filteredAvailableCoupons);
+        setUnavailableCoupons(filteredUnavailableCoupons);
       } catch (error) {
         console.error('Error fetching coupons:', error);
         Alert.alert('Error', 'Failed to fetch coupons. Please try again later.');
       }
     };
-  
+
     fetchCoupons();
-  }, [totalAmount]); // Ensure that totalAmount is passed in as a dependency
-  
+  }, [totalAmount]);// Ensure that totalAmount is passed in as a dependency
+
 
   useEffect(() => {
     const newTotalAmount = calculateTotalAmount();
@@ -153,11 +173,11 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
   const handlePincodeChange = pincode => {
     setSelectedPincode(pincode);
-    
+
   };
 
   const handleApplyCoupon = () => {
-    const coupon = coupons.find(c => c.code === couponCode);
+    const coupon = availableCoupons.find(c => c.code === couponCode);
     if (coupon) {
       // Convert value to number
       const couponValue = Number(coupon.value);
@@ -204,17 +224,13 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           cartItems,
           uid: userId,
           companyId: selectedCompanyId,
-        },
+          comment: comment,
+        }
       );
       console.log('Checkout response:', response.data);
-
-      if (response.data.cartError) {
-        Alert.alert(
-          'Out of Stock',
-          'Some items in your cart are out of stock. Please review your cart.',
-        );
-      } else if (response.data.orderId) {
-        // Updated line
+    
+      if (response.data.orderId) {
+        // Order placed successfully
         console.log('Item added to cart successfully');
         Toast.show({
           type: 'success',
@@ -236,113 +252,129 @@ const OrderSummaryScreen = ({ route, navigation }) => {
             },
           ],
         });
+      } else if (response.data.cartError) {
+        // Cart-specific error (e.g., out of stock)
+        Alert.alert(
+          'Out of Stock',
+          'Some items in your cart are out of stock. Please review your cart.',
+        );
       } else {
         console.error('Failed to checkout');
+        Alert.alert('Error', 'Unable to place the order.');
       }
     } catch (error) {
       console.error('Error saving order data: ', error);
-      Alert.alert(
-        'Out of Stock',
-        'Some items in your cart are out of stock. Please review your cart.',
-      );
-    }
-  };
-  
+    
+      // Check if the error is related to out of stock or other specific issues
+      if (error.response && error.response.data && error.response.data.cartError) {
+        // Handle cart-specific error (out of stock)
+        Alert.alert(
+          'Out of Stock',
+          'Some items in your cart are out of stock. Please review your cart.',
+        );
+      } else {
+        // General error handling
+        Alert.alert('Alert', 'Some error occurred while placing the order.');
+      }
+    
+      console.log(error);
+    }}
+
 
   return (
     <View style={styles.container}>
-    <ScrollView contentContainerStyle={styles.scrollViewContent}>
-      <View style={styles.header}>
-        <Text style={styles.itemCount}>{cartItems.length} items:</Text>
-        <Text style={styles.subtotal}>
-          {Number(calculateSubtotal().toFixed(2)).toLocaleString("en-IN", {
-            maximumFractionDigits: 0,
-            style: 'currency',
-            currency: 'INR',
-          })}
-        </Text>
-      </View>
-      
-      <View style={styles.summaryContainer}>
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Shipping Charges:</Text>
-          <Text style={styles.summaryValue}>
-            {Number(data.shippingCharges.toFixed(2)).toLocaleString("en-IN", {
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <View style={styles.header}>
+          <Text style={styles.itemCount}>{cartItems.length} items:</Text>
+          <Text style={styles.subtotal}>
+            {Number(calculateSubtotal().toFixed(2)).toLocaleString("en-IN", {
               maximumFractionDigits: 0,
               style: 'currency',
               currency: 'INR',
             })}
           </Text>
         </View>
-        
-        <View style={styles.summaryRow}>
-          <Text style={styles.summaryLabel}>Additional Discount:</Text>
-          <Text style={styles.summaryValue}>
-            -{Number(totalAdditionalDiscountValue.toFixed(0)).toLocaleString("en-IN", {
-              maximumFractionDigits: 0,
-              style: 'currency',
-              currency: 'INR',
-            })}
-          </Text>
-        </View>
-  
-        {appliedCoupon && (
+
+        <View style={styles.summaryContainer}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Coupon Discount:</Text>
-            <Text style={styles.couponDiscount}>
-              -{Number(appliedCoupon.value).toLocaleString("en-IN", {
+            <Text style={styles.summaryLabel}>Shipping Charges:</Text>
+            <Text style={styles.summaryValue}>
+              {Number(data.shippingCharges.toFixed(2)).toLocaleString("en-IN", {
                 maximumFractionDigits: 0,
                 style: 'currency',
                 currency: 'INR',
               })}
             </Text>
           </View>
-        )}
-  
-        {useRewardPoints && (
+
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Reward Points Discount:</Text>
-            <Text style={styles.couponDiscount}>
-              -{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
+            <Text style={styles.summaryLabel}>Additional Discount:</Text>
+            <Text style={styles.summaryValue}>
+              -{Number(totalAdditionalDiscountValue.toFixed(0)).toLocaleString("en-IN", {
                 maximumFractionDigits: 0,
                 style: 'currency',
                 currency: 'INR',
               })}
             </Text>
           </View>
-        )}
-  
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total:</Text>
-          <Text style={styles.totalValue}>
-            {Number(totalAmount.toFixed(2)).toLocaleString("en-IN", {
+
+          {appliedCoupon && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Coupon Discount:</Text>
+              <Text style={styles.couponDiscount}>
+                -{Number(appliedCoupon.value).toLocaleString("en-IN", {
+                  maximumFractionDigits: 0,
+                  style: 'currency',
+                  currency: 'INR',
+                })}
+              </Text>
+            </View>
+          )}
+
+          {useRewardPoints && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Reward Points Discount:</Text>
+              <Text style={styles.couponDiscount}>
+                -{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
+                  maximumFractionDigits: 0,
+                  style: 'currency',
+                  currency: 'INR',
+                })}
+              </Text>
+            </View>
+          )}
+
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total:</Text>
+            <Text style={styles.totalValue}>
+              {Number(totalAmount.toFixed(2)).toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.rewardPointsToggle}
+          onPress={handleToggleRewardPoints}
+        >
+          <Text style={styles.rewardPointsText}>
+            Use Reward Points (-{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
               maximumFractionDigits: 0,
               style: 'currency',
               currency: 'INR',
-            })}
+            })})
           </Text>
-        </View>
-      </View>
-  
-      <TouchableOpacity
-        style={styles.rewardPointsToggle}
-        onPress={handleToggleRewardPoints}
-      >
-        <Text style={styles.rewardPointsText}>
-          Use Reward Points (-{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
-            maximumFractionDigits: 0,
-            style: 'currency',
-            currency: 'INR',
-          })})
-        </Text>
-        <CheckBox
-          value={useRewardPoints}
-          onValueChange={handleToggleRewardPoints}
-          boxType="square"
-          tintColors={{ true: colors.main, false: '#dcdcdc' }}
-        />
-      </TouchableOpacity>
-  
+          <CheckBox
+            value={useRewardPoints}
+            onValueChange={handleToggleRewardPoints}
+            boxType="square"
+            tintColors={{ true: colors.main, false: '#dcdcdc' }}
+          />
+        </TouchableOpacity>
+
 
         <View style={styles.couponContainer}>
           <View style={styles.inputContainer}>
@@ -368,41 +400,49 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           </View>
 
           <View style={styles.couponSection}>
-            <Text style={styles.applicableCoupons}>Applicable coupons</Text>
-            {coupons.map((coupon, index) => (
+            <Text style={styles.applicableCoupons}>Available Coupons</Text>
+            {availableCoupons.map((coupon, index) => (
               <View key={index} style={styles.couponItem}>
-                <Text style={styles.applicableText}>
-                  <Text
-                    style={{
-                      color: colors.main,
+                <View style={styles.couponItemContainer}>
+                  <Text style={styles.applicableText}>
+                    <Text style={styles.couponCodeText}>{coupon.code}</Text>
+                    {'\n'}
+                    {coupon.description}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.applyTextButton}
+                    onPress={() => {
+                      setAppliedCoupon(coupon);
+                      Alert.alert(
+                        'Coupon applied',
+                        `Coupon ${coupon.code} applied successfully!`,
+                      );
+                    }}
+                    disabled={!!appliedCoupon} // Disable button if coupon applied
+                  >
+                    <Text style={styles.applyTextButtonText}>
+                      {appliedCoupon && appliedCoupon.code === coupon.code
+                        ? 'Applied'
+                        : 'Apply'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                {index < availableCoupons.length - 1 && <View style={styles.separator} />}
+              </View>
 
-                      fontFamily: 'Outfit-Medium',
-                    }}>
-                    {coupon.code}
+            ))}
+
+            <Text style={styles.applicableCoupons}>Unavailable Coupons</Text>
+            {unavailableCoupons.map((coupon, index) => (
+              <View key={index} style={styles.couponItem}>
+                <View style={styles.couponItemContainer}>
+                  <Text style={styles.applicableText}>
+                    <Text style={styles.couponCodeText}>{coupon.code}</Text>
+                    {'\n'}
+                    {coupon.description}
                   </Text>
-                  {'\n'}
-                  {coupon.description}
-                </Text>
-                <TouchableOpacity
-                  style={styles.applyTextButton}
-                  onPress={() => {
-                    setAppliedCoupon(coupon);
-                    Alert.alert(
-                      'Coupon applied',
-                      `Coupon ${coupon.code} applied successfully!`,
-                    );
-                  }}
-                  disabled={!!appliedCoupon} // Disable button if coupon applied
-                >
-                  <Text style={styles.applyTextButtonText}>
-                    {appliedCoupon && appliedCoupon.code === coupon.code
-                      ? 'Applied'
-                      : 'Apply'}
-                  </Text>
-                </TouchableOpacity>
-                {index < coupons.length - 1 && (
-                  <View style={styles.separator} />
-                )}
+                </View>
+                {index < unavailableCoupons.length - 1 && <View style={styles.separator} />}
               </View>
             ))}
           </View>
@@ -415,6 +455,10 @@ const OrderSummaryScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           )}
         </View>
+        <Text style={styles.applicableCoupons2}>{comment ? `Comment: ${comment}` : 'No Comment'}</Text>
+
+        {/* Add Comment Button/Modal */}
+        <AddCommentComponent setComment={setComment} comment={comment} />
         <CompanyDropdown
           onSelectCompany={handleSelectCompany}
           onPincodeChange={handlePincodeChange}
@@ -427,7 +471,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           onSelectCompany={handleSelectCompany}
           pincode={selectedPincode}
         />
-        <CompanyDropdown4
+        <CompanyDropdown3
           onSelectCompany={handleSelectCompany}
           pincode={selectedPincode}
         />
@@ -503,10 +547,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Outfit-Medium',
   },
+  appliedButton: {
+    color: '#fff',
+
+    textAlign: 'center',
+    fontFamily: 'Outfit-Medium',
+  },
   applicableCoupons: {
     fontSize: sizes.body,
+    marginTop: 10,
+    fontFamily: 'Outfit-Bold',
+    marginBottom: 10,
+    color: colors.second,
+  },
+  applicableCoupons2: {
+    marginLeft: 15,
 
-    fontFamily: 'Outfit-Medium',
+    fontFamily: 'Outfit-Regular',
     marginBottom: 10,
     color: colors.TextBlack,
   },
@@ -538,6 +595,24 @@ const styles = StyleSheet.create({
   removeCouponButtonText: {
     color: '#fff',
 
+    fontFamily: 'Outfit-Medium',
+  },
+  couponItemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Ensures space between text and apply button
+    alignItems: 'center', // Align items vertically
+  },
+  couponCodeText: {
+    color: colors.main,
+    fontFamily: 'Outfit-Medium',
+  },
+  applyTextButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  applyTextButtonText: {
+    color: colors.second,
+    fontSize: 16,
     fontFamily: 'Outfit-Medium',
   },
   separator: {
@@ -695,16 +770,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Outfit-Medium',
   },
-  applicableCoupons: {
-    fontSize: sizes.body,
-
-    fontFamily: 'Outfit-Bold',
-    marginBottom: 10,
-    color: colors.TextBlack,
-  },
+ 
   applicableText: {
     fontSize: sizes.body,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     color: '#000',
   },
   applyTextButton: {

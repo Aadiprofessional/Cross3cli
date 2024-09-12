@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback, useMemo} from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
-const SubCategoryScreen2 = ({route}) => {
-  const {name} = route.params || {}; // Use `name` to fetch data
+const SubCategoryScreen2 = ({ route }) => {
+  const { name } = route.params || {}; // Use `name` to fetch data
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +44,7 @@ const SubCategoryScreen2 = ({route}) => {
 
   const navigateToSubCategory = useCallback(
     (mainId, categoryId) => {
-      navigation.navigate('SubCategoryScreen', {mainId, categoryId});
+      navigation.navigate('SubCategoryScreen', { mainId, categoryId });
     },
     [navigation],
   );
@@ -59,7 +59,7 @@ const SubCategoryScreen2 = ({route}) => {
         >
           <View style={styles.productImageContainer}>
             <Image
-              source={{uri: product.image}} // Use product.image
+              source={{ uri: product.image }} // Use product.image
               style={styles.productImage}
             />
           </View>
@@ -100,12 +100,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    paddingVertical: 10,
   },
   productItem: {
     width: '30%',
     marginBottom: 20,
-    marginLeft: '3.33%', // Add some right margin for spacing
+    marginHorizontal: '1.66%', // Margin to ensure spacing between items
+    alignItems: 'center', // Center align items in each category
   },
   productImageContainer: {
     backgroundColor: '#FFF',
@@ -113,8 +114,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DDD',
     overflow: 'hidden',
-    aspectRatio: 1,
-    marginTop: 10,
+    aspectRatio: 1, // Maintain a square aspect ratio
+    width: '100%',
+    height: 100, // Fixed height for consistency
+    marginBottom: 5,
   },
   productImage: {
     width: '100%',
@@ -122,17 +125,20 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   productName: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Outfit-Medium',
     textAlign: 'center',
     color: colors.TextBlack,
+    flexWrap: 'wrap',
+    textAlign: 'center', // Center-align text
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  noProductsContainer: {
+
+  noCategoriesContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

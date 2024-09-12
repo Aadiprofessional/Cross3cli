@@ -92,12 +92,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    paddingVertical: 10,
   },
   categoryItem: {
     width: '30%',
     marginBottom: 20,
-    marginLeft: '3.33%', // Add some right margin for spacing
+    marginHorizontal: '1.66%', // Margin to ensure spacing between items
+    alignItems: 'center', // Center align items in each category
   },
   categoryImageContainer: {
     backgroundColor: '#FFF',
@@ -105,8 +106,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DDD',
     overflow: 'hidden',
-    aspectRatio: 1,
-    marginTop: 10,
+    aspectRatio: 1, // Maintain a square aspect ratio
+    width: '100%',
+    height: 100, // Fixed height for consistency
+    marginBottom: 5,
   },
   categoryImage: {
     width: '100%',
@@ -114,10 +117,12 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   categoryName: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Outfit-Medium',
     textAlign: 'center',
     color: colors.TextBlack,
+    flexWrap: 'wrap',
+    textAlign: 'center', // Center-align text
   },
   loadingContainer: {
     flex: 1,

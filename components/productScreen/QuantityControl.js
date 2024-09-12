@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors } from '../../styles/color';
 
-const QuantityControl = ({ quantity, minValue, onIncrease, onDecrease }) => {
+const QuantityControl = ({ quantity, minValue, onIncrease, onDecrease ,maxValue}) => {
   return (
     <View style={styles.quantityContainer}>
       <Text style={styles.head}>Quantity:</Text>
@@ -19,7 +19,11 @@ const QuantityControl = ({ quantity, minValue, onIncrease, onDecrease }) => {
       <Text style={styles.quantityText}>{quantity}</Text>
       <TouchableOpacity
         onPress={onIncrease}
-        style={styles.quantityButton}
+        style={[
+          styles.quantityButton,
+          quantity >= maxValue && styles.disabledButton, // Disable button if quantity is <= minValue
+        ]}
+        disabled={quantity >= maxValue}
       >
         <Text style={styles.quantityButtonText}>+</Text>
       </TouchableOpacity>

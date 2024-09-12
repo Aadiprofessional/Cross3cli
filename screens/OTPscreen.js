@@ -30,7 +30,7 @@ const OTPScreen = ({route, navigation}) => {
       .map(() => React.createRef()),
   );
   const [banner, setBanner] = useState(defaultBannerImage);
-  const {phoneNumber, orderId, companyName, gst, email, address, ownerName} =
+  const {phoneNumber, orderId, companyName, gst, email, address, ownerName,alternateNumber} =
     route.params;
   // Extract phoneNumber and orderId from route params
 
@@ -47,7 +47,7 @@ const OTPScreen = ({route, navigation}) => {
     console.log('Email:', email);
     console.log('Address:', address);
     console.log('Owner Name:', ownerName);
-  }, [phoneNumber, orderId, companyName, gst, email, address, ownerName]);
+  }, [phoneNumber, orderId, companyName, gst, email, address, ownerName,alternateNumber]);
   useEffect(() => {
     const fetchBanner = async () => {
       try {
@@ -138,6 +138,7 @@ const OTPScreen = ({route, navigation}) => {
           'https://crossbee-server-1036279390366.asia-south1.run.app/getRegisterCustomToken',
           {
             phoneNumber: phoneNumber,
+            alternateNumber : alternateNumber,
             companyName: companyName,
             gst: gst,
             email: email,
@@ -147,7 +148,7 @@ const OTPScreen = ({route, navigation}) => {
           },
         );
         await auth().signInWithCustomToken(tokenResponse.data.token);
-        await AsyncStorage.setItem('loggedIn', 'true');
+        // await AsyncStorage.setItem('loggedIn', 'true');
         await AsyncStorage.setItem('phoneNumber', phoneNumber);
         showToast('success', 'Success', 'Phone number verified!');
         navigation.replace('HomeTab');

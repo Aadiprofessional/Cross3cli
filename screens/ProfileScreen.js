@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,14 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {colors} from '../styles/color';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { colors } from '../styles/color';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import auth from '@react-native-firebase/auth';
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [userName, setUserName] = useState('Your Name');
   const [rewardPoints, setRewardPoints] = useState('0');
@@ -41,8 +41,7 @@ const ProfileScreen = ({navigation}) => {
                 setUserName(userData.name || 'Your Name');
                 setRewardPoints(userData.rewardPoints || '0');
                 setProfileImage(userData.profilePicture || null);
-                setBilling(userData.billing || {} );
-
+                setBilling(userData.billing || {});
               }
             });
 
@@ -92,7 +91,7 @@ const ProfileScreen = ({navigation}) => {
           {
             profilePicture: uri,
           },
-          {merge: true},
+          { merge: true },
         );
 
         setProfileImage(uri);
@@ -127,7 +126,7 @@ const ProfileScreen = ({navigation}) => {
     },
     {
       iconName: 'email-outline',
-      text: 'Contact us',
+      text: 'Customer Support',
       screen: 'NeedHelp',
     },
     {
@@ -147,7 +146,7 @@ const ProfileScreen = ({navigation}) => {
 
       navigation.reset({
         index: 0,
-        routes: [{name: 'OTPVerification'}],
+        routes: [{ name: 'OTPVerification' }],
       });
     } catch (error) {
       console.error('Logout failed:', error);
@@ -161,7 +160,7 @@ const ProfileScreen = ({navigation}) => {
           <Image
             source={
               profileImage
-                ? {uri: profileImage}
+                ? { uri: profileImage }
                 : require('../assets/profile.png')
             }
             style={styles.profileImage}
@@ -182,15 +181,34 @@ const ProfileScreen = ({navigation}) => {
         />
       </View>
 
+      {/* Card with Virtual ID, IFSC, Branch Name */}
+      <TouchableOpacity
+        style={styles.cardContainer}
+        onPress={() => {
+          if (billing.virtualId && billing.virtualId !== 'pending') {
+            navigation.navigate('AddTransactionScreen');
+          } else {
+            Alert.alert('Info', 'Virtual ID is pending.');
+          }
+        }}>
+        <Text style={styles.cardText}>Virtual Id: {billing.virtualId || 'pending'}</Text>
+        <Text style={styles.cardText}>IFSC: {billing.ifsc || 'pending'}</Text>
+        <Text style={styles.cardText}>Branch Name: {billing.branch || 'pending'}</Text>
+      </TouchableOpacity>
+
       {options.map((option, index) => (
         <TouchableOpacity
           key={index}
-          style={styles.optionContainer}
+          style={[styles.optionContainer, option.text === 'Customer Support' ? styles.customerSupportButton : null]}
           onPress={() => {
             if (option.text === 'Log out') {
               handleLogout();
             } else if (option.screen) {
-              navigation.navigate(option.screen);
+              if (option.text === 'Customer Support' && !billing.virtualId) {
+                Alert.alert('Info', 'Virtual ID is not available.');
+              } else {
+                navigation.navigate(option.screen);
+              }
             }
           }}>
           <Icon
@@ -202,15 +220,6 @@ const ProfileScreen = ({navigation}) => {
           <Text style={styles.optionText}>{option.text}</Text>
         </TouchableOpacity>
       ))}
-
-      {/* Card with Virtual ID, IFSC, Branch Name */}
-      <TouchableOpacity
-        style={styles.cardContainer}
-        onPress={() => navigation.navigate('AddTransactionScreen')}>
-        <Text style={styles.cardText}>Virtual Id: {billing.virtualId||'pending'}</Text>
-        <Text style={styles.cardText}>IFSC: {billing.ifsc||'pending'}</Text>
-        <Text style={styles.cardText}>Branch Name: {billing.branch||'pending'}</Text>
-      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -228,7 +237,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
@@ -273,7 +282,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,

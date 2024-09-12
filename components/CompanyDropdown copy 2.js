@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, ActivityIndicator, Alert} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
-import {Picker} from '@react-native-picker/picker'; // Updated import
-import {colors} from '../styles/color';
+import { Picker } from '@react-native-picker/picker'; // Updated import
+import { colors } from '../styles/color';
 
-const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
+const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +58,7 @@ const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
     fetchCompanies();
   }, [pincode]);
 
-  const handleSelect = companyId => {
+  const handleSelect = (companyId) => {
     setSelectedCompanyId(companyId);
     if (onSelectCompany) {
       onSelectCompany(companyId);
@@ -69,16 +69,17 @@ const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Select a Booking Station:</Text>
+      <Text style={styles.label}>Select a booking station:</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={selectedCompanyId}
-          onValueChange={handleSelect}
-          style={styles.picker}>
+          onValueChange={(itemValue) => handleSelect(itemValue)}
+          style={styles.picker}
+        >
           {companies.length === 0 && (
-            <Picker.Item label="No Booking Station available" value={null} />
+            <Picker.Item label="No Logistics available" value={null} />
           )}
-          {companies.map(company => (
+          {companies.map((company) => (
             <Picker.Item
               key={company.id}
               label={company.name}
@@ -94,12 +95,11 @@ const CompanyDropdown3 = ({onSelectCompany, pincode}) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: 12,
     backgroundColor: colors.white,
   },
   label: {
     fontSize: 16,
-
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
     marginBottom: 8,
@@ -107,19 +107,24 @@ const styles = StyleSheet.create({
   pickerContainer: {
     borderWidth: 1,
     borderColor: colors.TextBlack,
-    borderRadius: 12, // Rounder corners
+    borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: colors.white,
+    height: 40,
+    justifyContent: 'center',
   },
   picker: {
-    height: 50,
+    fontFamily: 'Outfit-Medium',
+    height: '100%',
     width: '100%',
     color: colors.TextBlack,
+    textAlign: 'left',
   },
   errorText: {
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
+    fontFamily: 'Outfit-Medium',
   },
 });
 
