@@ -1,75 +1,69 @@
-import React, { useState, useCallback } from 'react';
-import {
-  View,
-  Image,
-  ActivityIndicator,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
-import Swiper from 'react-native-swiper';
+import React, {useState} from 'react';
+import {View, Image, ActivityIndicator, StyleSheet, Text} from 'react-native';
 import YoutubeIframe from 'react-native-youtube-iframe';
-import { useFocusEffect } from '@react-navigation/native';
-import { colors } from '../../styles/color';
+import Swiper from 'react-native-swiper';
+import {colors} from '../../styles/color';
 
-const { width } = Dimensions.get('window'); // Get the device width for responsive swiper
-
-const ImageCarousel = ({ images, loading }) => {
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+const ImageCarousel = ({images, loading}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
 
   // Function to extract YouTube video ID from URL
   const getVideoIdFromUrl = url => {
-    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/;
+    const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
     const match = url.match(regex);
     return match ? match[1] : null;
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      // When the screen is focused, set video to play
-      setIsVideoPlaying(true);
-
-      // Cleanup when leaving the screen, pause the video
-      return () => setIsVideoPlaying(false);
-    }, [])
-  );
-
-  const renderMedia = source => {
-    const videoId = getVideoIdFromUrl(source);
-    if (videoId) {
-      return (
-        <View style={styles.videoContainer}>
-          <YoutubeIframe
-            height={200} // Set the height you need
-            play={isVideoPlaying} // Use state to control play
-            videoId={videoId}
-            style={styles.youtubeIframe}
-            webViewProps={{
-              javaScriptEnabled: true,
-              domStorageEnabled: true,
-              allowsInlineMediaPlayback: true,
-            }}
-            onChangeState={event => {
-              if (event === 'ended') {
-                setIsVideoPlaying(false);
-              }
-            }}
-            videoParams={{
-              modestbranding: 1,
-              showinfo: 0,
-              controls: 0,
-              rel: 0,
-            }}
-          />
-        </View>
-      );
+  const renderMedia = (item, index) => {
+    if (item?.startsWith('https://www.youtube.com')) {
+      const videoId = getVideoIdFromUrl(item);
+      if (videoId) {
+        return (
+          <View style={styles.videoContainer} key={index}>
+            <YoutubeIframe
+              height={200}
+              play={isPlaying && currentIndex === index}
+              videoId={videoId}
+              style={styles.youtubeIframe}
+              webViewProps={{
+                javaScriptEnabled: true,
+                domStorageEnabled: true,
+                allowsInlineMediaPlayback: true,
+              }}
+              videoParams={{
+                modestbranding: 1,
+                showinfo: 0,
+                controls: 0,
+                rel: 0,
+              }}
+            />
+          </View>
+        );
+      }
     }
+    return <Image source={{uri: item}} style={styles.image} key={index} />;
+  };
 
-    // Return the image if it's not a video link
-    return <Image source={{ uri: source }} style={styles.image} />;
+  const handleIndexChanged = index => {
+    setCurrentIndex(index);
+    setIsPlaying(false);
+    setTimeout(() => {
+      setIsPlaying(true); // Delay play to ensure smooth transition
+    }, 100);
   };
 
   return (
     <View style={styles.imageContainer}>
+      <Swiper
+        loop={false}
+        onIndexChanged={handleIndexChanged}
+        showsPagination={true}
+        dotStyle={styles.dot}
+        activeDotStyle={styles.activeDot}
+      >
+        {images.map((item, index) => renderMedia(item, index))}
+      </Swiper>
       {loading && (
         <ActivityIndicator
           size="large"
@@ -77,22 +71,6 @@ const ImageCarousel = ({ images, loading }) => {
           style={styles.imageLoader}
         />
       )}
-
-      <Swiper
-        showsPagination={true}
-        loop={false}
-        autoplay={false} // Autoplay can be enabled if needed
-        activeDotColor={colors.main}
-        dotStyle={styles.dot}
-        activeDotStyle={styles.activeDot}
-        containerStyle={styles.swiperContainer}
-      >
-        {images.map((source, index) => (
-          <View key={index} style={styles.slide}>
-            {renderMedia(source)}
-          </View>
-        ))}
-      </Swiper>
     </View>
   );
 };
@@ -110,36 +88,29 @@ const styles = StyleSheet.create({
     borderColor: '#B3B3B39D',
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: '85%',
+    height: '85%',
     resizeMode: 'contain',
+    alignSelf: 'center',
+    margin: '5%',
   },
   videoContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100%',
+    marginTop: 70,
   },
   youtubeIframe: {
     width: '90%',
-    height: 200,
-  },
-  swiperContainer: {
-    height: 250,
-  },
-  slide: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: '90%',
   },
   dot: {
-    backgroundColor: '#A7A7A7',
     width: 8,
     height: 8,
     borderRadius: 4,
+    backgroundColor: '#A7A7A7',
+    marginHorizontal: 5,
   },
   activeDot: {
-    backgroundColor: '#316487',
     width: 16,
+    backgroundColor: '#316487',
   },
 });
 

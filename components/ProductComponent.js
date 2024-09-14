@@ -24,6 +24,9 @@ const ProductComponent = ({ product }) => {
       mainId: product.mainId,
       categoryId: product.categoryId,
       productId: product.productId,
+      attribute1D: product.attribute1,
+      attribute2D: product.attribute2,
+      attribute3D: product.attribute3,
     });
   };
 
@@ -32,8 +35,8 @@ const ProductComponent = ({ product }) => {
   };
 
   const handleAddToCart = () => {
-    
-  
+
+
     if (product && quantity > 0) {
       const attribute1 = product.attribute1;
       const attribute2 = product.attribute2;
@@ -56,9 +59,9 @@ const ProductComponent = ({ product }) => {
         attribute1: attribute1,
         attribute2: attribute2,
         attribute3: attribute3,
-        attribute1Id: product.attribute1,
-        attribute2Id: product.attribute2,
-        attribute3Id: product.attribute3,
+        attribute1Id: product.attribute1Id,
+        attribute2Id: product.attribute2Id,
+        attribute3Id: product.attribute3Id,
         colormaxCartValue: product.inventory,
       }
       console.log(item);
@@ -71,108 +74,96 @@ const ProductComponent = ({ product }) => {
 
   return (
     <TouchableOpacity style={styles2.productContainer} onPress={handlePress}>
-        <View style={styles2.productContent}>
-          {/* Show Lowest Price Label if available */}
-          {product.lowestPrice && (
-            <View style={styles2.lowestPriceLabel}>
-              <Text style={styles2.lowestPriceText}>Lowest price</Text>
-            </View>
-          )}
-          <View style={styles2.imageContainer}>
-            <Image
-              source={{
-                uri: product.image || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
-              }}
-              style={styles2.productImage}
-            />
+      <View style={styles2.productContent}>
+        {/* Show Highest Discount Label if available */}
+        {product.lowestPrice && (
+          <View style={styles2.lowestPriceLabel}>
+            <Text style={styles2.lowestPriceText}>Highest Discount</Text>
           </View>
-  
-          <Text style={styles2.productName} numberOfLines={1}>
-            {product.displayName}
-          </Text>
-  
-          {discountPercentage ? (
-            <View style={styles2.discountContainer}>
-              <Text style={styles2.discountText}>{discountPercentage}% OFF</Text>
-              <Text style={styles2.cutPriceText}>
-                {Number(product.price).toLocaleString('en-IN', {
-                  maximumFractionDigits: 0,
-                  style: 'currency',
-                  currency: 'INR',
-                })}
-              </Text>
-            </View>
-          ) : null}
-  
-          <View style={styles2.hotDealsContainer}>
-            <Text style={styles2.originalPriceText}>
-              {Number(cutPrice).toLocaleString('en-IN', {
+        )}
+        <View style={styles2.imageContainer}>
+          <Image
+            source={{
+              uri: product.image || product.mainImage || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
+            }}
+            style={styles2.productImage}
+          />
+        </View>
+
+        <Text style={styles2.productName} numberOfLines={1}>
+          {product.displayName}
+        </Text>
+
+        {discountPercentage ? (
+          <View style={styles2.discountContainer}>
+            <Text style={styles2.discountText}>{discountPercentage}% OFF</Text>
+            <Text style={styles2.cutPriceText}>
+              {Number(product.price).toLocaleString('en-IN', {
                 maximumFractionDigits: 0,
                 style: 'currency',
                 currency: 'INR',
               })}
             </Text>
           </View>
-  
-          <View style={styles2.actionButtonContainer}>
-            {product.outOfStock ? (
-              <View style={styles2.outOfStockButton}>
-                <Text style={styles2.outOfStockText}>Out of Stock</Text>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={styles2.addToCartButton}
-                onPress={handleAddToCart}
-              >
-                <Text style={styles2.addToCartText}>Add to Cart</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              style={styles2.productDetailButton}
-              onPress={handlePress}
-            >
-              <Text style={styles2.productDetailText}>Details</Text>
-            </TouchableOpacity>
-          </View>
+        ) : null}
+
+        <View style={styles2.hotDealsContainer}>
+          <Text style={styles2.originalPriceText}>
+            {Number(cutPrice).toLocaleString('en-IN', {
+              maximumFractionDigits: 0,
+              style: 'currency',
+              currency: 'INR',
+            })}
+          </Text>
         </View>
-      </TouchableOpacity>
-    );
-  };
+
+        <View style={styles2.actionButtonContainer}>
+          {product.outOfStock ? (
+            <View style={styles2.outOfStockButton}>
+              <Text style={styles2.outOfStockText}>Out of Stock</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles2.addToCartButton}
+              onPress={handleAddToCart}
+            >
+              <Text style={styles2.addToCartText}>Add to Cart</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={styles2.productDetailButton}
+            onPress={handlePress}
+          >
+            <Text style={styles2.productDetailText}>Details</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 
 const styles2 = StyleSheet.create({
   container: {
     marginTop: 20,
-    paddingHorizontal: 5,
+    paddingHorizontal: 10, // Add padding around the entire container
     backgroundColor: '#fff',
     paddingVertical: 10,
   },
-  title: {
-    fontSize: 20,
-    fontFamily: 'Outfit-Medium',
-    marginBottom: 10,
-    marginLeft: 10,
-    color: colors.TextBlack,
-    textAlign: 'left',
-  },
   productList: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  productWrapper: {
-    width: 180,
-    marginRight: 10,
+    flexWrap: 'wrap', // Wraps the cards when needed
+    justifyContent: 'space-between', // Evenly distribute space between items
   },
   productContainer: {
-    width: 180, // Set fixed width for consistency
+    width: '48%',
     height: 300, // Set fixed height for consistency
-    marginLeft:'1%',
-    marginRight:'1%',
-    marginBottom:10,
+    marginBottom: 15,
     backgroundColor: '#fff',
     borderRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,
+    marginLeft: 5,
     borderColor: '#ddd',
     position: 'relative', // Enable absolute positioning for child elements
   },
@@ -180,6 +171,8 @@ const styles2 = StyleSheet.create({
     flex: 1,
     padding: 10,
     alignItems: 'flex-start',
+    width: '100%',
+    position: 'relative',
   },
   imageContainer: {
     width: '100%',
@@ -232,11 +225,10 @@ const styles2 = StyleSheet.create({
   actionButtonContainer: {
     position: 'absolute',
     bottom: 10,
-    left: 4,
-    right: 10,
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    paddingHorizontal: 10, // Add some padding around the buttons
   },
   addToCartButton: {
     backgroundColor: '#FCCC51',
@@ -244,11 +236,8 @@ const styles2 = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignItems: 'center',
-  },
-  addToCartText: {
-    color: '#333',
-    fontFamily: 'Outfit-Medium',
-    fontSize: 12,
+    flex: 0, // Make the button occupy equal width
+    marginRight: 10, // Space between buttons
   },
   productDetailButton: {
     borderColor: '#333',
@@ -258,13 +247,18 @@ const styles2 = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: 'center',
     backgroundColor: '#fff',
-    marginLeft: 10,
-
+    flex: 0, // Make the button occupy equal width
   },
+  addToCartText: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 10,
+  },
+
   productDetailText: {
     color: '#333',
     fontFamily: 'Outfit-Medium',
-    fontSize: 12,
+    fontSize: 10,
   },
   lowestPriceLabel: {
     position: 'absolute',
@@ -273,19 +267,27 @@ const styles2 = StyleSheet.create({
     backgroundColor: colors.second,
     padding: 5,
     borderRadius: 5,
+    zIndex: 100,
   },
   lowestPriceText: {
     color: 'white',
     fontFamily: 'Outfit-Medium',
   },
+  outOfStockButton: {
+    borderColor: 'red',
+    borderWidth: 0,
+    borderRadius: 15,
+    paddingVertical: 5,
+
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    marginRight: 15, // Add some spacing
+  },
   outOfStockText: {
-    position: 'absolute',
-    top: 4,
-    left: -1,
     color: 'red',
     fontFamily: 'Outfit-Bold',
+    fontSize: 12,
   },
-  
 });
 
 export default ProductComponent;

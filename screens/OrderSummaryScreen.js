@@ -20,6 +20,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import AddCommentComponent from '../components/AddCommentComponent'; // Import the AddCommentComponent
 import CompanyDropdown2 from '../components/CompanyDropdown copy';
 import CompanyDropdown3 from '../components/CompanyDropdown copy 3';
+import { useCart } from '../components/CartContext';
 
 const OrderSummaryScreen = ({ route, navigation }) => {
   const {
@@ -28,8 +29,8 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     totalAdditionalDiscountValue,
     comment: passedComment, // Extract the passed comment if available
   } = route.params;
-
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  
+  const {cartItems, updateCartItemQuantity, removeCartItem } = useCart();
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
   const [useRewardPoints, setUseRewardPoints] = useState(false);
@@ -41,6 +42,126 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   const [availableCoupons, setAvailableCoupons] = useState([]);
   const [unavailableCoupons, setUnavailableCoupons] = useState([]);
   const [comment, setComment] = useState(passedComment || ''); // Store the comment
+  const [discounts, setDiscounts] = useState([]);
+  const [appliedDiscount, setAppliedDiscount] = useState(null);
+  useEffect(() => {
+    const fetchDiscounts = async () => {
+      try {
+        const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/discounts');
+        setDiscounts(response.data);
+      } catch (error) {
+        console.error('Error fetching discounts:', error);
+      }
+    };
+
+    fetchDiscounts();
+  }, []);
+
+  useEffect(() => {
+    fetchRewardPoints();
+  }, []);
+
+  useEffect(() => {
+    if (comment) {
+      console.log("Received comment:", comment);
+    }
+  }, [comment]);
+
+  const calculateTotalAmount = () => {
+    // Step 1: Calculate Subtotal
+    let amount = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    // Step 2: Apply Initial Discount
+    const applicableDiscount = discounts
+      .filter(discount => discount.status === 'Active' && amount >= discount.amount)
+      .sort((a, b) => b.amount - a.amount)[0]; // Find the largest applicable discount
+
+    if (applicableDiscount) {
+      const discountAmount = (amount * applicableDiscount.discount) / 100;
+      amount -= discountAmount; // Apply the discount to the amount
+      setAppliedDiscount(applicableDiscount); // Store the applied discount
+    }
+
+    // Step 3: Apply Reward Points Discount
+    if (useRewardPoints && data.rewardPointsPrice) {
+      amount -= data.rewardPointsPrice;
+    }
+
+    // Step 4: Apply Coupon Discount
+    if (appliedCoupon) {
+      amount -= Number(appliedCoupon.value);
+    }
+
+    // Step 5: Subtract Additional Discounts
+    amount -= totalAdditionalDiscountValue;
+
+    // Step 6: Ensure Non-Negative Total
+    return Math.max(0, amount);
+  };
+
+
+  const fetchRewardPoints = async () => {
+    try {
+      const userId = auth().currentUser.uid;
+      const response = await axios.get(
+        `https://crossbee-server-1036279390366.asia-south1.run.app/getUserDetails?uid=${userId}`
+      );
+      const rewardPoints = response.data.rewardPoints;
+
+      setData(prevData => ({
+        ...prevData,
+        rewardPointsPrice: Math.min(totalAmount, rewardPoints),
+      }));
+    } catch (error) {
+      console.error('Error fetching reward points:', error);
+    }
+  };
+
+  useEffect(() => {
+    const newTotalAmount = calculateTotalAmount();
+    setTotalAmount(newTotalAmount);
+  }, [cartItems, useRewardPoints, appliedCoupon, appliedDiscount]);
+
+  const handleUpdateQuantity = (cartId, quantity) => {
+    setCartItems(prevItems => {
+      return prevItems.map(item =>
+        item.cartId === cartId ? { ...item, quantity } : item
+      );
+    });
+  };
+
+  const handleRemoveItem = cartId => {
+    setCartItems(prevItems => prevItems.filter(item => item.cartId !== cartId));
+  };
+
+  const handleApplyCoupon = () => {
+    const coupon = availableCoupons.find(c => c.code === couponCode);
+    if (coupon) {
+      setAppliedCoupon({ ...coupon, value: Number(coupon.value) });
+      Alert.alert('Coupon applied', 'Coupon applied successfully!');
+    } else {
+      Alert.alert('Invalid coupon', 'Please enter a valid coupon code.');
+    }
+    setCouponCode('');
+  };
+
+
+
+  useEffect(() => {
+    const fetchDiscounts = async () => {
+      try {
+        const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/discounts');
+        setDiscounts(response.data);
+      } catch (error) {
+        console.error('Error fetching discounts:', error);
+      }
+    };
+
+    fetchDiscounts();
+  }, []);
 
   // Fetch reward points (existing logic)
   useEffect(() => {
@@ -55,28 +176,13 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   }, [comment]);
 
 
-  const fetchRewardPoints = async () => {
-    try {
-      const userId = auth().currentUser.uid;
-      const response = await axios.get(
-        `https://crossbee-server-1036279390366.asia-south1.run.app/getUserDetails?uid=${userId}`,
-      );
-      const rewardPoints = response.data.rewardPoints;
 
-      setData(prevData => ({
-        ...prevData,
-        rewardPointsPrice: Math.min(totalAmount, rewardPoints),
-      }));
-    } catch (error) {
-      console.error('Error fetching reward points:', error);
-    }
-  };
 
   // Update useEffect to recalculate totalAmount when reward points are fetched
   useEffect(() => {
     const newTotalAmount = calculateTotalAmount();
     setTotalAmount(newTotalAmount);
-  }, [cartItems, useRewardPoints, appliedCoupon]);
+  }, [cartItems, useRewardPoints, appliedCoupon, appliedDiscount]);
 
   const [data, setData] = useState({
     rewardPointsPrice: 10,
@@ -85,7 +191,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     comment: comment,
   });
 
-
+  console.log(cartItems);
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
@@ -116,31 +222,6 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     setTotalAmount(newTotalAmount);
   }, [cartItems, useRewardPoints, appliedCoupon]);
 
-  const calculateTotalAmount = () => {
-    let amount = cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-    if (useRewardPoints) {
-      amount -= data.rewardPointsPrice;
-    }
-    if (appliedCoupon) {
-      amount -= Number(appliedCoupon.value);
-    }
-    amount += data.shippingCharges - totalAdditionalDiscountValue;
-    return Math.max(0, amount); // Ensure total amount does not go below zero
-  };
-
-  const calculateSubtotal = () => {
-    let subtotal = cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-    if (appliedCoupon && !isNaN(appliedCoupon.value)) {
-      subtotal -= appliedCoupon.value;
-    }
-    return Math.max(0, subtotal); // Ensure subtotal does not go below zero
-  };
 
   {
     appliedCoupon && (
@@ -153,20 +234,17 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     );
   }
 
+  // Calculate subtotal
+  const calculateSubtotal = () => {
+    let subtotal = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    return subtotal;
+  };
   // Inside your JSX where you display the coupon discount:
 
-  const handleUpdateQuantity = (id, quantity) => {
-    setCartItems(prevItems => {
-      const updatedItems = prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item,
-      );
-      return updatedItems.filter(item => item.quantity > 0);
-    });
-  };
 
-  const handleRemoveItem = id => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-  };
   const handleSelectCompany = companyId => {
     setSelectedCompanyId(companyId);
   };
@@ -176,22 +254,6 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
   };
 
-  const handleApplyCoupon = () => {
-    const coupon = availableCoupons.find(c => c.code === couponCode);
-    if (coupon) {
-      // Convert value to number
-      const couponValue = Number(coupon.value);
-      if (!isNaN(couponValue)) {
-        setAppliedCoupon({ ...coupon, value: couponValue });
-        Alert.alert('Coupon applied', 'Coupon applied successfully!');
-      } else {
-        Alert.alert('Invalid coupon', 'Coupon value is not valid.');
-      }
-    } else {
-      Alert.alert('Invalid coupon', 'Please enter a valid coupon code.');
-    }
-    setCouponCode('');
-  };
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
@@ -211,6 +273,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       return;
     }
     setIsLoading(true);
+ 
 
     try {
       const userId = auth().currentUser.uid;
@@ -228,7 +291,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         }
       );
       console.log('Checkout response:', response.data);
-    
+
       if (response.data.orderId) {
         // Order placed successfully
         console.log('Item added to cart successfully');
@@ -264,7 +327,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       }
     } catch (error) {
       console.error('Error saving order data: ', error);
-    
+
       // Check if the error is related to out of stock or other specific issues
       if (error.response && error.response.data && error.response.data.cartError) {
         // Handle cart-specific error (out of stock)
@@ -276,9 +339,10 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         // General error handling
         Alert.alert('Alert', 'Some error occurred while placing the order.');
       }
-    
+
       console.log(error);
-    }}
+    }
+  }
 
 
   return (
@@ -306,7 +370,18 @@ const OrderSummaryScreen = ({ route, navigation }) => {
               })}
             </Text>
           </View>
-
+          {appliedDiscount && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Discount ({appliedDiscount.discount}%):</Text>
+              <Text style={styles.summaryValue}>
+                -{Number((calculateSubtotal() * appliedDiscount.discount / 100).toFixed(2)).toLocaleString("en-IN", {
+                  maximumFractionDigits: 0,
+                  style: 'currency',
+                  currency: 'INR',
+                })}
+              </Text>
+            </View>
+          )}
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Additional Discount:</Text>
             <Text style={styles.summaryValue}>
@@ -333,7 +408,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
           {useRewardPoints && (
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Reward Points Discount:</Text>
+              <Text style={styles.summaryLabel}>Wallet Points Discount:</Text>
               <Text style={styles.couponDiscount}>
                 -{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
                   maximumFractionDigits: 0,
@@ -361,7 +436,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           onPress={handleToggleRewardPoints}
         >
           <Text style={styles.rewardPointsText}>
-            Use Reward Points (-{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
+            Use Wallet Points (-{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
               maximumFractionDigits: 0,
               style: 'currency',
               currency: 'INR',
@@ -477,12 +552,11 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         />
         {cartItems.map(item => (
           <CartItem
-            key={item.id}
-            item={item}
-            onUpdateQuantity={handleUpdateQuantity}
-            onRemoveItem={handleRemoveItem}
-            isOrderSummary={true} // Pass true if accessing from OrderSummaryScreen
-          />
+              key={item.cartId}
+              item={item}
+              onUpdateQuantity={updateCartItemQuantity}
+              onRemoveItem={removeCartItem}
+            />
         ))}
       </ScrollView>
       <View style={styles.checkoutContainer}>
@@ -770,7 +844,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'Outfit-Medium',
   },
- 
+
   applicableText: {
     fontSize: sizes.body,
     fontFamily: 'Outfit-Medium',

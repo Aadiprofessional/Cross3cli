@@ -105,6 +105,7 @@ const CartScreen = () => {
         console.log('Quotation generated successfully');
         navigation.navigate('InvoiceScreen', {
           invoiceData: response.data.data,
+          url : response.data.invoice,
           quotationId: response.data.quotationId,
         });
       } else {

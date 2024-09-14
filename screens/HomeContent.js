@@ -29,8 +29,8 @@ const HomeContent = () => {
         <UpcomingProducts />
         <LatestProducts />
         <View style={styles.endTextContainer}>
-          <Text style={styles.crossBee}>CrossBee se nahi toh</Text>
-          <Text style={styles.AppYard3}>Kahin se nahi</Text>
+          <Text style={styles.crossBee}>CrossBee</Text>
+          <Text style={styles.AppYard3}>nahi toh Koi nahi</Text>
         </View>
       </ScrollView>
     </View>
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     opacity: 0.1,
   },
   crossBee: {
-    fontSize: 24,
+    fontSize: 40,
 
     fontFamily: 'Outfit-Bold',
     opacity: 0.1,
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
   },
   AppYard3: {
-    fontSize: 24,
+    fontSize: 20,
 
     fontFamily: 'Outfit-Bold',
     opacity: 0.1,

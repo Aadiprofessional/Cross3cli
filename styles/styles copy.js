@@ -132,6 +132,7 @@ const styles2 = StyleSheet.create({
     backgroundColor: colors.second,
     padding: 5,
     borderRadius: 5,
+    zIndex:100,
   },
   lowestPriceText: {
     color: 'white',

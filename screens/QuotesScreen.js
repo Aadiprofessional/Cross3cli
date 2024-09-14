@@ -150,8 +150,13 @@ const QuotesScreen = () => {
             <View key={cartItem.id} style={styles.orderRow}>
               <View>
                 <Text style={styles.orderIdText}>Items</Text>
-                <Text style={styles.itemDetailText}>{cartItem.name}</Text>
+                <Text style={styles.itemDetailText}>
+                  {cartItem.productName.length > 10
+                    ? `${cartItem.productName.substring(0, 10)}...`
+                    : cartItem.productName}
+                </Text>
               </View>
+
               <View>
                 <Text style={styles.orderIdText}>Qty</Text>
                 <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
@@ -159,7 +164,7 @@ const QuotesScreen = () => {
               <View>
                 <Text style={styles.orderIdText}>Amount</Text>
                 <Text style={styles.itemDetailText}>
-                  {Number(cartItem.price).toLocaleString("en-IN", {
+                  {Number(cartItem.discountedPrice).toLocaleString("en-IN", {
                     maximumFractionDigits: 0,
                     style: 'currency',
                     currency: 'INR',
@@ -169,7 +174,7 @@ const QuotesScreen = () => {
               <View>
                 <Text style={styles.orderIdText}>Total</Text>
                 <Text style={styles.itemDetailText}>
-                  {Number(item.totalAmount).toLocaleString("en-IN", {
+                  {Number(cartItem.discountedPrice * cartItem.quantity).toLocaleString("en-IN", {
                     maximumFractionDigits: 0,
                     style: 'currency',
                     currency: 'INR',
@@ -214,8 +219,13 @@ const QuotesScreen = () => {
             <View key={cartItem.id} style={styles.orderRow}>
               <View>
                 <Text style={styles.orderIdText}>Items</Text>
-                <Text style={styles.itemDetailText}>{cartItem.name}</Text>
+                <Text style={styles.itemDetailText}>
+                  {cartItem.productName.length > 10
+                    ? `${cartItem.productName.substring(0, 10)}...`
+                    : cartItem.productName}
+                </Text>
               </View>
+
               <View>
                 <Text style={styles.orderIdText}>Qty</Text>
                 <Text style={styles.itemDetailText}>{cartItem.quantity}</Text>
@@ -223,7 +233,7 @@ const QuotesScreen = () => {
               <View>
                 <Text style={styles.orderIdText}>Amount</Text>
                 <Text style={styles.itemDetailText}>
-                  {Number(cartItem.price).toLocaleString("en-IN", {
+                  {Number(cartItem.discountedPrice).toLocaleString("en-IN", {
                     maximumFractionDigits: 0,
                     style: 'currency',
                     currency: 'INR',
@@ -233,7 +243,7 @@ const QuotesScreen = () => {
               <View>
                 <Text style={styles.orderIdText}>Total</Text>
                 <Text style={styles.itemDetailText}>
-                  {Number(item.totalAmount).toLocaleString("en-IN", {
+                  {Number(cartItem.discountedPrice * cartItem.quantity).toLocaleString("en-IN", {
                     maximumFractionDigits: 0,
                     style: 'currency',
                     currency: 'INR',

@@ -22,7 +22,7 @@ import auth from '@react-native-firebase/auth';
 import CustomHeader2 from '../components/CustomHeader2';
 
 const ProductDetailPage = ({ route }) => {
-  const { mainId, categoryId, productId } = route.params || {};
+  const { mainId, categoryId, productId, attribute1D, attribute2D, attribute3D } = route.params || {};
   const [productData, setProductData] = useState(null);
   const [selectedAttribute1, setSelectedAttribute1] = useState(null);
   const [selectedAttribute2, setSelectedAttribute2] = useState(null);
@@ -51,8 +51,14 @@ const ProductDetailPage = ({ route }) => {
         const data = response.data;
         setProductData(data);
 
-        // Initial setup of selections
-        updateSelections(data);
+        if (attribute1D && attribute2D && attribute3D) {
+          setSelectedAttribute1(attribute1D);
+          setSelectedAttribute2(attribute2D);
+          setSelectedAttribute3(attribute3D);
+        } else {
+          updateSelections(data);
+        }
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching product details:', error);
@@ -61,7 +67,9 @@ const ProductDetailPage = ({ route }) => {
     };
 
     fetchProductDetails();
-  }, [mainId, categoryId, productId]);
+  }, [mainId, categoryId, productId, attribute1D, attribute2D, attribute3D]);
+
+
   useEffect(() => {
     // Ensure quantity is set to minCartValue when selections change
     if (
@@ -75,29 +83,25 @@ const ProductDetailPage = ({ route }) => {
     }
   }, [productData, selectedAttribute1, selectedAttribute2, selectedAttribute3]);
 
-  const updateSelections = data => {
+
+  const updateSelections = (data) => {
     if (data) {
       const attribute1 = data.attribute1;
       const attribute2 = data.attribute2;
       const attribute3 = data.attribute3;
-      // Reset selections and set defaults
-      const firstAttribute1 = Object.keys(data.data[attribute1])[0];
+
+      // Use the first available option if no route params
+      const firstAttribute1 = attribute1D || Object.keys(data.data[attribute1])[0];
       setSelectedAttribute1(firstAttribute1);
 
-      const attribute2Options = Object.keys(
-        data.data[attribute1][firstAttribute1]?.[attribute2] || {},
-      );
+      const attribute2Options = Object.keys(data.data[attribute1][firstAttribute1]?.[attribute2] || {});
       if (attribute2Options.length > 0) {
-        const firstAttribute2 = attribute2Options[0];
+        const firstAttribute2 = attribute2D || attribute2Options[0];
         setSelectedAttribute2(firstAttribute2);
 
-        const colorOptions = Object.keys(
-          data.data[attribute1][firstAttribute1]?.[attribute2]?.[
-          firstAttribute2
-          ] || {},
-        );
+        const colorOptions = Object.keys(data.data[attribute1][firstAttribute1]?.[attribute2]?.[firstAttribute2] || {});
         if (colorOptions.length > 0) {
-          setSelectedAttribute3(colorOptions[0]);
+          setSelectedAttribute3(attribute3D || colorOptions[0]);
         }
       }
     }
@@ -270,7 +274,7 @@ const ProductDetailPage = ({ route }) => {
           productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
             selectedAttribute2
           ]?.[selectedAttribute3]?.minCartValue,
-          colormaxCartValue:
+        colormaxCartValue:
           productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
             selectedAttribute2
           ]?.[selectedAttribute3]?.inventory,
@@ -287,7 +291,7 @@ const ProductDetailPage = ({ route }) => {
         discountedPrice: cutPrice,
         mainId, // Added mainId
         categoryId, // Added categoryId
-        
+
       };
       console.log(item);
 
@@ -460,7 +464,7 @@ const ProductDetailPage = ({ route }) => {
             <SpecificationsTable
               specifications={currentProduct?.specifications || []}
             />
-             {stockStatus ? (
+            {stockStatus ? (
               <View style={styles.outOfStockContainer}>
                 <Text style={styles.outOfStockText}>Out Of Stock</Text>
                 {estdArrivalDate && (
@@ -481,10 +485,10 @@ const ProductDetailPage = ({ route }) => {
               backgroundColor: colors.main,
               opacity:
                 !selectedAttribute1 ||
-                !selectedAttribute2 ||
-                !selectedAttribute3 ||
-                !currentProduct?.price ||
-                currentProduct?.price === 'N/A'
+                  !selectedAttribute2 ||
+                  !selectedAttribute3 ||
+                  !currentProduct?.price ||
+                  currentProduct?.price === 'N/A'
                   ? 0.5
                   : 1,
             },
@@ -508,7 +512,7 @@ const styles = StyleSheet.create({
   container2: {
     flex: 1,
     backgroundColor: '#fff',
-  
+
   },
   container: {
     flex: 1,
@@ -539,10 +543,10 @@ const styles = StyleSheet.create({
   addToCartButton: {
     position: 'absolute',
     bottom: 0,
-    
+
     width: '100%',
     paddingVertical: 10,
-    
+
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -36,13 +36,14 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
       Toast.show({
         type: 'info',
         position: 'bottom',
-        text1: `Minimum quantity is ${colormaxCartValue}`,
-        text2: 'Cannot Increase quantity further',
+        text1: `Maximum quantity is ${colormaxCartValue}`,
+        text2: 'Cannot increase quantity further',
       });
     } else {
       onUpdateQuantity(cartId, newQuantity);
     }
   };
+
   const handleDecreaseQuantity = () => {
     const newQuantity = itemQuantity - 1;
     setItemQuantity(newQuantity);
@@ -60,7 +61,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
   };
 
   const handleImagePress = () => {
-    navigation.navigate('ProductDetailPage', { productId, mainId, categoryId }); // Pass additional IDs
+    navigation.navigate('ProductDetailPage', { productId, mainId, categoryId });
   };
 
   const handleRemoveItem = () => {
@@ -71,10 +72,6 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
       text1: 'Removing item from cart',
     });
   };
-
-
-  // Calculate discounted price
-
 
   return (
     <View style={styles.cartItemContainer}>
@@ -91,47 +88,49 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
         <Text style={styles.productName}>{productId}</Text>
 
         <Text style={styles.productPrice}>
-          {Number((discountedPrice * itemQuantity).toFixed(2)).toLocaleString("en-IN", {
+          {Number(discountedPrice).toLocaleString("en-IN", {
             maximumFractionDigits: 2,
             style: 'currency',
             currency: 'INR',
-          })}{' '}
-          {/* Use discounted price */}
+          })}
         </Text>
         <View style={styles.itemColorContainer}>
           <View style={[styles.itemColor, { backgroundColor: colors.TextWhite }]}>
             <Text style={styles.itemColorText}>{attributeSelected3}</Text>
           </View>
-          {!isOrderSummary && (
-            <>
-              <View style={styles.quantityContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.quantityButton,
-                    itemQuantity <= colorminCartValue && styles.disabledButton,
-                  ]}
-                  onPress={handleDecreaseQuantity}
-                  disabled={itemQuantity <= colorminCartValue}>
-                  <Text style={styles.quantityButtonText}>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.quantityText}>{itemQuantity}</Text>
-                <TouchableOpacity
-                 style={[
-                    styles.quantityButton,
-                    itemQuantity >= colormaxCartValue && styles.disabledButton,
-                  ]}
-                  onPress={handleIncreaseQuantity}
-                  disabled={itemQuantity >= colormaxCartValue}>
-                  <Text style={styles.quantityButtonText}>+</Text>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                style={styles.removeButton}
-                onPress={handleRemoveItem}>
-                <Text style={styles.removeButtonText}>Remove</Text>
-              </TouchableOpacity>
-            </>
-          )}
+
+          <View style={styles.quantityContainer}>
+            <TouchableOpacity
+              style={[
+                styles.quantityButton,
+                itemQuantity <= colorminCartValue && styles.disabledButton,
+              ]}
+              onPress={handleDecreaseQuantity}
+              disabled={itemQuantity <= colorminCartValue}>
+              <Text style={styles.quantityButtonText}>-</Text>
+            </TouchableOpacity>
+            <Text style={styles.quantityText}>{itemQuantity}</Text>
+            <TouchableOpacity
+              style={[
+                styles.quantityButton,
+                itemQuantity >= colormaxCartValue && styles.disabledButton,
+              ]}
+              onPress={handleIncreaseQuantity}
+              disabled={itemQuantity >= colormaxCartValue}>
+              <Text style={styles.quantityButtonText}>+</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Trash Icon for Remove Button */}
+          <TouchableOpacity
+            style={styles.trashIcon}
+            onPress={handleRemoveItem}>
+            <Image
+              source={require('../assets/trash.png')} // Make sure to place your trash.png in the appropriate directory
+              style={styles.trashIconImage}
+            />
+          </TouchableOpacity>
+
         </View>
       </View>
     </View>
@@ -152,7 +151,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   productImageContainer: {
-    width: 110, // Increased width
+    width: 110,
     height: 110,
     backgroundColor: '#fff',
     justifyContent: 'center',
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
   },
   productDetails: {
     flex: 1,
-    justifyContent: 'space-between', // Adjust content positioning
+    justifyContent: 'space-between',
   },
   productName: {
     fontSize: 16,
@@ -199,19 +198,19 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Medium',
   },
   quantityContainer: {
-    position: 'absolute', // Position it absolutely
-    bottom: 10, // Adjust the position
-    right: 10, // Adjust the position
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   quantityButton: {
     backgroundColor: colors.TextWhite,
-    width: 25, // Smaller size
-    height: 25, // Smaller size
+    width: 25,
+    height: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 12.5, // Adjust border radius accordingly
+    borderRadius: 12.5,
     borderColor: '#000000',
     borderWidth: 1,
   },
@@ -219,29 +218,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#C2C2C288',
   },
   quantityButtonText: {
-    fontSize: 16, // Adjust font size
+    fontSize: 16,
     color: '#000',
     fontFamily: 'Outfit-Medium',
   },
   quantityText: {
-    fontSize: 16, // Adjust font size
+    fontSize: 16,
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
-    marginHorizontal: 5, // Adjust margin
+    marginHorizontal: 5,
   },
-  removeButton: {
-    marginLeft: 10,
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
+  trashIcon: {
+    position: 'absolute',
+    top: -35,  // Adjust as needed
+    right: 10, // Adjust as needed
   },
-  removeButtonText: {
-    color: colors.orange,
-    fontSize: 13,
-
-    fontFamily: 'Outfit-Bold',
+  trashIconImage: {
+    width: 24,
+    height: 24,
+    tintColor: colors.orange,
   },
 });
 

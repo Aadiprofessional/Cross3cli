@@ -20,11 +20,14 @@ import FileViewer from 'react-native-file-viewer';
 import { colors } from '../styles/color';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const InvoiceScreen = ({ route }) => {
-  const { invoiceData, quotationId } = route.params; // Destructure invoiceData from route params
+  const { invoiceData, quotationId, url } = route.params; // Destructure invoiceData from route params
   const [pdfPath, setPdfPath] = useState('');
   const navigation = useNavigation();
+
+
   const userId = auth().currentUser?.uid;
   if (!userId) {
     Alert.alert('Error', 'User not authenticated.');
@@ -52,7 +55,7 @@ const InvoiceScreen = ({ route }) => {
 
     handlePdfGeneration();
   }, [invoiceData]);
-  console.log(invoiceData);
+  console.log(url);
 
   const requestStoragePermission = async () => {
     try {
@@ -75,6 +78,8 @@ const InvoiceScreen = ({ route }) => {
 
 
   const generatePdf = async () => {
+    const gstRate = 12; // GST percentage
+    const gstAmount = (invoiceData.totalAmount * gstRate) / 100;
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="en">
@@ -180,15 +185,15 @@ const InvoiceScreen = ({ route }) => {
                               <td></td>
                               <td></td>
                               <td></td>
-                              <td>TAX ${invoiceData.taxRate || 0}%</td>
-                              <td>${invoiceData.taxAmount || 0.0}</td>
+                              <td>TAX ${gstRate || 0}%</td>
+                              <td>${gstAmount || 0.0}</td>
                           </tr>
                           <tr>
                               <td></td>
                               <td></td>
                               <td></td>
                               <td class="text-primary fs-5 fw-bold">Grand-Total</td>
-                              <td class="text-primary fs-5 fw-bold">${invoiceData.totalAmount.toFixed(
+                              <td class="text-primary fs-5 fw-bold">${(invoiceData.totalAmount + gstAmount).toFixed(
           2,
         )}</td>
                           </tr>
@@ -279,6 +284,15 @@ const InvoiceScreen = ({ route }) => {
       setPdfPath(downloadURL);
     } catch (error) { }
   };
+  const handleOpenInvoice = (url) => {
+    if (url && /^https?:\/\//i.test(url)) { // Validate URL format
+      Linking.openURL(url).catch(err => {
+        console.error('Failed to open URL:', err);
+      });
+    } else {
+      console.log('No valid invoice URL provided');
+    }
+  };
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -350,11 +364,21 @@ const InvoiceScreen = ({ route }) => {
         >
           <Text style={styles.buttonText}>Explore More</Text>
         </TouchableOpacity>
+        {url && (
+          <TouchableOpacity
+            style={styles.downloadButton}
+            onPress={() => handleOpenInvoice(url)}
+          >
+            <View style={styles.iconContainer}>
+              <Icon name="download" size={20} color={colors.main} />
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     </ScrollView>
-
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -425,6 +449,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 5,
     backgroundColor: '#ffffff', // White background
+  },
+  downloadButton: {
+    marginTop: 20,
+  },
+  iconContainer: {
+    backgroundColor: '#f0f0f0', // Light grey background for the rounded rectangle
+    borderRadius: 20, // Makes the corners rounded
+    padding: 10, // Adds space around the icon
+    alignItems: 'center', // Centers icon horizontally
+    justifyContent: 'center', // Centers icon vertically
+    elevation: 3, // Adds shadow on Android for better appearance
   },
 });
 

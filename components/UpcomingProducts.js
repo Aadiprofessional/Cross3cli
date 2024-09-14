@@ -29,6 +29,9 @@ const ProductComponent = ({product}) => {
       mainId: product.mainId,
       categoryId: product.categoryId,
       productId: product.productId,
+      attribute1D: product.attribute1,
+      attribute2D: product.attribute2,
+      attribute3D: product.attribute3,
     });
   };
 
@@ -51,9 +54,9 @@ const ProductComponent = ({product}) => {
         attribute1: product.attribute1,
         attribute2: product.attribute2,
         attribute3: product.attribute3,
-        attribute1Id: product.attribute1,
-        attribute2Id: product.attribute2,
-        attribute3Id: product.attribute3,
+       attribute1Id: product.attribute1Id,
+        attribute2Id: product.attribute2Id,
+        attribute3Id: product.attribute3Id,
         additionalDiscount: product.additionalDiscount || 0,
         mainId: product.mainId,
         discountedPrice: cutPrice,
@@ -74,10 +77,10 @@ const ProductComponent = ({product}) => {
     return (
       <TouchableOpacity style={styles2.productContainer} onPress={handlePress}>
         <View style={styles2.productContent}>
-          {/* Show Lowest Price Label if available */}
+          {/* Show Highest Discount Label if available */}
           {product.lowestPrice && (
             <View style={styles2.lowestPriceLabel}>
-              <Text style={styles2.lowestPriceText}>Lowest price</Text>
+              <Text style={styles2.lowestPriceText}>Highest Discount</Text>
             </View>
           )}
           <View style={styles2.imageContainer}>

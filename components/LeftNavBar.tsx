@@ -93,9 +93,9 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       {companies.map(({ id, name }) => (
         <TouchableOpacity
           key={id}
-          style={styles.subcategoryItem3}
+          style={styles.subcategoryItem}
           onPress={() => navigateToSubCategory(mainId, id)}>
-          <Text style={styles.subcategoryText3}>{name}</Text>
+          <Text style={styles.subcategoryText}>{name}</Text>
           <Icon name="chevron-forward" size={24} color={colors.second} />
         </TouchableOpacity>
       ))}
@@ -148,7 +148,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
           <TouchableOpacity
             style={styles.subcategoryItem} // Use subcategoryItem style for consistency
             onPress={handleAllCategoriesPress}>
-            <Text style={styles.subcategoryText3}>All Categories</Text>
+            <Text style={styles.subcategoryText}>All Categories</Text>
             <Icon name="chevron-forward" size={24} color={colors.second} />
           </TouchableOpacity>
         </>
@@ -162,7 +162,6 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
           <Text style={styles.footerText}>Customer Support</Text>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 };
@@ -179,6 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 5,
     paddingHorizontal: 10,
+    flexWrap: 'wrap', // Allow wrapping for long texts
   },
   navText: {
     fontSize: 20,
@@ -186,6 +186,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 'auto',
     color: colors.TextBlack,
+    maxWidth: '70%', // Adjust width to allow wrapping
   },
   subcategoryContainer: {
     marginTop: 5,
@@ -195,31 +196,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 5,
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     justifyContent: 'space-between',
+    flexWrap: 'wrap', // Allow wrapping for long texts
   },
   subcategoryText: {
     fontSize: 18,
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
-  },
-  subcategoryItem3: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    justifyContent: 'space-between',
-  },
-  subcategoryText3: {
-    fontSize: 18,
-    fontFamily: 'Outfit-Regular',
-    color: colors.TextBlack,
-  },
-  subcategoryText2: {
-    fontSize: 18,
-    fontFamily: 'Outfit-Regular',
-    color: colors.TextBlack,
-    marginLeft: 17,
+    maxWidth: '70%', // Adjust width to allow wrapping
   },
   categoriesHeader: {
     flexDirection: 'row',
@@ -240,7 +225,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
   },
-
   footerButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -253,7 +237,6 @@ const styles = StyleSheet.create({
     color: colors.second,
     marginLeft: 10, // Adjust spacing between text and icon
   },
- 
 });
 
 export default LeftNavBar;

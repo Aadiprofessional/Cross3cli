@@ -267,16 +267,14 @@ const App = () => {
           <Stack.Screen
             name="OrderSummary"
             component={OrderSummaryScreen}
-            options={{
-              title: 'Order Summary',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-              },
-              headerTitleAlign: 'left',
-            }}
+            options={({ navigation }) => ({
+              header: () => (
+                <CustomHeader3
+                  title="Order Summary"
+                  onBackPress={() => navigation.goBack()} // Handle back button press
+                />
+              ),
+            })}
           />
           <Stack.Screen
             name="InvoiceScreen"

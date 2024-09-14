@@ -280,14 +280,16 @@ const SubCategoryScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 5, // Adds equal padding from left and right
-    backgroundColor: '#FFFFFF',
-  },
+ 
   container2: {
     flex: 1,
     // Adds equal padding from left and right
+    backgroundColor: '#FFFFFF',
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 16, // Equal margin on left and right of the screen
+    paddingVertical: 16,   // Equal margin on top and bottom
     backgroundColor: '#FFFFFF',
   },
   searchBox: {
@@ -297,7 +299,31 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 20,
-    marginTop: 20,
+  },
+  productList: {
+    flexGrow: 1,
+    paddingHorizontal: 4, // Consistent horizontal padding for the FlatList
+  },
+  flatList: {
+    flex: 1,
+    marginHorizontal: 0, // Ensures that the FlatList has no extra horizontal margin
+  },
+  productCard: {
+    flex: 1,
+    margin: 8, // Ensures equal margin around each product card
+    borderWidth: 1,
+    borderColor: '#eaeaea',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  productContainer: {
+    width: '48%', // Allows two cards per row with even spacing
+    margin: 8, // Adds equal spacing between product cards
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
   icon: {
     marginRight: 10,
@@ -310,11 +336,11 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    alignItems: 'center', // Align items to the center vertically
+    alignItems: 'center', 
     marginBottom: 10,
   },
   buttonWrapper: {
-    marginRight: 15, // Adjust margin for equal spacing between buttons
+    marginRight: 15, 
   },
   smallButton: {
     flexDirection: 'row',
@@ -335,11 +361,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Medium',
     color: '#484848',
     marginRight: 5,
-  },
-  productList: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: 8, // Adjust horizontal padding for equal margins
   },
   noResultsText: {
     fontSize: 18,

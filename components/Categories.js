@@ -41,6 +41,8 @@ const Categories = () => {
 
     // Navigate to the specified screen with category name as parameter
     navigation.navigate('SubCategoryScreen2', {name: category.name});
+    console.log(category.name);
+    
   };
 
   const handleAllCategoriesPress = () => {

@@ -14,6 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import auth from '@react-native-firebase/auth';
+import axios from 'axios'; // Import axios for making API requests
 
 const ProfileScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -21,6 +22,7 @@ const ProfileScreen = ({ navigation }) => {
   const [rewardPoints, setRewardPoints] = useState('0');
   const [profileImage, setProfileImage] = useState(null);
   const [billing, setBilling] = useState({});
+  const [withdrawClicks, setWithdrawClicks] = useState(0); // State to track withdraw button clicks
 
   useEffect(() => {
     const fetchPhoneNumber = async () => {
@@ -103,11 +105,35 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  const handleWithdrawClick = async () => {
+    try {
+      const uid = auth().currentUser.uid; // Assuming you're using Firebase Auth to get the current user's UID
+
+      await axios.post('https://crossbee-server-1036279390366.asia-south1.run.app/withdraw', {
+        uid: uid // Send the UID in the body of the request
+      });
+
+      setWithdrawClicks(prev => prev + 1); // Increment the click count
+      Alert.alert('Success', 'Withdraw request sent successfully.');
+    } catch (error) {
+      console.error('Failed to send withdraw request: ', error);
+      Alert.alert('Error', 'Failed to send withdraw request. Please try again.');
+    }
+  };
+
+
   const options = [
     {
-      iconName: 'star-outline',
-      text: `Reward Points: ${rewardPoints}`,
+      iconName: 'wallet-outline',
+      text: `Wallet: ${rewardPoints}`,
       screen: null,
+      button: (
+        <TouchableOpacity
+          style={styles.withdrawButton}
+          onPress={handleWithdrawClick}>
+          <Text style={styles.withdrawButtonText}>Withdraw</Text>
+        </TouchableOpacity>
+      ),
     },
     {
       iconName: 'office-building-outline',
@@ -199,7 +225,10 @@ const ProfileScreen = ({ navigation }) => {
       {options.map((option, index) => (
         <TouchableOpacity
           key={index}
-          style={[styles.optionContainer, option.text === 'Customer Support' ? styles.customerSupportButton : null]}
+          style={[
+            styles.optionContainer,
+            option.text === 'Customer Support' ? styles.customerSupportButton : null,
+          ]}
           onPress={() => {
             if (option.text === 'Log out') {
               handleLogout();
@@ -217,7 +246,10 @@ const ProfileScreen = ({ navigation }) => {
             color="#333333"
             style={styles.optionIcon}
           />
-          <Text style={styles.optionText}>{option.text}</Text>
+          <View style={styles.optionTextContainer}>
+            <Text style={styles.optionText}>{option.text}</Text>
+            {option.button && option.button}
+          </View>
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -289,14 +321,33 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 5,
     marginRight: 5,
+    justifyContent: 'space-between', // Ensure space between text and button
   },
   optionIcon: {
     marginRight: 15,
+  },
+  optionTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'space-between',
   },
   optionText: {
     fontSize: 16,
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
+  },
+  withdrawButton: {
+    backgroundColor: colors.second,
+    borderRadius: 5,
+    paddingVertical: 5, // Smaller padding
+    paddingHorizontal: 10, // Smaller padding
+  },
+  withdrawButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontSize: 12, // Smaller font size
+    fontFamily: 'Outfit-Medium',
   },
   cardContainer: {
     backgroundColor: '#fff',
@@ -305,7 +356,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     elevation: 3,

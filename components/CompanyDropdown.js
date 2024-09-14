@@ -10,6 +10,7 @@ const CompanyDropdown = ({ onSelectCompany, onPincodeChange }) => {
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [gstError, setGstError] = useState(null);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -32,11 +33,13 @@ const CompanyDropdown = ({ onSelectCompany, onPincodeChange }) => {
 
         if (response.status === 200) {
           const companiesData = response.data;
-          setCompanies(companiesData);
+          const verifiedCompanies = companiesData.filter(company => company.gstVerified);
+
+          setCompanies(verifiedCompanies);
 
           // Ensure the first company is selected by default
-          if (companiesData.length > 0) {
-            const firstCompany = companiesData[0];
+          if (verifiedCompanies.length > 0) {
+            const firstCompany = verifiedCompanies[0];
             setSelectedCompanyId(firstCompany.id);
             if (onSelectCompany) {
               onSelectCompany(firstCompany.id);
@@ -44,6 +47,8 @@ const CompanyDropdown = ({ onSelectCompany, onPincodeChange }) => {
             if (onPincodeChange) {
               onPincodeChange(firstCompany.pincode);
             }
+          } else {
+            setGstError('All companies have unverified GST.');
           }
         } else {
           throw new Error(`Failed to load companies: ${response.status}`);
@@ -65,13 +70,18 @@ const CompanyDropdown = ({ onSelectCompany, onPincodeChange }) => {
     }
 
     const selectedCompany = companies.find((company) => company.id === companyId);
-    setSelectedCompanyId(companyId);
+    
+    if (selectedCompany && selectedCompany.gstVerified) {
+      setSelectedCompanyId(companyId);
 
-    if (onSelectCompany) {
-      onSelectCompany(companyId);
-    }
-    if (onPincodeChange && selectedCompany) {
-      onPincodeChange(selectedCompany.pincode);
+      if (onSelectCompany) {
+        onSelectCompany(companyId);
+      }
+      if (onPincodeChange && selectedCompany) {
+        onPincodeChange(selectedCompany.pincode);
+      }
+    } else {
+      setGstError('Your selected company’s GST is not verified yet!');
     }
   };
 
@@ -98,6 +108,7 @@ const CompanyDropdown = ({ onSelectCompany, onPincodeChange }) => {
         </Picker>
       </View>
       {error && <Text style={styles.errorText}>{error}</Text>}
+      {gstError && <Text style={styles.errorText}>{gstError}</Text>}
     </View>
   );
 };
