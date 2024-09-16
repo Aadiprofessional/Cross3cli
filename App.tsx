@@ -37,6 +37,11 @@ import TransactionScreen from './screens/Transation';
 import CustomHeader from './components/CustomHeader';
 import CustomHeader2 from './components/CustomHeader2';
 import CustomHeader3 from './components/CustomHeader2 copy';
+import { WishlistProvider } from './components/WishlistContext';
+import WishlistScreen from './screens/WishlistScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import FAQScreen from './screens/FAQScreen';
+
 
 if (!firebase.apps.length) {
   firebase.initializeApp();
@@ -106,6 +111,8 @@ const App = () => {
   }
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+    <WishlistProvider>
     <CartProvider>
       <NavigationContainer>
         <Stack.Navigator
@@ -226,6 +233,30 @@ const App = () => {
               ),
             })}
           />
+             <Stack.Screen
+            name="Wish"
+            component={WishlistScreen}
+            options={({ navigation }) => ({
+              header: () => (
+                <CustomHeader3
+                  title="Wishlist"
+                  onBackPress={() => navigation.goBack()} // Handle back button press
+                />
+              ),
+            })}
+          />
+            <Stack.Screen
+            name="FAQScreen"
+            component={FAQScreen}
+            options={({ navigation }) => ({
+              header: () => (
+                <CustomHeader3
+                  title="FAQScreen"
+                  onBackPress={() => navigation.goBack()} // Handle back button press
+                />
+              ),
+            })}
+          />
           <Stack.Screen
             name="Profile"
             component={ProfileScreen}
@@ -310,6 +341,8 @@ const App = () => {
         <Toast />
       </NavigationContainer>
     </CartProvider>
+    </WishlistProvider>
+    </GestureHandlerRootView>
   );
 };
 

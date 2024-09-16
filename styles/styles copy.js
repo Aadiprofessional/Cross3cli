@@ -134,6 +134,12 @@ const styles2 = StyleSheet.create({
     borderRadius: 5,
     zIndex:100,
   },
+  heartIconContainer: {
+    position: 'absolute',
+    top: 165,
+    right: 10,
+    zIndex: 100,
+  },
   lowestPriceText: {
     color: 'white',
     fontFamily: 'Outfit-Medium',

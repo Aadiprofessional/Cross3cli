@@ -13,9 +13,9 @@ const ProductHeader = ({
   name,
   description,
   price,
-  scrollViewRef,
-  colorDeliveryTime,
   discountedPrice,
+  colorDeliveryTime,
+  outOfStock, // Added outOfStock prop
 }) => {
   const handleCallPress = () => {
     const phoneNumber = '+919924686611';
@@ -33,19 +33,23 @@ const ProductHeader = ({
         <View style={styles.priceDetails}>
           <Text style={styles.priceText}>Price:</Text>
           <Text style={styles.priceText}>
-            {Number(discountedPrice).toLocaleString("en-IN", {
-              maximumFractionDigits: 0,
-              style: 'currency',
-              currency: 'INR',
-            })}
+            {outOfStock
+              ? 'XXXX' // Display 'xxxx' if outOfStock is true
+              : Number(discountedPrice).toLocaleString('en-IN', {
+                  maximumFractionDigits: 0,
+                  style: 'currency',
+                  currency: 'INR',
+                })}
           </Text>
-          <Text style={styles.discountedText}>
-            {Number(price).toLocaleString("en-IN", {
-              maximumFractionDigits: 0,
-              style: 'currency',
-              currency: 'INR',
-            })}
-          </Text>
+          {!outOfStock && (
+            <Text style={styles.discountedText}>
+              {Number(price).toLocaleString('en-IN', {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
+            </Text>
+          )}
         </View>
         <View style={styles.deliveryContainer}>
           <Image

@@ -351,7 +351,7 @@ const ProductDetailPage = ({ route }) => {
   const videoLink = currentProduct?.videoLink;
   const discountPercentage = currentProduct.additionalDiscount;
   const cutPrice = (currentProduct.price * (1 - discountPercentage / 100)).toFixed(0);
-
+ const lowestPrice = currentProduct.lowestPrice;
   const uniqueImages = Array.from(
     new Set(images.concat(videoLink).filter(Boolean)),
   );
@@ -412,6 +412,7 @@ const ProductDetailPage = ({ route }) => {
           onNext={handleNextImage}
           imageIndex={imageIndex}
           loading={loading}
+          lowestPrice={lowestPrice}
         />
 
         <ProductHeader
@@ -422,6 +423,7 @@ const ProductDetailPage = ({ route }) => {
           scrollViewRef={scrollViewRef} // Pass the ref to ProductHeader
           onCall={() => { }}
           colorDeliveryTime={currentProduct?.deliveryTime}
+          outOfStock={stockStatus}
         />
         <AttributesSelector
           attributeData={storageOptions.map(item => ({ id: item, value: item }))}

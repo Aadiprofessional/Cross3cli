@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback, useMemo} from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,9 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 const AllCategoriesScreen = () => {
   const navigation = useNavigation();
@@ -37,7 +37,7 @@ const AllCategoriesScreen = () => {
 
   const navigateToSubCategory2 = useCallback(
     name => {
-      navigation.navigate('SubCategoryScreen2', {name}); // Navigate to SubCategoryScreen2 with `name`
+      navigation.navigate('SubCategoryScreen2', { name }); // Navigate to SubCategoryScreen2 with `name`
     },
     [navigation],
   );
@@ -45,14 +45,14 @@ const AllCategoriesScreen = () => {
   // Optimize category list rendering
   const categoryItems = useMemo(
     () =>
-      categories.map(({id, name, image}) => (
+      categories.map(({ id, name, image }) => (
         <TouchableOpacity
           key={id}
           style={styles.categoryItem}
           onPress={() => navigateToSubCategory2(name)} // Navigate to SubCategoryScreen2
         >
           <View style={styles.categoryImageContainer}>
-            <Image source={{uri: image}} style={styles.categoryImage} />
+            <Image source={{ uri: image }} style={styles.categoryImage} />
           </View>
           <Text style={styles.categoryName}>{name}</Text>
         </TouchableOpacity>

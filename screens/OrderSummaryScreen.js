@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
 import CartItem from '../components/CartItem';
 import { colors } from '../styles/color';
@@ -44,6 +45,8 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   const [comment, setComment] = useState(passedComment || ''); // Store the comment
   const [discounts, setDiscounts] = useState([]);
   const [appliedDiscount, setAppliedDiscount] = useState(null);
+  const [selectedPaymentOption, setSelectedPaymentOption] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
   useEffect(() => {
     const fetchDiscounts = async () => {
       try {
@@ -266,14 +269,14 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
   const handleCheckout = async () => {
     if (!selectedCompanyId) {
-      Alert.alert(
-        'Select Company',
-        'Please select a company before proceeding.',
-      );
+      Alert.alert('Select Company', 'Please select a company before proceeding.');
+      return;
+    }
+    if (!selectedPaymentOption) {
+      Alert.alert('Select Payment Option', 'Please select a payment option before proceeding.');
       return;
     }
     setIsLoading(true);
- 
 
     try {
       const userId = auth().currentUser.uid;
@@ -287,14 +290,14 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           cartItems,
           uid: userId,
           companyId: selectedCompanyId,
-          comment: comment,
+          comment,
+          paymentOption: selectedPaymentOption, // Include payment option here
         }
       );
       console.log('Checkout response:', response.data);
 
       if (response.data.orderId) {
         // Order placed successfully
-        console.log('Item added to cart successfully');
         Toast.show({
           type: 'success',
           position: 'bottom',
@@ -310,40 +313,37 @@ const OrderSummaryScreen = ({ route, navigation }) => {
               name: 'ThankYouScreen',
               params: {
                 invoiceData: response.data.data,
-                orderId: response.data.orderId, // Ensure orderId is being passed correctly
+                orderId: response.data.orderId,
               },
             },
           ],
         });
       } else if (response.data.cartError) {
-        // Cart-specific error (e.g., out of stock)
-        Alert.alert(
-          'Out of Stock',
-          'Some items in your cart are out of stock. Please review your cart.',
-        );
+        // Cart-specific error
+        Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
       } else {
-        console.error('Failed to checkout');
         Alert.alert('Error', 'Unable to place the order.');
       }
     } catch (error) {
-      console.error('Error saving order data: ', error);
+      console.error('Error saving order data:', error);
 
-      // Check if the error is related to out of stock or other specific issues
       if (error.response && error.response.data && error.response.data.cartError) {
-        // Handle cart-specific error (out of stock)
-        Alert.alert(
-          'Out of Stock',
-          'Some items in your cart are out of stock. Please review your cart.',
-        );
+        // Handle cart-specific error
+        Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
       } else {
         // General error handling
         Alert.alert('Alert', 'Some error occurred while placing the order.');
       }
-
-      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
+  const handlePaymentOptionSelect = (option) => {
+    setSelectedPaymentOption(option);
+    setModalVisible(false);
+    handleCheckout(); // Call checkout after selecting payment option
+  };
 
   return (
     <View style={styles.container}>
@@ -559,18 +559,52 @@ const OrderSummaryScreen = ({ route, navigation }) => {
             />
         ))}
       </ScrollView>
-      <View style={styles.checkoutContainer}>
-        <TouchableOpacity
-          style={styles.checkoutButton}
-          onPress={handleCheckout}
-          disabled={isLoading} // <-- Disable button while loading
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" /> // <-- Loading animation
-          ) : (
-            <Text style={styles.checkoutButtonText}>Checkout</Text>
-          )}
-        </TouchableOpacity>
+ 
+    <View style={styles.checkoutContainer}>
+      {/* Checkout Button */}
+      <TouchableOpacity
+        style={styles.checkoutButton}
+        onPress={() => setModalVisible(true)} // Open modal instead of directly calling handleCheckout
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator color="#fff" /> // Loading animation
+        ) : (
+          <Text style={styles.checkoutButtonText}>Checkout</Text>
+        )}
+      </TouchableOpacity>
+
+      {/* Payment Options Modal */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Payment Option</Text>
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={() => handlePaymentOptionSelect('Pay Now')}
+            >
+              <Text style={styles.optionText}>Pay Now</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={() => handlePaymentOptionSelect('Credit')}
+            >
+              <Text style={styles.optionText}>Credit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.optionButton}
+              onPress={() => handlePaymentOptionSelect('Already Paid')}
+            >
+              <Text style={styles.optionText}>Already Paid</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       </View>
     </View>
   );
@@ -973,6 +1007,38 @@ const styles = StyleSheet.create({
   },
   checked: {
     backgroundColor: colors.main,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 22,
+    borderRadius: 4,
+    alignItems: 'center',
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Medium',
+    marginBottom: 15,
+  },
+  optionButton: {
+    padding: 10,
+    backgroundColor: '#ddd',
+    borderRadius: 5,
+    marginVertical: 5,
+    width: '100%',
+    alignItems: 'center',
+  },
+  optionText: {
+    fontSize: 16,
+    fontFamily: 'Outfit-Medium',
+    color: colors.TextBlack
   },
   checkoutContainer: {
     padding: 10,

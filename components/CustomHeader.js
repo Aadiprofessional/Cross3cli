@@ -21,7 +21,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
   };
 
   const handleProfilePress = () => {
-    navigation.navigate('UserCompaniesScreen');
+    navigation.navigate('Wish');
   };
 
   if (route.name !== 'HomeTab') {
@@ -50,7 +50,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
             source={
               profileImage
                 ? {uri: UserCompaniesScreen}
-                : require('../assets/insurance-company.png')
+                : require('../assets/wishlist.png')
             }
             style={styles.profile}
           />

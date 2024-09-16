@@ -11,11 +11,7 @@ const SplashScreen = ({ navigation }) => {
       if (user) {
         try {
           const docSnapshot = await firestore().collection('users').doc(user.uid).get();
-          if (docSnapshot.exists) {
-            navigation.replace('HomeTab');
-          } else {
-            navigation.replace('OTPVerification');
-          }
+        
         } catch (error) {
           console.error("Error fetching user data:", error);
           navigation.replace('OTPVerification');

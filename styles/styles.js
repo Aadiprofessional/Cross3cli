@@ -147,6 +147,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: -9,
   },
+  heartIconContainer: {
+    position: 'absolute',
+    top: 165,
+    right: 10,
+    zIndex: 100,
+  },
   addToCartText: {
     color: '#333',
     fontFamily: 'Outfit-Medium',

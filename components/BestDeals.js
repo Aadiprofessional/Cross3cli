@@ -12,14 +12,18 @@ import styles2 from '../styles/styles copy'; // Import the styles2
 import { colors } from '../styles/color';
 import { useCart } from '../components/CartContext'; // Adjust the path to your CartContext
 import auth from '@react-native-firebase/auth';
+import { useWishlist } from './WishlistContext';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const ProductComponent = ({ product }) => {
   const navigation = useNavigation();
   const { addToCart } = useCart(); // Get the addToCart function from CartContext
-  const [isWished, setIsWished] = useState(false);
+
 
   const minCartValue = parseInt(product.minCartValue, 10) || 1;
   const [quantity, setQuantity] = useState(minCartValue); // Default quantity based on minCartValue
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const [isWished, setIsWished] = useState(wishlist.some(item => item.productId === product.productId));
 
   const handlePress = () => {
     console.log(
@@ -36,6 +40,11 @@ const ProductComponent = ({ product }) => {
   };
 
   const handleWishlistPress = () => {
+    if (isWished) {
+      removeFromWishlist(product);
+    } else {
+      addToWishlist(product);
+    }
     setIsWished(!isWished);
   };
 
@@ -95,7 +104,13 @@ const ProductComponent = ({ product }) => {
         <Text style={styles2.productName} numberOfLines={1}>
           {product.displayName}
         </Text>
-
+        <TouchableOpacity style={styles2.heartIconContainer} onPress={handleWishlistPress}>
+          <Icon
+            name={isWished ? 'favorite' : 'favorite-border'}
+            size={24}
+            color={isWished ? 'red' : 'black'}
+          />
+        </TouchableOpacity>
         {discountPercentage ? (
           <View style={styles2.discountContainer}>
             <Text style={styles2.discountText}>{discountPercentage}% OFF</Text>

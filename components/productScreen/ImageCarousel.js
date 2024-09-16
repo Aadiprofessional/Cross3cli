@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
-import {View, Image, ActivityIndicator, StyleSheet, Text} from 'react-native';
+import React, { useState } from 'react';
+import { View, Image, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import YoutubeIframe from 'react-native-youtube-iframe';
 import Swiper from 'react-native-swiper';
-import {colors} from '../../styles/color';
+import { colors } from '../../styles/color';
 
-const ImageCarousel = ({images, loading}) => {
+const ImageCarousel = ({ images, loading, lowestPrice }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -42,7 +42,7 @@ const ImageCarousel = ({images, loading}) => {
         );
       }
     }
-    return <Image source={{uri: item}} style={styles.image} key={index} />;
+    return <Image source={{ uri: item }} style={styles.image} key={index} />;
   };
 
   const handleIndexChanged = index => {
@@ -54,7 +54,7 @@ const ImageCarousel = ({images, loading}) => {
   };
 
   return (
-    <View style={styles.imageContainer}>
+    <View style={styles.container}>
       <Swiper
         loop={false}
         onIndexChanged={handleIndexChanged}
@@ -71,12 +71,18 @@ const ImageCarousel = ({images, loading}) => {
           style={styles.imageLoader}
         />
       )}
+      {/* Show Highest Discount Label if available */}
+      {lowestPrice && (
+        <View style={styles.lowestPriceLabel}>
+          <Text style={styles.lowestPriceText}>Highest Discount</Text>
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  imageContainer: {
+  container: {
     width: '100%',
     aspectRatio: 1,
     backgroundColor: '#FFFFFF',
@@ -111,6 +117,19 @@ const styles = StyleSheet.create({
   activeDot: {
     width: 16,
     backgroundColor: '#316487',
+  },
+  lowestPriceLabel: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: colors.second,
+    padding: 5,
+    borderRadius: 5,
+    zIndex: 100,
+  },
+  lowestPriceText: {
+    color: 'white',
+    fontFamily: 'Outfit-Medium',
   },
 });
 

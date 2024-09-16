@@ -1,20 +1,16 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  StyleSheet
-} from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../styles/color';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useCart } from '../components/CartContext'; // Ensure this path is correct
+import { useCart } from '../components/CartContext';
+import { useWishlist } from './WishlistContext';
 
 const ProductComponent = ({ product }) => {
   const navigation = useNavigation();
   const { addToCart } = useCart();
-  const [isWished, setIsWished] = useState(false);
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const [isWished, setIsWished] = useState(wishlist.some(item => item.productId === product.productId));
 
   const minCartValue = parseInt(product.minCartValue, 10) || 1;
   const [quantity, setQuantity] = useState(minCartValue);
@@ -31,12 +27,15 @@ const ProductComponent = ({ product }) => {
   };
 
   const handleWishlistPress = () => {
+    if (isWished) {
+      removeFromWishlist(product);
+    } else {
+      addToWishlist(product);
+    }
     setIsWished(!isWished);
   };
 
   const handleAddToCart = () => {
-
-
     if (product && quantity > 0) {
       const attribute1 = product.attribute1;
       const attribute2 = product.attribute2;
@@ -63,7 +62,7 @@ const ProductComponent = ({ product }) => {
         attribute2Id: product.attribute2Id,
         attribute3Id: product.attribute3Id,
         colormaxCartValue: product.inventory,
-      }
+      };
       console.log(item);
       addToCart(item);
     }
@@ -72,8 +71,11 @@ const ProductComponent = ({ product }) => {
   const discountPercentage = product.additionalDiscount;
   const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
 
+ 
+        
   return (
     <TouchableOpacity style={styles2.productContainer} onPress={handlePress}>
+    
       <View style={styles2.productContent}>
         {/* Show Highest Discount Label if available */}
         {product.lowestPrice && (
@@ -93,6 +95,14 @@ const ProductComponent = ({ product }) => {
         <Text style={styles2.productName} numberOfLines={1}>
           {product.displayName}
         </Text>
+        <TouchableOpacity style={styles2.heartIconContainer} onPress={handleWishlistPress}>
+          <Icon
+            name={isWished ? 'favorite' : 'favorite-border'}
+            size={24}
+            color={isWished ? 'red' : 'black'}
+          />
+        </TouchableOpacity>
+
 
         {discountPercentage ? (
           <View style={styles2.discountContainer}>
@@ -149,6 +159,12 @@ const styles2 = StyleSheet.create({
     paddingHorizontal: 10, // Add padding around the entire container
     backgroundColor: '#fff',
     paddingVertical: 10,
+  },
+  heartIconContainer: {
+    position: 'absolute',
+    top: 165,
+    right: 10,
+    zIndex: 100,
   },
   productList: {
     flexDirection: 'row',

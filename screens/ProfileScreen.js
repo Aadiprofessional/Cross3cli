@@ -7,6 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  TextInput,
+  Button,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { colors } from '../styles/color';
@@ -15,6 +17,7 @@ import firestore from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios'; // Import axios for making API requests
+import { Modal } from 'react-native';
 
 const ProfileScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -22,7 +25,10 @@ const ProfileScreen = ({ navigation }) => {
   const [rewardPoints, setRewardPoints] = useState('0');
   const [profileImage, setProfileImage] = useState(null);
   const [billing, setBilling] = useState({});
+
   const [withdrawClicks, setWithdrawClicks] = useState(0); // State to track withdraw button clicks
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [withdrawAmount, setWithdrawAmount] = useState('');
 
   useEffect(() => {
     const fetchPhoneNumber = async () => {
@@ -104,21 +110,35 @@ const ProfileScreen = ({ navigation }) => {
       Alert.alert('Error', 'Failed to upload image. Please try again.');
     }
   };
+  const handleWithdrawClick = () => {
+    setModalVisible(true); // Show the modal
+  };
 
-  const handleWithdrawClick = async () => {
-    try {
-      const uid = auth().currentUser.uid; // Assuming you're using Firebase Auth to get the current user's UID
+  const handleWithdrawSubmit = async () => {
+    if (Number(withdrawAmount) <= Number(rewardPoints)) {
+      try {
+        const uid = auth().currentUser.uid; // Assuming you're using Firebase Auth to get the current user's UID
 
-      await axios.post('https://crossbee-server-1036279390366.asia-south1.run.app/withdraw', {
-        uid: uid // Send the UID in the body of the request
-      });
+        await axios.post('https://crossbee-server-1036279390366.asia-south1.run.app/withdraw', {
+          uid: uid,
+          amount: withdrawAmount // Send the amount in the body of the request
+        });
 
-      setWithdrawClicks(prev => prev + 1); // Increment the click count
-      Alert.alert('Success', 'Withdraw request sent successfully.');
-    } catch (error) {
-      console.error('Failed to send withdraw request: ', error);
-      Alert.alert('Error', 'Failed to send withdraw request. Please try again.');
+        setWithdrawClicks(prev => prev + 1); // Increment the click count
+        setModalVisible(false); // Close the modal
+        setWithdrawAmount(''); // Clear the input field
+        Alert.alert('Success', 'Withdraw request sent successfully.');
+      } catch (error) {
+        console.error('Failed to send withdraw request: ', error);
+        Alert.alert('Error', 'Failed to send withdraw request. Please try again.');
+      }
+    } else {
+      Alert.alert('Error', 'Withdraw amount exceeds reward points.');
     }
+  };
+
+  const handleWithdrawCancel = () => {
+    setModalVisible(false); // Close the modal
   };
 
 
@@ -149,6 +169,16 @@ const ProfileScreen = ({ navigation }) => {
       iconName: 'shield-lock-outline',
       text: 'Privacy and Policy',
       screen: 'PrivacyPolicyScreen',
+    },
+    {
+      iconName: 'account-question-outline',
+      text: 'FAQ',
+      screen: 'FAQScreen',
+    },
+    {
+      iconName: 'tag-heart-outline',
+      text: 'Wishlist',
+      screen: 'Wish',
     },
     {
       iconName: 'email-outline',
@@ -252,6 +282,28 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
       ))}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Withdraw Amount</Text>
+            <TextInput
+              style={styles.modalInput}
+              keyboardType="numeric"
+              value={withdrawAmount}
+              onChangeText={setWithdrawAmount}
+              placeholder="Enter amount"
+            />
+            <View style={styles.modalButtons}>
+              <Button title="Submit" onPress={handleWithdrawSubmit} />
+              <Button title="Cancel" onPress={handleWithdrawCancel} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -289,6 +341,33 @@ const styles = StyleSheet.create({
   },
   profileTextContainer: {
     flex: 1,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    backgroundColor: '#ffffff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#dddddd',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   nameText: {
     fontSize: 24,
