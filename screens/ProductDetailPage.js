@@ -209,12 +209,13 @@ const ProductDetailPage = ({ route }) => {
 
   const handleIncrease = () => {
     const maxQuantity = getMaxCartValue();
-    if (quantity < maxQuantity) {
-      setQuantity(quantity + 1);
+    const increment = parseInt(bag, 10) || 1; // Use the bag value or default to 1
+    if (quantity + increment <= maxQuantity) {
+      setQuantity(quantity + increment);
       Toast.show({
         type: 'success',
         text1: 'Quantity Increased',
-        text2: `Quantity is now ${quantity + 1}`,
+        text2: `Quantity is now ${quantity + increment}`,
       });
     } else {
       Toast.show({
@@ -224,16 +225,16 @@ const ProductDetailPage = ({ route }) => {
       });
     }
   };
-
-
+  
   const handleDecrease = () => {
     const minCartValue = getMinCartValue();
-    if (quantity > minCartValue) {
-      setQuantity(quantity - 1);
+    const decrement = parseInt(bag, 10) || 1; // Use the bag value or default to 1
+    if (quantity - decrement >= minCartValue) {
+      setQuantity(quantity - decrement);
       Toast.show({
         type: 'info',
         text1: 'Quantity Decreased',
-        text2: `Quantity is now ${quantity - 1}`,
+        text2: `Quantity is now ${quantity - decrement}`,
       });
     } else {
       Toast.show({
@@ -243,6 +244,7 @@ const ProductDetailPage = ({ route }) => {
       });
     }
   };
+  
 
   const handleAddToCart = () => {
     if (
@@ -266,6 +268,7 @@ const ProductDetailPage = ({ route }) => {
             selectedAttribute2
           ]?.[selectedAttribute3]?.price,
         quantity,
+        bag,
         image:
           productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
             selectedAttribute2
@@ -318,6 +321,7 @@ const ProductDetailPage = ({ route }) => {
   const attribute2 = productData?.attribute2;
   const attribute3 = productData?.attribute3;
   const productName = productData?.productName || 'Product Name';
+  const bag = productData?.bag || '1';
   const storageOptions =
     productData && attribute1
       ? Object.keys(productData.data[attribute1] || {})
@@ -359,7 +363,30 @@ const ProductDetailPage = ({ route }) => {
     images.push(videoLink); // Add the video link to the images array
   }
 
-  console.log(images);
+  const product = {
+    mainId, // Already present in the component
+    productId,
+    categoryId,
+    attribute1Id: currentProduct?.attribute1Id,
+    attribute2Id: currentProduct?.attribute2Id,
+    attribute3Id: currentProduct?.attribute3Id,
+    additionalDiscount : currentProduct?.additionalDiscount,
+    displayName: productName,
+    productId,
+    name: productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+      selectedAttribute2
+    ]?.[selectedAttribute3]?.name,
+    price:
+      productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+        selectedAttribute2
+      ]?.[selectedAttribute3]?.price,
+    quantity,
+    image:
+      productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
+        selectedAttribute2
+      ]?.[selectedAttribute3]?.images[0],
+
+  };
 
   const getStockStatus = () => {
     if (
@@ -399,6 +426,7 @@ const ProductDetailPage = ({ route }) => {
     return null; // Default value if no attributes or color are selected
   };
 
+
   const stockStatus = getStockStatus();
   const estdArrivalDate = getEstimatedArrivalDate();
 
@@ -416,6 +444,7 @@ const ProductDetailPage = ({ route }) => {
         />
 
         <ProductHeader
+        product={product}
           name={productName}
           description={currentProduct?.description || 'N/A'}
           price={currentProduct.price || 'N/A'}

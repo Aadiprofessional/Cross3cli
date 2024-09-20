@@ -19,8 +19,10 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
     categoryId,
     productId,
     discountedPrice,
+    bag // Get the bag value from item
   } = item;
 
+  const parsedBag = Number(bag); // Parse bag as a number
   const [itemQuantity, setItemQuantity] = useState(quantity);
   const navigation = useNavigation();
 
@@ -29,33 +31,33 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
   }, [quantity]);
 
   const handleIncreaseQuantity = () => {
-    const newQuantity = itemQuantity + 1;
-    setItemQuantity(newQuantity);
+    const newQuantity = itemQuantity + parsedBag; // Increment by bag value
     if (newQuantity > colormaxCartValue) {
-      setItemQuantity(colormaxCartValue);
       Toast.show({
         type: 'info',
         position: 'bottom',
         text1: `Maximum quantity is ${colormaxCartValue}`,
         text2: 'Cannot increase quantity further',
       });
+      setItemQuantity(colormaxCartValue); // Cap it at max
     } else {
+      setItemQuantity(newQuantity);
       onUpdateQuantity(cartId, newQuantity);
     }
   };
 
   const handleDecreaseQuantity = () => {
-    const newQuantity = itemQuantity - 1;
-    setItemQuantity(newQuantity);
+    const newQuantity = itemQuantity - parsedBag; // Decrement by bag value
     if (newQuantity < colorminCartValue) {
-      setItemQuantity(colorminCartValue);
       Toast.show({
         type: 'info',
         position: 'bottom',
         text1: `Minimum quantity is ${colorminCartValue}`,
         text2: 'Cannot decrease quantity further',
       });
+      setItemQuantity(colorminCartValue); // Cap it at min
     } else {
+      setItemQuantity(newQuantity);
       onUpdateQuantity(cartId, newQuantity);
     }
   };
@@ -85,8 +87,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
         />
       </TouchableOpacity>
       <View style={styles.productDetails}>
-        <Text style={styles.productName}>{productId}</Text>
-
+        <Text style={styles.productName}>{name}</Text>
         <Text style={styles.productPrice}>
           {Number(discountedPrice).toLocaleString("en-IN", {
             maximumFractionDigits: 2,
@@ -98,39 +99,29 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
           <View style={[styles.itemColor, { backgroundColor: colors.TextWhite }]}>
             <Text style={styles.itemColorText}>{attributeSelected3}</Text>
           </View>
-
           <View style={styles.quantityContainer}>
             <TouchableOpacity
-              style={[
-                styles.quantityButton,
-                itemQuantity <= colorminCartValue && styles.disabledButton,
-              ]}
+              style={[styles.quantityButton, itemQuantity <= colorminCartValue && styles.disabledButton]}
               onPress={handleDecreaseQuantity}
               disabled={itemQuantity <= colorminCartValue}>
               <Text style={styles.quantityButtonText}>-</Text>
             </TouchableOpacity>
             <Text style={styles.quantityText}>{itemQuantity}</Text>
             <TouchableOpacity
-              style={[
-                styles.quantityButton,
-                itemQuantity >= colormaxCartValue && styles.disabledButton,
-              ]}
+              style={[styles.quantityButton, itemQuantity >= colormaxCartValue && styles.disabledButton]}
               onPress={handleIncreaseQuantity}
               disabled={itemQuantity >= colormaxCartValue}>
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
           </View>
-
-          {/* Trash Icon for Remove Button */}
           <TouchableOpacity
             style={styles.trashIcon}
             onPress={handleRemoveItem}>
             <Image
-              source={require('../assets/trash.png')} // Make sure to place your trash.png in the appropriate directory
+              source={require('../assets/trash.png')}
               style={styles.trashIconImage}
             />
           </TouchableOpacity>
-
         </View>
       </View>
     </View>

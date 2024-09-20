@@ -58,6 +58,7 @@ const ProductComponent = ({product}) => {
         image: product.image,
         colorminCartValue: minCartValue,
         attributeSelected1: product.attribute1,
+        bag:product.bag,
         attributeSelected2: product.attribute2,
         attributeSelected3: product.attribute3,
         attribute1: product.attribute1,

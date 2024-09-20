@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors } from '../styles/color';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useCart } from '../components/CartContext';
 import { useWishlist } from './WishlistContext';
+import { colors } from '../styles/color';
 
 const ProductComponent = ({ product }) => {
   const navigation = useNavigation();
   const { addToCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  
+  // Check if the product is already in the wishlist
   const [isWished, setIsWished] = useState(wishlist.some(item => item.productId === product.productId));
 
-  const minCartValue = parseInt(product.minCartValue, 10) || 1;
-  const [quantity, setQuantity] = useState(minCartValue);
+  const handleWishlistPress = () => {
+    // Toggle the wishlist state
+    if (isWished) {
+      removeFromWishlist(product);  // Remove product from wishlist
+    } else {
+      addToWishlist(product);  // Add product to wishlist
+    }
+    setIsWished(!isWished);  // Update the heart icon
+  };
 
   const handlePress = () => {
     navigation.navigate('ProductDetailPage', {
@@ -26,63 +35,30 @@ const ProductComponent = ({ product }) => {
     });
   };
 
-  const handleWishlistPress = () => {
-    if (isWished) {
-      removeFromWishlist(product);
-    } else {
-      addToWishlist(product);
-    }
-    setIsWished(!isWished);
-  };
-
   const handleAddToCart = () => {
-    if (product && quantity > 0) {
-      const attribute1 = product.attribute1;
-      const attribute2 = product.attribute2;
-      const attribute3 = product.attribute3;
+    // Add product to cart (same as in your original code)
+    if (product) {
       const item = {
         productName: product.displayName,
         productId: product.productId,
         price: product.price,
-        quantity: minCartValue,
+        bag:product.bag,
+        quantity: 1,  // You can adjust this logic
         image: product.image || product.mainImage,
-        colorminCartValue: minCartValue,
-        attributeSelected1: product.attribute1,
-        attributeSelected2: product.attribute2,
-        attributeSelected3: product.attribute3,
         additionalDiscount: product.additionalDiscount || 0,
-        discountedPrice: cutPrice,
         mainId: product.mainId,
         categoryId: product.categoryId,
-        name: product.attribute3,
-        attribute1: attribute1,
-        attribute2: attribute2,
-        attribute3: attribute3,
-        attribute1Id: product.attribute1Id,
-        attribute2Id: product.attribute2Id,
-        attribute3Id: product.attribute3Id,
-        colormaxCartValue: product.inventory,
       };
-      console.log(item);
-      addToCart(item);
+      addToCart(item);  // Call the function from useCart
     }
   };
 
   const discountPercentage = product.additionalDiscount;
   const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
 
- 
-        
   return (
     <TouchableOpacity style={styles2.productContainer} onPress={handlePress}>
-    
       <View style={styles2.productContent}>
-        {/* Show Highest Discount Label if available */}
-        {product.lowestPrice && (
-          <View style={styles2.lowestPriceLabel}>
-            <Text style={styles2.lowestPriceText}>Highest Discount</Text>
-          </View>
-        )}
         <View style={styles2.imageContainer}>
           <Image
             source={{
@@ -95,6 +71,8 @@ const ProductComponent = ({ product }) => {
         <Text style={styles2.productName} numberOfLines={1}>
           {product.displayName}
         </Text>
+
+        {/* Heart Icon for Wishlist */}
         <TouchableOpacity style={styles2.heartIconContainer} onPress={handleWishlistPress}>
           <Icon
             name={isWished ? 'favorite' : 'favorite-border'}
@@ -103,7 +81,7 @@ const ProductComponent = ({ product }) => {
           />
         </TouchableOpacity>
 
-
+        {/* Price and Discount */}
         {discountPercentage ? (
           <View style={styles2.discountContainer}>
             <Text style={styles2.discountText}>{discountPercentage}% OFF</Text>
@@ -128,30 +106,29 @@ const ProductComponent = ({ product }) => {
         </View>
 
         <View style={styles2.actionButtonContainer}>
-          {product.outOfStock ? (
-            <View style={styles2.outOfStockButton}>
-              <Text style={styles2.outOfStockText}>Out of Stock</Text>
-            </View>
-          ) : (
+            {product.outOfStock ? (
+              <View style={styles2.outOfStockButton}>
+                <Text style={styles2.outOfStockText}>Out of Stock</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles2.addToCartButton}
+                onPress={handleAddToCart}
+              >
+                <Text style={styles2.addToCartText}>Add to Cart</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
-              style={styles2.addToCartButton}
-              onPress={handleAddToCart}
+              style={styles2.productDetailButton}
+              onPress={handlePress}
             >
-              <Text style={styles2.addToCartText}>Add to Cart</Text>
+              <Text style={styles2.productDetailText}>Details</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            style={styles2.productDetailButton}
-            onPress={handlePress}
-          >
-            <Text style={styles2.productDetailText}>Details</Text>
-          </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
+      </TouchableOpacity>
+    );
+  };
 
 const styles2 = StyleSheet.create({
   container: {

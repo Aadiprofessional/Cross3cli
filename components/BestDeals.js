@@ -4,8 +4,8 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  ActivityIndicator,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import styles2 from '../styles/styles copy'; // Import the styles2
@@ -17,18 +17,33 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const ProductComponent = ({ product }) => {
   const navigation = useNavigation();
-  const { addToCart } = useCart(); // Get the addToCart function from CartContext
-
-
+  const { addToCart } = useCart();
   const minCartValue = parseInt(product.minCartValue, 10) || 1;
-  const [quantity, setQuantity] = useState(minCartValue); // Default quantity based on minCartValue
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
-  const [isWished, setIsWished] = useState(wishlist.some(item => item.productId === product.productId));
+  const [quantity, setQuantity] = useState(minCartValue);
+
+  // Log the wishlist property for debugging
+  useEffect(() => {
+    console.log('Product:', product.productId, 'Wishlist status:', product.wishlist);
+  }, [product]);
+
+  // Wishlist state based on API response
+  const [isWished, setIsWished] = useState(product.wishlist);
+  const { addToWishlist, removeFromWishlist } = useWishlist();
+
+  const handleWishlistPress = () => {
+    console.log('Toggling wishlist status for product:', product.productId);
+    if (isWished) {
+      console.log('Removing from wishlist:', product.productId);
+      removeFromWishlist(product);
+    } else {
+      console.log('Adding to wishlist:', product.productId);
+      addToWishlist(product);
+    }
+    setIsWished(!isWished);  // Toggle the wishlist state
+  };
+
 
   const handlePress = () => {
-    console.log(
-      `Navigating to ProductDetailPage with productId: ${product.productId}`,
-    );
     navigation.navigate('ProductDetailPage', {
       mainId: product.mainId,
       categoryId: product.categoryId,
@@ -39,33 +54,19 @@ const ProductComponent = ({ product }) => {
     });
   };
 
-  const handleWishlistPress = () => {
-    if (isWished) {
-      removeFromWishlist(product);
-    } else {
-      addToWishlist(product);
-    }
-    setIsWished(!isWished);
-  };
-
   const handleAddToCart = () => {
     if (!product.outOfStock && product && quantity > 0) {
       const item = {
         productName: product.displayName,
         productId: product.productId,
         price: product.price,
-        quantity: minCartValue, // Ensure quantity is minCartValue
+        quantity: minCartValue,
         image: product.image,
+        bag:product.bag,
         colorminCartValue: minCartValue,
         attributeSelected1: product.attribute1,
         attributeSelected2: product.attribute2,
         attributeSelected3: product.attribute3,
-        attribute1: product.attribute1,
-        attribute2: product.attribute2,
-        attribute3: product.attribute3,
-        attribute1Id: product.attribute1Id,
-        attribute2Id: product.attribute2Id,
-        attribute3Id: product.attribute3Id,
         additionalDiscount: product.additionalDiscount || 0,
         mainId: product.mainId,
         discountedPrice: cutPrice,
@@ -79,14 +80,13 @@ const ProductComponent = ({ product }) => {
     }
   };
 
-
+  // Calculate the discounted price
   const discountPercentage = product.additionalDiscount;
   const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
 
   return (
     <TouchableOpacity style={styles2.productContainer} onPress={handlePress}>
       <View style={styles2.productContent}>
-        {/* Show Highest Discount Label if available */}
         {product.lowestPrice && (
           <View style={styles2.lowestPriceLabel}>
             <Text style={styles2.lowestPriceText}>Highest Discount</Text>
@@ -104,13 +104,18 @@ const ProductComponent = ({ product }) => {
         <Text style={styles2.productName} numberOfLines={1}>
           {product.displayName}
         </Text>
-        <TouchableOpacity style={styles2.heartIconContainer} onPress={handleWishlistPress}>
+
+        {/* Heart Icon with dynamic color based on wishlist state */}
+         {/* Heart Icon for Wishlist */}
+         <TouchableOpacity style={styles2.heartIconContainer} onPress={handleWishlistPress}>
           <Icon
             name={isWished ? 'favorite' : 'favorite-border'}
             size={24}
             color={isWished ? 'red' : 'black'}
           />
         </TouchableOpacity>
+
+        {/* Discount section */}
         {discountPercentage ? (
           <View style={styles2.discountContainer}>
             <Text style={styles2.discountText}>{discountPercentage}% OFF</Text>
@@ -124,6 +129,7 @@ const ProductComponent = ({ product }) => {
           </View>
         ) : null}
 
+        {/* Display discounted price */}
         <View style={styles2.hotDealsContainer}>
           <Text style={styles2.originalPriceText}>
             {Number(cutPrice).toLocaleString('en-IN', {
@@ -134,6 +140,7 @@ const ProductComponent = ({ product }) => {
           </Text>
         </View>
 
+        {/* Action buttons */}
         <View style={styles2.actionButtonContainer}>
           {product.outOfStock ? (
             <View style={styles2.outOfStockButton}>
@@ -162,6 +169,7 @@ const ProductComponent = ({ product }) => {
 const BestDeals = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false); // New state for error handling
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -174,6 +182,7 @@ const BestDeals = () => {
         setProducts(data);
       } catch (error) {
         console.error('Error fetching products:', error);
+        setError(true); // Set error state on failure
       } finally {
         setLoading(false);
       }
@@ -186,6 +195,14 @@ const BestDeals = () => {
     return (
       <View style={styles2.loadingContainer}>
         <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
+  if (error || products.length === 0) {
+    return (
+      <View style={styles2.errorContainer}>
+        <Text style={styles2.errorText}>No product found</Text>
       </View>
     );
   }

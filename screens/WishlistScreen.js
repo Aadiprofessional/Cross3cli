@@ -20,6 +20,7 @@ const WishlistScreen = ({ navigation }) => {
     });
   };
 
+
   // Function to render the delete action when swiping
   const renderRightActions = (product) => (
     <RectButton
@@ -30,39 +31,57 @@ const WishlistScreen = ({ navigation }) => {
     </RectButton>
   );
 
-  const renderItem = ({ item }) => (
-    <ReanimatedSwipeable
-      renderRightActions={() => renderRightActions(item)}
-      onSwipeableRightOpen={() => removeFromWishlist(item)}
-    >
-      <TouchableOpacity
-        style={styles.wishlistItem}
-        onPress={() => handlePress(item)}
+  const renderItem = ({ item }) => {
+    // Calculate discounted price
+    const discountPercentage = item.additionalDiscount;
+    const cutPrice = (item.price * (1 - discountPercentage / 100)).toFixed(0);
+  
+    return (
+      <ReanimatedSwipeable
+        renderRightActions={() => renderRightActions(item)}
+        onSwipeableRightOpen={() => removeFromWishlist(item)}
       >
-        <Image source={{ uri: item.image }} style={styles.image} />
-        <View style={styles.details}>
-          <Text style={styles.productName}>{item.productName}</Text>
-          <Text style={styles.price}>
-            {Number(item.price).toLocaleString('en-IN', {
-              maximumFractionDigits: 0,
-              style: 'currency',
-              currency: 'INR',
-            })}
-          </Text>
-        </View>
         <TouchableOpacity
-          style={styles.heartIconContainer}
-          onPress={() => removeFromWishlist(item)}
+          style={styles.wishlistItem}
+          onPress={() => handlePress(item)}
         >
-          <Icon
-            name='favorite'
-            size={24}
-            color='red'
-          />
+          <Image source={{ uri: item.image }} style={styles.image} />
+          <View style={styles.details}>
+            <Text style={styles.productName}>{item.displayName}</Text>
+            
+            {/* Original Price with strikethrough */}
+            <Text style={styles.cutPrice}>
+              {Number(item.price).toLocaleString('en-IN', {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
+            </Text>
+            
+            {/* Discounted Price */}
+            <Text style={styles.discountedPrice}>
+              {Number(cutPrice).toLocaleString('en-IN', {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.heartIconContainer}
+            onPress={() => removeFromWishlist(item)}
+          >
+            <Icon
+              name='favorite'
+              size={24}
+              color='red'
+            />
+          </TouchableOpacity>
         </TouchableOpacity>
-      </TouchableOpacity>
-    </ReanimatedSwipeable>
-  );
+      </ReanimatedSwipeable>
+    );
+  };
+  
 
   return (
     <FlatList
@@ -101,6 +120,22 @@ const styles = StyleSheet.create({
   },
   price: {
     color: 'green',
+    marginTop: 5,
+    
+  },
+  cutPrice: {
+    color: 'gray',
+    textDecorationLine: 'line-through', // For strikethrough effect
+    fontSize: 14,
+    fontFamily: 'Outfit-Medium',
+    marginTop: 5,
+  },
+  
+  discountedPrice: {
+    color: 'green',
+    fontWeight: 'bold',
+    fontSize: 16,
+    fontFamily: 'Outfit-Medium',
     marginTop: 5,
   },
   deleteButton: {

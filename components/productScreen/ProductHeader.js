@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,11 @@ import {
   Linking,
 } from 'react-native';
 import { colors } from '../../styles/color';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Import MaterialIcons for the heart icon
+import { useWishlist } from '../../components/WishlistContext'; // Import WishlistContext
 
 const ProductHeader = ({
+  product, // Pass the product object as a prop
   name,
   description,
   price,
@@ -17,6 +20,20 @@ const ProductHeader = ({
   colorDeliveryTime,
   outOfStock, // Added outOfStock prop
 }) => {
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist(); // Access wishlist and functions
+  const [isWished, setIsWished] = useState(
+    wishlist.some((item) => item.productId === product.productId) // Check if the product is already in the wishlist
+  );
+
+  const handleWishlistPress = () => {
+    if (isWished) {
+      removeFromWishlist(product); // Remove product from wishlist
+    } else {
+      addToWishlist(product); // Add product to wishlist
+    }
+    setIsWished(!isWished); // Update the heart icon state
+  };
+
   const handleCallPress = () => {
     const phoneNumber = '+919924686611';
     Linking.openURL(`tel:${phoneNumber}`);
@@ -27,6 +44,12 @@ const ProductHeader = ({
       <TouchableOpacity onPress={handleCallPress} style={styles.callIconContainer}>
         <Image style={styles.callIcon} source={require('../../assets/call.png')} />
       </TouchableOpacity>
+      
+      {/* Wishlist Heart Icon */}
+      <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
+        <Icon name={isWished ? 'favorite' : 'favorite-border'} size={30} color={isWished ? 'red' : 'black'} />
+      </TouchableOpacity>
+
       <Text style={styles.title}>{name}</Text>
 
       <View style={styles.priceRow}>
@@ -75,16 +98,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: colors.TextBlack,
   },
-  descriptionText: {
-    fontSize: 16,
-    fontFamily: 'Outfit-Medium',
-    marginBottom: 5,
-    color: colors.TextBlack,
-  },
   priceRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Space between price details and delivery container
-    alignItems: 'center', // Vertically align items
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 10,
   },
   priceDetails: {
@@ -95,32 +112,28 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
-    marginRight: 10, // Gap between price and discounted price
+    marginRight: 10,
   },
   discountedText: {
     fontSize: 18,
-    textDecorationLine: 'line-through', // Strikethrough for the discounted price
+    textDecorationLine: 'line-through',
     color: colors.TextBlack,
     fontFamily: 'Outfit-Medium',
   },
   deliveryContainer: {
     flexDirection: 'row',
-    alignItems: 'center', // Align text and icon horizontally
+    alignItems: 'center',
     position: 'absolute',
-    right: -20, // Align to the right end
-    top: -40, // Adjust the top position as needed
-    zIndex: 30, // Ensure it's above other components
-    padding: 10, // Adjust padding if needed
+    right: -20,
+    top: -40,
+    zIndex: 30,
+    padding: 10,
   },
   truckText: {
     color: '#333333',
     fontSize: 16,
     fontFamily: 'Outfit-Medium',
-    marginLeft: 10, // Space between icon and text
-  },
-  descriptionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginLeft: 10,
   },
   shippingIcon: {
     width: 25,
@@ -130,12 +143,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: -20,
     top: 70,
-    padding: 10, // Adjust padding if needed
-    zIndex: 40, // Ensure it's above the delivery container
+    padding: 10,
+    zIndex: 40,
   },
   callIcon: {
     width: 60,
     height: 60,
+  },
+  heartIconContainer: {
+    position: 'absolute',
+    top: -20,
+    right: -30,
+    zIndex: 50, // Ensure the heart icon is above other components
   },
 });
 

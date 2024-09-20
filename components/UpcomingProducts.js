@@ -59,6 +59,7 @@ const ProductComponent = ({product}) => {
         attributeSelected1: product.attribute1,
         attributeSelected2: product.attribute2,
         attributeSelected3: product.attribute3,
+        bag:product.bag,
         attribute1: product.attribute1,
         attribute2: product.attribute2,
         attribute3: product.attribute3,
