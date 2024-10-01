@@ -66,6 +66,13 @@ const SearchScreen = () => {
             product => product.mainId === filterOptions.category,
           );
         }
+        if (filterOptions.brand) {
+          console.log(filterOptions.brand, filteredProducts[0].brand);
+
+          filteredProducts = filteredProducts.filter(
+            product => product.brand === filterOptions.brand,
+          );
+        }
 
         // Apply Discount Filter
         if (filterOptions.discount) {
@@ -235,7 +242,7 @@ const SearchScreen = () => {
 const styles = StyleSheet.create({
 container: {
     flex: 1,
-    paddingHorizontal: 16, // Equal margin on left and right of the screen
+    paddingHorizontal: 10, // Equal margin on left and right of the screen
     paddingVertical: 16,   // Equal margin on top and bottom
     backgroundColor: '#FFFFFF',
   },

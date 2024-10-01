@@ -22,7 +22,7 @@ import auth from '@react-native-firebase/auth';
 import CustomHeader2 from '../components/CustomHeader2';
 
 const ProductDetailPage = ({ route }) => {
-  const { mainId, categoryId, productId, attribute1D, attribute2D, attribute3D } = route.params || {};
+  const { mainId, productId, attribute1D, attribute2D, attribute3D } = route.params || {};
   const [productData, setProductData] = useState(null);
   const [selectedAttribute1, setSelectedAttribute1] = useState(null);
   const [selectedAttribute2, setSelectedAttribute2] = useState(null);
@@ -42,7 +42,7 @@ const ProductDetailPage = ({ route }) => {
           'https://crossbee-server-1036279390366.asia-south1.run.app/productInfo',
           {
             main: mainId,
-            category: categoryId,
+          
             product: productId,
             uid: userId, // Add the user ID to the API request body
           },
@@ -67,7 +67,7 @@ const ProductDetailPage = ({ route }) => {
     };
 
     fetchProductDetails();
-  }, [mainId, categoryId, productId, attribute1D, attribute2D, attribute3D]);
+  }, [mainId, productId, attribute1D, attribute2D, attribute3D]);
 
 
   useEffect(() => {
@@ -244,9 +244,11 @@ const ProductDetailPage = ({ route }) => {
       });
     }
   };
+ 
   
 
   const handleAddToCart = () => {
+    console.log(bag);
     if (
       productData &&
       selectedAttribute1 &&
@@ -293,10 +295,10 @@ const ProductDetailPage = ({ route }) => {
         additionalDiscount: discountPercentage || 0, // Ensure additionalDiscount is passed
         discountedPrice: cutPrice,
         mainId, // Added mainId
-        categoryId, // Added categoryId
+   
 
       };
-      console.log(item);
+   
 
       // Add item to cart in Firebase
       addToCart(item);
@@ -317,11 +319,12 @@ const ProductDetailPage = ({ route }) => {
     );
   }
 
+
   const attribute1 = productData?.attribute1;
   const attribute2 = productData?.attribute2;
   const attribute3 = productData?.attribute3;
   const productName = productData?.productName || 'Product Name';
-  const bag = productData?.bag || '1';
+ 
   const storageOptions =
     productData && attribute1
       ? Object.keys(productData.data[attribute1] || {})
@@ -350,6 +353,9 @@ const ProductDetailPage = ({ route }) => {
   const additionalDiscount = currentProduct?.additionalDiscount;
   const attribute1Id = currentProduct?.attribute1Id;
   const attribute2Id = currentProduct?.attribute2Id;
+  const bag = currentProduct?.bag || '1';
+  console.log(currentProduct);
+
   const attribute3Id = currentProduct?.attribute3Id;
   const images = currentProduct?.images || [];
   const videoLink = currentProduct?.videoLink;
@@ -366,7 +372,7 @@ const ProductDetailPage = ({ route }) => {
   const product = {
     mainId, // Already present in the component
     productId,
-    categoryId,
+ 
     attribute1Id: currentProduct?.attribute1Id,
     attribute2Id: currentProduct?.attribute2Id,
     attribute3Id: currentProduct?.attribute3Id,
@@ -485,6 +491,7 @@ const ProductDetailPage = ({ route }) => {
               maxValue={getMaxCartValue()}
               onIncrease={handleIncrease}
               onDecrease={handleDecrease}
+              bag={bag}
             />
             <View style={styles.productDetails}>
               <Text style={styles.Head}>Product Description:</Text>

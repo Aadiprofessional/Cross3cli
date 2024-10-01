@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { View, Image, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import YoutubeIframe from 'react-native-youtube-iframe';
-import Swiper from 'react-native-swiper';
+import ViewPager from '@react-native-community/viewpager';
 import { colors } from '../../styles/color';
 
 const ImageCarousel = ({ images, loading, lowestPrice }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
-  // Function to extract YouTube video ID from URL
-  const getVideoIdFromUrl = url => {
+  const getVideoIdFromUrl = (url) => {
     const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
     const match = url.match(regex);
     return match ? match[1] : null;
@@ -26,17 +25,6 @@ const ImageCarousel = ({ images, loading, lowestPrice }) => {
               play={isPlaying && currentIndex === index}
               videoId={videoId}
               style={styles.youtubeIframe}
-              webViewProps={{
-                javaScriptEnabled: true,
-                domStorageEnabled: true,
-                allowsInlineMediaPlayback: true,
-              }}
-              videoParams={{
-                modestbranding: 1,
-                showinfo: 0,
-                controls: 0,
-                rel: 0,
-              }}
             />
           </View>
         );
@@ -45,38 +33,53 @@ const ImageCarousel = ({ images, loading, lowestPrice }) => {
     return <Image source={{ uri: item }} style={styles.image} key={index} />;
   };
 
-  const handleIndexChanged = index => {
+  const handlePageSelected = (event) => {
+    const index = event.nativeEvent.position;
     setCurrentIndex(index);
     setIsPlaying(false);
-    setTimeout(() => {
-      setIsPlaying(true); // Delay play to ensure smooth transition
-    }, 100);
+    setTimeout(() => setIsPlaying(true), 100); // Smooth transition
+  };
+
+  const renderDots = () => {
+    return (
+      <View style={styles.dotsContainer}>
+        {images.map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.dot,
+              currentIndex === index && styles.activeDot, // Apply active style to the current dot
+            ]}
+          />
+        ))}
+      </View>
+    );
   };
 
   return (
     <View style={styles.container}>
-      <Swiper
-        loop={false}
-        onIndexChanged={handleIndexChanged}
-        showsPagination={true}
-        dotStyle={styles.dot}
-        activeDotStyle={styles.activeDot}
+      <ViewPager
+        style={{ flex: 1 }}
+        initialPage={0}
+        onPageSelected={handlePageSelected}
       >
-        {images.map((item, index) => renderMedia(item, index))}
-      </Swiper>
+        {images.map((item, index) => (
+          <View key={index}>{renderMedia(item, index)}</View>
+        ))}
+      </ViewPager>
       {loading && (
         <ActivityIndicator
-          size="large"
+          size="Medium"
           color={colors.primary}
           style={styles.imageLoader}
         />
       )}
-      {/* Show Highest Discount Label if available */}
       {lowestPrice && (
         <View style={styles.lowestPriceLabel}>
           <Text style={styles.lowestPriceText}>Highest Discount</Text>
         </View>
       )}
+      {renderDots()}
     </View>
   );
 };
@@ -107,17 +110,6 @@ const styles = StyleSheet.create({
     width: '90%',
     height: '90%',
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#A7A7A7',
-    marginHorizontal: 5,
-  },
-  activeDot: {
-    width: 16,
-    backgroundColor: '#316487',
-  },
   lowestPriceLabel: {
     position: 'absolute',
     top: 10,
@@ -129,7 +121,26 @@ const styles = StyleSheet.create({
   },
   lowestPriceText: {
     color: 'white',
-    fontFamily: 'Outfit-Medium',
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    position: 'absolute',
+    bottom: 10,
+    width: '100%',
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 30,
+    backgroundColor: '#323F4757',
+    marginHorizontal: 2,
+  },
+  activeDot: {
+    backgroundColor: colors.second,
+    width: 15, // Make the active dot wider for emphasis
+    height:10,
+    borderRadius: 8,
   },
 });
 

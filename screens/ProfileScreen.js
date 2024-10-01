@@ -11,6 +11,7 @@ import {
   Button,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
+import storage from '@react-native-firebase/storage';
 import { colors } from '../styles/color';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
@@ -77,6 +78,7 @@ const ProfileScreen = ({ navigation }) => {
       mediaType: 'photo',
       quality: 1,
     };
+
     launchImageLibrary(options, response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
@@ -89,20 +91,33 @@ const ProfileScreen = ({ navigation }) => {
     });
   };
 
-  const uploadProfileImage = async uri => {
+  const uploadProfileImage = async (uri) => {
     try {
       const user = auth().currentUser;
       if (user && uri) {
-        const storageRef = firestore().collection('users').doc(user.uid);
+        // Create a reference for Firebase Storage
+        const storageRef = storage().ref(`users/${user.uid}/profilePicture.jpg`);
 
-        await storageRef.set(
+        // Upload the file to the storage reference
+        const task = storageRef.putFile(uri);
+
+        // Monitor the task for completion
+        await task;
+
+        // Get the downloadable URL
+        const downloadURL = await storageRef.getDownloadURL();
+
+        // Store the download URL in Firestore
+        const firestoreRef = firestore().collection('users').doc(user.uid);
+        await firestoreRef.set(
           {
-            profilePicture: uri,
+            profilePicture: downloadURL,
           },
-          { merge: true },
+          { merge: true }
         );
 
-        setProfileImage(uri);
+        // Update UI with the new profile image URL
+        setProfileImage(downloadURL);
         Alert.alert('Success', 'Profile image updated successfully.');
       }
     } catch (error) {
@@ -110,6 +125,8 @@ const ProfileScreen = ({ navigation }) => {
       Alert.alert('Error', 'Failed to upload image. Please try again.');
     }
   };
+
+
   const handleWithdrawClick = () => {
     setModalVisible(true); // Show the modal
   };
@@ -208,7 +225,25 @@ const ProfileScreen = ({ navigation }) => {
       console.error('Logout failed:', error);
     }
   };
+  const handleWithdrawAll = async () => {
+    try {
+      const uid = auth().currentUser.uid; // Get current user's UID
+      const fullAmount = rewardPoints; // Withdraw the full amount of reward points
 
+      await axios.post('https://crossbee-server-1036279390366.asia-south1.run.app/withdraw', {
+        uid: uid,
+        amount: fullAmount, // Send the full amount
+      });
+
+      setWithdrawClicks(prev => prev + 1); // Increment the click count
+      setModalVisible(false); // Close the modal
+      setWithdrawAmount(''); // Clear the input field
+      Alert.alert('Success', 'Withdraw request for full amount sent successfully.');
+    } catch (error) {
+      console.error('Failed to send withdraw request: ', error);
+      Alert.alert('Error', 'Failed to send withdraw request. Please try again.');
+    }
+  };
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileContainer}>
@@ -298,12 +333,20 @@ const ProfileScreen = ({ navigation }) => {
               placeholder="Enter amount"
             />
             <View style={styles.modalButtons}>
-              <Button title="Submit" onPress={handleWithdrawSubmit} />
-              <Button title="Cancel" onPress={handleWithdrawCancel} />
+              <TouchableOpacity style={styles.button} onPress={handleWithdrawCancel}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={handleWithdrawAll}>
+                <Text style={styles.buttonText}>Withdraw All</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={handleWithdrawSubmit}>
+                <Text style={styles.buttonText}>Submit</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
+
     </ScrollView>
   );
 };
@@ -313,6 +356,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 20,
+  },
+  button: {
+    backgroundColor: colors.second, // Button color
+    padding: 10,
+    borderRadius: 5, // Rounded corners
+    elevation: 2, // Shadow effect for Android
+    shadowColor: '#000', // Shadow color for iOS
+    shadowOffset: { width: 0, height: 1 }, // Shadow offset
+    shadowOpacity: 0.2, // Shadow opacity
+    shadowRadius: 1.5, // Shadow blur radius
+  },
+  buttonText: {
+    color: '#FFFFFF', // Text color
+    textAlign: 'center', // Center text
   },
   profileContainer: {
     flexDirection: 'row',

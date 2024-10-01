@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,12 @@ import {
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
 import CompanyDetail from '../components/CompanyDetail'; // Adjust path as needed
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 import Icon from 'react-native-vector-icons/Feather';
-import CompanyDropdown from '../components/CompanyDropdown';
 
-const UserCompaniesScreen = ({navigation}) => {
+const UserCompaniesScreen = ({ navigation }) => {
   const [uid, setUid] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,11 +38,15 @@ const UserCompaniesScreen = ({navigation}) => {
     try {
       const response = await axios.post(
         'https://crossbee-server-1036279390366.asia-south1.run.app/getCompanies',
-        {uid},
+        { uid },
       );
 
       if (response.status === 200) {
-        setCompanies(response.data);
+        // Sort companies so "Primary" comes first
+        const sortedCompanies = response.data.sort((a, b) =>
+          a.type === 'Primary' ? -1 : 1,
+        );
+        setCompanies(sortedCompanies);
       } else {
         throw new Error(`Failed to load companies: ${response.status}`);
       }
@@ -72,7 +75,6 @@ const UserCompaniesScreen = ({navigation}) => {
       setCompanies(prevCompanies =>
         prevCompanies.filter(company => company.id !== companyId),
       );
-      // Optionally, you could also call an API to remove the company server-side if needed
     } catch (err) {
       setError('Failed to remove company');
       Alert.alert('Error', err.message); // Show error alert
@@ -93,7 +95,7 @@ const UserCompaniesScreen = ({navigation}) => {
 
   return (
     <View style={styles.container2}>
-      <View style={[styles.header, {backgroundColor: colors.main}]}>
+      <View style={[styles.header, { backgroundColor: colors.main }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon
             name="arrow-left"
@@ -142,7 +144,6 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-
     paddingHorizontal: 10,
     paddingVertical: 15,
   },
@@ -151,7 +152,6 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
-
     fontFamily: 'Outfit-Medium',
     color: '#fff',
   },
@@ -168,7 +168,6 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 16,
-
     fontFamily: 'Outfit-Medium',
   },
   noCompaniesText: {

@@ -1,13 +1,15 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
-const CompanyDetail = ({company, onRemove, navigation}) => {
+const CompanyDetail = ({ company, onRemove, navigation }) => {
   const handleRemove = async () => {
+    console.log('Remove button clicked'); // Debugging
+
     try {
       const uid = auth().currentUser.uid;
 
@@ -45,7 +47,8 @@ const CompanyDetail = ({company, onRemove, navigation}) => {
   };
 
   const handleEdit = () => {
-    navigation.navigate('EditCompanyScreen', {company});
+    console.log('Edit button clicked'); // Debugging
+    navigation.navigate('EditCompanyScreen', { company });
   };
 
   return (
@@ -56,20 +59,34 @@ const CompanyDetail = ({company, onRemove, navigation}) => {
           backgroundColor:
             company.type === 'Primary' ? colors.primary : colors.primary,
         },
-      ]}>
+      ]}
+    >
       {company.type === 'Added' && (
         <>
-          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-            <Icon name="pencil-outline" size={24} color="#333" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.removeButton} onPress={handleRemove}>
+          <TouchableOpacity
+            style={[styles.removeButton, styles.touchable]}
+            onPress={handleRemove}
+            activeOpacity={0.7}
+          >
             <Icon name="delete-empty-outline" size={24} color="#333" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.editButton, styles.touchable]}
+            onPress={handleEdit}
+            activeOpacity={0.7}
+          >
+            <Icon name="pencil-outline" size={24} color="#333" />
           </TouchableOpacity>
         </>
       )}
       {company.type === 'Primary' && (
         <>
-          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+          <TouchableOpacity
+            style={[styles.editButton, styles.touchable]}
+            onPress={handleEdit}
+            activeOpacity={0.7}
+          >
             <Icon name="pencil-outline" size={24} color="#333" />
           </TouchableOpacity>
           <Text style={styles.primaryText}>Primary</Text>
@@ -109,27 +126,35 @@ const styles = StyleSheet.create({
     position: 'relative',
     borderRadius: 10,
   },
+  touchable: {
+    zIndex: 10, // Ensure the touchable area is above other components
+  },
   editButton: {
+    backgroundColor: 'transparent',
+    borderRadius: 15,
+    padding: 10,
     position: 'absolute',
-    top: 8,
-    
     right: 8,
+    top: 8,
+    zIndex: 10,
   },
   removeButton: {
+    backgroundColor: 'transparent',
+    borderRadius: 15,
+    padding: 10,
     position: 'absolute',
-    top: 8,
     right: 40,
+    top: 8,
+    zIndex: 10,
   },
   primaryText: {
     fontSize: 19,
-
     fontFamily: 'Outfit-Medium',
     color: colors.orange,
     marginBottom: 8,
   },
   title: {
     fontSize: 16,
-
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
   },
@@ -137,11 +162,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

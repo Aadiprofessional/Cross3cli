@@ -1,11 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Image, TouchableOpacity, Alert} from 'react-native';
+import {View, StyleSheet, Image, TouchableOpacity, Text} from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {colors} from '../styles/color';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import auth from '@react-native-firebase/auth';
-import firestore from '@react-native-firebase/firestore';
-import UserCompaniesScreen from '../screens/UserCompaniesScreen';
+import {useWishlist} from './WishlistContext'; // Import Wishlist Context
 
 interface CustomHeaderProps {
   toggleNavBar: () => void;
@@ -14,13 +12,13 @@ interface CustomHeaderProps {
 const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
   const navigation = useNavigation();
   const route = useRoute();
-  const [profileImage, setProfileImage] = useState(null);
+  const {wishlist} = useWishlist(); // Access wishlist from the context
 
   const handleSearchPress = () => {
     navigation.navigate('SearchScreen');
   };
 
-  const handleProfilePress = () => {
+  const handleWishlistPress = () => {
     navigation.navigate('Wish');
   };
 
@@ -45,16 +43,19 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({toggleNavBar}) => {
         <TouchableOpacity onPress={handleSearchPress}>
           <Icon name="search" size={30} color="#FFFFFF" style={styles.icon} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleProfilePress}>
-          <Image
-            source={
-              profileImage
-                ? {uri: UserCompaniesScreen}
-                : require('../assets/wishlist.png')
-            }
-            style={styles.profile}
-          />
-        </TouchableOpacity>
+        <View style={styles.wishlistContainer}>
+          <TouchableOpacity onPress={handleWishlistPress}>
+            <Image
+              source={require('../assets/wishlist.png')}
+              style={styles.profile}
+            />
+          </TouchableOpacity>
+          {wishlist.length > 0 && (
+            <View style={styles.wishlistBadge}>
+              <Text style={styles.wishlistCount}>{wishlist.length}</Text>
+            </View>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -97,6 +98,26 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     width: 35,
     height: 37,
+  },
+  wishlistContainer: {
+    position: 'relative',
+   
+  },
+  wishlistBadge: {
+    position: 'absolute',
+    right: 0,
+    top: -5,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  wishlistCount: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
 });
 

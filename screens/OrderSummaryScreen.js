@@ -38,6 +38,9 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [coupons, setCoupons] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [selectedBrandId, setSelectedBrandId] = useState(null);
+  const [selectedLogId, setSelectedLogId] = useState(null);
+  const [selectedTransId, setSelectedTransId] = useState(null);
   const [selectedPincode, setSelectedPincode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [availableCoupons, setAvailableCoupons] = useState([]);
@@ -194,7 +197,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     comment: comment,
   });
 
-  console.log(cartItems);
+ 
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
@@ -251,6 +254,15 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   const handleSelectCompany = companyId => {
     setSelectedCompanyId(companyId);
   };
+  const handleSelectBrand = brandId => {
+    setSelectedBrandId(brandId);
+  };
+  const handleSelectLog = logId => {
+    setSelectedBrandId(logId);
+  };
+  const handleSelectTrans = transId => {
+    setSelectedBrandId(transId);
+  };
 
   const handlePincodeChange = pincode => {
     setSelectedPincode(pincode);
@@ -266,12 +278,18 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   const handleToggleRewardPoints = () => {
     setUseRewardPoints(prev => !prev);
   };
+  console.log(cartItems);
 
   const handleCheckout = async () => {
     if (!selectedCompanyId) {
       Alert.alert('Select Company', 'Please select a company before proceeding.');
       return;
     }
+    if (!selectedBrandId) {
+      Alert.alert('Select Brand', 'Please select a Brand before proceeding.');
+      return;
+    }
+  
     if (!selectedPaymentOption) {
       Alert.alert('Select Payment Option', 'Please select a payment option before proceeding.');
       return;
@@ -279,8 +297,10 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     setIsLoading(true);
 
     try {
+    
       const userId = auth().currentUser.uid;
       const response = await axios.post(
+        
         `https://crossbee-server-1036279390366.asia-south1.run.app/checkout`,
         {
           totalAmount,
@@ -292,9 +312,11 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           companyId: selectedCompanyId,
           comment,
           paymentOption: selectedPaymentOption, // Include payment option here
+          
         }
+        
       );
-      console.log('Checkout response:', response.data);
+
 
       if (response.data.orderId) {
         // Order placed successfully
@@ -539,15 +561,15 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           onPincodeChange={handlePincodeChange}
         />
         <CompanyDropdown2
-          onSelectCompany={handleSelectCompany}
+          onSelectCompany={handleSelectBrand}
           pincode={selectedPincode}
         />
         <CompanyDropdown3
-          onSelectCompany={handleSelectCompany}
+          onSelectCompany={handleSelectLog}
           pincode={selectedPincode}
         />
         <CompanyDropdown3
-          onSelectCompany={handleSelectCompany}
+          onSelectCompany={handleSelectTrans}
           pincode={selectedPincode}
         />
         {cartItems.map(item => (

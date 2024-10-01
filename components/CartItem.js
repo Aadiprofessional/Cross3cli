@@ -11,14 +11,17 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
     price,
     quantity,
     attributeSelected3,
+    attributeSelected1,
+    attributeSelected2,
     image,
     colorminCartValue,
     colormaxCartValue,
     additionalDiscount,
     mainId,
-    categoryId,
+    product,
     productId,
     discountedPrice,
+    productName,
     bag // Get the bag value from item
   } = item;
 
@@ -63,7 +66,14 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
   };
 
   const handleImagePress = () => {
-    navigation.navigate('ProductDetailPage', { productId, mainId, categoryId });
+    
+    
+    navigation.navigate('ProductDetailPage', {
+      productId, mainId, attribute1D: attributeSelected1,
+      attribute2D: attributeSelected2,
+      attribute3D: attributeSelected3,
+
+    });
   };
 
   const handleRemoveItem = () => {
@@ -87,7 +97,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
         />
       </TouchableOpacity>
       <View style={styles.productDetails}>
-        <Text style={styles.productName}>{name}</Text>
+        <Text style={styles.productName}>{productName}</Text>
         <Text style={styles.productPrice}>
           {Number(discountedPrice).toLocaleString("en-IN", {
             maximumFractionDigits: 2,

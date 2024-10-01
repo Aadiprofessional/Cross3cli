@@ -18,15 +18,21 @@ export const WishlistProvider = ({ children }) => {
             },
           });
           const data = await response.json();
-          setWishlist(data);
+          if (Array.isArray(data)) {
+            setWishlist(data);
+          } else {
+            setWishlist([]); // Set an empty array if the response is not an array
+          }
         } catch (err) {
           console.error('Failed to load wishlist:', err);
+          setWishlist([]); // Handle error by setting an empty array
         }
       }
     };
-
+  
     fetchWishlist();
   }, []);
+  
   
   const addToWishlist = (product) => {
     const userId = auth().currentUser.uid; // Ensure uid is assigned here
@@ -43,7 +49,7 @@ export const WishlistProvider = ({ children }) => {
         body: JSON.stringify({
           uid: userId,
           mainId: product.mainId,
-          categoryId: product.categoryId,
+      
           productId: product.productId,
           attribute1Id: product.attribute1Id,
           attribute2Id: product.attribute2Id,
@@ -71,7 +77,7 @@ export const WishlistProvider = ({ children }) => {
         body: JSON.stringify({
           uid: userId,
           mainId: product.mainId,
-          categoryId: product.categoryId,
+        
           productId: product.productId,
           attribute1Id: product.attribute1Id,
           attribute2Id: product.attribute2Id,

@@ -189,10 +189,12 @@ const QuotesScreen = () => {
           </View>
           {item.invoice && (
             <TouchableOpacity
-              style={styles.downloadButton}
-              onPress={() => handleOpenInvoice(item.invoice)}>
-              <Icon name="download" size={20} color={colors.main} />
-            </TouchableOpacity>
+            style={styles.downloadButton}
+            onPress={() => handleOpenInvoice(item.invoice)}
+          >
+
+            <Text style={styles.downloadText}>Download</Text>
+          </TouchableOpacity>
           )}
         </View>
       ),
@@ -259,10 +261,12 @@ const QuotesScreen = () => {
           </View>
           {item.invoice && (
             <TouchableOpacity
-              style={styles.downloadButton}
-              onPress={() => handleOpenInvoice(item.invoice)}>
-              <Icon name="download" size={20} color={colors.main} />
-            </TouchableOpacity>
+            style={styles.downloadButton}
+            onPress={() => handleOpenInvoice(item.invoice)}
+          >
+
+            <Text style={styles.downloadText}>Download</Text>
+          </TouchableOpacity>
           )}
           <TouchableOpacity
             style={styles.placeOrderButton}
@@ -390,6 +394,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
   },
+  downloadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  downloadText: {
+    color: colors.main,
+    marginLeft: 5, // Space between the icon and text
+    fontSize: 16, // Adjust as needed
+    fontFamily: 'Outfit-Medium', // Adjust font family as needed
+  },
   buttonText: {
     color: '#fff',
     fontSize: 16,
@@ -397,6 +411,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
   },
   orderList: {
+    marginTop:70,
     width: '300%',
   },
   orderItem: {
@@ -424,13 +439,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
   },
   header: {
+    position: 'absolute', // Keep the header fixed
+    top: 0,              // Position it at the top
+    left: 0,
+    right: 0,
     flexDirection: 'row',
-    width: '100%',
     justifyContent: 'space-around',
     paddingVertical: 10,
     backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+
+    zIndex: 10,          // Ensure the header is above other elements
   },
   headerButton: {
     paddingVertical: 10,
@@ -464,8 +482,8 @@ const styles = StyleSheet.create({
   },
   placeOrderButton: {
     position: 'absolute',
-    bottom: 10,
-    right: 40,
+    bottom: 13,
+    right: 90,
 
     borderRadius: 5,
   },

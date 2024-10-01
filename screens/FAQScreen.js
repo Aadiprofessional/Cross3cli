@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // You can use other icon libraries if needed
+import axios from 'axios';
 
 const FAQScreen = () => {
   const [collapsed, setCollapsed] = useState({});
+  const [faq, setFaq] = useState([]); // State for FAQs
+
+  useEffect(() => {
+    const fetchFAQs = async () => {
+      try {
+        const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/faqs');
+        setFaq(response.data); // Set fetched FAQs to state
+      } catch (error) {
+        console.error('Error fetching FAQs:', error);
+        Alert.alert('Error', 'Failed to fetch FAQs. Please try again later.'); // Handle errors
+      }
+    };
+
+    fetchFAQs();
+  }, []);
 
   const toggleCollapse = (index) => {
     setCollapsed(prev => ({
@@ -13,17 +29,9 @@ const FAQScreen = () => {
     }));
   };
 
-  const faqs = [
-    { question: "What is your return policy?", answer: "Our return policy lasts 30 days..." },
-    { question: "How do I track my order?", answer: "You can track your order using the tracking link we provide..." },
-    { question: "Do you ship internationally?", answer: "Yes, we do ship internationally..." },
-    { question: "How can I contact customer service?", answer: "You can contact customer service via email or phone..." },
-    { question: "What payment methods are accepted?", answer: "We accept various payment methods including credit cards and PayPal..." }
-  ];
-
   return (
     <View style={styles.container}>
-      {faqs.map((faq, index) => (
+      {faq.map((faq, index) => (
         <View key={index} style={styles.card}>
           <TouchableOpacity onPress={() => toggleCollapse(index)} style={styles.header}>
             <Text style={styles.question}>{faq.question}</Text>

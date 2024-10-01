@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
-import { Picker } from '@react-native-picker/picker'; // Updated import
+import { Picker } from '@react-native-picker/picker'; // Ensure correct import
 import { colors } from '../styles/color';
 
 const CompanyDropdown2 = ({ onSelectCompany }) => {
   const [companies, setCompanies] = useState([]);
-  const [selectedCompanyId, setSelectedCompanyId] = useState(null);
+  const [selectedCompanyName, setSelectedCompanyName] = useState(null); // Use name instead of ID
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -15,31 +15,41 @@ const CompanyDropdown2 = ({ onSelectCompany }) => {
     const fetchCompanies = async () => {
       setLoading(true);
       const currentUser = auth().currentUser;
-
+  
       if (!currentUser) {
         setError('User not authenticated');
         setLoading(false);
         return;
       }
-
-      const uid = currentUser.uid;
-
+  
       try {
-        const response = await axios.post(
-          'https://crossbee-server-1036279390366.asia-south1.run.app/getCompanies',
-          { uid }
-        );
-
+        const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/brands');
+  
         if (response.status === 200) {
           const companiesData = response.data;
-          setCompanies(companiesData);
-
-          // Set the first company as the default selection
-          if (companiesData.length > 0) {
-            setSelectedCompanyId(companiesData[0].id);
-            if (onSelectCompany) {
-              onSelectCompany(companiesData[0].id);
+          
+          if (Array.isArray(companiesData)) {
+            setCompanies(companiesData);
+  
+            // Set the default brand only once
+            if (companiesData.length > 0 && !selectedCompanyName) {
+              // Check for the "Power" brand first
+              const defaultCompany = companiesData.find(company => company.name === "Power");
+              if (defaultCompany) {
+                setSelectedCompanyName(defaultCompany.name);
+                if (onSelectCompany) {
+                  onSelectCompany(defaultCompany.name);
+                }
+              } else {
+                // If "Power" is not found, select the first brand as default
+                setSelectedCompanyName(companiesData[0].name);
+                if (onSelectCompany) {
+                  onSelectCompany(companiesData[0].name);
+                }
+              }
             }
+          } else {
+            throw new Error('Unexpected data format received');
           }
         } else {
           throw new Error(`Failed to load companies: ${response.status}`);
@@ -51,14 +61,15 @@ const CompanyDropdown2 = ({ onSelectCompany }) => {
         setLoading(false);
       }
     };
-
+  
     fetchCompanies();
-  }, []);
+  }, [onSelectCompany, selectedCompanyName]); // selectedCompanyName remains to ensure default is set once
+   // Add selectedCompanyName to ensure default is set once
 
-  const handleSelect = (companyId) => {
-    setSelectedCompanyId(companyId);
+  const handleSelect = (companyName) => {
+    setSelectedCompanyName(companyName); // Update with user selection
     if (onSelectCompany) {
-      onSelectCompany(companyId);
+      onSelectCompany(companyName);
     }
   };
 
@@ -69,7 +80,7 @@ const CompanyDropdown2 = ({ onSelectCompany }) => {
       <Text style={styles.label}>Select a Brand:</Text>
       <View style={styles.pickerContainer}>
         <Picker
-          selectedValue={selectedCompanyId}
+          selectedValue={selectedCompanyName}
           onValueChange={(itemValue) => handleSelect(itemValue)}
           style={styles.picker}
         >
@@ -78,9 +89,9 @@ const CompanyDropdown2 = ({ onSelectCompany }) => {
           )}
           {companies.map((company) => (
             <Picker.Item
-              key={company.id}
+              key={company.name} // Using name as the key since no id field exists
               label={company.name}
-              value={company.id}
+              value={company.name} // Select by name
             />
           ))}
         </Picker>

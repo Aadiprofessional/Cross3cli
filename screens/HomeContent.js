@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
 
     fontFamily: 'Outfit-Medium',
-    marginLeft: 25,
+    marginLeft: 15,
     color: colors.TextBlack,
   },
   endTextContainer: {

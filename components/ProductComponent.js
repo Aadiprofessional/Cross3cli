@@ -6,28 +6,26 @@ import { useCart } from '../components/CartContext';
 import { useWishlist } from './WishlistContext';
 import { colors } from '../styles/color';
 
-const ProductComponent = ({ product }) => {
+const ProductComponent = ({ product, lowestPrice }) => {
   const navigation = useNavigation();
   const { addToCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
-  
-  // Check if the product is already in the wishlist
+  const minCartValue = parseInt(product.minCartValue, 10) || 1;
+  const [quantity, setQuantity] = useState(minCartValue);
   const [isWished, setIsWished] = useState(wishlist.some(item => item.productId === product.productId));
 
   const handleWishlistPress = () => {
-    // Toggle the wishlist state
     if (isWished) {
-      removeFromWishlist(product);  // Remove product from wishlist
+      removeFromWishlist(product);
     } else {
-      addToWishlist(product);  // Add product to wishlist
+      addToWishlist(product);
     }
-    setIsWished(!isWished);  // Update the heart icon
+    setIsWished(!isWished);
   };
 
   const handlePress = () => {
     navigation.navigate('ProductDetailPage', {
       mainId: product.mainId,
-      categoryId: product.categoryId,
       productId: product.productId,
       attribute1D: product.attribute1,
       attribute2D: product.attribute2,
@@ -36,20 +34,33 @@ const ProductComponent = ({ product }) => {
   };
 
   const handleAddToCart = () => {
-    // Add product to cart (same as in your original code)
-    if (product) {
+    if (!product.outOfStock && quantity > 0) {
       const item = {
         productName: product.displayName,
         productId: product.productId,
         price: product.price,
+        quantity: minCartValue, // Ensure quantity is minCartValue
+        image: product.image,
+        colorminCartValue: minCartValue,
+        attributeSelected1: product.attribute1,
         bag:product.bag,
-        quantity: 1,  // You can adjust this logic
-        image: product.image || product.mainImage,
+        attributeSelected2: product.attribute2,
+        attributeSelected3: product.attribute3,
+        attribute1: product.attribute1,
+        attribute2: product.attribute2,
+        attribute3: product.attribute3,
+        attribute1Id: product.attribute1Id,
+        attribute2Id: product.attribute2Id,
+        attribute3Id: product.attribute3Id,
         additionalDiscount: product.additionalDiscount || 0,
         mainId: product.mainId,
-        categoryId: product.categoryId,
+        discountedPrice: cutPrice,
+        name: product.attribute3,
+        colormaxCartValue : product.inventory,
       };
-      addToCart(item);  // Call the function from useCart
+
+      addToCart(item);
+      console.log('Adding to cart:', item);
     }
   };
 
@@ -57,171 +68,155 @@ const ProductComponent = ({ product }) => {
   const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
 
   return (
-    <TouchableOpacity style={styles2.productContainer} onPress={handlePress}>
-      <View style={styles2.productContent}>
-        <View style={styles2.imageContainer}>
-          <Image
-            source={{
-              uri: product.image || product.mainImage || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
-            }}
-            style={styles2.productImage}
-          />
+    <TouchableOpacity style={styles.productContainer} onPress={handlePress}>
+    <View style={styles.productContent}>
+      {/* Show Highest Discount Label if available */}
+      {product.lowestPrice && (
+        <View style={styles.lowestPriceLabel}>
+          <Text style={styles.lowestPriceText}>Highest Discount</Text>
         </View>
+      )}
+      <View style={styles.imageContainer}>
+        <Image
+          source={{
+            uri: product.image || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
+          }}
+          style={styles.productImage}
+        />
+      </View>
 
-        <Text style={styles2.productName} numberOfLines={1}>
+      {/* Updated product name and wishlist icon container */}
+      <View style={styles.productNameContainer}>
+        <Text style={styles.productName} numberOfLines={1}>
           {product.displayName}
         </Text>
-
-        {/* Heart Icon for Wishlist */}
-        <TouchableOpacity style={styles2.heartIconContainer} onPress={handleWishlistPress}>
+        <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
           <Icon
             name={isWished ? 'favorite' : 'favorite-border'}
             size={24}
             color={isWished ? 'red' : 'black'}
           />
         </TouchableOpacity>
+      </View>
 
-        {/* Price and Discount */}
-        {discountPercentage ? (
-          <View style={styles2.discountContainer}>
-            <Text style={styles2.discountText}>{discountPercentage}% OFF</Text>
-            <Text style={styles2.cutPriceText}>
-              {Number(product.price).toLocaleString('en-IN', {
-                maximumFractionDigits: 0,
-                style: 'currency',
-                currency: 'INR',
-              })}
-            </Text>
-          </View>
-        ) : null}
-
-        <View style={styles2.hotDealsContainer}>
-          <Text style={styles2.originalPriceText}>
-            {Number(cutPrice).toLocaleString('en-IN', {
+      {discountPercentage ? (
+        <View style={styles.discountContainer}>
+          <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
+          <Text style={styles.cutPriceText}>
+            {Number(product.price).toLocaleString('en-IN', {
               maximumFractionDigits: 0,
               style: 'currency',
               currency: 'INR',
             })}
           </Text>
         </View>
+      ) : null}
 
-        <View style={styles2.actionButtonContainer}>
-            {product.outOfStock ? (
-              <View style={styles2.outOfStockButton}>
-                <Text style={styles2.outOfStockText}>Out of Stock</Text>
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={styles2.addToCartButton}
-                onPress={handleAddToCart}
-              >
-                <Text style={styles2.addToCartText}>Add to Cart</Text>
+      <View style={styles.hotDealsContainer}>
+        <Text style={styles.originalPriceText}>
+          {Number(cutPrice).toLocaleString('en-IN', {
+            maximumFractionDigits: 0,
+            style: 'currency',
+            currency: 'INR',
+          })}
+        </Text>
+      </View>
+
+        <View style={styles.footerContainer}>
+          {product.outOfStock ? (
+            <View style={styles.outOfStockButton}>
+              <Text style={styles.outOfStockText}>Out of Stock</Text>
+            </View>
+          ) : (
+            <>
+              <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+                <Text style={styles.addToCartText}>Add to Cart</Text>
               </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              style={styles2.productDetailButton}
-              onPress={handlePress}
-            >
-              <Text style={styles2.productDetailText}>Details</Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity style={styles.productDetailButton} onPress={handlePress}>
+                <Text style={styles.productDetailText}>Details</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
-      </TouchableOpacity>
-    );
-  };
+      </View>
+    </TouchableOpacity>
+  );
+};
 
-const styles2 = StyleSheet.create({
-  container: {
-    marginTop: 20,
-    paddingHorizontal: 10, // Add padding around the entire container
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-  },
-  heartIconContainer: {
-    position: 'absolute',
-    top: 165,
-    right: 10,
-    zIndex: 100,
-  },
-  productList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap', // Wraps the cards when needed
-    justifyContent: 'space-between', // Evenly distribute space between items
-  },
+const styles = StyleSheet.create({
   productContainer: {
-    width: '48%',
-    height: 300, // Set fixed height for consistency
-    marginBottom: 15,
+    width: '48%', // Two cards in a row
+    height: 270, // Fixed height
+    marginVertical: 10,
     backgroundColor: '#fff',
     borderRadius: 10,
-    overflow: 'hidden',
     borderWidth: 1,
-    marginLeft: 5,
     borderColor: '#ddd',
-    position: 'relative', // Enable absolute positioning for child elements
+    padding: 10,
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
   productContent: {
     flex: 1,
-    padding: 10,
     alignItems: 'flex-start',
-    width: '100%',
-    position: 'relative',
+    justifyContent: 'space-between', // Ensure items are spaced between
   },
   imageContainer: {
     width: '100%',
-    height: 150,
+    height: 120,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+    position: 'relative',
   },
   productImage: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
   },
+  heartIconContainer: {
+    position: 'absolute',
+    top: 5,
+    right: 1,
+  },
+  productNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'space-between', // Make texts attach to each other
+  },
   productName: {
     fontSize: 12,
     color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',
-    textAlign: 'left',
-    marginVertical: 5,
-    paddingHorizontal: 10,
+    marginVertical: 0, // Remove vertical margin
+    flex: 1,
   },
   discountContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    marginBottom: 5,
   },
   discountText: {
     fontSize: 10,
     color: 'green',
     marginRight: 5,
-    fontFamily: 'Outfit-Bold',
   },
   cutPriceText: {
     fontSize: 10,
     textDecorationLine: 'line-through',
     color: colors.TextBlack,
-    fontFamily: 'Outfit-Medium',
-    marginRight: 5,
   },
   originalPriceText: {
     fontSize: 15,
     color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',
-    marginLeft: 4,
   },
-  hotDealsContainer: {
-    alignItems: 'center',
-  },
-  actionButtonContainer: {
-    position: 'absolute',
-    bottom: 10,
-    width: '100%',
+  footerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10, // Add some padding around the buttons
+    width: '100%',
+    paddingTop: 10, // Add padding to create gap with content above
   },
   addToCartButton: {
     backgroundColor: '#FCCC51',
@@ -229,8 +224,14 @@ const styles2 = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignItems: 'center',
-    flex: 0, // Make the button occupy equal width
-    marginRight: 10, // Space between buttons
+    flex: 1,
+    marginRight: 5,
+  },
+  addToCartText: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 9,
+    textAlign: 'center',
   },
   productDetailButton: {
     borderColor: '#333',
@@ -239,24 +240,32 @@ const styles2 = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     alignItems: 'center',
-    backgroundColor: '#fff',
-    flex: 0, // Make the button occupy equal width
+    flex: 1,
   },
-  addToCartText: {
-    color: '#333',
-    fontFamily: 'Outfit-Medium',
-    fontSize: 10,
-  },
-
   productDetailText: {
     color: '#333',
     fontFamily: 'Outfit-Medium',
-    fontSize: 10,
+    fontSize: 9,
+    textAlign: 'center',
+  },
+  outOfStockButton: {
+    borderColor: 'red',
+    borderWidth: 0,
+    borderRadius: 15,
+    paddingVertical: 5,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    width: '100%',
+  },
+  outOfStockText: {
+    color: 'red',
+    fontFamily: 'Outfit-Bold',
+    fontSize: 12,
   },
   lowestPriceLabel: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 1,
+    left: 1,
     backgroundColor: colors.second,
     padding: 5,
     borderRadius: 5,
@@ -264,22 +273,6 @@ const styles2 = StyleSheet.create({
   },
   lowestPriceText: {
     color: 'white',
-    fontFamily: 'Outfit-Medium',
-  },
-  outOfStockButton: {
-    borderColor: 'red',
-    borderWidth: 0,
-    borderRadius: 15,
-    paddingVertical: 5,
-
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    marginRight: 15, // Add some spacing
-  },
-  outOfStockText: {
-    color: 'red',
-    fontFamily: 'Outfit-Bold',
-    fontSize: 12,
   },
 });
 

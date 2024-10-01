@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
@@ -14,6 +15,9 @@ import {colors} from '../styles/color';
 const Categories = () => {
   const [categories, setCategories] = useState([]);
   const navigation = useNavigation();
+  const screenWidth = Dimensions.get('window').width; // Get screen width
+  const numItemsPerRow = 5; // Define how many items you want per row
+  const itemSize = screenWidth / numItemsPerRow - 20; // Dynamically calculate item size
 
   useEffect(() => {
     // Fetch data from API
@@ -40,9 +44,8 @@ const Categories = () => {
     });
 
     // Navigate to the specified screen with category name as parameter
-    navigation.navigate('SubCategoryScreen2', {name: category.name});
+    navigation.navigate('SubCategoryScreen', {name: category.name});
     console.log(category.name);
-    
   };
 
   const handleAllCategoriesPress = () => {
@@ -61,10 +64,10 @@ const Categories = () => {
             <TouchableOpacity
               key={category.id}
               onPress={() => handleCategoryPress(category)}
-              style={styles.categoryItem}>
+              style={[styles.categoryItem, {width: itemSize}]}>
               <View style={styles.categoryContent}>
-                <View style={styles.circle}>
-                  <Image source={{uri: category.image}} style={styles.image} />
+                <View style={[styles.circle, {width: itemSize - 1, height: itemSize - 1}]}>
+                  <Image source={{uri: category.image}} style={[styles.image,  {width: itemSize - 25, height: itemSize - 25}]} />
                 </View>
                 <Text style={styles.text}>{category.name}</Text>
               </View>
@@ -73,9 +76,9 @@ const Categories = () => {
           <TouchableOpacity
             key="allCategories"
             onPress={handleAllCategoriesPress}
-            style={styles.categoryItem}>
+            style={[styles.categoryItem, {width: itemSize}]}>
             <View style={styles.categoryContent}>
-              <View style={styles.circle}>
+              <View style={[styles.circle, {width: itemSize - 1, height: itemSize - 1}]}>
                 <Image
                   source={require('../assets/Categories5.png')}
                   style={styles.image}
@@ -108,28 +111,25 @@ const styles = StyleSheet.create({
   },
   categoriesContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap', // Allows wrapping of category items
-    justifyContent: 'space-around', // Ensure even spacing around items
+    justifyContent: 'space-between', // Space items evenly across the row
+    flexWrap: 'nowrap', // Prevent wrapping
   },
   categoryItem: {
     marginHorizontal: 5,
     alignItems: 'center',
   },
   categoryContent: {
-    alignItems: 'center', // Align both image and text to center
-    width: 70, // Set a fixed width for each category item
+    alignItems: 'center',
   },
   circle: {
-    width: 55,
-    height: 55,
-    borderRadius: 35,
+    borderRadius: 50, // Circular shape
     backgroundColor: '#FFE8C4',
     justifyContent: 'center',
     alignItems: 'center',
   },
   image: {
-    width: 35,
-    height: 35,
+    width: '80%',
+    height: '80%',
   },
   text: {
     marginTop: 5,
@@ -138,7 +138,6 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
     textAlign: 'center', // Ensure text is center-aligned
     flexWrap: 'wrap', // Allow text to wrap onto the next line if necessary
-    maxWidth: 70, // Keep the text contained within the width of the item
   },
 });
 

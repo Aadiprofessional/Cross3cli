@@ -9,13 +9,16 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
   const [maxPrice, setMaxPrice] = useState(filterOptions.maxPrice || '');
   const [category, setCategory] = useState(filterOptions.category || null);
   const [discount, setDiscount] = useState(filterOptions.discount || null);
+  const [brand, setBrand] = useState(filterOptions.brand || null);
   const [excludeOutOfStock, setExcludeOutOfStock] = useState(filterOptions.excludeOutOfStock || false);
 
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]); // State for brands
   const [selectedFilters, setSelectedFilters] = useState([]);
 
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
+  const [isBrandModalVisible, setIsBrandModalVisible] = useState(false); // State for brand modal
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -31,7 +34,21 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
       }
     };
 
+    const fetchBrands = async () => {
+      try {
+        const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/brands'); // Replace with your brands API URL
+        const brandData = response.data.map((brand) => ({
+          label: brand.name,
+          value: brand.id,
+        }));
+        setBrands(brandData);
+      } catch (error) {
+        console.error('Error fetching brands:', error);
+      }
+    };
+
     fetchCategories();
+    fetchBrands();
   }, []);
 
   const discounts = [
@@ -44,7 +61,6 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
     { label: '70% and above', value: '70_above' },
     { label: '80% and above', value: '80_above' },
     { label: '90% and above', value: '90_above' },
-   
   ];
 
   const handleCategoryChange = (value) => {
@@ -53,12 +69,19 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
     setIsCategoryModalVisible(false);
   };
 
+  const handleBrandChange = (value) => { // Handle brand selection
+    setBrand(value);
+    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Brand:')).concat(`Brand: ${brands.find(b => b.value === value)?.label}`));
+    setIsBrandModalVisible(false);
+  };
+
   const handleApplyFilters = () => {
     applyFilters({
       minPrice,
       maxPrice,
       category,
       discount,
+      brand,
       excludeOutOfStock,
     });
   };
@@ -75,7 +98,6 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
   };
 
   const handlePriceChange = (text, isMaxPrice) => {
-    // Ensure only numeric input and limit to 9 digits
     const cleanedText = text.replace(/[^0-9]/g, '');
     if (cleanedText.length <= 9) {
       if (isMaxPrice) {
@@ -109,7 +131,6 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
           <Text style={styles.priceLabel}>Min Price:</Text>
           <TextInput
             style={styles.priceInput}
-
             keyboardType='numeric'
             value={minPrice}
             onChangeText={(text) => handlePriceChange(text, false)}
@@ -142,6 +163,23 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
           </View>
         </Modal>
 
+        {/* Brand Dropdown */}
+        <TouchableOpacity onPress={() => setIsBrandModalVisible(true)} style={styles.dropdown}>
+          <Text style={styles.priceLabel}>{brand ? brands.find(b => b.value === brand)?.label : "Select Brand"}</Text>
+        </TouchableOpacity>
+        <Modal visible={isBrandModalVisible} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            {brands.map((b) => (
+              <TouchableOpacity key={b.value} onPress={() => handleBrandChange(b.value)} style={styles.modalItem}>
+                <Text style={styles.priceLabel}>{b.label}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity onPress={() => setIsBrandModalVisible(false)} style={styles.modalCloseButton}>
+              <Text style={styles.priceLabel}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Modal>
+
         {/* Discount Dropdown */}
         <TouchableOpacity onPress={() => setIsDiscountModalVisible(true)} style={styles.dropdown}>
           <Text style={styles.priceLabel}>{discount ? discounts.find(disc => disc.value === discount)?.label : "Select Discount"}</Text>
@@ -159,14 +197,11 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
           </View>
         </Modal>
 
-        {/* <View style={styles.excludeContainer}>
-          <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.checkboxContainer}>
-            <View style={[styles.checkbox, excludeOutOfStock && styles.checkboxChecked]}>
-              {excludeOutOfStock && <MaterialCommunityIcons name="check" size={16} color="white" />}
-            </View>
-            <Text style={styles.excludeText}>Exclude Out of Stock</Text>
-          </TouchableOpacity>
-        </View> */}
+        {/* Exclude Out of Stock Checkbox (optional) */}
+        {/* <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.checkboxContainer}>
+          <Text style={styles.priceLabel}>Exclude Out of Stock</Text>
+          <MaterialCommunityIcons name={excludeOutOfStock ? "checkbox-marked" : "checkbox-blank-outline"} size={24} color={colors.black} />
+        </TouchableOpacity> */}
 
         <TouchableOpacity onPress={handleApplyFilters} style={styles.applyButton}>
           <Text style={styles.applyButtonText}>Apply Filters</Text>
@@ -175,6 +210,8 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
     </View>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   dropdownContainer: {
@@ -248,6 +285,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 10,
+  
   },
   filterTag: {
     borderRadius: 15,
@@ -255,7 +293,7 @@ const styles = StyleSheet.create({
     margin: 5,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.second,
   },
   filterText: {
     color: '#FFFFFF',

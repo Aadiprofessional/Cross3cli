@@ -1,18 +1,19 @@
 import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { Swipeable as ReanimatedSwipeable } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
-import { useWishlist } from '../components/WishlistContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useWishlist } from '../components/WishlistContext';
+import { useCart } from '../components/CartContext';  // Assuming you have a CartContext for cart operations
 import { colors } from '../styles/color';
+
 const WishlistScreen = ({ navigation }) => {
   const { wishlist, removeFromWishlist } = useWishlist();
+  const { addToCart } = useCart(); // Access addToCart from CartContext
 
-  // Navigate to the product detail page
   const handlePress = (product) => {
     navigation.navigate('ProductDetailPage', {
       mainId: product.mainId,
-      categoryId: product.categoryId,
+   
       productId: product.productId,
       attribute1D: product.attribute1,
       attribute2D: product.attribute2,
@@ -20,36 +21,54 @@ const WishlistScreen = ({ navigation }) => {
     });
   };
 
-
-  // Function to render the delete action when swiping
-  const renderRightActions = (product) => (
-    <RectButton
-      style={styles.deleteButton}
-      onPress={() => removeFromWishlist(product)}
-    >
-      <Text style={styles.deleteButtonText}>Delete</Text>
-    </RectButton>
-  );
-
   const renderItem = ({ item }) => {
-    // Calculate discounted price
     const discountPercentage = item.additionalDiscount;
     const cutPrice = (item.price * (1 - discountPercentage / 100)).toFixed(0);
-  
+
+    const handleAddToCart = (product) => {
+      if (!product.outOfStock && product && product.minCartValue > 0) {
+        const cartItem = {
+          productName: product.product,
+          productId: product.productId,
+          price: product.price,
+          quantity: product.minCartValue,
+          image: product.image,
+          bag: product.bag,
+          colorminCartValue: product.minCartValue,
+          attributeSelected1: product.attribute1,
+          attributeSelected2: product.attribute2,
+          attributeSelected3: product.attribute3,
+          additionalDiscount: product.additionalDiscount || 0,
+          mainId: product.mainId,
+          discountedPrice: cutPrice,
+    
+          colormaxCartValue: product.inventory,
+        };
+
+        addToCart(cartItem); // Add product to cart
+        console.log('Adding to cart:', cartItem);
+      }
+    };
+
+    const renderRightActions = (product) => (
+      <RectButton
+        style={styles.deleteButton}
+        onPress={() => removeFromWishlist(product)}
+      >
+        <Text style={styles.deleteButtonText}>Delete</Text>
+      </RectButton>
+    );
+
     return (
       <ReanimatedSwipeable
         renderRightActions={() => renderRightActions(item)}
         onSwipeableRightOpen={() => removeFromWishlist(item)}
       >
-        <TouchableOpacity
-          style={styles.wishlistItem}
-          onPress={() => handlePress(item)}
-        >
+        <TouchableOpacity style={styles.wishlistItem} onPress={() => handlePress(item)}>
           <Image source={{ uri: item.image }} style={styles.image} />
           <View style={styles.details}>
             <Text style={styles.productName}>{item.displayName}</Text>
-            
-            {/* Original Price with strikethrough */}
+
             <Text style={styles.cutPrice}>
               {Number(item.price).toLocaleString('en-IN', {
                 maximumFractionDigits: 0,
@@ -57,8 +76,7 @@ const WishlistScreen = ({ navigation }) => {
                 currency: 'INR',
               })}
             </Text>
-            
-            {/* Discounted Price */}
+
             <Text style={styles.discountedPrice}>
               {Number(cutPrice).toLocaleString('en-IN', {
                 maximumFractionDigits: 0,
@@ -66,22 +84,34 @@ const WishlistScreen = ({ navigation }) => {
                 currency: 'INR',
               })}
             </Text>
+
+            {/* Conditional Add to Cart or Out of Stock */}
+            {item.outOfStock ? (
+              <View style={styles.outOfStockButton}>
+                <Text style={styles.outOfStockText}>Out of Stock</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.addToCartButton}
+                onPress={() => handleAddToCart(item)}
+              >
+                <Icon name="shopping-cart" size={20} color="white" />
+                <Text style={styles.addToCartText}>Add to Cart</Text>
+              </TouchableOpacity>
+            )}
           </View>
+
+          {/* Remove from Wishlist icon */}
           <TouchableOpacity
             style={styles.heartIconContainer}
             onPress={() => removeFromWishlist(item)}
           >
-            <Icon
-              name='favorite'
-              size={24}
-              color='red'
-            />
+            <Icon name="favorite" size={24} color="red" />
           </TouchableOpacity>
         </TouchableOpacity>
       </ReanimatedSwipeable>
     );
   };
-  
 
   return (
     <FlatList
@@ -118,19 +148,13 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
     fontFamily: 'Outfit-Medium',
   },
-  price: {
-    color: 'green',
-    marginTop: 5,
-    
-  },
   cutPrice: {
     color: 'gray',
-    textDecorationLine: 'line-through', // For strikethrough effect
+    textDecorationLine: 'line-through',
     fontSize: 14,
     fontFamily: 'Outfit-Medium',
     marginTop: 5,
   },
-  
   discountedPrice: {
     color: 'green',
     fontWeight: 'bold',
@@ -138,10 +162,37 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Medium',
     marginTop: 5,
   },
+  addToCartButton: {
+    flexDirection: 'row',
+    backgroundColor: colors.main,
+    padding: 8,
+    borderRadius: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  addToCartText: {
+    color: 'white',
+    marginLeft: 5,
+    fontFamily: 'Outfit-Medium',
+  },
+  outOfStockButton: {
+    borderColor: 'red',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  outOfStockText: {
+    color: 'red',
+    fontFamily: 'Outfit-Bold',
+    fontSize: 12,
+  },
   deleteButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    fontFamily: 'Outfit-Medium',
     backgroundColor: 'red',
     width: 80,
     height: '100%',
@@ -151,16 +202,17 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Medium',
     fontWeight: 'bold',
   },
-  emptyText: {
-    textAlign: 'center',
-    marginTop: 20,
-    fontFamily: 'Outfit-Medium',
-    fontSize: 16,
-  },
   heartIconContainer: {
     position: 'absolute',
     top: 10,
     right: 10,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontFamily: 'Outfit-Medium',
+    color: 'gray',
+    fontSize: 16,
   },
 });
 

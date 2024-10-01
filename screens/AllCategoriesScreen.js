@@ -37,7 +37,7 @@ const AllCategoriesScreen = () => {
 
   const navigateToSubCategory2 = useCallback(
     name => {
-      navigation.navigate('SubCategoryScreen2', { name }); // Navigate to SubCategoryScreen2 with `name`
+      navigation.navigate('SubCategoryScreen', { name }); // Navigate to SubCategoryScreen2 with `name`
     },
     [navigation],
   );

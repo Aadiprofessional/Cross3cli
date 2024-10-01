@@ -23,7 +23,7 @@ import CustomHeader2 from '../components/CustomHeader2';
 
 
 const SubCategoryScreen = ({ route }) => {
-  const { mainId, categoryId } = route.params || {};
+  const { categoryName ,name } = route.params || {};
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,8 +54,8 @@ const SubCategoryScreen = ({ route }) => {
       const response = await axios.post(
         `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
         {
-          main: mainId,
-          category: categoryId,
+          main: categoryName ||name,
+         
         }
       );
       console.log('Fetched products:', response.data);
@@ -66,13 +66,13 @@ const SubCategoryScreen = ({ route }) => {
       console.error('Error fetching products: ', error);
       setLoading(false);
     }
-  }, [mainId, categoryId]);
+  }, [categoryName || name]);
 
   useEffect(() => {
-    if (mainId && categoryId) {
+    if (categoryName || name) {
       fetchProducts();
     }
-  }, [mainId, categoryId, fetchProducts]);
+  }, [categoryName || name, fetchProducts]);
 
 
   const handlePress = (product) => {
@@ -82,7 +82,7 @@ const SubCategoryScreen = ({ route }) => {
     );
     navigation.navigate('ProductDetailPage', {
       mainId: product.mainId,
-      categoryId: product.categoryId,
+    
       productId: product.productId,
     });
   };
@@ -106,7 +106,13 @@ const SubCategoryScreen = ({ route }) => {
             product => product.mainId === filterOptions.category,
           );
         }
+        if (filterOptions.brand) {
+          console.log(filterOptions.brand, filteredProducts[0].brand);
 
+          filteredProducts = filteredProducts.filter(
+            product => product.brand === filterOptions.brand,
+          );
+        }
         // Apply Discount Filter
         if (filterOptions.discount) {
           filteredProducts = filteredProducts.filter(product => {
@@ -201,7 +207,7 @@ const SubCategoryScreen = ({ route }) => {
 
   return (
     <View style={styles.container2}>
-      <CustomHeader2 title={categoryId} />
+      <CustomHeader2 title={categoryName  || name} />
       <View style={styles.container}>
         <View style={styles.searchBox}>
           <Icon name="search" size={20} color="#484848" style={styles.icon} />

@@ -31,7 +31,7 @@ import AllCategoriesScreen from './screens/AllCategoriesScreen';
 import UserCompaniesScreen from './screens/UserCompaniesScreen';
 import AddCompanyScreen from './screens/AddCompanyScreen';
 import ThankYouScreen from './screens/ThankYou';
-import SubCategoryScreen2 from './screens/SubCategoryScreen copy';
+
 import EditCompanyScreen from './components/editCompanyScreen';
 import TransactionScreen from './screens/Transation';
 import CustomHeader from './components/CustomHeader';
@@ -267,20 +267,7 @@ const App = () => {
             component={SubCategoryScreen}
             options={{ headerShown: false }}
           />
-          <Stack.Screen
-            name="SubCategoryScreen2"
-            component={SubCategoryScreen2}
-            options={{
-              title: 'Subcategory',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
+        
           <Stack.Screen
             name="AllCategoriesScreen"
             component={AllCategoriesScreen}

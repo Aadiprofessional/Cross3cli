@@ -23,7 +23,6 @@ let categoriesCache: any[] | null = null;
 const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState<any[]>([]);
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -43,19 +42,16 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
 
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
-        // Clear the cached data when the app is closed or sent to the background
         categoriesCache = null;
         console.log('Cleared cache on app close');
       }
     };
 
-    // Subscribe to app state changes
     const subscription = AppState.addEventListener(
       'change',
       handleAppStateChange,
     );
 
-    // Clean up subscription on unmount
     return () => {
       subscription.remove();
     };
@@ -68,61 +64,33 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       );
       console.log('Fetched data:', response.data);
       setCategories(response.data);
-      categoriesCache = response.data; // Store in cache
+      categoriesCache = response.data;
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
-  const toggleCategory = (categoryName: string) => {
-    setExpandedCategory(prev => (prev === categoryName ? null : categoryName));
-  };
-
-  const navigateToSubCategory = (mainId: string, categoryId: string) => {
-    navigation.navigate('SubCategoryScreen', { mainId, categoryId });
+  const navigateToSubCategory = (categoryName: string) => {
+    console.log(categoryName);
+    
+    navigation.navigate('SubCategoryScreen', { categoryName });
     toggleNavBar();
   };
 
   const handleAllCategoriesPress = () => {
-    navigation.navigate('AllCategoriesScreen'); // Replace with your actual screen name
+    navigation.navigate('AllCategoriesScreen');
     toggleNavBar();
   };
 
-  const renderSubCategoryItem = (companies: any[], mainId: string) => (
-    <View style={styles.subcategoryContainer}>
-      {companies.map(({ id, name }) => (
-        <TouchableOpacity
-          key={id}
-          style={styles.subcategoryItem}
-          onPress={() => navigateToSubCategory(mainId, id)}>
-          <Text style={styles.subcategoryText}>{name}</Text>
-          <Icon name="chevron-forward" size={24} color={colors.second} />
-        </TouchableOpacity>
-      ))}
-    </View>
+  const renderCategoryItem = (category: { name: string }) => (
+    <TouchableOpacity
+      key={category.name}
+      style={styles.navItem}
+      onPress={() => navigateToSubCategory(category.name)}>
+      <Text style={styles.navText}>{category.name}</Text>
+      <Icon name="chevron-forward" size={24} color={colors.second} />
+    </TouchableOpacity>
   );
-
-  const renderCategoryItem = (category: { id: string; name: string; companies?: any[] }) => {
-    const isExpanded = expandedCategory === category.id;
-
-    return (
-      <View key={category.id}>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => toggleCategory(category.id)}>
-          <Text style={styles.navText}>{category.name}</Text>
-          {category.companies && (
-            <Icon
-              name={isExpanded ? 'chevron-up' : 'chevron-down'}
-              size={24}
-              color={colors.second}
-            />
-          )}
-        </TouchableOpacity>
-        {isExpanded && category.companies && renderSubCategoryItem(category.companies, category.id)}
-      </View>
-    );
-  };
 
   const handleCallPress = () => {
     const phoneNumber = '9924686611';
@@ -146,7 +114,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
         <>
           {categories.map(category => renderCategoryItem(category))}
           <TouchableOpacity
-            style={styles.subcategoryItem} // Use subcategoryItem style for consistency
+            style={styles.subcategoryItem}
             onPress={handleAllCategoriesPress}>
             <Text style={styles.subcategoryText}>All Categories</Text>
             <Icon name="chevron-forward" size={24} color={colors.second} />
@@ -155,7 +123,6 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
       ) : (
         <Text>No categories available</Text>
       )}
-      {/* Footer with phone icon */}
       <View style={styles.footerContainer}>
         <TouchableOpacity style={styles.footerButton} onPress={handleCallPress}>
           <Icon name="call" size={32} color={colors.main} />
@@ -178,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 5,
     paddingHorizontal: 10,
-    flexWrap: 'wrap', // Allow wrapping for long texts
+    flexWrap: 'wrap',
   },
   navText: {
     fontSize: 20,
@@ -186,11 +153,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 'auto',
     color: colors.TextBlack,
-    maxWidth: '70%', // Adjust width to allow wrapping
-  },
-  subcategoryContainer: {
-    marginTop: 5,
-    paddingLeft: 20,
+    maxWidth: '70%',
   },
   subcategoryItem: {
     flexDirection: 'row',
@@ -198,13 +161,13 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 15,
     justifyContent: 'space-between',
-    flexWrap: 'wrap', // Allow wrapping for long texts
+    flexWrap: 'wrap',
   },
   subcategoryText: {
     fontSize: 18,
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
-    maxWidth: '70%', // Adjust width to allow wrapping
+    maxWidth: '70%',
   },
   categoriesHeader: {
     flexDirection: 'row',
@@ -221,7 +184,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   footerContainer: {
-    marginTop: 'auto', // Pushes the footer to the bottom
+    marginTop: 'auto',
     alignItems: 'center',
     paddingVertical: 10,
   },
@@ -232,10 +195,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   footerText: {
-    fontSize: 16, // Adjust font size as needed
+    fontSize: 16,
     fontFamily: 'Outfit-Regular',
     color: colors.second,
-    marginLeft: 10, // Adjust spacing between text and icon
+    marginLeft: 10,
   },
 });
 
