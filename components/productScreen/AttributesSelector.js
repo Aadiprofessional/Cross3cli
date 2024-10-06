@@ -44,7 +44,7 @@ const AttributesSelector = ({
 
 const styles = StyleSheet.create({
   productDetails: {
-    width: '90%',
+    width: '100%',
     marginTop: 1,
   },
   Head: {

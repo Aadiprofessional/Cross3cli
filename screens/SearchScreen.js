@@ -16,6 +16,7 @@ import { fetchProducts } from '../services/apiService';
 import ProductComponent from '../components/ProductComponent';
 import FilterComponent from '../components/FilterDropdown';
 import { debounce } from 'lodash';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 const SearchScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,7 +49,70 @@ const SearchScreen = () => {
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
+  const SkeletonLoader = () => {
+    return (
+      <SkeletonPlaceholder>
+        {/* First Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
 
+        {/* Second Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+
+        {/* Third Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+
+        {/* Fourth Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+      </SkeletonPlaceholder>
+    );
+  };
+  const MemoizedProductComponent = React.memo(({ product }) => (
+    <ProductComponent product={product} />
+  ));
   // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
@@ -160,7 +224,11 @@ const SearchScreen = () => {
     setFilterVisible(false); // Close the filter modal after applying filters
   };
 
-  const renderItem = ({ item }) => <ProductComponent product={item} />;
+  const renderItem = ({ item }) => (
+    <View style={styles.productContainer}>
+      <MemoizedProductComponent product={item} />
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -200,21 +268,24 @@ const SearchScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-
       {loading ? (
-        <ActivityIndicator size="large" color="#FFB800" style={styles.loader} />
-      ) : sortedResults.length === 0 ? (
-        <Text style={styles.noResultsText}>No results found</Text>
-      ) : (
+        <SkeletonLoader />
+      ) : sortedResults.length > 0 ? (
         <FlatList
           data={sortedResults}
-          renderItem={renderItem}
-          keyExtractor={item => item.productId}
+          renderItem={renderItem} // Use the updated renderItem
+          keyExtractor={(item, index) => `${item.productId}_${index}`}
           contentContainerStyle={styles.productList}
           style={styles.flatList}
-          numColumns={2} // Display two products per row
+          numColumns={2} // Two products per row
           showsVerticalScrollIndicator={false}
+          initialNumToRender={6}
+          maxToRenderPerBatch={6}
+          removeClippedSubviews={true}
+          windowSize={10}
         />
+      ) : (
+        <Text style={styles.noResultsText}>No results found</Text>
       )}
 
       {/* Filter Modal */}
@@ -240,7 +311,7 @@ const SearchScreen = () => {
 };
 
 const styles = StyleSheet.create({
-container: {
+  container: {
     flex: 1,
     paddingHorizontal: 10, // Equal margin on left and right of the screen
     paddingVertical: 16,   // Equal margin on top and bottom
@@ -254,14 +325,34 @@ container: {
     paddingHorizontal: 15,
     marginBottom: 20,
   },
-  productList: {
-    flexGrow: 1,
-    paddingHorizontal: 4, // Consistent horizontal padding for the FlatList
+  skeletonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
   },
-  flatList: {
-    flex: 1,
-    marginHorizontal: 0, // Ensures that the FlatList has no extra horizontal margin
+  skeletonCard: {
+    width: '48%',
+    borderRadius: 8,
   },
+  skeletonImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 8,
+  },
+  skeletonText: {
+    width: '80%',
+    height: 20,
+    borderRadius: 4,
+    marginTop: 10,
+  },
+  skeletonTextSmall: {
+    width: '60%',
+    height: 15,
+    borderRadius: 4,
+    marginTop: 6,
+  },
+
+
   productCard: {
     flex: 1,
     margin: 8, // Ensures equal margin around each product card
@@ -271,13 +362,20 @@ container: {
     overflow: 'hidden',
   },
   productContainer: {
-    width: '48%', // Allows two cards per row with even spacing
-    margin: 8, // Adds equal spacing between product cards
+    width: '48%', // Ensures two cards per row with proper spacing
+    margin: '1%', // Equal margin around each product card for consistent spacing
     backgroundColor: '#fff',
-    borderRadius: 10,
+   
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#ddd',
+  
+  },
+  flatList: {
+    flex: 1,
+    marginHorizontal: 0, // Ensures no extra horizontal margin
+  },
+  productList: {
+    flexGrow: 1,
+    paddingHorizontal: 4, // Consistent padding between products
   },
   icon: {
     marginRight: 10,
@@ -290,11 +388,11 @@ container: {
   },
   buttonsContainer: {
     flexDirection: 'row',
-    alignItems: 'center', 
+    alignItems: 'center',
     marginBottom: 10,
   },
   buttonWrapper: {
-    marginRight: 15, 
+    marginRight: 15,
   },
   smallButton: {
     flexDirection: 'row',

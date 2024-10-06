@@ -78,6 +78,8 @@ const InvoiceScreen = ({ route }) => {
 
 
   const generatePdf = async () => {
+    console.log(invoiceData);
+
     const gstRate = 12; // GST percentage
     const gstAmount = (invoiceData.totalAmount * gstRate) / 100;
     const htmlContent = `
@@ -146,60 +148,99 @@ const InvoiceScreen = ({ route }) => {
                       </div>
                   </div>
   
-                  <table>
-                      <thead>
-                          <tr>
-                              <th>No.</th>
-                              <th>Description</th>
-                              <th>Price</th>
-                              <th>
-                                  <div class="quantity-title">Quantity</div>
-                                  <div class="quantity-number">(Number)</div>
-                              </th>
-                              <th>Total</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          ${invoiceData.cartItems
+                <table>
+  <thead>
+    <tr>
+      <th>No.</th>
+      <th>Description</th>
+      <th>Price</th>
+      <th>Discounted Price</th> <!-- New Column -->
+      <th>
+        <div class="quantity-title">Quantity</div>
+        <div class="quantity-number">(Number)</div>
+      </th>
+      <th>Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${invoiceData.cartItems
         .map(
           (item, index) => `
-                          <tr>
-                              <td>${index + 1}</td>
-                              <td>${item.productName || 'N/A'}</td>
-                              <td>${item.price || '0.00'}</td>
-                              <td>${item.quantity || 0}</td>
-                              <td>${(item.price * item.quantity).toFixed(
-            2,
-          )}</td>
-                          </tr>`,
+    <tr>
+      <td>${index + 1}</td>
+      <td>${item.productName || 'N/A'}</td>
+      <td>${item.price || '0.00'}</td>
+      <td>${item.discountedPrice || '0.00'}</td> <!-- Discounted Price Column -->
+      <td>${item.quantity || 0}</td>
+      <td>${(item.price * item.quantity).toFixed(2)}</td>
+    </tr>`
         )
         .join('')}
-                          <tr>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td>Sub-Total</td>
-                              <td>${invoiceData.totalAmount.toFixed(2)}</td>
-                          </tr>
-                          <tr>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td>TAX ${gstRate || 0}%</td>
-                              <td>${gstAmount || 0.0}</td>
-                          </tr>
-                          <tr>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td class="text-primary fs-5 fw-bold">Grand-Total</td>
-                              <td class="text-primary fs-5 fw-bold">${(invoiceData.totalAmount + gstAmount).toFixed(
-          2,
-        )}</td>
-                          </tr>
-                      </tbody>
-                  </table>
-  
+
+    <!-- Sub-Total Row -->
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Sub-Total</td>
+      <td>${invoiceData.totalAmount.toFixed(2)}</td>
+    </tr>
+
+    <!-- Coupon Discount Row -->
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Coupon Discount</td>
+      <td>-${invoiceData.appliedCoupon.toFixed(2)}</td> <!-- Ensure coupon discount is displayed correctly -->
+    </tr>
+
+    <!-- Reward Points Row -->
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Reward Points</td>
+      <td>-${invoiceData.rewardPointsPrice.toFixed(2)}</td>
+    </tr>
+
+    <!-- Shipping Charges Row -->
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Shipping Charges</td>
+      <td>${invoiceData.shippingCharges.toFixed(2)}</td>
+    </tr>
+
+    <!-- TAX Row -->
+    <tr>
+      <td></td>
+      <td></td>
+       <td></td>
+      <td></td>
+      <td>TAX ${gstRate || 0}%</td>
+      <td>${gstAmount || 0.0}</td>
+    </tr>
+
+    <!-- Grand Total Row -->
+    <tr>
+      <td></td>
+       <td></td>
+      <td></td>
+      <td></td>
+      <td class="text-primary fs-5 fw-bold">Grand Total</td>
+      <td class="text-primary fs-5 fw-bold">${(
+        invoiceData.totalAmount + gstAmount
+      ).toFixed(2)}</td>
+    </tr>
+  </tbody>
+</table>
+
                   <div class="d-md-flex justify-content-between my-5">
                       <div>
                           <h5 class="fw-bold my-4">Payment Info</h5>
@@ -370,10 +411,11 @@ const InvoiceScreen = ({ route }) => {
             onPress={() => handleOpenInvoice(url)}
           >
             <View style={styles.iconContainer}>
-              <Icon name="download" size={20} color={colors.main} />
+              <Text style={styles.downloadText}>Download Quotation</Text>
             </View>
           </TouchableOpacity>
         )}
+
       </View>
     </ScrollView>
   );
@@ -385,6 +427,19 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#fff',
+  },
+  downloadButton: {
+    padding: 10,
+    backgroundColor: colors.main,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  downloadText: {
+    color: '#fff',
+    fontSize: 16,
+
+    fontFamily: 'Outfit-Bold',
   },
   container2: {
     flex: 1, // Takes up the full space of the screen
@@ -450,16 +505,12 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     backgroundColor: '#ffffff', // White background
   },
-  downloadButton: {
-    marginTop: 20,
-  },
+
   iconContainer: {
-    backgroundColor: '#f0f0f0', // Light grey background for the rounded rectangle
-    borderRadius: 20, // Makes the corners rounded
-    padding: 10, // Adds space around the icon
+
     alignItems: 'center', // Centers icon horizontally
     justifyContent: 'center', // Centers icon vertically
-    elevation: 3, // Adds shadow on Android for better appearance
+
   },
 });
 

@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
   AppState,
   AppStateStatus,
   Linking,
@@ -71,7 +72,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   };
 
   const navigateToSubCategory = (categoryName: string) => {
-    console.log(categoryName);
+    console.log( `Navigating to ProductDetailPage with productId: ${categoryName}`);
     
     navigation.navigate('SubCategoryScreen', { categoryName });
     toggleNavBar();
@@ -110,19 +111,25 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
           />
         </TouchableOpacity>
       </View>
-      {Array.isArray(categories) && categories.length > 0 ? (
-        <>
-          {categories.map(category => renderCategoryItem(category))}
-          <TouchableOpacity
-            style={styles.subcategoryItem}
-            onPress={handleAllCategoriesPress}>
-            <Text style={styles.subcategoryText}>All Categories</Text>
-            <Icon name="chevron-forward" size={24} color={colors.second} />
-          </TouchableOpacity>
-        </>
-      ) : (
-        <Text>No categories available</Text>
-      )}
+      
+      {/* Scrollable list of categories */}
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        {Array.isArray(categories) && categories.length > 0 ? (
+          <>
+            {categories.map(category => renderCategoryItem(category))}
+            <TouchableOpacity
+              style={styles.subcategoryItem}
+              onPress={handleAllCategoriesPress}>
+              <Text style={styles.subcategoryText}>All Categories</Text>
+              <Icon name="chevron-forward" size={24} color={colors.second} />
+            </TouchableOpacity>
+          </>
+        ) : (
+          <Text>No categories available</Text>
+        )}
+      </ScrollView>
+      
+      {/* Fixed footer for customer support */}
       <View style={styles.footerContainer}>
         <TouchableOpacity style={styles.footerButton} onPress={handleCallPress}>
           <Icon name="call" size={32} color={colors.main} />
@@ -139,6 +146,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     paddingVertical: 20,
     paddingHorizontal: 10,
+  },
+  scrollViewContent: {
+    paddingBottom: 20, // To avoid overlapping with the footer
   },
   navItem: {
     flexDirection: 'row',
@@ -184,9 +194,10 @@ const styles = StyleSheet.create({
     marginRight: 2,
   },
   footerContainer: {
-    marginTop: 'auto',
     alignItems: 'center',
     paddingVertical: 10,
+    borderTopWidth: 1,
+    borderColor: '#EAEAEA',
   },
   footerButton: {
     flexDirection: 'row',

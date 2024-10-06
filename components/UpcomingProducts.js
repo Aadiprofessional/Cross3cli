@@ -1,9 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import { colors } from '../styles/color';
 import ProductComponent from './ProductComponent';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder'; // Assuming this library is installed
 import auth from '@react-native-firebase/auth';
+
+const { width } = Dimensions.get('window'); // Get screen width
+
+const SkeletonLoader = () => {
+  return (
+    <SkeletonPlaceholder>
+      <View style={styles.skeletonContainer}>
+        <View style={styles.skeletonCard}>
+          <View style={styles.skeletonImage} />
+          <View style={styles.skeletonText} />
+          <View style={styles.skeletonTextSmall} />
+        </View>
+        <View style={styles.skeletonCard}>
+          <View style={styles.skeletonImage} />
+          <View style={styles.skeletonText} />
+          <View style={styles.skeletonTextSmall} />
+        </View>
+      </View>
+    </SkeletonPlaceholder>
+  );
+};
+
+// Memoized ProductComponent to optimize re-renders
+const MemoizedProductComponent = React.memo(({ product }) => (
+  <ProductComponent product={product} />
+));
 
 const UpcomingProducts = () => {
   const [products, setProducts] = useState([]);
@@ -32,23 +58,25 @@ const UpcomingProducts = () => {
     fetchProducts();
   }, []);
 
-  if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color= "#FFB800" />
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Upcoming Products</Text>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.productList}>
-          {products.map((product, index) => (
-            <ProductComponent key={index} product={product} />
-          ))}
-        </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContainer}
+      >
+        {loading ? (
+          <SkeletonLoader />
+        ) : (
+          <View style={styles.productRow}>
+            {products.map((product, index) => (
+              <View key={index} style={styles.productContainer}>
+                <MemoizedProductComponent product={product} />
+              </View>
+            ))}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -59,28 +87,50 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   title: {
     fontSize: 20,
-
     fontFamily: 'Outfit-Medium',
-  
     color: colors.TextBlack,
   },
   scrollContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center', // Ensures alignment
+  },
+  productRow: {
+    flexDirection: 'row',
+  },
+  productContainer: {
+    width: width * 0.48, // 48% of the screen width
+   
+    marginLeft: 5,
     justifyContent: 'space-between',
   },
-  productList: {
+  // Skeleton styles
+  skeletonContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
+  },
+  skeletonCard: {
+    width: width * 0.48, // Ensure it matches productContainer width
+    height: 250,
+    marginBottom: 20,
+  },
+  skeletonImage: {
     width: '100%',
+    height: 150,
+    borderRadius: 10,
+  },
+  skeletonText: {
+    width: '80%',
+    height: 20,
+    borderRadius: 4,
+    marginTop: 10,
+  },
+  skeletonTextSmall: {
+    width: '50%',
+    height: 15,
+    borderRadius: 4,
+    marginTop: 5,
   },
 });
 

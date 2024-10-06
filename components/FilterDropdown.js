@@ -152,11 +152,13 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
         </TouchableOpacity>
         <Modal visible={isCategoryModalVisible} transparent={true} animationType="slide">
           <View style={styles.modalContainer}>
-            {categories.map((cat) => (
-              <TouchableOpacity key={cat.value} onPress={() => handleCategoryChange(cat.value)} style={styles.modalItem}>
-                <Text style={styles.priceLabel}>{cat.label}</Text>
-              </TouchableOpacity>
-            ))}
+            <ScrollView style={styles.modalScrollView}>
+              {categories.map((cat) => (
+                <TouchableOpacity key={cat.value} onPress={() => handleCategoryChange(cat.value)} style={styles.modalItem}>
+                  <Text style={styles.priceLabel}>{cat.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
             <TouchableOpacity onPress={() => setIsCategoryModalVisible(false)} style={styles.modalCloseButton}>
               <Text style={styles.priceLabel}>Close</Text>
             </TouchableOpacity>
@@ -169,11 +171,13 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
         </TouchableOpacity>
         <Modal visible={isBrandModalVisible} transparent={true} animationType="slide">
           <View style={styles.modalContainer}>
-            {brands.map((b) => (
-              <TouchableOpacity key={b.value} onPress={() => handleBrandChange(b.value)} style={styles.modalItem}>
-                <Text style={styles.priceLabel}>{b.label}</Text>
-              </TouchableOpacity>
-            ))}
+            <ScrollView style={styles.modalScrollView}>
+              {brands.map((b) => (
+                <TouchableOpacity key={b.value} onPress={() => handleBrandChange(b.value)} style={styles.modalItem}>
+                  <Text style={styles.priceLabel}>{b.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
             <TouchableOpacity onPress={() => setIsBrandModalVisible(false)} style={styles.modalCloseButton}>
               <Text style={styles.priceLabel}>Close</Text>
             </TouchableOpacity>
@@ -186,22 +190,28 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
         </TouchableOpacity>
         <Modal visible={isDiscountModalVisible} transparent={true} animationType="slide">
           <View style={styles.modalContainer}>
-            {discounts.map((disc) => (
-              <TouchableOpacity key={disc.value} onPress={() => handleDiscountChange(disc.value)} style={styles.modalItem}>
-                <Text style={styles.priceLabel}>{disc.label}</Text>
-              </TouchableOpacity>
-            ))}
+            <ScrollView style={styles.modalScrollView}>
+              {discounts.map((disc) => (
+                <TouchableOpacity key={disc.value} onPress={() => handleDiscountChange(disc.value)} style={styles.modalItem}>
+                  <Text style={styles.priceLabel}>{disc.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
             <TouchableOpacity onPress={() => setIsDiscountModalVisible(false)} style={styles.modalCloseButton}>
               <Text style={styles.priceLabel}>Close</Text>
             </TouchableOpacity>
           </View>
         </Modal>
 
-        {/* Exclude Out of Stock Checkbox (optional) */}
-        {/* <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.checkboxContainer}>
-          <Text style={styles.priceLabel}>Exclude Out of Stock</Text>
-          <MaterialCommunityIcons name={excludeOutOfStock ? "checkbox-marked" : "checkbox-blank-outline"} size={24} color={colors.black} />
-        </TouchableOpacity> */}
+        {/* Exclude Out of Stock */}
+        <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.excludeOutOfStockContainer}>
+          <View style={styles.checkboxContainer}>
+            <View style={[styles.checkbox, excludeOutOfStock && styles.checkboxChecked]}>
+              {excludeOutOfStock && <MaterialCommunityIcons name="check" size={16} color="#FFFFFF" />}
+            </View>
+            <Text style={styles.excludeText}>{excludeOutOfStock ? "Include Out of Stock" : "Exclude Out of Stock"}</Text>
+          </View>
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={handleApplyFilters} style={styles.applyButton}>
           <Text style={styles.applyButtonText}>Apply Filters</Text>
@@ -234,6 +244,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Medium',
     marginBottom: 5,
   },
+  priceLabel2: {
+    fontSize: 16,
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Medium',
+
+  },
   priceInput: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -242,11 +258,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Medium',
     color: '#333',
     width: '45%',
-  },
-  excludeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
   },
   checkboxContainer: {
     flexDirection: 'row',

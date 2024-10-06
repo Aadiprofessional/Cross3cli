@@ -68,6 +68,7 @@ const WishlistScreen = ({ navigation }) => {
           <Image source={{ uri: item.image }} style={styles.image} />
           <View style={styles.details}>
             <Text style={styles.productName}>{item.displayName}</Text>
+            <Text style={styles.productName2}>{item.attribute3}</Text>
 
             <Text style={styles.cutPrice}>
               {Number(item.price).toLocaleString('en-IN', {
@@ -145,6 +146,12 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: colors.TextBlack,
+    fontFamily: 'Outfit-Medium',
+  },
+  productName2: {
+    fontSize: 14,
+   
     color: colors.TextBlack,
     fontFamily: 'Outfit-Medium',
   },

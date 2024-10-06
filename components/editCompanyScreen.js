@@ -36,26 +36,27 @@ const EditCompanyScreen = () => {
   // Load existing company data
   useEffect(() => {
     if (company) {
+      // Assume pincode is the last part of the address after a comma
       const addressParts = company.address.split(',');
-      const addressMain = addressParts[0];
-
-      const addressSubParts = (addressParts[1] || '').split('-');
-      const addressPincode = addressSubParts[1]?.trim().split(' ')[1] || '';
-      const addressCity = addressSubParts[0] || '';
-      const addressState = addressSubParts[1]?.split(',')[1] || '';
-
+      
+      // Extract the pincode (assuming the last part is the pincode)
+      const pincodeFromAddress = addressParts[addressParts.length - 1].trim();
+      
+      // Reconstruct the main address without the pincode
+      const addressWithoutPincode = addressParts.slice(0, -1).join(',').trim();
+      
       setCompanyName(company.name);
       setOwnerName(company.owner);
       setGst(company.gst);
-      setMainAddress(addressMain);
-      setAlternateNumber(company.alternateNumber.replace(/^\+91/, ''))
-      setPincode(addressPincode);
-      setCity(addressCity);
-      setState(addressState);
+      setMainAddress(addressWithoutPincode); // Set address without pincode
+      setPincode(company.pincode || pincodeFromAddress); // Set pincode if not already separate
+      
+      setAlternateNumber(company.alternateNumber.replace(/^\+91/, ''));
       setEmail(company.email);
-      setPhoneNumber(company.phoneNumber.replace(/^\+91/, '')); // Remove +91 if present
+      setPhoneNumber(company.phoneNumber.replace(/^\+91/, ''));
     }
   }, [company]);
+  
 
   const fetchLocationFromPincode = async pincode => {
     try {

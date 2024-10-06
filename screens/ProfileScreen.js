@@ -292,17 +292,14 @@ const ProfileScreen = ({ navigation }) => {
           key={index}
           style={[
             styles.optionContainer,
-            option.text === 'Customer Support' ? styles.customerSupportButton : null,
+            option.text === 'Log out' ? { marginBottom: 50 } : null, // Add gap below the Log out button
           ]}
           onPress={() => {
             if (option.text === 'Log out') {
               handleLogout();
             } else if (option.screen) {
-              if (option.text === 'Customer Support' && !billing.virtualId) {
-                Alert.alert('Info', 'Virtual ID is not available.');
-              } else {
-                navigation.navigate(option.screen);
-              }
+              // Remove the condition for Customer Support
+              navigation.navigate(option.screen);
             }
           }}>
           <Icon
@@ -317,6 +314,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
       ))}
+
       <Modal
         animationType="slide"
         transparent={true}

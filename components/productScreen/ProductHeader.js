@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons'; // Import MaterialIc
 import { useWishlist } from '../../components/WishlistContext'; // Import WishlistContext
 
 const ProductHeader = ({
-  product, // Pass the product object as a prop
+  product,
   name,
   description,
   price,
@@ -57,14 +57,14 @@ const ProductHeader = ({
           <Text style={styles.priceText}>Price:</Text>
           <Text style={styles.priceText}>
             {outOfStock
-              ? 'XXXX' // Display 'xxxx' if outOfStock is true
+              ? 'XXXX' // Display 'XXXX' if outOfStock is true
               : Number(discountedPrice).toLocaleString('en-IN', {
                   maximumFractionDigits: 0,
                   style: 'currency',
                   currency: 'INR',
                 })}
           </Text>
-          {!outOfStock && (
+          {!outOfStock && price !== discountedPrice && (
             <Text style={styles.discountedText}>
               {Number(price).toLocaleString('en-IN', {
                 maximumFractionDigits: 0,
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   productDetails: {
     width: '90%',
     marginTop: 10,
-    position: 'relative', // This will allow absolute positioning inside
+    position: 'relative',
   },
   title: {
     fontSize: 20,
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'absolute',
-    right: -20,
+    right: -40,
     top: -40,
     zIndex: 30,
     padding: 10,
@@ -141,8 +141,8 @@ const styles = StyleSheet.create({
   },
   callIconContainer: {
     position: 'absolute',
-    right: -20,
-    top: 70,
+    right: -30,
+    top: 40,
     padding: 10,
     zIndex: 40,
   },
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -20,
     right: -30,
-    zIndex: 50, // Ensure the heart icon is above other components
+    zIndex: 50,
   },
 });
 

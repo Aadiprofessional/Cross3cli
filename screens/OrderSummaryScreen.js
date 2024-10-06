@@ -73,40 +73,36 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     }
   }, [comment]);
 
-  const calculateTotalAmount = () => {
-    // Step 1: Calculate Subtotal
-    let amount = cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
+ // Modify calculateTotalAmount to only apply discounts/coupons to the subtotal
+const calculateTotalAmount = () => {
+  // Step 1: Get Subtotal (after reward points applied)
+  let amount = calculateSubtotal();
 
-    // Step 2: Apply Initial Discount
-    const applicableDiscount = discounts
-      .filter(discount => discount.status === 'Active' && amount >= discount.amount)
-      .sort((a, b) => b.amount - a.amount)[0]; // Find the largest applicable discount
+  // Step 2: Apply Initial Discount
+  const applicableDiscount = discounts
+    .filter(discount => discount.status === 'Active' && amount >= discount.amount)
+    .sort((a, b) => b.amount - a.amount)[0]; // Find the largest applicable discount
 
-    if (applicableDiscount) {
-      const discountAmount = (amount * applicableDiscount.discount) / 100;
-      amount -= discountAmount; // Apply the discount to the amount
-      setAppliedDiscount(applicableDiscount); // Store the applied discount
-    }
+  if (applicableDiscount) {
+    const discountAmount = (amount * applicableDiscount.discount) / 100;
+    amount -= discountAmount; // Apply the discount to the amount
+    setAppliedDiscount(applicableDiscount); // Store the applied discount
+  }
 
-    // Step 3: Apply Reward Points Discount
-    if (useRewardPoints && data.rewardPointsPrice) {
-      amount -= data.rewardPointsPrice;
-    }
+  // Step 3: Apply Coupon Discount (if any)
+  if (appliedCoupon) {
+    amount -= Number(appliedCoupon.value);
+  }
 
-    // Step 4: Apply Coupon Discount
-    if (appliedCoupon) {
-      amount -= Number(appliedCoupon.value);
-    }
+  // Step 4: Subtract Additional Discounts
+  amount -= totalAdditionalDiscountValue;
 
-    // Step 5: Subtract Additional Discounts
-    amount -= totalAdditionalDiscountValue;
+  // Step 5: Add shipping charges (if any)
+  amount += data.shippingCharges;
 
-    // Step 6: Ensure Non-Negative Total
-    return Math.max(0, amount);
-  };
+  // Step 6: Ensure Non-Negative Total
+  return Math.max(0, amount);
+};
 
 
   const fetchRewardPoints = async () => {
@@ -241,13 +237,21 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   }
 
   // Calculate subtotal
-  const calculateSubtotal = () => {
-    let subtotal = cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-    return subtotal;
-  };
+  // Calculate subtotal (with reward points applied here)
+const calculateSubtotal = () => {
+  let subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  // Apply Reward Points Discount to Subtotal
+  if (useRewardPoints && data.rewardPointsPrice) {
+    subtotal -= data.rewardPointsPrice;
+  }
+
+  return Math.max(0, subtotal); // Ensure subtotal is non-negative
+};
+
   // Inside your JSX where you display the coupon discount:
 
 

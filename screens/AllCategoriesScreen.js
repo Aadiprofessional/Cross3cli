@@ -6,10 +6,11 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { colors } from '../styles/color';
 
 const AllCategoriesScreen = () => {
@@ -17,13 +18,22 @@ const AllCategoriesScreen = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch categories from API or cache
   const fetchCategories = useCallback(async () => {
     try {
+      const cachedCategories = await AsyncStorage.getItem('categories');
+      if (cachedCategories) {
+        setCategories(JSON.parse(cachedCategories));
+        setLoading(false);
+      }
+
       const response = await axios.get(
-        'https://crossbee-server-1036279390366.asia-south1.run.app/getMain',
+        'https://crossbee-server-1036279390366.asia-south1.run.app/getMain'
       );
-      console.log('Fetched categories:', response.data); // Log the fetched data
-      setCategories(response.data);
+      const fetchedCategories = response.data;
+      await AsyncStorage.setItem('categories', JSON.stringify(fetchedCategories));
+
+      setCategories(fetchedCategories);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching categories: ', error);
@@ -36,10 +46,10 @@ const AllCategoriesScreen = () => {
   }, [fetchCategories]);
 
   const navigateToSubCategory2 = useCallback(
-    name => {
-      navigation.navigate('SubCategoryScreen', { name }); // Navigate to SubCategoryScreen2 with `name`
+    (name) => {
+      navigation.navigate('SubCategoryScreen', { name });
     },
-    [navigation],
+    [navigation]
   );
 
   // Optimize category list rendering
@@ -49,7 +59,7 @@ const AllCategoriesScreen = () => {
         <TouchableOpacity
           key={id}
           style={styles.categoryItem}
-          onPress={() => navigateToSubCategory2(name)} // Navigate to SubCategoryScreen2
+          onPress={() => navigateToSubCategory2(name)}
         >
           <View style={styles.categoryImageContainer}>
             <Image source={{ uri: image }} style={styles.categoryImage} />
@@ -57,18 +67,32 @@ const AllCategoriesScreen = () => {
           <Text style={styles.categoryName}>{name}</Text>
         </TouchableOpacity>
       )),
-    [categories, navigateToSubCategory2],
+    [categories, navigateToSubCategory2]
   );
 
   return (
     <View style={styles.container}>
       {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading...</Text>
-        </View>
+        <ScrollView
+          contentContainerStyle={styles.scrollViewContent}
+          showsVerticalScrollIndicator={false} // Remove scroll line
+        >
+          {Array(6)
+            .fill('')
+            .map((_, index) => (
+              <View key={index} style={styles.skeletonContainer}>
+                <SkeletonPlaceholder>
+                  <View style={styles.skeletonImage} />
+                  <View style={styles.skeletonText} />
+                </SkeletonPlaceholder>
+              </View>
+            ))}
+        </ScrollView>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <ScrollView
+          contentContainerStyle={styles.scrollViewContent}
+          showsVerticalScrollIndicator={false} // Remove scroll line
+        >
           {categoryItems.length > 0 ? (
             categoryItems
           ) : (
@@ -91,14 +115,13 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     paddingVertical: 10,
   },
   categoryItem: {
     width: '30%',
     marginBottom: 20,
-    marginHorizontal: '1.66%', // Margin to ensure spacing between items
-    alignItems: 'center', // Center align items in each category
+    alignItems: 'center',
   },
   categoryImageContainer: {
     backgroundColor: '#FFF',
@@ -106,9 +129,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#DDD',
     overflow: 'hidden',
-    aspectRatio: 1, // Maintain a square aspect ratio
+    aspectRatio: 1,
     width: '100%',
-    height: 100, // Fixed height for consistency
+    height: 100,
     marginBottom: 5,
   },
   categoryImage: {
@@ -122,18 +145,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.TextBlack,
     flexWrap: 'wrap',
-    textAlign: 'center', // Center-align text
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  skeletonContainer: {
+    width: '30%',
+    marginBottom: 20,
     alignItems: 'center',
   },
-  loadingText: {
+  skeletonImage: {
+    width: '100%',
+    height: 100,
+    borderRadius: 10,
+    backgroundColor: '#E0E0E0',
+  },
+  skeletonText: {
+    width: '60%',
+    height: 20,
     marginTop: 10,
-    fontSize: 18,
-    fontFamily: 'Outfit-Medium',
-    color: colors.TextBlack,
+    borderRadius: 4,
+    backgroundColor: '#E0E0E0',
   },
   noCategoriesContainer: {
     flex: 1,

@@ -20,10 +20,11 @@ import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth'; // Ensure Firebase auth is imported
 import axios from 'axios'; // Ensure axios is imported
 import CustomHeader2 from '../components/CustomHeader2';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
 
 const SubCategoryScreen = ({ route }) => {
-  const { categoryName ,name } = route.params || {};
+  const { categoryName, name } = route.params || {};
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,8 +55,8 @@ const SubCategoryScreen = ({ route }) => {
       const response = await axios.post(
         `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
         {
-          main: categoryName ||name,
-         
+          main: categoryName || name,
+
         }
       );
       console.log('Fetched products:', response.data);
@@ -74,19 +75,71 @@ const SubCategoryScreen = ({ route }) => {
     }
   }, [categoryName || name, fetchProducts]);
 
+  const SkeletonLoader = () => {
+    return (
+      <SkeletonPlaceholder>
+        {/* First Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
 
-  const handlePress = (product) => {
-    if (!product) return;
-    console.log(
-      `Navigating to ProductDetailPage with productId: ${product.productId}`,
+        {/* Second Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+
+        {/* Third Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+
+        {/* Fourth Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+      </SkeletonPlaceholder>
     );
-    navigation.navigate('ProductDetailPage', {
-      mainId: product.mainId,
-    
-      productId: product.productId,
-    });
   };
 
+  const MemoizedProductComponent = React.memo(({ product }) => (
+    <ProductComponent product={product} />
+  ));
 
 
   // Filter products based on search query and filter options
@@ -203,11 +256,15 @@ const SubCategoryScreen = ({ route }) => {
     setFilterVisible(false); // Close the filter modal after applying filters
   };
 
-  const renderItem = ({ item }) => <ProductComponent product={item} />;
+  const renderItem = ({ item }) => (
+    <View style={styles.productContainer}>
+      <MemoizedProductComponent product={item} />
+    </View>
+  );
 
   return (
     <View style={styles.container2}>
-      <CustomHeader2 title={categoryName  || name} />
+      <CustomHeader2 title={categoryName || name} />
       <View style={styles.container}>
         <View style={styles.searchBox}>
           <Icon name="search" size={20} color="#484848" style={styles.icon} />
@@ -247,20 +304,25 @@ const SubCategoryScreen = ({ route }) => {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#FFB800" style={styles.loader} />
-        ) : sortedResults.length === 0 ? (
-          <Text style={styles.noResultsText}>No results found</Text>
-        ) : (
+          <SkeletonLoader />
+        ) : sortedResults.length > 0 ? (
           <FlatList
             data={sortedResults}
-            renderItem={renderItem}
-            keyExtractor={item => item.productId}
+            renderItem={renderItem} // Use the updated renderItem
+            keyExtractor={(item, index) => `${item.productId}_${index}`}
             contentContainerStyle={styles.productList}
             style={styles.flatList}
-            numColumns={2} // Display two products per row
+            numColumns={2} // Two products per row
             showsVerticalScrollIndicator={false}
+            initialNumToRender={6}
+            maxToRenderPerBatch={6}
+            removeClippedSubviews={true}
+            windowSize={10}
           />
+        ) : (
+          <Text style={styles.noResultsText}>No results found</Text>
         )}
+
 
         {/* Filter Modal */}
         <Modal
@@ -285,16 +347,15 @@ const SubCategoryScreen = ({ route }) => {
   );
 };
 
+
 const styles = StyleSheet.create({
- 
   container2: {
     flex: 1,
-    // Adds equal padding from left and right
     backgroundColor: '#FFFFFF',
   },
   container: {
     flex: 1,
-    paddingHorizontal: 16, // Equal margin on left and right of the screen
+    paddingHorizontal: 10, // Equal margin on left and right of the screen
     paddingVertical: 16,   // Equal margin on top and bottom
     backgroundColor: '#FFFFFF',
   },
@@ -306,31 +367,50 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
   },
-  productList: {
-    flexGrow: 1,
-    paddingHorizontal: 4, // Consistent horizontal padding for the FlatList
+  productContainer: {
+    width: '48%', // Ensures two cards per row with proper spacing
+    margin: '1%', // Equal margin around each product card for consistent spacing
+    backgroundColor: '#fff',
+
+    overflow: 'hidden',
+
   },
   flatList: {
     flex: 1,
-    marginHorizontal: 0, // Ensures that the FlatList has no extra horizontal margin
+    marginHorizontal: 0, // Ensures no extra horizontal margin
   },
-  productCard: {
-    flex: 1,
-    margin: 8, // Ensures equal margin around each product card
-    borderWidth: 1,
-    borderColor: '#eaeaea',
-    borderRadius: 10,
-    overflow: 'hidden',
+  productList: {
+    flexGrow: 1,
+    paddingHorizontal: 4, // Consistent padding between products
   },
-  productContainer: {
-    width: '48%', // Allows two cards per row with even spacing
-    margin: 8, // Adds equal spacing between product cards
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#ddd',
+  skeletonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
   },
+  skeletonCard: {
+    width: '48%',
+    borderRadius: 8,
+  },
+  skeletonImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 8,
+  },
+  skeletonText: {
+    width: '80%',
+    height: 20,
+    borderRadius: 4,
+    marginTop: 10,
+  },
+  skeletonTextSmall: {
+    width: '60%',
+    height: 15,
+    borderRadius: 4,
+    marginTop: 6,
+  },
+
+
   icon: {
     marginRight: 10,
   },
@@ -342,11 +422,11 @@ const styles = StyleSheet.create({
   },
   buttonsContainer: {
     flexDirection: 'row',
-    alignItems: 'center', 
+    alignItems: 'center',
     marginBottom: 10,
   },
   buttonWrapper: {
-    marginRight: 15, 
+    marginRight: 15,
   },
   smallButton: {
     flexDirection: 'row',
@@ -388,5 +468,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
+
 
 export default SubCategoryScreen;
