@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet,Animated, Easing } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Animated, Easing } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import { useCart } from '../components/CartContext';
@@ -16,22 +16,7 @@ const ProductComponent = ({ product, lowestPrice }) => {
   const [isWished, setIsWished] = useState(wishlist.some(item => item.productId === product.productId));
   const [loading, setLoading] = useState(true); // Loading state
   const animatedValue = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setLoading(false); // Simulate loading delay
-    }, 1000); // Adjust loading delay as needed
 
-    Animated.loop(
-      Animated.timing(animatedValue, {
-        toValue: 1,
-        duration: 1000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start();
-
-    return () => clearTimeout(timeout); // Clean up timeout
-  }, []);
 
   const gradientInterpolation = animatedValue.interpolate({
     inputRange: [0, 1],
@@ -92,7 +77,7 @@ const ProductComponent = ({ product, lowestPrice }) => {
   const discountPercentage = product.additionalDiscount;
   const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
 
-  
+
 
   return (
     <TouchableOpacity style={styles.productContainer} onPress={handlePress}>
@@ -113,7 +98,9 @@ const ProductComponent = ({ product, lowestPrice }) => {
 
         <View style={styles.productNameContainer}>
           <Text style={styles.productName} numberOfLines={1}>
-            {product.displayName}
+            {product.displayName.length > 18
+              ? `${product.displayName.substring(0, 18)}...`
+              : product.displayName}
           </Text>
           <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
             <Icon
@@ -202,7 +189,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   productContainer: {
-  
+
     height: 270, // Fixed height
     marginVertical: 10,
     backgroundColor: '#fff',
@@ -210,7 +197,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     padding: 10,
-    marginLeft:5,
+    marginLeft: 5,
     flexDirection: 'column',
     justifyContent: 'space-between',
   },

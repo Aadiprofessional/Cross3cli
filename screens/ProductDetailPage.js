@@ -84,28 +84,7 @@ const ProductDetailPage = ({ route }) => {
   }, [productData, selectedAttribute1, selectedAttribute2, selectedAttribute3]);
 
 
-  const updateSelections = (data) => {
-    if (data) {
-      const attribute1 = data.attribute1;
-      const attribute2 = data.attribute2;
-      const attribute3 = data.attribute3;
-
-      // Use the first available option if no route params
-      const firstAttribute1 = attribute1D || Object.keys(data.data[attribute1])[0];
-      setSelectedAttribute1(firstAttribute1);
-
-      const attribute2Options = Object.keys(data.data[attribute1][firstAttribute1]?.[attribute2] || {});
-      if (attribute2Options.length > 0) {
-        const firstAttribute2 = attribute2D || attribute2Options[0];
-        setSelectedAttribute2(firstAttribute2);
-
-        const colorOptions = Object.keys(data.data[attribute1][firstAttribute1]?.[attribute2]?.[firstAttribute2] || {});
-        if (colorOptions.length > 0) {
-          setSelectedAttribute3(attribute3D || colorOptions[0]);
-        }
-      }
-    }
-  };
+ 
 
   const handleNextImage = () => {
     setImageIndex(prevIndex => (prevIndex + 1) % uniqueImages.length);
@@ -159,50 +138,79 @@ const ProductDetailPage = ({ route }) => {
     }
     return 0;
   };
-  const handleAttribute1Change = attribute1 => {
+ 
+  // Update your `updateSelections` function similarly to reset selected attributes appropriately
+  
+  const updateSelections = (data) => {
+    if (data) {
+      const attribute1 = data.attribute1;
+      const attribute2 = data.attribute2;
+      const attribute3 = data.attribute3;
+  
+      const firstAttribute1 = attribute1D || Object.keys(data.data[attribute1])[0];
+      setSelectedAttribute1(firstAttribute1);
+  
+      const attribute2Options = Object.keys(data.data[attribute1][firstAttribute1]?.[attribute2] || {});
+      if (attribute2Options.length > 0) {
+        const firstAttribute2 = attribute2D || attribute2Options[0];
+        setSelectedAttribute2(firstAttribute2);
+  
+        const colorOptions = Object.keys(data.data[attribute1][firstAttribute1]?.[attribute2]?.[firstAttribute2] || {});
+        if (colorOptions.length > 0) {
+          setSelectedAttribute3(attribute3D || colorOptions[0]);
+        } else {
+          setSelectedAttribute3(null); // Reset if no colors available
+        }
+      } else {
+        setSelectedAttribute2(null); // Reset if no attribute2 options available
+        setSelectedAttribute3(null); // Reset color selection if no options
+      }
+    }
+  };
+  
+  
+  const handleAttribute1Change = (attribute1) => {
     if (productData) {
       setSelectedAttribute1(attribute1);
-      const attribute2Key = productData.attribute2;
-
+    
       // Fetch new attribute2 options based on the updated attribute1 selection
       const attribute2Options = Object.keys(
-        productData.data[attribute1]?.[attribute2Key] || {},
+        productData.data[productData.attribute1][attribute1][productData.attribute2] || {}
       );
+  
       if (attribute2Options.length > 0) {
         const firstAttribute2 = attribute2Options[0];
         setSelectedAttribute2(firstAttribute2);
-
+  
         // Fetch new color options based on the updated attribute2 selection
         const colorOptions = Object.keys(
-          productData.data[attribute1]?.[attribute2Key]?.[firstAttribute2] ||
-          {},
+          productData.data[productData.attribute1][attribute1][productData.attribute2][firstAttribute2] || {}
         );
+  
         if (colorOptions.length > 0) {
           setSelectedAttribute3(colorOptions[0]);
         }
       }
     }
   };
-
-  const handleAttribute2Change = attribute2 => {
+  
+  const handleAttribute2Change = (attribute2) => {
     if (productData && selectedAttribute1) {
       setSelectedAttribute2(attribute2);
-
+  
       // Fetch new color options based on the updated attribute2 selection
-      const attribute1 = productData.attribute1;
-      const attribute2Key = productData.attribute2;
-
       const colorOptions = Object.keys(
-        productData.data[attribute1]?.[selectedAttribute1]?.[attribute2Key]?.[
-        attribute2
-        ] || {},
+        productData.data[productData.attribute1][selectedAttribute1][productData.attribute2][attribute2] || {}
       );
+  
       if (colorOptions.length > 0) {
+        // Set the selected attribute3 to the first available color option
         setSelectedAttribute3(colorOptions[0]);
       }
     }
   };
-
+  
+  
   const handleColorChange = color => {
     setSelectedAttribute3(color);
   };
@@ -248,7 +256,7 @@ const ProductDetailPage = ({ route }) => {
   
 
   const handleAddToCart = () => {
-    console.log(bag);
+
     if (
       productData &&
       selectedAttribute1 &&
@@ -354,13 +362,14 @@ const ProductDetailPage = ({ route }) => {
   const attribute1Id = currentProduct?.attribute1Id;
   const attribute2Id = currentProduct?.attribute2Id;
   const bag = currentProduct?.bag || '1';
-  console.log(currentProduct);
+
 
   const attribute3Id = currentProduct?.attribute3Id;
   const images = currentProduct?.images || [];
   const videoLink = currentProduct?.videoLink;
-  const discountPercentage = currentProduct.additionalDiscount;
-  const cutPrice = (currentProduct.price * (1 - discountPercentage / 100)).toFixed(0);
+  const discountPercentage = currentProduct?.additionalDiscount ?? 0;
+  const price = currentProduct?.price ?? 0;
+  const cutPrice = (price * (1 - discountPercentage / 100)).toFixed(0);
  const lowestPrice = currentProduct.lowestPrice;
   const uniqueImages = Array.from(
     new Set(images.concat(videoLink).filter(Boolean)),

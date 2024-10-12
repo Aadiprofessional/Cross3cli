@@ -22,7 +22,6 @@ import axios from 'axios'; // Ensure axios is imported
 import CustomHeader2 from '../components/CustomHeader2';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
-
 const SubCategoryScreen = ({ route }) => {
   const { categoryName, name } = route.params || {};
   const navigation = useNavigation();
@@ -40,8 +39,7 @@ const SubCategoryScreen = ({ route }) => {
   const [filterVisible, setFilterVisible] = useState(false);
   const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
-  const [isWished, setIsWished] = useState(false);
-
+  const [noProductsFound, setNoProductsFound] = useState(false); // New state for no products found
 
   // Fetch products with proper error handling and authentication check
   const fetchProducts = useCallback(async () => {
@@ -56,13 +54,13 @@ const SubCategoryScreen = ({ route }) => {
         `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
         {
           main: categoryName || name,
-
         }
       );
       console.log('Fetched products:', response.data);
       setProducts(response.data);
       setOriginalProducts(response.data); // Set original products to be used for filtering
       setLoading(false);
+      setNoProductsFound(response.data.length === 0); // Set noProductsFound based on API response
     } catch (error) {
       console.error('Error fetching products: ', error);
       setLoading(false);
@@ -305,7 +303,9 @@ const SubCategoryScreen = ({ route }) => {
 
         {loading ? (
           <SkeletonLoader />
-        ) : sortedResults.length > 0 ? (
+        ) : noProductsFound ? ( // Check if no products were found
+          <Text style={styles.noResultsText}>No results found</Text>
+        ) : (
           <FlatList
             data={sortedResults}
             renderItem={renderItem} // Use the updated renderItem
@@ -319,10 +319,7 @@ const SubCategoryScreen = ({ route }) => {
             removeClippedSubviews={true}
             windowSize={10}
           />
-        ) : (
-          <Text style={styles.noResultsText}>No results found</Text>
         )}
-
 
         {/* Filter Modal */}
         <Modal

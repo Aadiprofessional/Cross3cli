@@ -284,92 +284,94 @@ const calculateSubtotal = () => {
   };
   console.log(cartItems);
 
-  const handleCheckout = async () => {
-    if (!selectedCompanyId) {
-      Alert.alert('Select Company', 'Please select a company before proceeding.');
-      return;
-    }
-    if (!selectedBrandId) {
-      Alert.alert('Select Brand', 'Please select a Brand before proceeding.');
-      return;
-    }
-  
-    if (!selectedPaymentOption) {
-      Alert.alert('Select Payment Option', 'Please select a payment option before proceeding.');
-      return;
-    }
-    setIsLoading(true);
-
-    try {
-    
-      const userId = auth().currentUser.uid;
-      const response = await axios.post(
-        
-        `https://crossbee-server-1036279390366.asia-south1.run.app/checkout`,
-        {
-          totalAmount,
-          data,
-          useRewardPoints,
-          appliedCoupon,
-          cartItems,
-          uid: userId,
-          companyId: selectedCompanyId,
-          comment,
-          paymentOption: selectedPaymentOption, // Include payment option here
-          
-        }
-        
-      );
-
-
-      if (response.data.orderId) {
-        // Order placed successfully
-        Toast.show({
-          type: 'success',
-          position: 'bottom',
-          text1: 'Order Placed Successfully',
-          visibilityTime: 3000,
-          autoHide: true,
-          bottomOffset: 50,
-        });
-        navigation.reset({
-          index: 0,
-          routes: [
-            {
-              name: 'ThankYouScreen',
-              params: {
-                invoiceData: response.data.data,
-                orderId: response.data.orderId,
-              },
-            },
-          ],
-        });
-      } else if (response.data.cartError) {
-        // Cart-specific error
-        Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
-      } else {
-        Alert.alert('Error', 'Unable to place the order.');
-      }
-    } catch (error) {
-      console.error('Error saving order data:', error);
-
-      if (error.response && error.response.data && error.response.data.cartError) {
-        // Handle cart-specific error
-        Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
-      } else {
-        // General error handling
-        Alert.alert('Alert', 'Some error occurred while placing the order.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handlePaymentOptionSelect = (option) => {
     setSelectedPaymentOption(option);
     setModalVisible(false);
-    handleCheckout(); // Call checkout after selecting payment option
-  };
+    
+    // Only call checkout if the selected option is valid
+    if (option) {
+        handleCheckout(); // Call checkout after selecting payment option
+    } else {
+        Alert.alert('Select Payment Option', 'Please select a valid payment option.');
+    }
+};
+
+const handleCheckout = async () => {
+    if (!selectedCompanyId) {
+        Alert.alert('Select Company', 'Please select a company before proceeding.');
+        return;
+    }
+    if (!selectedBrandId) {
+        Alert.alert('Select Brand', 'Please select a Brand before proceeding.');
+        return;
+    }
+
+    if (!selectedPaymentOption) {
+        Alert.alert('Select Payment Option', 'Please select a payment option before proceeding.');
+        return;
+    }
+
+    setIsLoading(true);
+
+    try {
+        const userId = auth().currentUser.uid;
+        const response = await axios.post(
+            `https://crossbee-server-1036279390366.asia-south1.run.app/checkout`,
+            {
+                totalAmount,
+                data,
+                useRewardPoints,
+                appliedCoupon,
+                cartItems,
+                uid: userId,
+                companyId: selectedCompanyId,
+                comment,
+                paymentOption: selectedPaymentOption, // Ensure payment option is included
+            }
+        );
+
+        if (response.data.orderId) {
+            // Order placed successfully
+            Toast.show({
+                type: 'success',
+                position: 'bottom',
+                text1: 'Order Placed Successfully',
+                visibilityTime: 3000,
+                autoHide: true,
+                bottomOffset: 50,
+            });
+            navigation.reset({
+                index: 0,
+                routes: [
+                    {
+                        name: 'ThankYouScreen',
+                        params: {
+                            invoiceData: response.data.data,
+                            orderId: response.data.orderId,
+                        },
+                    },
+                ],
+            });
+        } else if (response.data.cartError) {
+            // Cart-specific error
+            Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
+        } else {
+            Alert.alert('Error', 'Unable to place the order.');
+        }
+    } catch (error) {
+        console.error('Error saving order data:', error);
+
+        if (error.response && error.response.data && error.response.data.cartError) {
+            // Handle cart-specific error
+            Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
+        } else {
+            // General error handling
+            Alert.alert('Alert', 'Some error occurred while placing the order.');
+        }
+    } finally {
+        setIsLoading(false);
+    }
+};
 
   return (
     <View style={styles.container}>
@@ -612,7 +614,7 @@ const calculateSubtotal = () => {
             <Text style={styles.modalTitle}>Select Payment Option</Text>
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={() => handlePaymentOptionSelect('Pay Now')}
+              onPress={() => handlePaymentOptionSelect('Pay')}
             >
               <Text style={styles.optionText}>Pay Now</Text>
             </TouchableOpacity>
@@ -624,7 +626,7 @@ const calculateSubtotal = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.optionButton}
-              onPress={() => handlePaymentOptionSelect('Already Paid')}
+              onPress={() => handlePaymentOptionSelect('Already')}
             >
               <Text style={styles.optionText}>Already Paid</Text>
             </TouchableOpacity>

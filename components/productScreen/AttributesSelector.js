@@ -9,35 +9,44 @@ import {
 import {colors} from '../../styles/color'; // Adjust the path accordingly
 
 const AttributesSelector = ({
-  attributeData,
+  attributeData = [], // Set a default empty array in case attributeData is undefined
   selectedValue,
   onSelect,
   attributeName,
 }) => {
+  // Check if the attributeData is available and has items
+  const isDataAvailable = Array.isArray(attributeData) && attributeData.length > 0;
+
+
   return (
     <View style={styles.productDetails}>
       <Text style={styles.Head}>{attributeName}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.colorScrollContainer}>
-          {attributeData.map(item => (
-            <TouchableOpacity
-              key={item.id}
-              style={[
-                styles.colorButton,
-                selectedValue === item.id && styles.selectedButton,
-              ]}
-              onPress={() => onSelect(item.id)}>
-              <Text
+      {isDataAvailable ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={styles.colorScrollContainer}>
+            {attributeData.map(item => (
+              <TouchableOpacity
+                key={item.id}
                 style={[
-                  styles.colorButtonText,
-                  selectedValue === item.id && styles.selectedText,
-                ]}>
-                {item.value}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
+                  styles.colorButton,
+                  selectedValue === item.id && styles.selectedButton,
+                ]}
+                onPress={() => onSelect(item.id)}>
+                <Text
+                  style={[
+                    styles.colorButtonText,
+                    selectedValue === item.id && styles.selectedText,
+                  ]}>
+                  {item.value}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      ) : (
+        // Fallback UI if data is not available
+        <Text style={styles.noDataText}>No options available</Text>
+      )}
     </View>
   );
 };
@@ -70,29 +79,31 @@ const styles = StyleSheet.create({
     shadowOffset: {width: 2, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    // Shadows for Android
-    elevation: 4,
+    elevation: 4, // Shadows for Android
   },
   selectedButton: {
     backgroundColor: colors.main,
     borderWidth: 1,
     borderColor: colors.main,
-    // Shadows for iOS
     shadowColor: '#000',
     shadowOffset: {width: 2, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 4,
-    // Shadows for Android
-    elevation: 4,
+    elevation: 4, // Shadows for Android
   },
   colorButtonText: {
     fontSize: 12,
     fontFamily: 'Outfit-Regular',
     color: '#4848485C',
-    
   },
   selectedText: {
     color: '#fff',
+  },
+  noDataText: {
+    marginTop: 10,
+    color: colors.TextBlack,
+    fontSize: 16,
+    fontFamily: 'Outfit-Regular',
   },
 });
 

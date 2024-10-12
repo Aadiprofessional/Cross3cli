@@ -342,14 +342,15 @@ const QuotesScreen = () => {
         </>
       ) : (
         <FlatList
-          data={data}
-          keyExtractor={item => item.id}
-          renderItem={
-            activeButton === 'quotes' ? renderQuoteItem : renderOrderItem
-          }
-          contentContainerStyle={styles.orderList}
-          showsVerticalScrollIndicator={false}
-        />
+        data={data}
+        keyExtractor={item => item.id}
+        renderItem={
+          activeButton === 'quotes' ? renderQuoteItem : renderOrderItem
+        }
+        contentContainerStyle={styles.orderList}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={<View style={styles.listFooter} />} // Add this line
+      />
       )}
     </View>
   );
@@ -367,6 +368,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
 
     fontFamily: 'Outfit-Regular',
+  },
+  listFooter: {
+    height: 70, // Adjust the height as necessary to ensure visibility
   },
   image: {
     width: 300,

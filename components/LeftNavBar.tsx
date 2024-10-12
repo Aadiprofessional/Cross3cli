@@ -72,8 +72,8 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   };
 
   const navigateToSubCategory = (categoryName: string) => {
-    console.log( `Navigating to ProductDetailPage with productId: ${categoryName}`);
-    
+    console.log(`Navigating to ProductDetailPage with productId: ${categoryName}`);
+
     navigation.navigate('SubCategoryScreen', { categoryName });
     toggleNavBar();
   };
@@ -111,7 +111,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
           />
         </TouchableOpacity>
       </View>
-      
+
       {/* Scrollable list of categories */}
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         {Array.isArray(categories) && categories.length > 0 ? (
@@ -128,7 +128,7 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
           <Text>No categories available</Text>
         )}
       </ScrollView>
-      
+
       {/* Fixed footer for customer support */}
       <View style={styles.footerContainer}>
         <TouchableOpacity style={styles.footerButton} onPress={handleCallPress}>
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   subcategoryText: {
-    fontSize: 18,
+    fontSize: 8,
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
     maxWidth: '70%',
