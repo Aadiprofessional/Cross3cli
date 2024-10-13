@@ -47,11 +47,12 @@ const AllCategoriesScreen = () => {
 
   const navigateToSubCategory2 = useCallback(
     (name) => {
-      navigation.navigate('SubCategoryScreen', { name });
+      const trimmedName = name.trim(); // Remove leading and trailing spaces
+      navigation.navigate('SubCategoryScreen', { name: trimmedName });
     },
     [navigation]
   );
-
+  
   // Optimize category list rendering
   const categoryItems = useMemo(
     () =>

@@ -72,14 +72,20 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
   };
 
   const navigateToSubCategory = (categoryName: string) => {
-    console.log(`Navigating to ProductDetailPage with productId: ${categoryName}`);
-
-    navigation.navigate('SubCategoryScreen', { categoryName });
+    const trimmedCategoryName = categoryName.trim(); // Remove leading and trailing spaces
+    console.log(`Navigating to SubCategoryScreen with categoryName: ${trimmedCategoryName}`);
+  
+    navigation.navigate('SubCategoryScreen', { categoryName: trimmedCategoryName });
     toggleNavBar();
   };
+  
 
   const handleAllCategoriesPress = () => {
     navigation.navigate('AllCategoriesScreen');
+    toggleNavBar();
+  };
+  const handleAllProductsPress = () => {
+    navigation.navigate('AllProductsScreen');
     toggleNavBar();
   };
 
@@ -123,6 +129,12 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
               <Text style={styles.subcategoryText}>All Categories</Text>
               <Icon name="chevron-forward" size={24} color={colors.second} />
             </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.subcategoryItem}
+              onPress={handleAllProductsPress}>
+              <Text style={styles.subcategoryText}>All Products</Text>
+              <Icon name="chevron-forward" size={24} color={colors.second} />
+            </TouchableOpacity>
           </>
         ) : (
           <Text>No categories available</Text>
@@ -158,9 +170,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   navText: {
-    fontSize: 20,
+    fontSize: 16,
     fontFamily: 'Outfit-Regular',
-    marginLeft: 10,
+    marginLeft: 5,
     marginRight: 'auto',
     color: colors.TextBlack,
     maxWidth: '70%',
@@ -174,7 +186,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   subcategoryText: {
-    fontSize: 8,
+    fontSize: 15,
     fontFamily: 'Outfit-Regular',
     color: colors.TextBlack,
     maxWidth: '70%',

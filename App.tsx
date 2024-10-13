@@ -41,6 +41,8 @@ import { WishlistProvider } from './components/WishlistContext';
 import WishlistScreen from './screens/WishlistScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import FAQScreen from './screens/FAQScreen';
+import WalletScreen from './screens/WalletScreen';
+import GroupedProductScreen from './screens/GroupedProductScreen';
 
 
 if (!firebase.apps.length) {
@@ -167,6 +169,23 @@ const App = () => {
               headerTitleAlign: 'left',
             }}
           />
+             <Stack.Screen
+            name="WalletScreen"
+            component={WalletScreen}
+            options={{
+              title: 'Wallet History',
+              headerStyle: { backgroundColor: colors.main },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left',
+                flex: 1,
+                textAlign: 'left',
+                justifyContent: 'center',
+              },
+              headerTitleAlign: 'left',
+            }}
+          />
           <Stack.Screen
             name="SearchResultsScreen"
             component={SearchResultsScreen}
@@ -267,12 +286,27 @@ const App = () => {
             component={SubCategoryScreen}
             options={{ headerShown: false }}
           />
+
         
           <Stack.Screen
             name="AllCategoriesScreen"
             component={AllCategoriesScreen}
             options={{
               title: 'Category',
+              headerStyle: { backgroundColor: colors.main },
+              headerTintColor: '#fff',
+              headerTitleStyle: {
+                fontFamily: 'Outfit-Medium',
+                textAlign: 'left',
+              },
+              headerTitleAlign: 'left',
+            }}
+          />
+           <Stack.Screen
+            name="AllProductsScreen"
+            component={GroupedProductScreen}
+            options={{
+              title: 'Products',
               headerStyle: { backgroundColor: colors.main },
               headerTintColor: '#fff',
               headerTitleStyle: {

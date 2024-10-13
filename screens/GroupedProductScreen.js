@@ -12,20 +12,14 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { fetchProducts as fetchProductsFromApi } from '../services/apiService'; // Assuming this is the correct import
+import { fetchProducts } from '../services/apiService';
 import ProductComponent from '../components/ProductComponent';
 import FilterComponent from '../components/FilterDropdown';
 import { debounce } from 'lodash';
-import { useNavigation } from '@react-navigation/native';
-import auth from '@react-native-firebase/auth'; // Ensure Firebase auth is imported
-import axios from 'axios'; // Ensure axios is imported
-import CustomHeader2 from '../components/CustomHeader2';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { ScrollView } from 'react-native-gesture-handler';
 
-const SubCategoryScreen = ({ route }) => {
-  const { categoryName, name } = route.params || {};
-  const navigation = useNavigation();
-  const [products, setProducts] = useState([]);
+const GroupedProductScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [originalProducts, setOriginalProducts] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -39,40 +33,24 @@ const SubCategoryScreen = ({ route }) => {
   const [filterVisible, setFilterVisible] = useState(false);
   const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
-  const [noProductsFound, setNoProductsFound] = useState(false); // New state for no products found
+  
 
-  // Fetch products with proper error handling and authentication check
-  const fetchProducts = useCallback(async () => {
-    const userId = auth().currentUser?.uid;
-    if (!userId) {
-      console.error('User is not authenticated');
-      setLoading(false);
-      return;
-    }
+  // Load products on mount
+  const loadProducts = useCallback(async () => {
     try {
-      const response = await axios.post(
-        `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
-        {
-          main:  name|| categoryName,
-        }
-      );
-      console.log('Fetched products:',response.data);
-      setProducts(response.data);
-      setOriginalProducts(response.data); // Set original products to be used for filtering
+      const products = await fetchProducts();
+      setOriginalProducts(products);
+      setSearchResults(products);
       setLoading(false);
-      setNoProductsFound(response.data.length === 0); // Set noProductsFound based on API response
     } catch (error) {
-      console.error('Error fetching products: ', error);
+      console.error('Error loading products:', error);
       setLoading(false);
     }
-  }, [categoryName || name]);
+  }, []);
 
   useEffect(() => {
-    if (categoryName || name) {
-      fetchProducts();
-    }
-  }, [categoryName || name, fetchProducts]);
-
+    loadProducts();
+  }, [loadProducts]);
   const SkeletonLoader = () => {
     return (
       <SkeletonPlaceholder>
@@ -134,12 +112,7 @@ const SubCategoryScreen = ({ route }) => {
       </SkeletonPlaceholder>
     );
   };
-
-  const MemoizedProductComponent = React.memo(({ product }) => (
-    <ProductComponent product={product} />
-  ));
-
-
+ 
   // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
@@ -164,6 +137,7 @@ const SubCategoryScreen = ({ route }) => {
             product => product.brand === filterOptions.brand,
           );
         }
+
         // Apply Discount Filter
         if (filterOptions.discount) {
           filteredProducts = filteredProducts.filter(product => {
@@ -197,13 +171,9 @@ const SubCategoryScreen = ({ route }) => {
         if (filterOptions.minPrice || filterOptions.maxPrice) {
           filteredProducts = filteredProducts.filter(product => {
             const price = parseFloat(product.price);
-
-            // Ensure both minPrice and maxPrice are valid numbers for comparison
-            const min = filterOptions.minPrice ? parseFloat(filterOptions.minPrice) : 0;
-            const max = filterOptions.maxPrice ? parseFloat(filterOptions.maxPrice) : Infinity;
-
-            // Filter products within the price range
-            return price >= min && price <= max;
+            return (
+              price >= filterOptions.minPrice && price <= filterOptions.maxPrice
+            );
           });
         }
 
@@ -253,103 +223,119 @@ const SubCategoryScreen = ({ route }) => {
     setFilterOptions(filters);
     setFilterVisible(false); // Close the filter modal after applying filters
   };
+  const MemoizedProductComponent = React.memo(({ product }) => (
+    <ProductComponent product={product} />
+  ));
 
-  const renderItem = ({ item }) => (
-    <View style={styles.productContainer}>
-      <MemoizedProductComponent product={item} />
-    </View>
-  );
+  const groupProductsByCategory = (products) => {
+    return products.reduce((acc, product) => {
+      const category = product.mainId;
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(product);
+      return acc;
+    }, {});
+  };
 
-  return (
-    <View style={styles.container2}>
-      <CustomHeader2 title={categoryName || name} />
-      <View style={styles.container}>
-        <View style={styles.searchBox}>
-          <Icon name="search" size={20} color="#484848" style={styles.icon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search your products"
-            placeholderTextColor="#484848"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            returnKeyType="search"
-          />
-        </View>
+  // Render each category's title and products in a scrollable list
+  const renderGroupedProducts = () => {
+    const groupedProducts = groupProductsByCategory(sortedResults);
 
-        <View style={styles.buttonsContainer}>
-          <View style={styles.buttonWrapper}>
-            <DropDownPicker
-              open={openSort}
-              value={sortValue}
-              items={sortItems}
-              setOpen={setOpenSort}
-              setValue={setSortValue}
-              setItems={setSortItems}
-              placeholder="Sort By"
-              style={styles.smallButton}
-              dropDownContainerStyle={styles.smallDropDownContainer}
-              textStyle={styles.buttonText}
+    return (
+      <ScrollView>
+        {Object.keys(groupedProducts).map((category) => (
+          <View key={category} style={styles.categoryContainer}>
+           <Text style={styles.categoryTitle} numberOfLines={1} ellipsizeMode="tail">
+  {category}
+</Text>
+            <FlatList
+              data={groupedProducts[category]}
+              keyExtractor={(item) => item.productId}
+              numColumns={2}
+              renderItem={({ item }) => (
+                <View style={styles.productContainer}>
+                  <MemoizedProductComponent product={item} />
+                </View>
+              )}
+              scrollEnabled={false} // Disable scrolling inside FlatList to make the parent scroll view handle it
             />
           </View>
-          <View style={styles.buttonWrapper}>
-            <TouchableOpacity
-              style={styles.smallButton}
-              onPress={() => setFilterVisible(true)}>
-              <Text style={styles.buttonText}>Filter</Text>
-              <Icon name="chevron-down" size={16} color="#484848" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        ))}
+      </ScrollView>
+    );
+  };
 
-        {loading ? (
-          <SkeletonLoader />
-        ) : noProductsFound ? ( // Check if no products were found
-          <Text style={styles.noResultsText}>No results found</Text>
-        ) : (
-          <FlatList
-            data={sortedResults}
-            renderItem={renderItem} // Use the updated renderItem
-            keyExtractor={(item, index) => `${item.productId}_${index}`}
-            contentContainerStyle={styles.productList}
-            style={styles.flatList}
-            numColumns={2} // Two products per row
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={6}
-            maxToRenderPerBatch={6}
-            removeClippedSubviews={true}
-            windowSize={10}
-          />
-        )}
-
-        {/* Filter Modal */}
-        <Modal
-          visible={filterVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setFilterVisible(false)}>
-          <Pressable
-            style={styles.modalBackground}
-            onPress={() => setFilterVisible(false)}>
-            <View style={styles.modalContainer}>
-              <FilterComponent
-                filterOptions={filterOptions}  // Pass current filter options to the component
-                applyFilters={applyFilters}
-                onClose={() => setFilterVisible(false)}
-              />
-            </View>
-          </Pressable>
-        </Modal>
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchBox}>
+        <Icon name="search" size={20} color="#484848" style={styles.icon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search your products"
+          placeholderTextColor="#484848"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          returnKeyType="search"
+        />
       </View>
+
+      <View style={styles.buttonsContainer}>
+        <View style={styles.buttonWrapper}>
+          <DropDownPicker
+            open={openSort}
+            value={sortValue}
+            items={sortItems}
+            setOpen={setOpenSort}
+            setValue={setSortValue}
+            setItems={setSortItems}
+            placeholder="Sort By"
+            style={styles.smallButton}
+            dropDownContainerStyle={styles.smallDropDownContainer}
+            textStyle={styles.buttonText}
+          />
+        </View>
+        <View style={styles.buttonWrapper}>
+          <TouchableOpacity
+            style={styles.smallButton}
+            onPress={() => setFilterVisible(true)}>
+            <Text style={styles.buttonText}>Filter</Text>
+            <Icon name="chevron-down" size={16} color="#484848" />
+          </TouchableOpacity>
+        </View>
+      </View>
+      {loading ? (
+        <SkeletonLoader />
+      ) : sortedResults.length > 0 ? (
+        renderGroupedProducts()
+      ) : (
+        <Text style={styles.noResultsText}>No results found</Text>
+      )}
+
+      {/* Filter Modal */}
+      <Modal
+        visible={filterVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setFilterVisible(false)}>
+        <Pressable
+          style={styles.modalBackground}
+          onPress={() => setFilterVisible(false)}>
+          <View style={styles.modalContainer}>
+            <FilterComponent
+              filterOptions={filterOptions}  // Pass current filter options to the component
+              applyFilters={applyFilters}
+              onClose={() => setFilterVisible(false)}
+            />
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
 
-
 const styles = StyleSheet.create({
-  container2: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
+ 
   container: {
     flex: 1,
     paddingHorizontal: 10, // Equal margin on left and right of the screen
@@ -364,26 +350,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
   },
-  productContainer: {
-    width: '48%', // Ensures two cards per row with proper spacing
-    margin: '1%', // Equal margin around each product card for consistent spacing
-    backgroundColor: '#fff',
-
-    overflow: 'hidden',
-
-  },
-  flatList: {
-    flex: 1,
-    marginHorizontal: 0, // Ensures no extra horizontal margin
-  },
-  productList: {
-    flexGrow: 1,
-    paddingHorizontal: 4, // Consistent padding between products
-  },
   skeletonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 16,
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontFamily: 'Outfit-Bold',
+    color: '#333333',
+    marginBottom: 10,
   },
   skeletonCard: {
     width: '48%',
@@ -408,6 +384,30 @@ const styles = StyleSheet.create({
   },
 
 
+  productCard: {
+    flex: 1,
+    margin: 8, // Ensures equal margin around each product card
+    borderWidth: 1,
+    borderColor: '#eaeaea',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  productContainer: {
+    width: '48%', // Ensures two cards per row with proper spacing
+    margin: '1%', // Equal margin around each product card for consistent spacing
+    backgroundColor: '#fff',
+   
+    overflow: 'hidden',
+  
+  },
+  flatList: {
+    flex: 1,
+    marginHorizontal: 0, // Ensures no extra horizontal margin
+  },
+  productList: {
+    flexGrow: 1,
+    paddingHorizontal: 4, // Consistent padding between products
+  },
   icon: {
     marginRight: 10,
   },
@@ -466,5 +466,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
-export default SubCategoryScreen;
+export default GroupedProductScreen;
