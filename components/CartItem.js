@@ -97,7 +97,11 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
         />
       </TouchableOpacity>
       <View style={styles.productDetails}>
-        <Text style={styles.productName}>{productName}</Text>
+      <TouchableOpacity
+        style={styles.productName}
+        onPress={handleImagePress}>
+        <Text >{productName}</Text>
+        </TouchableOpacity>
         <Text style={styles.productPrice}>
           {Number(discountedPrice).toLocaleString("en-IN", {
             maximumFractionDigits: 2,
@@ -107,7 +111,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
         </Text>
         <View style={styles.itemColorContainer}>
           <View style={[styles.itemColor, { backgroundColor: colors.TextWhite }]}>
-            <Text style={styles.itemColorText}>{attributeSelected3}</Text>
+            <Text style={styles.itemColorText}>{attributeSelected1},{attributeSelected2},{attributeSelected3}</Text>
           </View>
           <View style={styles.quantityContainer}>
             <TouchableOpacity

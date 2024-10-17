@@ -30,8 +30,8 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     totalAdditionalDiscountValue,
     comment: passedComment, // Extract the passed comment if available
   } = route.params;
-  
-  const {cartItems, updateCartItemQuantity, removeCartItem } = useCart();
+
+  const { cartItems, updateCartItemQuantity, removeCartItem } = useCart();
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
   const [couponCode, setCouponCode] = useState('');
   const [useRewardPoints, setUseRewardPoints] = useState(false);
@@ -73,36 +73,36 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     }
   }, [comment]);
 
- // Modify calculateTotalAmount to only apply discounts/coupons to the subtotal
-const calculateTotalAmount = () => {
-  // Step 1: Get Subtotal (after reward points applied)
-  let amount = calculateSubtotal();
+  // Modify calculateTotalAmount to only apply discounts/coupons to the subtotal
+  const calculateTotalAmount = () => {
+    // Step 1: Get Subtotal (after reward points applied)
+    let amount = calculateSubtotal();
 
-  // Step 2: Apply Initial Discount
-  const applicableDiscount = discounts
-    .filter(discount => discount.status === 'Active' && amount >= discount.amount)
-    .sort((a, b) => b.amount - a.amount)[0]; // Find the largest applicable discount
+    // Step 2: Apply Initial Discount
+    const applicableDiscount = discounts
+      .filter(discount => discount.status === 'Active' && amount >= discount.amount)
+      .sort((a, b) => b.amount - a.amount)[0]; // Find the largest applicable discount
 
-  if (applicableDiscount) {
-    const discountAmount = (amount * applicableDiscount.discount) / 100;
-    amount -= discountAmount; // Apply the discount to the amount
-    setAppliedDiscount(applicableDiscount); // Store the applied discount
-  }
+    if (applicableDiscount) {
+      const discountAmount = (amount * applicableDiscount.discount) / 100;
+      amount -= discountAmount; // Apply the discount to the amount
+      setAppliedDiscount(applicableDiscount); // Store the applied discount
+    }
 
-  // Step 3: Apply Coupon Discount (if any)
-  if (appliedCoupon) {
-    amount -= Number(appliedCoupon.value);
-  }
+    // Step 3: Apply Coupon Discount (if any)
+    if (appliedCoupon) {
+      amount -= Number(appliedCoupon.value);
+    }
 
-  // Step 4: Subtract Additional Discounts
-  amount -= totalAdditionalDiscountValue;
+    // Step 4: Subtract Additional Discounts
+    amount -= totalAdditionalDiscountValue;
 
-  // Step 5: Add shipping charges (if any)
-  amount += data.shippingCharges;
+    // Step 5: Add shipping charges (if any)
+    amount += data.shippingCharges;
 
-  // Step 6: Ensure Non-Negative Total
-  return Math.max(0, amount);
-};
+    // Step 6: Ensure Non-Negative Total
+    return Math.max(0, amount);
+  };
 
 
   const fetchRewardPoints = async () => {
@@ -143,11 +143,11 @@ const calculateTotalAmount = () => {
     const coupon = availableCoupons.find(c => c.code === couponCode);
     if (coupon) {
       setAppliedCoupon({ ...coupon, value: Number(coupon.value) });
+      setCouponCode(coupon.code); // Update the coupon code in the input field with the applied coupon
       Alert.alert('Coupon applied', 'Coupon applied successfully!');
     } else {
       Alert.alert('Invalid coupon', 'Please enter a valid coupon code.');
     }
-    setCouponCode('');
   };
 
 
@@ -193,7 +193,7 @@ const calculateTotalAmount = () => {
     comment: comment,
   });
 
- 
+
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
@@ -238,19 +238,19 @@ const calculateTotalAmount = () => {
 
   // Calculate subtotal
   // Calculate subtotal (with reward points applied here)
-const calculateSubtotal = () => {
-  let subtotal = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const calculateSubtotal = () => {
+    let subtotal = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
 
-  // Apply Reward Points Discount to Subtotal
-  if (useRewardPoints && data.rewardPointsPrice) {
-    subtotal -= data.rewardPointsPrice;
-  }
+    // Apply Reward Points Discount to Subtotal
+    if (useRewardPoints && data.rewardPointsPrice) {
+      subtotal -= data.rewardPointsPrice;
+    }
 
-  return Math.max(0, subtotal); // Ensure subtotal is non-negative
-};
+    return Math.max(0, subtotal); // Ensure subtotal is non-negative
+  };
 
   // Inside your JSX where you display the coupon discount:
 
@@ -287,91 +287,91 @@ const calculateSubtotal = () => {
   const handlePaymentOptionSelect = (option) => {
     setSelectedPaymentOption(option);
     setModalVisible(false);
-    
+
     // Only call checkout if the selected option is valid
     if (option) {
-        handleCheckout(); // Call checkout after selecting payment option
+      handleCheckout(); // Call checkout after selecting payment option
     } else {
-        Alert.alert('Select Payment Option', 'Please select a valid payment option.');
+      Alert.alert('Select Payment Option', 'Please select a valid payment option.');
     }
-};
+  };
 
-const handleCheckout = async () => {
+  const handleCheckout = async () => {
     if (!selectedCompanyId) {
-        Alert.alert('Select Company', 'Please select a company before proceeding.');
-        return;
+      Alert.alert('Select Company', 'Please select a company before proceeding.');
+      return;
     }
     if (!selectedBrandId) {
-        Alert.alert('Select Brand', 'Please select a Brand before proceeding.');
-        return;
+      Alert.alert('Select Brand', 'Please select a Brand before proceeding.');
+      return;
     }
 
     if (!selectedPaymentOption) {
-        Alert.alert('Select Payment Option', 'Please select a payment option before proceeding.');
-        return;
+      Alert.alert('Select Payment Option', 'Please select a payment option before proceeding.');
+      return;
     }
 
     setIsLoading(true);
 
     try {
-        const userId = auth().currentUser.uid;
-        const response = await axios.post(
-            `https://crossbee-server-1036279390366.asia-south1.run.app/checkout`,
+      const userId = auth().currentUser.uid;
+      const response = await axios.post(
+        `https://crossbee-server-1036279390366.asia-south1.run.app/checkout`,
+        {
+          totalAmount,
+          data,
+          useRewardPoints,
+          appliedCoupon,
+          cartItems,
+          uid: userId,
+          companyId: selectedCompanyId,
+          comment,
+          paymentOption: selectedPaymentOption, // Ensure payment option is included
+        }
+      );
+
+      if (response.data.orderId) {
+        // Order placed successfully
+        Toast.show({
+          type: 'success',
+          position: 'bottom',
+          text1: 'Order Placed Successfully',
+          visibilityTime: 3000,
+          autoHide: true,
+          bottomOffset: 50,
+        });
+        navigation.reset({
+          index: 0,
+          routes: [
             {
-                totalAmount,
-                data,
-                useRewardPoints,
-                appliedCoupon,
-                cartItems,
-                uid: userId,
-                companyId: selectedCompanyId,
-                comment,
-                paymentOption: selectedPaymentOption, // Ensure payment option is included
-            }
-        );
-
-        if (response.data.orderId) {
-            // Order placed successfully
-            Toast.show({
-                type: 'success',
-                position: 'bottom',
-                text1: 'Order Placed Successfully',
-                visibilityTime: 3000,
-                autoHide: true,
-                bottomOffset: 50,
-            });
-            navigation.reset({
-                index: 0,
-                routes: [
-                    {
-                        name: 'ThankYouScreen',
-                        params: {
-                            invoiceData: response.data.data,
-                            orderId: response.data.orderId,
-                        },
-                    },
-                ],
-            });
-        } else if (response.data.cartError) {
-            // Cart-specific error
-            Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
-        } else {
-            Alert.alert('Error', 'Unable to place the order.');
-        }
+              name: 'ThankYouScreen',
+              params: {
+                invoiceData: response.data.data,
+                orderId: response.data.orderId,
+              },
+            },
+          ],
+        });
+      } else if (response.data.cartError) {
+        // Cart-specific error
+        Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
+      } else {
+        Alert.alert('Error', 'Unable to place the order.');
+      }
     } catch (error) {
-        console.error('Error saving order data:', error);
+      console.error('Error saving order data:', error);
 
-        if (error.response && error.response.data && error.response.data.cartError) {
-            // Handle cart-specific error
-            Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
-        } else {
-            // General error handling
-            Alert.alert('Alert', 'Some error occurred while placing the order.');
-        }
+      if (error.response && error.response.data && error.response.data.cartError) {
+        // Handle cart-specific error
+        Alert.alert('Out of Stock', 'Some items in your cart are out of stock. Please review your cart.');
+      } else {
+        // General error handling
+        Alert.alert('Alert', 'Some error occurred while placing the order.');
+      }
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
-};
+  };
 
   return (
     <View style={styles.container}>
@@ -510,31 +510,25 @@ const handleCheckout = async () => {
                   <Text style={styles.applicableText}>
                     <Text style={styles.couponCodeText}>{coupon.code}</Text>
                     {'\n'}
-                    {coupon.description}
+                    Save ₹{Number(coupon.value).toLocaleString("en-IN", { maximumFractionDigits: 0 })}  {/* Display coupon value */}
                   </Text>
                   <TouchableOpacity
                     style={styles.applyTextButton}
                     onPress={() => {
                       setAppliedCoupon(coupon);
-                      Alert.alert(
-                        'Coupon applied',
-                        `Coupon ${coupon.code} applied successfully!`,
-                      );
+                      setCouponCode(coupon.code); // Show the applied coupon code in the input field
+                      Alert.alert('Coupon applied', `Coupon ${coupon.code} applied successfully!`);
                     }}
                     disabled={!!appliedCoupon} // Disable button if coupon applied
                   >
                     <Text style={styles.applyTextButtonText}>
-                      {appliedCoupon && appliedCoupon.code === coupon.code
-                        ? 'Applied'
-                        : 'Apply'}
+                      {appliedCoupon && appliedCoupon.code === coupon.code ? 'Applied' : 'Apply'}
                     </Text>
                   </TouchableOpacity>
                 </View>
                 {index < availableCoupons.length - 1 && <View style={styles.separator} />}
               </View>
-
             ))}
-
             <Text style={styles.applicableCoupons}>Unavailable Coupons</Text>
             {unavailableCoupons.map((coupon, index) => (
               <View key={index} style={styles.couponItem}>
@@ -580,59 +574,59 @@ const handleCheckout = async () => {
         />
         {cartItems.map(item => (
           <CartItem
-              key={item.cartId}
-              item={item}
-              onUpdateQuantity={updateCartItemQuantity}
-              onRemoveItem={removeCartItem}
-            />
+            key={item.cartId}
+            item={item}
+            onUpdateQuantity={updateCartItemQuantity}
+            onRemoveItem={removeCartItem}
+          />
         ))}
       </ScrollView>
- 
-    <View style={styles.checkoutContainer}>
-      {/* Checkout Button */}
-      <TouchableOpacity
-        style={styles.checkoutButton}
-        onPress={() => setModalVisible(true)} // Open modal instead of directly calling handleCheckout
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="#fff" /> // Loading animation
-        ) : (
-          <Text style={styles.checkoutButtonText}>Checkout</Text>
-        )}
-      </TouchableOpacity>
 
-      {/* Payment Options Modal */}
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Select Payment Option</Text>
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handlePaymentOptionSelect('Pay')}
-            >
-              <Text style={styles.optionText}>Pay Now</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handlePaymentOptionSelect('Credit')}
-            >
-              <Text style={styles.optionText}>Credit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.optionButton}
-              onPress={() => handlePaymentOptionSelect('Already')}
-            >
-              <Text style={styles.optionText}>Already Paid</Text>
-            </TouchableOpacity>
+      <View style={styles.checkoutContainer}>
+        {/* Checkout Button */}
+        <TouchableOpacity
+          style={styles.checkoutButton}
+          onPress={() => setModalVisible(true)} // Open modal instead of directly calling handleCheckout
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" /> // Loading animation
+          ) : (
+            <Text style={styles.checkoutButtonText}>Checkout</Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Payment Options Modal */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Payment Option</Text>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => handlePaymentOptionSelect('Pay')}
+              >
+                <Text style={styles.optionText}>Pay Now</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => handlePaymentOptionSelect('Credit')}
+              >
+                <Text style={styles.optionText}>Credit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.optionButton}
+                onPress={() => handlePaymentOptionSelect('Already')}
+              >
+                <Text style={styles.optionText}>Already Paid</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
       </View>
     </View>
   );

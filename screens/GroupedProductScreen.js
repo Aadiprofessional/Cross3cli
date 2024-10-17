@@ -221,7 +221,7 @@ const GroupedProductScreen = () => {
   // Apply filter options
   const applyFilters = filters => {
     setFilterOptions(filters);
-    setFilterVisible(false); // Close the filter modal after applying filters
+    setFilterVisible(false); 
   };
   const MemoizedProductComponent = React.memo(({ product }) => (
     <ProductComponent product={product} />
@@ -238,7 +238,7 @@ const GroupedProductScreen = () => {
     }, {});
   };
 
-  // Render each category's title and products in a scrollable list
+
   const renderGroupedProducts = () => {
     const groupedProducts = groupProductsByCategory(sortedResults);
 
@@ -258,7 +258,7 @@ const GroupedProductScreen = () => {
                   <MemoizedProductComponent product={item} />
                 </View>
               )}
-              scrollEnabled={false} // Disable scrolling inside FlatList to make the parent scroll view handle it
+              scrollEnabled={false} 
             />
           </View>
         ))}

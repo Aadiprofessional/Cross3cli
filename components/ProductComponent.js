@@ -111,7 +111,7 @@ const ProductComponent = ({ product, lowestPrice }) => {
           </TouchableOpacity>
         </View>
         <Text style={styles.productName2} numberOfLines={1}>
-          {product.attribute3}
+          {product.attribute1},{product.attribute2},{product.attribute3}
         </Text>
         {discountPercentage ? (
           <View style={styles.discountContainer}>
@@ -231,14 +231,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // Make texts attach to each other
   },
   productName: {
-    fontSize: 12,
+    fontSize: 15,
     color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',
     marginVertical: 0, // Remove vertical margin
     flex: 1,
   },
   productName2: {
-    fontSize: 10,
+    fontSize: 13,
     color: colors.TextBlack,
     fontFamily: 'Outfit-Medium',
     marginVertical: 0, // Remove vertical margin
