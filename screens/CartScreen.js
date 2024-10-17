@@ -146,6 +146,7 @@ const CartScreen = () => {
       </View>
     );
   }
+console.log(cartItems);
 
 
   return (

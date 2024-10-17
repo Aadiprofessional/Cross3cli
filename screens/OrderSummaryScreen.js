@@ -22,6 +22,7 @@ import AddCommentComponent from '../components/AddCommentComponent'; // Import t
 import CompanyDropdown2 from '../components/CompanyDropdown copy';
 import CompanyDropdown3 from '../components/CompanyDropdown copy 3';
 import { useCart } from '../components/CartContext';
+import SuggestedProducts from '../components/SuggestedProducts';
 
 const OrderSummaryScreen = ({ route, navigation }) => {
   const {
@@ -112,10 +113,12 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         `https://crossbee-server-1036279390366.asia-south1.run.app/getUserDetails?uid=${userId}`
       );
       const rewardPoints = response.data.rewardPoints;
+      const CreditCard = response.data.credit;
 
       setData(prevData => ({
         ...prevData,
         rewardPointsPrice: Math.min(totalAmount, rewardPoints),
+        creditCardAvailable: CreditCard,
       }));
     } catch (error) {
       console.error('Error fetching reward points:', error);
@@ -580,6 +583,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
             onRemoveItem={removeCartItem}
           />
         ))}
+        < SuggestedProducts/>
       </ScrollView>
 
       <View style={styles.checkoutContainer}>
@@ -612,12 +616,18 @@ const OrderSummaryScreen = ({ route, navigation }) => {
               >
                 <Text style={styles.optionText}>Pay Now</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.optionButton}
-                onPress={() => handlePaymentOptionSelect('Credit')}
-              >
-                <Text style={styles.optionText}>Credit</Text>
-              </TouchableOpacity>
+              {data.creditCardAvailable && (
+                <TouchableOpacity
+                  style={[
+                    styles.paymentOptionButton,
+                    selectedPaymentOption === 'Credit' && styles.selectedPaymentOption,
+                  ]}
+                  onPress={() => handlePaymentOptionSelect('Credit')}
+                >
+                  <Text style={styles.paymentOptionText}>Credit</Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity
                 style={styles.optionButton}
                 onPress={() => handlePaymentOptionSelect('Already')}

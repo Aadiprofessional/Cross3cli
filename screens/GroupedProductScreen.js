@@ -18,12 +18,14 @@ import FilterComponent from '../components/FilterDropdown';
 import { debounce } from 'lodash';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { ScrollView } from 'react-native-gesture-handler';
+import auth from '@react-native-firebase/auth';
+import { colors } from '../styles/color';
 
 const GroupedProductScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [originalProducts, setOriginalProducts] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
-  const [sortedResults, setSortedResults] = useState([]);
+  const [originalProducts, setOriginalProducts] = useState({});
+  const [searchResults, setSearchResults] = useState({});
+  const [sortedResults, setSortedResults] = useState({});
   const [openSort, setOpenSort] = useState(false);
   const [sortValue, setSortValue] = useState(null);
   const [sortItems, setSortItems] = useState([
@@ -33,24 +35,41 @@ const GroupedProductScreen = () => {
   const [filterVisible, setFilterVisible] = useState(false);
   const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
-  
+  const [visibleCategories, setVisibleCategories] = useState(2); // Start with 2 categories
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  // Load products on mount
+  const userUid = auth().currentUser?.uid;
+
+  // Load products from API using UID
   const loadProducts = useCallback(async () => {
     try {
-      const products = await fetchProducts();
-      setOriginalProducts(products);
-      setSearchResults(products);
+      setLoading(true);
+      const response = await fetch(`https://crossbee-server-1036279390366.asia-south1.run.app/allProducts?uid=${userUid}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+
+      const productsData = await response.json();
+      const groupedProducts = {};
+      for (const [category, products] of Object.entries(productsData)) {
+        if (Array.isArray(products)) {
+          groupedProducts[category] = products;
+        }
+      }
+
+      setOriginalProducts(groupedProducts);
+      setSearchResults(groupedProducts);
       setLoading(false);
     } catch (error) {
       console.error('Error loading products:', error);
       setLoading(false);
     }
-  }, []);
+  }, [userUid]);
 
   useEffect(() => {
     loadProducts();
   }, [loadProducts]);
+
   const SkeletonLoader = () => {
     return (
       <SkeletonPlaceholder>
@@ -112,84 +131,27 @@ const GroupedProductScreen = () => {
       </SkeletonPlaceholder>
     );
   };
- 
+
+
   // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
       debounce(query => {
-        let filteredProducts = originalProducts.filter(product =>
-          product.searchName.toLowerCase().includes(query.toLowerCase()),
-        );
-
-        // Apply Category Filter
-
-        if (filterOptions.category) {
-          console.log(filterOptions.category, filteredProducts[0].mainId);
-
-          filteredProducts = filteredProducts.filter(
-            product => product.mainId === filterOptions.category,
+        const filteredResults = Object.keys(originalProducts).reduce((acc, category) => {
+          const filteredProducts = originalProducts[category].filter(product =>
+            product.searchName.toLowerCase().includes(query.toLowerCase()),
           );
-        }
-        if (filterOptions.brand) {
-          console.log(filterOptions.brand, filteredProducts[0].brand);
+          if (filteredProducts.length) {
+            acc[category] = filteredProducts;
+          }
+          return acc;
+        }, {});
 
-          filteredProducts = filteredProducts.filter(
-            product => product.brand === filterOptions.brand,
-          );
-        }
-
-        // Apply Discount Filter
-        if (filterOptions.discount) {
-          filteredProducts = filteredProducts.filter(product => {
-            console.log(product);
-            switch (filterOptions.discount) {
-              case '10_above':
-                return product.additionalDiscount >= 10;
-              case '20_above':
-                return product.additionalDiscount >= 20;
-              case '30_above':
-                return product.additionalDiscount >= 30;
-
-              case '40_above':
-                return product.additionalDiscount >= 40;
-              case '50_above':
-                return product.additionalDiscount >= 50;
-              case '60_above':
-                return product.additionalDiscount >= 60;
-              case '70_above':
-                return product.additionalDiscount >= 70;
-              case '80_above':
-                return product.additionalDiscount >= 80;
-              case '90_above':
-                return product.additionalDiscount >= 90;
-
-              default:
-                return true;
-            }
-          });
-        }
-        if (filterOptions.minPrice || filterOptions.maxPrice) {
-          filteredProducts = filteredProducts.filter(product => {
-            const price = parseFloat(product.price);
-            return (
-              price >= filterOptions.minPrice && price <= filterOptions.maxPrice
-            );
-          });
-        }
-
-        // Exclude Out of Stock products
-        if (filterOptions.excludeOutOfStock) {
-          filteredProducts = filteredProducts.filter(
-            product => !product.outOfStock,
-          );
-        }
-
-        setSearchResults(query ? filteredProducts : originalProducts);
-        setSortedResults(filteredProducts ?? originalProducts);
+        setSearchResults(query ? filteredResults : originalProducts);
+        setSortedResults(filteredResults);
         setSortValue(null);
       }, 300),
-
-    [originalProducts, filterOptions],
+    [originalProducts],
   );
 
   useEffect(() => {
@@ -199,17 +161,15 @@ const GroupedProductScreen = () => {
   // Sort products based on price
   useEffect(() => {
     const sortProducts = () => {
-      let sortedProducts = [...searchResults];
+      const sortedProducts = { ...searchResults };
 
-      if (sortValue === 'low_to_high') {
-        sortedProducts.sort(
-          (a, b) => parseFloat(a.price) - parseFloat(b.price),
-        );
-      } else if (sortValue === 'high_to_low') {
-        sortedProducts.sort(
-          (a, b) => parseFloat(b.price) - parseFloat(a.price),
-        );
-      }
+      Object.keys(sortedProducts).forEach(category => {
+        if (sortValue === 'low_to_high') {
+          sortedProducts[category].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        } else if (sortValue === 'high_to_low') {
+          sortedProducts[category].sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        }
+      });
 
       setSortedResults(sortedProducts);
     };
@@ -217,54 +177,23 @@ const GroupedProductScreen = () => {
     sortProducts();
   }, [sortValue, searchResults]);
 
-
   // Apply filter options
   const applyFilters = filters => {
     setFilterOptions(filters);
-    setFilterVisible(false); 
+    setFilterVisible(false);
+  };
+  const loadMoreCategories = () => {
+    if (visibleCategories < Object.keys(sortedResults).length) {
+      setLoadingMore(true);
+      setTimeout(() => {
+        setVisibleCategories(prevCount => prevCount + 2); // Load 2 more categories at a time
+        setLoadingMore(false);
+      }, 1000); // Simulate network loading delay
+    }
   };
   const MemoizedProductComponent = React.memo(({ product }) => (
-    <ProductComponent product={product} />
+    <ProductComponent product={product} lowestPrice={product.lowestPrice} cartVisible={true} />
   ));
-
-  const groupProductsByCategory = (products) => {
-    return products.reduce((acc, product) => {
-      const category = product.mainId;
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(product);
-      return acc;
-    }, {});
-  };
-
-
-  const renderGroupedProducts = () => {
-    const groupedProducts = groupProductsByCategory(sortedResults);
-
-    return (
-      <ScrollView>
-        {Object.keys(groupedProducts).map((category) => (
-          <View key={category} style={styles.categoryContainer}>
-           <Text style={styles.categoryTitle} numberOfLines={1} ellipsizeMode="tail">
-  {category}
-</Text>
-            <FlatList
-              data={groupedProducts[category]}
-              keyExtractor={(item) => item.productId}
-              numColumns={2}
-              renderItem={({ item }) => (
-                <View style={styles.productContainer}>
-                  <MemoizedProductComponent product={item} />
-                </View>
-              )}
-              scrollEnabled={false} 
-            />
-          </View>
-        ))}
-      </ScrollView>
-    );
-  };
 
   return (
     <View style={styles.container}>
@@ -298,18 +227,48 @@ const GroupedProductScreen = () => {
         <View style={styles.buttonWrapper}>
           <TouchableOpacity
             style={styles.smallButton}
-            onPress={() => setFilterVisible(true)}>
+            onPress={() => setFilterVisible(true)}
+          >
             <Text style={styles.buttonText}>Filter</Text>
             <Icon name="chevron-down" size={16} color="#484848" />
           </TouchableOpacity>
         </View>
       </View>
+
       {loading ? (
         <SkeletonLoader />
-      ) : sortedResults.length > 0 ? (
-        renderGroupedProducts()
       ) : (
-        <Text style={styles.noResultsText}>No results found</Text>
+        <ScrollView>
+          {Object.keys(sortedResults)
+            .slice(0, visibleCategories) // Limit visible categories
+            .map((category, index) => (
+              <View key={`${category}-${index}`}>
+                <Text style={styles.categoryTitle}>{category}</Text>
+                <FlatList
+                  data={sortedResults[category]}
+                  keyExtractor={(item) => item.productId}
+                  numColumns={2}
+                  renderItem={({ item }) => (
+                    <View style={styles.productContainer}>
+                      <MemoizedProductComponent product={item} />
+                    </View>
+                  )}
+                />
+              </View>
+          ))}
+
+          {loadingMore && (
+            <View style={styles.loadingIndicator}>
+              <ActivityIndicator size="large" color="#FFB800" />
+            </View>
+          )}
+
+          <TouchableOpacity onPress={loadMoreCategories}>
+            {visibleCategories < Object.keys(sortedResults).length && (
+              <Text style={styles.loadMoreText}>Load more Products</Text>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
       )}
 
       {/* Filter Modal */}
@@ -317,13 +276,15 @@ const GroupedProductScreen = () => {
         visible={filterVisible}
         animationType="slide"
         transparent={true}
-        onRequestClose={() => setFilterVisible(false)}>
+        onRequestClose={() => setFilterVisible(false)}
+      >
         <Pressable
           style={styles.modalBackground}
-          onPress={() => setFilterVisible(false)}>
+          onPress={() => setFilterVisible(false)}
+        >
           <View style={styles.modalContainer}>
             <FilterComponent
-              filterOptions={filterOptions}  // Pass current filter options to the component
+              filterOptions={filterOptions}
               applyFilters={applyFilters}
               onClose={() => setFilterVisible(false)}
             />
@@ -335,12 +296,21 @@ const GroupedProductScreen = () => {
 };
 
 const styles = StyleSheet.create({
- 
+ container2: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     flex: 1,
     paddingHorizontal: 10, // Equal margin on left and right of the screen
     paddingVertical: 16,   // Equal margin on top and bottom
     backgroundColor: '#FFFFFF',
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontFamily: 'Outfit-Bold',
+    color: '#333333',
+    marginBottom: 10,
   },
   searchBox: {
     flexDirection: 'row',
@@ -350,16 +320,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
   },
+  productContainer: {
+    width: '48%', // Ensures two cards per row with proper spacing
+    margin: '1%', // Equal margin around each product card for consistent spacing
+    backgroundColor: '#fff',
+
+    overflow: 'hidden',
+
+  },
+  flatList: {
+    flex: 1,
+    marginHorizontal: 0, // Ensures no extra horizontal margin
+  },
+  productList: {
+    flexGrow: 1,
+    paddingHorizontal: 4, // Consistent padding between products
+  },
   skeletonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 16,
-  },
-  categoryTitle: {
-    fontSize: 18,
-    fontFamily: 'Outfit-Bold',
-    color: '#333333',
-    marginBottom: 10,
   },
   skeletonCard: {
     width: '48%',
@@ -383,31 +363,14 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 
-
-  productCard: {
-    flex: 1,
-    margin: 8, // Ensures equal margin around each product card
-    borderWidth: 1,
-    borderColor: '#eaeaea',
-    borderRadius: 10,
-    overflow: 'hidden',
+  loadMoreText: {
+    color:colors.main,
+    fontFamily: 'Outfit-Medium',
+    fontSize: 15,
+    textAlign: 'center',
+    textDecorationLine: 'underline', // Add underline
   },
-  productContainer: {
-    width: '48%', // Ensures two cards per row with proper spacing
-    margin: '1%', // Equal margin around each product card for consistent spacing
-    backgroundColor: '#fff',
-   
-    overflow: 'hidden',
   
-  },
-  flatList: {
-    flex: 1,
-    marginHorizontal: 0, // Ensures no extra horizontal margin
-  },
-  productList: {
-    flexGrow: 1,
-    paddingHorizontal: 4, // Consistent padding between products
-  },
   icon: {
     marginRight: 10,
   },
@@ -452,6 +415,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
   },
+  
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
@@ -465,5 +429,4 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-
 export default GroupedProductScreen;

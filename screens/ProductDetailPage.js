@@ -95,7 +95,8 @@ const ProductDetailPage = ({ route }) => {
       prevIndex => (prevIndex - 1 + uniqueImages.length) % uniqueImages.length,
     );
   };
-
+  
+  
   const getMinCartValue = () => {
     if (
       productData &&
@@ -106,11 +107,11 @@ const ProductDetailPage = ({ route }) => {
       const attribute1 = productData.attribute1;
       const attribute2 = productData.attribute2;
       const attribute3 = productData.attribute3;
-
+      
       const currentProduct =
-        productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
+      productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
         selectedAttribute2
-        ]?.[selectedAttribute3];
+      ]?.[selectedAttribute3];
       if (currentProduct) {
         return parseInt(currentProduct.minCartValue || '1', 10);
       }
@@ -127,12 +128,13 @@ const ProductDetailPage = ({ route }) => {
       const attribute1 = productData.attribute1;
       const attribute2 = productData.attribute2;
       const attribute3 = productData.attribute3;
-
+      
       const currentProduct =
-        productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
+      productData.data[attribute1]?.[selectedAttribute1]?.[attribute2]?.[
         selectedAttribute2
-        ]?.[selectedAttribute3];
+      ]?.[selectedAttribute3];
       if (currentProduct) {
+     
         return parseInt(currentProduct.inventory || '0', 10);
       }
     }
@@ -253,6 +255,7 @@ const ProductDetailPage = ({ route }) => {
     }
   };
  
+ 
   
 
   const handleAddToCart = () => {
@@ -303,7 +306,7 @@ const ProductDetailPage = ({ route }) => {
         additionalDiscount: discountPercentage || 0, // Ensure additionalDiscount is passed
         discountedPrice: cutPrice,
         mainId, // Added mainId
-   
+        gst:gst,
 
       };
    
@@ -317,6 +320,7 @@ const ProductDetailPage = ({ route }) => {
         text2: 'Please select all attributes before adding to the cart.',
       });
     }
+    
   };
 
   if (loading) {
@@ -368,6 +372,7 @@ const ProductDetailPage = ({ route }) => {
   const images = currentProduct?.images || [];
   const videoLink = currentProduct?.videoLink;
   const discountPercentage = currentProduct?.additionalDiscount ?? 0;
+  const gst = currentProduct?.gst??0;
   const price = currentProduct?.price ?? 0;
   const cutPrice = (price * (1 - discountPercentage / 100)).toFixed(0);
  const lowestPrice = currentProduct.lowestPrice;
@@ -440,7 +445,7 @@ const ProductDetailPage = ({ route }) => {
     }
     return null; // Default value if no attributes or color are selected
   };
-
+  console.log(currentProduct);
 
   const stockStatus = getStockStatus();
   const estdArrivalDate = getEstimatedArrivalDate();

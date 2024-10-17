@@ -37,7 +37,7 @@ const Categories = () => {
   }, []);
 
   const handleCategoryPress = category => {
-    // Show a toast message
+
     Toast.show({
       type: 'success',
       text1: `Navigating to ${category.name}`,
@@ -51,9 +51,11 @@ const Categories = () => {
   const handleAllCategoriesPress = () => {
     navigation.navigate('AllCategoriesScreen'); // Navigate to AllCategoriesScreen
   };
-
+  const handleAllProductsPress = () => {
+    navigation.navigate('AllProductsScreen');
+  };
   // Limit the categories to only the first 4
-  const displayedCategories = categories.slice(0, 4);
+  const displayedCategories = categories.slice(0, 3);
 
   return (
     <View style={styles.container}>
@@ -73,6 +75,20 @@ const Categories = () => {
               </View>
             </TouchableOpacity>
           ))}
+            <TouchableOpacity
+            key="allCategories"
+            onPress={handleAllProductsPress}
+            style={[styles.categoryItem, {width: itemSize}]}>
+            <View style={styles.categoryContent}>
+              <View style={[styles.circle, {width: itemSize - 2, height: itemSize - 2}]}>
+                <Image
+                  source={require('../assets/Categories5.png')}
+                  style={styles.image}
+                />
+              </View>
+              <Text style={styles.text}>All Products</Text>
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity
             key="allCategories"
             onPress={handleAllCategoriesPress}

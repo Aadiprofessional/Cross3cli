@@ -110,9 +110,14 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
           })}
         </Text>
         <View style={styles.itemColorContainer}>
-          <View style={[styles.itemColor, { backgroundColor: colors.TextWhite }]}>
-            <Text style={styles.itemColorText}>{attributeSelected1},{attributeSelected2},{attributeSelected3}</Text>
-          </View>
+        <View style={[styles.itemColor, { backgroundColor: colors.TextWhite }]}>
+  <Text style={styles.itemColorText}>
+    {`${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}`.length > 15 
+      ? `${`${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}`.substring(0, 15)}...`
+      : `${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}` }
+  </Text>
+</View>
+
           <View style={styles.quantityContainer}>
             <TouchableOpacity
               style={[styles.quantityButton, itemQuantity <= colorminCartValue && styles.disabledButton]}

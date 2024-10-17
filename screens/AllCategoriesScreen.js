@@ -28,7 +28,7 @@ const AllCategoriesScreen = () => {
       }
 
       const response = await axios.get(
-        'https://crossbee-server-1036279390366.asia-south1.run.app/getMain'
+        'https://crossbee-server-1036279390366.asia-south1.run.app/getHomeMain'
       );
       const fetchedCategories = response.data;
       await AsyncStorage.setItem('categories', JSON.stringify(fetchedCategories));

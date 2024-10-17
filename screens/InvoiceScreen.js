@@ -55,7 +55,7 @@ const InvoiceScreen = ({ route }) => {
 
     handlePdfGeneration();
   }, [invoiceData]);
-  console.log(url);
+
 
   const requestStoragePermission = async () => {
     try {
@@ -76,12 +76,17 @@ const InvoiceScreen = ({ route }) => {
     }
   };
 
-
+  
   const generatePdf = async () => {
-    console.log(invoiceData);
+console.log(invoiceData);
 
-    const gstRate = 12; // GST percentage
-    const gstAmount = (invoiceData.totalAmount * gstRate) / 100;
+let totalGstAmount = 0;
+  invoiceData.cartItems.forEach(item => {
+    const discountedPrice = parseFloat(item.discountedPrice) || 0;
+    const gstRate = parseFloat(item.gst) || 0; // Use item-specific GST rate if available
+    const gstAmount = (discountedPrice * gstRate) / 100;
+    totalGstAmount += gstAmount;
+  });
     const htmlContent = `
       <!DOCTYPE html>
       <html lang="en">
@@ -223,8 +228,8 @@ const InvoiceScreen = ({ route }) => {
       <td></td>
        <td></td>
       <td></td>
-      <td>TAX ${gstRate || 0}%</td>
-      <td>${gstAmount || 0.0}</td>
+      <td>TAX %</td>
+     <td>${totalGstAmount.toFixed(2)}</td>
     </tr>
 
     <!-- Grand Total Row -->

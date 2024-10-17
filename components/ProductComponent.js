@@ -7,7 +7,7 @@ import { useWishlist } from './WishlistContext';
 import { colors } from '../styles/color';
 import LinearGradient from 'react-native-linear-gradient';
 
-const ProductComponent = ({ product, lowestPrice }) => {
+const ProductComponent = ({ product, lowestPrice, cartVisible }) => { // Added cartVisible prop
   const navigation = useNavigation();
   const { addToCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
@@ -17,12 +17,10 @@ const ProductComponent = ({ product, lowestPrice }) => {
   const [loading, setLoading] = useState(true); // Loading state
   const animatedValue = useRef(new Animated.Value(0)).current;
 
-
   const gradientInterpolation = animatedValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['#e0e0e0', '#f0f0f0'], // Change the gradient colors as per your need
   });
-
 
   const handleWishlistPress = () => {
     if (isWished) {
@@ -42,6 +40,7 @@ const ProductComponent = ({ product, lowestPrice }) => {
       attribute3D: product.attribute3,
     });
   };
+console.log(product);
 
   const handleAddToCart = () => {
     if (!product.outOfStock && quantity > 0) {
@@ -67,6 +66,7 @@ const ProductComponent = ({ product, lowestPrice }) => {
         discountedPrice: cutPrice,
         name: product.attribute3,
         colormaxCartValue: product.inventory,
+        gst:product.gst,
       };
 
       addToCart(item);
@@ -76,7 +76,6 @@ const ProductComponent = ({ product, lowestPrice }) => {
 
   const discountPercentage = product.additionalDiscount;
   const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
-
 
 
   return (
@@ -98,8 +97,8 @@ const ProductComponent = ({ product, lowestPrice }) => {
 
         <View style={styles.productNameContainer}>
           <Text style={styles.productName} numberOfLines={1}>
-            {product.displayName.length > 18
-              ? `${product.displayName.substring(0, 18)}...`
+            {product.displayName.length > 13
+              ? `${product.displayName.substring(0, 13)}...`
               : product.displayName}
           </Text>
           <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
@@ -137,19 +136,21 @@ const ProductComponent = ({ product, lowestPrice }) => {
         </View>
 
         <View style={styles.footerContainer}>
-          {product.outOfStock ? (
-            <View style={styles.outOfStockButton}>
-              <Text style={styles.outOfStockText}>Out of Stock</Text>
-            </View>
-          ) : (
-            <>
-              <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-                <Text style={styles.addToCartText}>Add to Cart</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.productDetailButton} onPress={handlePress}>
-                <Text style={styles.productDetailText}>Details</Text>
-              </TouchableOpacity>
-            </>
+          {cartVisible ? null : ( 
+            product.outOfStock ? (
+              <View style={styles.outOfStockButton}>
+                <Text style={styles.outOfStockText}>Out of Stock</Text>
+              </View>
+            ) : (
+              <>
+                <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+                  <Text style={styles.addToCartText}>Add to Cart</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.productDetailButton} onPress={handlePress}>
+                  <Text style={styles.productDetailText}>Details</Text>
+                </TouchableOpacity>
+              </>
+            )
           )}
         </View>
       </View>
