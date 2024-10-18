@@ -21,6 +21,7 @@ import auth from '@react-native-firebase/auth'; // Ensure Firebase auth is impor
 import axios from 'axios'; // Ensure axios is imported
 import CustomHeader2 from '../components/CustomHeader2';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import { colors } from '../styles/color';
 
 const SubCategoryScreen = ({ route }) => {
   const { categoryName, name } = route.params || {};
@@ -39,7 +40,12 @@ const SubCategoryScreen = ({ route }) => {
   const [filterVisible, setFilterVisible] = useState(false);
   const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
-  const [noProductsFound, setNoProductsFound] = useState(false); // New state for no products found
+  const [noProductsFound, setNoProductsFound] = useState(false);
+  const [visibleProducts, setVisibleProducts] = useState([]); // Products visible to the user
+  const [currentPage, setCurrentPage] = useState(1); // Pagination
+  const [isLoadingMore, setIsLoadingMore] = useState(false); // Loading more indicator
+
+  const pageSize = 10; // Load 10 products per page
 
   // Fetch products with proper error handling and authentication check
   const fetchProducts = useCallback(async () => {
@@ -53,14 +59,15 @@ const SubCategoryScreen = ({ route }) => {
       const response = await axios.post(
         `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
         {
-          main:  name|| categoryName,
+          main: name || categoryName,
         }
       );
-      console.log('Fetched products:',response.data);
+      console.log('Fetched products:', response.data);
       setProducts(response.data);
       setOriginalProducts(response.data); // Set original products to be used for filtering
       setLoading(false);
       setNoProductsFound(response.data.length === 0); // Set noProductsFound based on API response
+      setVisibleProducts(response.data.slice(0, pageSize)); // Load first 10 products initially
     } catch (error) {
       console.error('Error fetching products: ', error);
       setLoading(false);
@@ -72,6 +79,17 @@ const SubCategoryScreen = ({ route }) => {
       fetchProducts();
     }
   }, [categoryName || name, fetchProducts]);
+
+  const loadMoreProducts = () => {
+    if (isLoadingMore || visibleProducts.length >= products.length) return;
+
+    setIsLoadingMore(true);
+    const nextPage = currentPage + 1;
+    const nextProducts = products.slice(0, nextPage * pageSize);
+    setVisibleProducts(nextProducts);
+    setCurrentPage(nextPage);
+    setIsLoadingMore(false);
+  };
 
   const SkeletonLoader = () => {
     return (
@@ -89,8 +107,6 @@ const SubCategoryScreen = ({ route }) => {
             <View style={styles.skeletonTextSmall} />
           </View>
         </View>
-
-        {/* Second Pair */}
         <View style={styles.skeletonContainer}>
           <View style={styles.skeletonCard}>
             <View style={styles.skeletonImage} />
@@ -135,12 +151,6 @@ const SubCategoryScreen = ({ route }) => {
     );
   };
 
-  const MemoizedProductComponent = React.memo(({ product }) => (
-    <ProductComponent product={product} />
-  ));
-
-
-  // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
       debounce(query => {
@@ -164,6 +174,7 @@ const SubCategoryScreen = ({ route }) => {
             product => product.brand === filterOptions.brand,
           );
         }
+
         // Apply Discount Filter
         if (filterOptions.discount) {
           filteredProducts = filteredProducts.filter(product => {
@@ -197,13 +208,9 @@ const SubCategoryScreen = ({ route }) => {
         if (filterOptions.minPrice || filterOptions.maxPrice) {
           filteredProducts = filteredProducts.filter(product => {
             const price = parseFloat(product.price);
-
-            // Ensure both minPrice and maxPrice are valid numbers for comparison
-            const min = filterOptions.minPrice ? parseFloat(filterOptions.minPrice) : 0;
-            const max = filterOptions.maxPrice ? parseFloat(filterOptions.maxPrice) : Infinity;
-
-            // Filter products within the price range
-            return price >= min && price <= max;
+            return (
+              price >= filterOptions.minPrice && price <= filterOptions.maxPrice
+            );
           });
         }
 
@@ -248,12 +255,14 @@ const SubCategoryScreen = ({ route }) => {
   }, [sortValue, searchResults]);
 
 
-  // Apply filter options
+
+  const MemoizedProductComponent = React.memo(({ product }) => (
+    <ProductComponent product={product} />
+  ));
   const applyFilters = filters => {
     setFilterOptions(filters);
-    setFilterVisible(false); // Close the filter modal after applying filters
+    setFilterVisible(false);
   };
-
   const renderItem = ({ item }) => (
     <View style={styles.productContainer}>
       <MemoizedProductComponent product={item} />
@@ -307,7 +316,7 @@ const SubCategoryScreen = ({ route }) => {
           <Text style={styles.noResultsText}>No results found</Text>
         ) : (
           <FlatList
-            data={sortedResults}
+            data={visibleProducts} // Show the visible products (10 products at a time)
             renderItem={renderItem} // Use the updated renderItem
             keyExtractor={(item, index) => `${item.productId}_${index}`}
             contentContainerStyle={styles.productList}
@@ -318,6 +327,19 @@ const SubCategoryScreen = ({ route }) => {
             maxToRenderPerBatch={6}
             removeClippedSubviews={true}
             windowSize={10}
+            ListFooterComponent={
+              visibleProducts.length < products.length && (
+                <View style={styles.footerContainer}>
+                  <TouchableOpacity onPress={loadMoreProducts} style={styles.loadMoreButton}>
+                    {isLoadingMore ? (
+                      <ActivityIndicator size="small" color="#FFB800" />
+                    ) : (
+                      <Text style={styles.loadMoreText}>Load More</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              )
+            }
           />
         )}
 
@@ -379,6 +401,13 @@ const styles = StyleSheet.create({
   productList: {
     flexGrow: 1,
     paddingHorizontal: 4, // Consistent padding between products
+  },
+  loadMoreText: {
+    color:colors.main,
+    fontFamily: 'Outfit-Medium',
+    fontSize: 15,
+    textAlign: 'center',
+    textDecorationLine: 'underline', // Add underline
   },
   skeletonContainer: {
     flexDirection: 'row',

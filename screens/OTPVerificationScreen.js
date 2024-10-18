@@ -354,9 +354,9 @@ const styles = StyleSheet.create({
   },
   topImage: {
     width: '100%',
-    height: undefined, // This allows the height to adjust based on the image's aspect ratio
-    aspectRatio: 3, // Adjust this value based on your image's aspect ratio (e.g., 3 for a 3:1 aspect ratio)
-    resizeMode: 'contain', // Or 'cover' based on your preference
+    height: undefined, 
+    aspectRatio: 3,
+    resizeMode: 'contain',
     marginTop: 0,
   },
   logo: {

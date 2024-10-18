@@ -39,6 +39,10 @@ const ProductHeader = ({
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
+  // Round off the prices for comparison
+  const roundedPrice = Math.round(parseFloat(price));
+  const roundedDiscountedPrice = Math.round(parseFloat(discountedPrice));
+
   return (
     <View style={styles.productDetails}>
       <TouchableOpacity onPress={handleCallPress} style={styles.callIconContainer}>
@@ -64,7 +68,8 @@ const ProductHeader = ({
                   currency: 'INR',
                 })}
           </Text>
-          {!outOfStock && price !== discountedPrice && (
+          {/* Show original price only if it's different from the discounted price */}
+          {!outOfStock && roundedPrice !== roundedDiscountedPrice && (
             <Text style={styles.discountedText}>
               {Number(price).toLocaleString('en-IN', {
                 maximumFractionDigits: 0,
@@ -85,6 +90,7 @@ const ProductHeader = ({
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   productDetails: {

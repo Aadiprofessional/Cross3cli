@@ -247,12 +247,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageContainerAutoImageSlider: {
-    width: '100%', // Adjust the width to make the image smaller
-    height: '80%', // Adjust the height proportionally
+    width: '100%', 
+    height: '80%', 
     borderRadius: 10,
     overflow: 'hidden',
-    justifyContent: 'center', // Ensure the image is centered
-    alignItems: 'center', // Ensure the image is centered
+    justifyContent: 'center',
+    alignItems: 'center', 
   },
   imageAutoImageSlider: {
     width: '95%',

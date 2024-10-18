@@ -35,12 +35,11 @@ const GroupedProductScreen = () => {
   const [filterVisible, setFilterVisible] = useState(false);
   const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
-  const [visibleCategories, setVisibleCategories] = useState(2); // Start with 2 categories
+  const [visibleCategories, setVisibleCategories] = useState(2); 
   const [loadingMore, setLoadingMore] = useState(false);
 
   const userUid = auth().currentUser?.uid;
 
-  // Load products from API using UID
   const loadProducts = useCallback(async () => {
     try {
       setLoading(true);
@@ -73,49 +72,6 @@ const GroupedProductScreen = () => {
   const SkeletonLoader = () => {
     return (
       <SkeletonPlaceholder>
-        {/* First Pair */}
-        <View style={styles.skeletonContainer}>
-          <View style={styles.skeletonCard}>
-            <View style={styles.skeletonImage} />
-            <View style={styles.skeletonText} />
-            <View style={styles.skeletonTextSmall} />
-          </View>
-          <View style={styles.skeletonCard}>
-            <View style={styles.skeletonImage} />
-            <View style={styles.skeletonText} />
-            <View style={styles.skeletonTextSmall} />
-          </View>
-        </View>
-
-        {/* Second Pair */}
-        <View style={styles.skeletonContainer}>
-          <View style={styles.skeletonCard}>
-            <View style={styles.skeletonImage} />
-            <View style={styles.skeletonText} />
-            <View style={styles.skeletonTextSmall} />
-          </View>
-          <View style={styles.skeletonCard}>
-            <View style={styles.skeletonImage} />
-            <View style={styles.skeletonText} />
-            <View style={styles.skeletonTextSmall} />
-          </View>
-        </View>
-
-        {/* Third Pair */}
-        <View style={styles.skeletonContainer}>
-          <View style={styles.skeletonCard}>
-            <View style={styles.skeletonImage} />
-            <View style={styles.skeletonText} />
-            <View style={styles.skeletonTextSmall} />
-          </View>
-          <View style={styles.skeletonCard}>
-            <View style={styles.skeletonImage} />
-            <View style={styles.skeletonText} />
-            <View style={styles.skeletonTextSmall} />
-          </View>
-        </View>
-
-        {/* Fourth Pair */}
         <View style={styles.skeletonContainer}>
           <View style={styles.skeletonCard}>
             <View style={styles.skeletonImage} />
@@ -132,28 +88,98 @@ const GroupedProductScreen = () => {
     );
   };
 
-
   // Filter products based on search query and filter options
   const debouncedSearch = useMemo(
     () =>
       debounce(query => {
-        const filteredResults = Object.keys(originalProducts).reduce((acc, category) => {
-          const filteredProducts = originalProducts[category].filter(product =>
-            product.searchName.toLowerCase().includes(query.toLowerCase()),
-          );
-          if (filteredProducts.length) {
-            acc[category] = filteredProducts;
+        let filteredProducts = {};
+  
+        // Check if originalProducts is an object with categories
+        if (typeof originalProducts === 'object' && originalProducts !== null) {
+          // Loop through each category
+          for (const [category, products] of Object.entries(originalProducts)) {
+            // Check if products is an array before applying filter
+            if (Array.isArray(products)) {
+              let categoryFilteredProducts = products.filter(product =>
+                product.searchName.toLowerCase().includes(query.toLowerCase())
+              );
+  
+              // Apply Category Filter
+              if (filterOptions.category) {
+                categoryFilteredProducts = categoryFilteredProducts.filter(
+                  product => product.mainId === filterOptions.category
+                );
+              }
+  
+              // Apply Brand Filter
+              if (filterOptions.brand) {
+                categoryFilteredProducts = categoryFilteredProducts.filter(
+                  product => product.brand === filterOptions.brand
+                );
+              }
+  
+              // Apply Discount Filter
+              if (filterOptions.discount) {
+                categoryFilteredProducts = categoryFilteredProducts.filter(product => {
+                  switch (filterOptions.discount) {
+                    case '10_above':
+                      return product.additionalDiscount >= 10;
+                    case '20_above':
+                      return product.additionalDiscount >= 20;
+                    case '30_above':
+                      return product.additionalDiscount >= 30;
+                    case '40_above':
+                      return product.additionalDiscount >= 40;
+                    case '50_above':
+                      return product.additionalDiscount >= 50;
+                    case '60_above':
+                      return product.additionalDiscount >= 60;
+                    case '70_above':
+                      return product.additionalDiscount >= 70;
+                    case '80_above':
+                      return product.additionalDiscount >= 80;
+                    case '90_above':
+                      return product.additionalDiscount >= 90;
+                    default:
+                      return true;
+                  }
+                });
+              }
+  
+              // Apply Price Filter
+              if (filterOptions.minPrice || filterOptions.maxPrice) {
+                categoryFilteredProducts = categoryFilteredProducts.filter(product => {
+                  const price = parseFloat(product.price);
+                  return (
+                    price >= filterOptions.minPrice && price <= filterOptions.maxPrice
+                  );
+                });
+              }
+  
+              // Exclude Out of Stock products
+              if (filterOptions.excludeOutOfStock) {
+                categoryFilteredProducts = categoryFilteredProducts.filter(
+                  product => !product.outOfStock
+                );
+              }
+  
+              // If the filtered products exist, add them to the filteredProducts object
+              if (categoryFilteredProducts.length > 0) {
+                filteredProducts[category] = categoryFilteredProducts;
+              }
+            }
           }
-          return acc;
-        }, {});
-
-        setSearchResults(query ? filteredResults : originalProducts);
-        setSortedResults(filteredResults);
+        }
+  
+        // If query is present, update with filtered results, else revert to originalProducts
+        setSearchResults(query ? filteredProducts : originalProducts);
+        setSortedResults(filteredProducts ?? originalProducts);
         setSortValue(null);
       }, 300),
-    [originalProducts],
+    [originalProducts, filterOptions],
   );
-
+  
+  
   useEffect(() => {
     debouncedSearch(searchQuery);
   }, [searchQuery, debouncedSearch]);
@@ -161,36 +187,46 @@ const GroupedProductScreen = () => {
   // Sort products based on price
   useEffect(() => {
     const sortProducts = () => {
-      const sortedProducts = { ...searchResults };
-
-      Object.keys(sortedProducts).forEach(category => {
+      let sortedProducts = [];
+  
+      // Ensure searchResults is an array before spreading
+      if (Array.isArray(searchResults)) {
+        sortedProducts = [...searchResults]; // Spread only if it's an array
+  
         if (sortValue === 'low_to_high') {
-          sortedProducts[category].sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+          sortedProducts.sort(
+            (a, b) => parseFloat(a.price) - parseFloat(b.price)
+          );
         } else if (sortValue === 'high_to_low') {
-          sortedProducts[category].sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+          sortedProducts.sort(
+            (a, b) => parseFloat(b.price) - parseFloat(a.price)
+          );
         }
-      });
-
+      }
+  
       setSortedResults(sortedProducts);
     };
-
+  
     sortProducts();
   }, [sortValue, searchResults]);
+  
 
   // Apply filter options
   const applyFilters = filters => {
     setFilterOptions(filters);
     setFilterVisible(false);
   };
+
   const loadMoreCategories = () => {
     if (visibleCategories < Object.keys(sortedResults).length) {
       setLoadingMore(true);
       setTimeout(() => {
-        setVisibleCategories(prevCount => prevCount + 2); // Load 2 more categories at a time
+        setVisibleCategories(prevCount => prevCount + 2); 
         setLoadingMore(false);
-      }, 1000); // Simulate network loading delay
+      }, 1000); 
     }
   };
+
   const MemoizedProductComponent = React.memo(({ product }) => (
     <ProductComponent product={product} lowestPrice={product.lowestPrice} cartVisible={true} />
   ));
@@ -240,7 +276,7 @@ const GroupedProductScreen = () => {
       ) : (
         <ScrollView>
           {Object.keys(sortedResults)
-            .slice(0, visibleCategories) // Limit visible categories
+            .slice(0, visibleCategories)
             .map((category, index) => (
               <View key={`${category}-${index}`}>
                 <Text style={styles.categoryTitle}>{category}</Text>
@@ -271,29 +307,28 @@ const GroupedProductScreen = () => {
         </ScrollView>
       )}
 
-      {/* Filter Modal */}
       <Modal
         visible={filterVisible}
         animationType="slide"
         transparent={true}
         onRequestClose={() => setFilterVisible(false)}
       >
-        <Pressable
-          style={styles.modalBackground}
-          onPress={() => setFilterVisible(false)}
-        >
-          <View style={styles.modalContainer}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
             <FilterComponent
-              filterOptions={filterOptions}
-              applyFilters={applyFilters}
-              onClose={() => setFilterVisible(false)}
+              filters={filterOptions}
+              onApply={applyFilters}
+              onCancel={() => setFilterVisible(false)}
             />
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </View>
   );
 };
+
+
+
 
 const styles = StyleSheet.create({
  container2: {
