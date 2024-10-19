@@ -508,6 +508,12 @@ const ProductDetailPage = ({ route }) => {
               bag={bag}
             />
             <View style={styles.productDetails}>
+              <Text style={styles.Head}>Brand:</Text>
+              <Text style={styles.regularText}>
+                {currentProduct?.brand || 'N/A'}
+              </Text>
+            </View>
+            <View style={styles.productDetails}>
               <Text style={styles.Head}>Product Description:</Text>
               <Text style={styles.regularText}>
                 {currentProduct?.description || 'N/A'}

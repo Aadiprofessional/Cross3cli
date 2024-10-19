@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { AppState } from 'react-native'; // Import AppState for app state changes
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,7 +10,10 @@ import LeftNavBar from './components/LeftNavBar';
 import { CartProvider } from './components/CartContext';
 import firestore from '@react-native-firebase/firestore';
 
+
+// Import your screens
 import HomeScreen from './screens/HomeScreen';
+
 import SearchScreen from './screens/SearchScreen';
 import ProductDetailPage from './screens/ProductDetailPage';
 import NeedHelpScreen from './screens/NeedHelpScreen';
@@ -55,8 +59,23 @@ const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isNavBarVisible, setIsNavBarVisible] = useState(false);
-
+  const appState = useRef(AppState.currentState); // Reference to app state
   const navigationRef = useRef(null);
+
+  // Function to log out the user
+  const logoutUser = async () => {
+    try {
+      await auth().signOut();
+      setIsLoggedIn(false);
+      Toast.show({
+        type: 'info',
+        text1: 'Logged Out',
+        text2: 'You have been logged out.',
+      });
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -94,6 +113,35 @@ const App = () => {
     checkUserStatus();
   }, []);
 
+  useEffect(() => {
+    // AppState listener to detect when the app is closed or goes to the background
+    const handleAppStateChange = (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === 'active'
+      ) {
+        // App is coming to the foreground (this is where you could re-authenticate if needed)
+        console.log('App has come to the foreground');
+      }
+
+      if (nextAppState === 'background') {
+        // App is going to the background, log out the user
+        logoutUser();
+      }
+
+      appState.current = nextAppState;
+      console.log('AppState', appState.current);
+    };
+
+    // Subscribe to AppState changes
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    // Cleanup the subscription on unmount
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   const toggleNavBar = () => {
     setIsNavBarVisible(!isNavBarVisible);
   };
@@ -112,257 +160,258 @@ const App = () => {
     );
   }
 
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-    <WishlistProvider>
-    <CartProvider>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName={isLoggedIn ? 'HomeTab' : 'OTPVerification'}
-        >
-          <Stack.Screen
-            name="OTPVerification"
-            component={OTPVerificationScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="HomeTab"
-            component={HomeScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="OTPscreen"
-            component={OTPScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SearchScreen"
-            component={SearchScreen}
-            options={{
-              title: 'Search',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-                flex: 1,
-                textAlign: 'left',
-                justifyContent: 'center',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
-          <Stack.Screen
-            name="AddTransactionScreen"
-            component={TransactionScreen}
-            options={{
-              title: 'Your Transactions',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-                flex: 1,
-                textAlign: 'left',
-                justifyContent: 'center',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
-             <Stack.Screen
-            name="WalletScreen"
-            component={WalletScreen}
-            options={{
-              title: 'Wallet History',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-                flex: 1,
-                textAlign: 'left',
-                justifyContent: 'center',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
-          <Stack.Screen
-            name="SearchResultsScreen"
-            component={SearchResultsScreen}
-            options={{
-              title: 'Search Results',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
-          <Stack.Screen
-            name="ProductDetailPage"
-            component={ProductDetailPage}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="NeedHelp"
-            component={NeedHelpScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="PrivacyPolicyScreen"
-            component={PrivacyPolicyScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="UpdateProfileScreen"
-            component={UpdateProfileScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="AddCompanyScreen"
-            component={AddCompanyScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="EditCompanyScreen"
-            component={EditCompanyScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="UserCompaniesScreen"
-            component={UserCompaniesScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="TermsConditionsScreen"
-            component={TermsConditionsScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Cart"
-            component={CartScreen}
-            options={({ navigation }) => ({
-              header: () => (
-                <CustomHeader3
-                  title="Cart"
-                  onBackPress={() => navigation.goBack()} // Handle back button press
-                />
-              ),
-            })}
-          />
-             <Stack.Screen
-            name="Wish"
-            component={WishlistScreen}
-            options={({ navigation }) => ({
-              header: () => (
-                <CustomHeader3
-                  title="Wishlist"
-                  onBackPress={() => navigation.goBack()} // Handle back button press
-                />
-              ),
-            })}
-          />
-            <Stack.Screen
-            name="FAQScreen"
-            component={FAQScreen}
-            options={({ navigation }) => ({
-              header: () => (
-                <CustomHeader3
-                  title="FAQScreen"
-                  onBackPress={() => navigation.goBack()} // Handle back button press
-                />
-              ),
-            })}
-          />
-          <Stack.Screen
-            name="Profile"
-            component={ProfileScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="SubCategoryScreen"
-            component={SubCategoryScreen}
-            options={{ headerShown: false }}
-          />
+      <WishlistProvider>
+        <CartProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              initialRouteName={isLoggedIn ? 'HomeTab' : 'OTPVerification'}
+            >
+              <Stack.Screen
+                name="OTPVerification"
+                component={OTPVerificationScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="HomeTab"
+                component={HomeScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="OTPscreen"
+                component={OTPScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="SearchScreen"
+                component={SearchScreen}
+                options={{
+                  title: 'Search',
+                  headerStyle: { backgroundColor: colors.main },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontFamily: 'Outfit-Medium',
+                    textAlign: 'left',
+                    flex: 1,
+                    textAlign: 'left',
+                    justifyContent: 'center',
+                  },
+                  headerTitleAlign: 'left',
+                }}
+              />
+              <Stack.Screen
+                name="AddTransactionScreen"
+                component={TransactionScreen}
+                options={{
+                  title: 'Your Transactions',
+                  headerStyle: { backgroundColor: colors.main },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontFamily: 'Outfit-Medium',
+                    textAlign: 'left',
+                    flex: 1,
+                    textAlign: 'left',
+                    justifyContent: 'center',
+                  },
+                  headerTitleAlign: 'left',
+                }}
+              />
+              <Stack.Screen
+                name="WalletScreen"
+                component={WalletScreen}
+                options={{
+                  title: 'Wallet History',
+                  headerStyle: { backgroundColor: colors.main },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontFamily: 'Outfit-Medium',
+                    textAlign: 'left',
+                    flex: 1,
+                    textAlign: 'left',
+                    justifyContent: 'center',
+                  },
+                  headerTitleAlign: 'left',
+                }}
+              />
+              <Stack.Screen
+                name="SearchResultsScreen"
+                component={SearchResultsScreen}
+                options={{
+                  title: 'Search Results',
+                  headerStyle: { backgroundColor: colors.main },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontFamily: 'Outfit-Medium',
+                    textAlign: 'left',
+                  },
+                  headerTitleAlign: 'left',
+                }}
+              />
+              <Stack.Screen
+                name="ProductDetailPage"
+                component={ProductDetailPage}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="NeedHelp"
+                component={NeedHelpScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="PrivacyPolicyScreen"
+                component={PrivacyPolicyScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="UpdateProfileScreen"
+                component={UpdateProfileScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="AddCompanyScreen"
+                component={AddCompanyScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="EditCompanyScreen"
+                component={EditCompanyScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="UserCompaniesScreen"
+                component={UserCompaniesScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="TermsConditionsScreen"
+                component={TermsConditionsScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="Cart"
+                component={CartScreen}
+                options={({ navigation }) => ({
+                  header: () => (
+                    <CustomHeader3
+                      title="Cart"
+                      onBackPress={() => navigation.goBack()} // Handle back button press
+                    />
+                  ),
+                })}
+              />
+              <Stack.Screen
+                name="Wish"
+                component={WishlistScreen}
+                options={({ navigation }) => ({
+                  header: () => (
+                    <CustomHeader3
+                      title="Wishlist"
+                      onBackPress={() => navigation.goBack()} // Handle back button press
+                    />
+                  ),
+                })}
+              />
+              <Stack.Screen
+                name="FAQScreen"
+                component={FAQScreen}
+                options={({ navigation }) => ({
+                  header: () => (
+                    <CustomHeader3
+                      title="FAQScreen"
+                      onBackPress={() => navigation.goBack()} // Handle back button press
+                    />
+                  ),
+                })}
+              />
+              <Stack.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="SubCategoryScreen"
+                component={SubCategoryScreen}
+                options={{ headerShown: false }}
+              />
 
-        
-          <Stack.Screen
-            name="AllCategoriesScreen"
-            component={AllCategoriesScreen}
-            options={{
-              title: 'Category',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
-           <Stack.Screen
-            name="AllProductsScreen"
-            component={GroupedProductScreen}
-            options={{
-              title: 'Products',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
-          <Stack.Screen
-            name="OrderSummary"
-            component={OrderSummaryScreen}
-            options={({ navigation }) => ({
-              header: () => (
-                <CustomHeader3
-                  title="Order Summary"
-                  onBackPress={() => navigation.goBack()} // Handle back button press
-                />
-              ),
-            })}
-          />
-          <Stack.Screen
-            name="InvoiceScreen"
-            component={InvoiceScreen}
-            options={{
-              title: 'Invoice Screen',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
-          <Stack.Screen
-            name="ThankYouScreen"
-            component={ThankYouScreen}
-            options={{
-              title: 'Thank You',
-              headerStyle: { backgroundColor: colors.main },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontFamily: 'Outfit-Medium',
-                textAlign: 'left',
-              },
-              headerTitleAlign: 'left',
-            }}
-          />
-        </Stack.Navigator>
 
-        {isNavBarVisible && <LeftNavBar toggleNavBar={toggleNavBar} />}
-        <Toast />
-      </NavigationContainer>
-    </CartProvider>
-    </WishlistProvider>
+              <Stack.Screen
+                name="AllCategoriesScreen"
+                component={AllCategoriesScreen}
+                options={{
+                  title: 'Category',
+                  headerStyle: { backgroundColor: colors.main },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontFamily: 'Outfit-Medium',
+                    textAlign: 'left',
+                  },
+                  headerTitleAlign: 'left',
+                }}
+              />
+              <Stack.Screen
+                name="AllProductsScreen"
+                component={GroupedProductScreen}
+                options={{
+                  title: 'Products',
+                  headerStyle: { backgroundColor: colors.main },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontFamily: 'Outfit-Medium',
+                    textAlign: 'left',
+                  },
+                  headerTitleAlign: 'left',
+                }}
+              />
+              <Stack.Screen
+                name="OrderSummary"
+                component={OrderSummaryScreen}
+                options={({ navigation }) => ({
+                  header: () => (
+                    <CustomHeader3
+                      title="Order Summary"
+                      onBackPress={() => navigation.goBack()} // Handle back button press
+                    />
+                  ),
+                })}
+              />
+              <Stack.Screen
+                name="InvoiceScreen"
+                component={InvoiceScreen}
+                options={{
+                  title: 'Invoice Screen',
+                  headerStyle: { backgroundColor: colors.main },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontFamily: 'Outfit-Medium',
+                    textAlign: 'left',
+                  },
+                  headerTitleAlign: 'left',
+                }}
+              />
+              <Stack.Screen
+                name="ThankYouScreen"
+                component={ThankYouScreen}
+                options={{
+                  title: 'Thank You',
+                  headerStyle: { backgroundColor: colors.main },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontFamily: 'Outfit-Medium',
+                    textAlign: 'left',
+                  },
+                  headerTitleAlign: 'left',
+                }}
+              />
+            </Stack.Navigator>
+
+            {isNavBarVisible && <LeftNavBar toggleNavBar={toggleNavBar} />}
+            <Toast />
+          </NavigationContainer>
+        </CartProvider>
+      </WishlistProvider>
     </GestureHandlerRootView>
   );
 };

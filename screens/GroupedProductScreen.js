@@ -13,13 +13,14 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { fetchProducts } from '../services/apiService';
-import ProductComponent from '../components/ProductComponent';
+
 import FilterComponent from '../components/FilterDropdown';
 import { debounce } from 'lodash';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { ScrollView } from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
 import { colors } from '../styles/color';
+import ProductComponent2 from '../components/ProductComponent copy';
 
 const GroupedProductScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,6 +73,46 @@ const GroupedProductScreen = () => {
   const SkeletonLoader = () => {
     return (
       <SkeletonPlaceholder>
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+
+        {/* Third Pair */}
+        <View style={styles.skeletonContainer}>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+          <View style={styles.skeletonCard}>
+            <View style={styles.skeletonImage} />
+            <View style={styles.skeletonText} />
+            <View style={styles.skeletonTextSmall} />
+          </View>
+        </View>
+
+        {/* Fourth Pair */}
         <View style={styles.skeletonContainer}>
           <View style={styles.skeletonCard}>
             <View style={styles.skeletonImage} />
@@ -228,7 +269,7 @@ const GroupedProductScreen = () => {
   };
 
   const MemoizedProductComponent = React.memo(({ product }) => (
-    <ProductComponent product={product} lowestPrice={product.lowestPrice} cartVisible={true} />
+    <ProductComponent2 product={product} lowestPrice={product.lowestPrice} cartVisible={true} />
   ));
 
   return (

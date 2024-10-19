@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     height: undefined, 
     aspectRatio: 3,
     resizeMode: 'contain',
-    marginTop: 0,
+    marginTop: -5,
   },
   logo: {
     width: sizes.logoWidth,
