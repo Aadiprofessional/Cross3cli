@@ -23,14 +23,10 @@ import CompanyDropdown2 from '../components/CompanyDropdown copy';
 import CompanyDropdown3 from '../components/CompanyDropdown copy 3';
 import { useCart } from '../components/CartContext';
 import SuggestedProducts from '../components/SuggestedProducts';
+import CompanyDropdown4 from '../components/CompanyDropdown copy 2';
 
 const OrderSummaryScreen = ({ route, navigation }) => {
-  const {
-    cartItems: initialCartItems,
-    totalAmount: initialTotalAmount,
-    totalAdditionalDiscountValue,
-    comment: passedComment, // Extract the passed comment if available
-  } = route.params;
+  const { cartItems: initialCartItems, totalAmount: initialTotalAmount, totalAdditionalDiscountValue, comment: passedComment } = route.params;
 
   const { cartItems, updateCartItemQuantity, removeCartItem } = useCart();
   const [totalAmount, setTotalAmount] = useState(initialTotalAmount);
@@ -56,23 +52,25 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       try {
         const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/discounts');
         setDiscounts(response.data);
+
+        // Automatically apply the first active discount if it exists
+        const applicableDiscount = response.data
+          .filter(discount => discount.status === 'Active' && initialTotalAmount >= discount.amount)
+          .sort((a, b) => b.amount - a.amount)[0];
+
+        if (applicableDiscount) {
+          const discountAmount = (initialTotalAmount * applicableDiscount.discount) / 100;
+          setTotalAmount(prevTotal => prevTotal - discountAmount); // Update the total amount with the discount applied
+          setAppliedDiscount(applicableDiscount); // Store the applied discount
+          Alert.alert('Discount Applied', `Discount of ${applicableDiscount.discount}% has been applied.`);
+        }
       } catch (error) {
         console.error('Error fetching discounts:', error);
       }
     };
 
     fetchDiscounts();
-  }, []);
-
-  useEffect(() => {
-    fetchRewardPoints();
-  }, []);
-
-  useEffect(() => {
-    if (comment) {
-      console.log("Received comment:", comment);
-    }
-  }, [comment]);
+  }, [initialTotalAmount]); // Run only when initialTotalAmount changes
 
   // Modify calculateTotalAmount to only apply discounts/coupons to the subtotal
   const calculateTotalAmount = () => {
@@ -155,19 +153,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
 
 
-  useEffect(() => {
-    const fetchDiscounts = async () => {
-      try {
-        const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/discounts');
-        setDiscounts(response.data);
-      } catch (error) {
-        console.error('Error fetching discounts:', error);
-      }
-    };
-
-    fetchDiscounts();
-  }, []);
-
+ 
   // Fetch reward points (existing logic)
   useEffect(() => {
     fetchRewardPoints();
@@ -190,7 +176,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
   }, [cartItems, useRewardPoints, appliedCoupon, appliedDiscount]);
 
   const [data, setData] = useState({
-    rewardPointsPrice: 10,
+    rewardPointsPrice: 0,
     shippingCharges: 0,
     additionalDiscount: totalAdditionalDiscountValue,
     comment: comment,
@@ -322,7 +308,12 @@ const OrderSummaryScreen = ({ route, navigation }) => {
         `https://crossbee-server-1036279390366.asia-south1.run.app/checkout`,
         {
           totalAmount,
-          data,
+          data: {
+            ...data,
+            companyId: selectedCompanyId,  // Add selected company ID
+            brandId: selectedBrandId,       // Add selected brand ID
+            // Include other relevant data if needed
+          },
           useRewardPoints,
           appliedCoupon,
           cartItems,
@@ -571,10 +562,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           onSelectCompany={handleSelectLog}
           pincode={selectedPincode}
         />
-        <CompanyDropdown3
-          onSelectCompany={handleSelectTrans}
-          pincode={selectedPincode}
-        />
+       
         {cartItems.map(item => (
           <CartItem
             key={item.cartId}
@@ -612,7 +600,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
               <Text style={styles.modalTitle}>Select Payment Option</Text>
               <TouchableOpacity
                 style={styles.optionButton}
-                onPress={() => handlePaymentOptionSelect('Pay')}
+                onPress={() => handlePaymentOptionSelect('paid')}
               >
                 <Text style={styles.optionText}>Pay Now</Text>
               </TouchableOpacity>

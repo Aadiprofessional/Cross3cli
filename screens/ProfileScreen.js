@@ -163,7 +163,7 @@ const ProfileScreen = ({ navigation }) => {
     {
       iconName: 'wallet-outline',
       text: `Wallet: ${rewardPoints}`,
-      screen: 'WalletScreen',
+      screen: null,
       button: (
         <TouchableOpacity
           style={styles.withdrawButton}

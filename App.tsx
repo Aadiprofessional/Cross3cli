@@ -114,33 +114,33 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    // AppState listener to detect when the app is closed or goes to the background
+    // AppState listener to detect when the app goes to the background or is closed
     const handleAppStateChange = (nextAppState) => {
-      if (
-        appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
-        // App is coming to the foreground (this is where you could re-authenticate if needed)
-        console.log('App has come to the foreground');
+      // If the app is going to the background, we check if it should log out
+      if (appState.current === 'active' && nextAppState === 'background') {
+        // The app is going to the background; we can perform any action here if needed
+        console.log('App is going to the background');
       }
-
-      if (nextAppState === 'background') {
-        // App is going to the background, log out the user
+  
+      // If the app state is inactive, it means it was closed
+      if (nextAppState === 'inactive') {
+        // The app is closed by the user; log out
         logoutUser();
       }
-
+  
       appState.current = nextAppState;
       console.log('AppState', appState.current);
     };
-
+  
     // Subscribe to AppState changes
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-
+  
     // Cleanup the subscription on unmount
     return () => {
       subscription.remove();
     };
   }, []);
+  
 
   const toggleNavBar = () => {
     setIsNavBarVisible(!isNavBarVisible);

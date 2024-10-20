@@ -220,12 +220,14 @@ const ProductDetailPage = ({ route }) => {
   const handleIncrease = () => {
     const maxQuantity = getMaxCartValue();
     const increment = parseInt(bag, 10) || 1; // Use the bag value or default to 1
-    if (quantity + increment <= maxQuantity) {
-      setQuantity(quantity + increment);
+    const newQuantity = quantity * increment; // Multiply by bag size
+  
+    if (newQuantity <= maxQuantity) {
+      setQuantity(newQuantity);
       Toast.show({
         type: 'success',
         text1: 'Quantity Increased',
-        text2: `Quantity is now ${quantity + increment}`,
+        text2: `Quantity is now ${newQuantity}`,
       });
     } else {
       Toast.show({
@@ -239,12 +241,14 @@ const ProductDetailPage = ({ route }) => {
   const handleDecrease = () => {
     const minCartValue = getMinCartValue();
     const decrement = parseInt(bag, 10) || 1; // Use the bag value or default to 1
-    if (quantity - decrement >= minCartValue) {
-      setQuantity(quantity - decrement);
+    const newQuantity = Math.max(quantity / decrement, minCartValue); // Divide by bag size and ensure it's not below minCartValue
+  
+    if (newQuantity >= minCartValue) {
+      setQuantity(newQuantity);
       Toast.show({
         type: 'info',
         text1: 'Quantity Decreased',
-        text2: `Quantity is now ${quantity - decrement}`,
+        text2: `Quantity is now ${newQuantity}`,
       });
     } else {
       Toast.show({
@@ -254,6 +258,7 @@ const ProductDetailPage = ({ route }) => {
       });
     }
   };
+  
  
  
   

@@ -34,7 +34,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
   }, [quantity]);
 
   const handleIncreaseQuantity = () => {
-    const newQuantity = itemQuantity + parsedBag; // Increment by bag value
+    const newQuantity = itemQuantity * parsedBag; // Multiply by bag value
     if (newQuantity > colormaxCartValue) {
       Toast.show({
         type: 'info',
@@ -48,9 +48,9 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
       onUpdateQuantity(cartId, newQuantity);
     }
   };
-
+  
   const handleDecreaseQuantity = () => {
-    const newQuantity = itemQuantity - parsedBag; // Decrement by bag value
+    const newQuantity = Math.max(itemQuantity / parsedBag, colorminCartValue); // Divide by bag value, ensuring it doesn't go below minCartValue
     if (newQuantity < colorminCartValue) {
       Toast.show({
         type: 'info',
@@ -64,6 +64,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
       onUpdateQuantity(cartId, newQuantity);
     }
   };
+  
 
   const handleImagePress = () => {
     

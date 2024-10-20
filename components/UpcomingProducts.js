@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Dimensions, ToastAndroid } from 'react-native';
 import { colors } from '../styles/color';
 import ProductComponent from './ProductComponent';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder'; // Assuming this library is installed
@@ -34,6 +34,7 @@ const MemoizedProductComponent = React.memo(({ product }) => (
 const UpcomingProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Track error state
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -47,9 +48,18 @@ const UpcomingProducts = () => {
       try {
         const response = await fetch(`https://crossbee-server-1036279390366.asia-south1.run.app/upcomingProducts?uid=${userId}`);
         const data = await response.json();
-        setProducts(data);
+        
+        // Check if data is an array before setting it
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          throw new Error('Invalid data format received');
+        }
       } catch (error) {
         console.error('Error fetching products:', error);
+        setError('Failed to load products. Please try again later.');
+        // Show a toast notification to the user
+        ToastAndroid.show('Error loading products', ToastAndroid.SHORT);
       } finally {
         setLoading(false);
       }
@@ -61,23 +71,31 @@ const UpcomingProducts = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Upcoming Products</Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
-      >
-        {loading ? (
-          <SkeletonLoader />
-        ) : (
-          <View style={styles.productRow}>
-            {products.map((product, index) => (
-              <View key={index} style={styles.productContainer}>
-                <MemoizedProductComponent product={product} />
-              </View>
-            ))}
-          </View>
-        )}
-      </ScrollView>
+      {error ? (
+        <Text style={styles.errorText}>{error}</Text> // Display error message
+      ) : (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          {loading ? (
+            <SkeletonLoader />
+          ) : (
+            <View style={styles.productRow}>
+              {products.length > 0 ? (
+                products.map((product, index) => (
+                  <View key={index} style={styles.productContainer}>
+                    <MemoizedProductComponent product={product} />
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.noProductsText}>No products found</Text> // Show message if no products
+              )}
+            </View>
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -101,9 +119,19 @@ const styles = StyleSheet.create({
   },
   productContainer: {
     width: width * 0.48, // 48% of the screen width
-   
     marginLeft: 5,
     justifyContent: 'space-between',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    marginTop: 10,
+  },
+  noProductsText: {
+    fontSize: 16,
+    color: colors.TextBlack,
+    textAlign: 'center',
+    marginTop: 20,
   },
   // Skeleton styles
   skeletonContainer: {
@@ -113,6 +141,7 @@ const styles = StyleSheet.create({
   skeletonCard: {
     width: width * 0.48, // Ensure it matches productContainer width
     height: 250,
+    marginRight: 10,
     marginBottom: 20,
   },
   skeletonImage: {

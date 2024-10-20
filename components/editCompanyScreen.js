@@ -182,7 +182,7 @@ const EditCompanyScreen = () => {
             value={companyName}
             onChangeText={setCompanyName}
           />
-          <Text style={styles.label}>Phone Number</Text>
+          <Text style={styles.label}>Phone Number <Text style={styles.requiredStar}>*</Text></Text>
           <TextInput
             style={styles.input}
             placeholder="Phone Number"
@@ -197,7 +197,7 @@ const EditCompanyScreen = () => {
             maxLength={10}
             editable={company.type !== 'Primary'}
           />
-           <Text style={styles.label}>Alternate Number</Text>
+           <Text style={styles.label}>Alternate Number <Text style={styles.requiredStar}>*</Text></Text>
           <TextInput
             style={styles.input}
             placeholder="Alternate Number"

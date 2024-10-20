@@ -46,9 +46,9 @@ const AllCategoriesScreen = () => {
   }, [fetchCategories]);
 
   const navigateToSubCategory2 = useCallback(
-    (name) => {
+    (name,id) => {
       const trimmedName = name.trim(); // Remove leading and trailing spaces
-      navigation.navigate('SubCategoryScreen', { name: trimmedName });
+      navigation.navigate('SubCategoryScreen', { name: trimmedName , id});
     },
     [navigation]
   );
@@ -60,7 +60,7 @@ const AllCategoriesScreen = () => {
         <TouchableOpacity
           key={id}
           style={styles.categoryItem}
-          onPress={() => navigateToSubCategory2(name)}
+          onPress={() => navigateToSubCategory2(name,id)}
         >
           <View style={styles.categoryImageContainer}>
             <Image source={{ uri: image }} style={styles.categoryImage} />

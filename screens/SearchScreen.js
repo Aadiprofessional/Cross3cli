@@ -131,8 +131,7 @@ const SearchScreen = () => {
           );
         }
         if (filterOptions.brand) {
-          console.log(filterOptions.brand, filteredProducts[0].brand);
-
+          console.log("Brand filter applied:", filterOptions.brand);
           filteredProducts = filteredProducts.filter(
             product => product.brand === filterOptions.brand,
           );

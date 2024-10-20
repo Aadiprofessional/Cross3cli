@@ -5,7 +5,7 @@ import auth from '@react-native-firebase/auth';
 import { Picker } from '@react-native-picker/picker'; // Updated import
 import { colors } from '../styles/color';
 
-const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
+const CompanyDropdown4 = ({ onSelectCompany, pincode }) => {
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -77,7 +77,7 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
           style={styles.picker}
         >
           {companies.length === 0 && (
-            <Picker.Item label="No Logistics available" value={null} />
+            <Picker.Item label="No  Booking Station available" value={null} />
           )}
           {companies.map((company) => (
             <Picker.Item
@@ -128,4 +128,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CompanyDropdown3;
+export default CompanyDropdown4;

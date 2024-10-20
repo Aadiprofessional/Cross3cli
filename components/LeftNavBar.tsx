@@ -71,11 +71,11 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     }
   };
 
-  const navigateToSubCategory = (categoryName: string) => {
+  const navigateToSubCategory = (categoryName: string,name:string) => {
     const trimmedCategoryName = categoryName.trim(); // Remove leading and trailing spaces
     console.log(`Navigating to SubCategoryScreen with categoryName: ${trimmedCategoryName}`);
   
-    navigation.navigate('SubCategoryScreen', { categoryName: trimmedCategoryName });
+    navigation.navigate('SubCategoryScreen', { categoryName: trimmedCategoryName ,name: name});
     toggleNavBar();
   };
   
@@ -89,11 +89,11 @@ const LeftNavBar: React.FC<LeftNavBarProps> = ({ toggleNavBar }) => {
     toggleNavBar();
   };
 
-  const renderCategoryItem = (category: { name: string }) => (
+  const renderCategoryItem = (category: { id: string ,name: string}) => (
     <TouchableOpacity
-      key={category.name}
+      key={category.id}
       style={styles.navItem}
-      onPress={() => navigateToSubCategory(category.name)}>
+      onPress={() => navigateToSubCategory(category.id,category.name)}>
       <Text style={styles.navText}>{category.name}</Text>
       <Icon name="chevron-forward" size={24} color={colors.second} />
     </TouchableOpacity>

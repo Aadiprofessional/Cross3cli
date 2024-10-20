@@ -9,13 +9,12 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
+  
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { fetchProducts } from '../services/apiService';
 
-import FilterComponent from '../components/FilterDropdown';
-import { debounce } from 'lodash';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { ScrollView } from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
@@ -26,22 +25,13 @@ const GroupedProductScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [originalProducts, setOriginalProducts] = useState({});
   const [searchResults, setSearchResults] = useState({});
-  const [sortedResults, setSortedResults] = useState({});
-  const [openSort, setOpenSort] = useState(false);
-  const [sortValue, setSortValue] = useState(null);
-  const [sortItems, setSortItems] = useState([
-    { label: 'Low to High', value: 'low_to_high' },
-    { label: 'High to Low', value: 'high_to_low' },
-  ]);
-  const [filterVisible, setFilterVisible] = useState(false);
-  const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
   const [visibleCategories, setVisibleCategories] = useState(2); 
   const [loadingMore, setLoadingMore] = useState(false);
 
   const userUid = auth().currentUser?.uid;
 
-  const loadProducts = useCallback(async () => {
+  const loadProducts = async () => {
     try {
       setLoading(true);
       const response = await fetch(`https://crossbee-server-1036279390366.asia-south1.run.app/allProducts?uid=${userUid}`);
@@ -64,11 +54,11 @@ const GroupedProductScreen = () => {
       console.error('Error loading products:', error);
       setLoading(false);
     }
-  }, [userUid]);
+  };
 
   useEffect(() => {
     loadProducts();
-  }, [loadProducts]);
+  }, []);
 
   const SkeletonLoader = () => {
     return (
@@ -129,137 +119,8 @@ const GroupedProductScreen = () => {
     );
   };
 
-  // Filter products based on search query and filter options
-  const debouncedSearch = useMemo(
-    () =>
-      debounce(query => {
-        let filteredProducts = {};
-  
-        // Check if originalProducts is an object with categories
-        if (typeof originalProducts === 'object' && originalProducts !== null) {
-          // Loop through each category
-          for (const [category, products] of Object.entries(originalProducts)) {
-            // Check if products is an array before applying filter
-            if (Array.isArray(products)) {
-              let categoryFilteredProducts = products.filter(product =>
-                product.searchName.toLowerCase().includes(query.toLowerCase())
-              );
-  
-              // Apply Category Filter
-              if (filterOptions.category) {
-                categoryFilteredProducts = categoryFilteredProducts.filter(
-                  product => product.mainId === filterOptions.category
-                );
-              }
-  
-              // Apply Brand Filter
-              if (filterOptions.brand) {
-                categoryFilteredProducts = categoryFilteredProducts.filter(
-                  product => product.brand === filterOptions.brand
-                );
-              }
-  
-              // Apply Discount Filter
-              if (filterOptions.discount) {
-                categoryFilteredProducts = categoryFilteredProducts.filter(product => {
-                  switch (filterOptions.discount) {
-                    case '10_above':
-                      return product.additionalDiscount >= 10;
-                    case '20_above':
-                      return product.additionalDiscount >= 20;
-                    case '30_above':
-                      return product.additionalDiscount >= 30;
-                    case '40_above':
-                      return product.additionalDiscount >= 40;
-                    case '50_above':
-                      return product.additionalDiscount >= 50;
-                    case '60_above':
-                      return product.additionalDiscount >= 60;
-                    case '70_above':
-                      return product.additionalDiscount >= 70;
-                    case '80_above':
-                      return product.additionalDiscount >= 80;
-                    case '90_above':
-                      return product.additionalDiscount >= 90;
-                    default:
-                      return true;
-                  }
-                });
-              }
-  
-              // Apply Price Filter
-              if (filterOptions.minPrice || filterOptions.maxPrice) {
-                categoryFilteredProducts = categoryFilteredProducts.filter(product => {
-                  const price = parseFloat(product.price);
-                  return (
-                    price >= filterOptions.minPrice && price <= filterOptions.maxPrice
-                  );
-                });
-              }
-  
-              // Exclude Out of Stock products
-              if (filterOptions.excludeOutOfStock) {
-                categoryFilteredProducts = categoryFilteredProducts.filter(
-                  product => !product.outOfStock
-                );
-              }
-  
-              // If the filtered products exist, add them to the filteredProducts object
-              if (categoryFilteredProducts.length > 0) {
-                filteredProducts[category] = categoryFilteredProducts;
-              }
-            }
-          }
-        }
-  
-        // If query is present, update with filtered results, else revert to originalProducts
-        setSearchResults(query ? filteredProducts : originalProducts);
-        setSortedResults(filteredProducts ?? originalProducts);
-        setSortValue(null);
-      }, 300),
-    [originalProducts, filterOptions],
-  );
-  
-  
-  useEffect(() => {
-    debouncedSearch(searchQuery);
-  }, [searchQuery, debouncedSearch]);
-
-  // Sort products based on price
-  useEffect(() => {
-    const sortProducts = () => {
-      let sortedProducts = [];
-  
-      // Ensure searchResults is an array before spreading
-      if (Array.isArray(searchResults)) {
-        sortedProducts = [...searchResults]; // Spread only if it's an array
-  
-        if (sortValue === 'low_to_high') {
-          sortedProducts.sort(
-            (a, b) => parseFloat(a.price) - parseFloat(b.price)
-          );
-        } else if (sortValue === 'high_to_low') {
-          sortedProducts.sort(
-            (a, b) => parseFloat(b.price) - parseFloat(a.price)
-          );
-        }
-      }
-  
-      setSortedResults(sortedProducts);
-    };
-  
-    sortProducts();
-  }, [sortValue, searchResults]);
-  
-
-  // Apply filter options
-  const applyFilters = filters => {
-    setFilterOptions(filters);
-    setFilterVisible(false);
-  };
-
   const loadMoreCategories = () => {
-    if (visibleCategories < Object.keys(sortedResults).length) {
+    if (visibleCategories < Object.keys(searchResults).length) {
       setLoadingMore(true);
       setTimeout(() => {
         setVisibleCategories(prevCount => prevCount + 2); 
@@ -286,43 +147,17 @@ const GroupedProductScreen = () => {
         />
       </View>
 
-      <View style={styles.buttonsContainer}>
-        <View style={styles.buttonWrapper}>
-          <DropDownPicker
-            open={openSort}
-            value={sortValue}
-            items={sortItems}
-            setOpen={setOpenSort}
-            setValue={setSortValue}
-            setItems={setSortItems}
-            placeholder="Sort By"
-            style={styles.smallButton}
-            dropDownContainerStyle={styles.smallDropDownContainer}
-            textStyle={styles.buttonText}
-          />
-        </View>
-        <View style={styles.buttonWrapper}>
-          <TouchableOpacity
-            style={styles.smallButton}
-            onPress={() => setFilterVisible(true)}
-          >
-            <Text style={styles.buttonText}>Filter</Text>
-            <Icon name="chevron-down" size={16} color="#484848" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
       {loading ? (
         <SkeletonLoader />
       ) : (
         <ScrollView>
-          {Object.keys(sortedResults)
+          {Object.keys(searchResults)
             .slice(0, visibleCategories)
             .map((category, index) => (
               <View key={`${category}-${index}`}>
                 <Text style={styles.categoryTitle}>{category}</Text>
                 <FlatList
-                  data={sortedResults[category]}
+                  data={searchResults[category]}
                   keyExtractor={(item) => item.productId}
                   numColumns={2}
                   renderItem={({ item }) => (
@@ -341,35 +176,16 @@ const GroupedProductScreen = () => {
           )}
 
           <TouchableOpacity onPress={loadMoreCategories}>
-            {visibleCategories < Object.keys(sortedResults).length && (
+            {visibleCategories < Object.keys(searchResults).length && (
               <Text style={styles.loadMoreText}>Load more Products</Text>
             )}
           </TouchableOpacity>
         </ScrollView>
       )}
 
-      <Modal
-        visible={filterVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setFilterVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <FilterComponent
-              filters={filterOptions}
-              onApply={applyFilters}
-              onCancel={() => setFilterVisible(false)}
-            />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
-
-
-
 
 const styles = StyleSheet.create({
  container2: {
@@ -455,34 +271,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Outfit-Medium',
     color: '#484848',
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  buttonWrapper: {
-    marginRight: 15,
-  },
-  smallButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    width: 120,
-  },
-  smallDropDownContainer: {
-    borderRadius: 10,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 0,
-  },
-  buttonText: {
-    fontSize: 14,
-    fontFamily: 'Outfit-Medium',
-    color: '#484848',
-    marginRight: 5,
   },
   noResultsText: {
     fontSize: 18,

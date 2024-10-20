@@ -24,7 +24,7 @@ import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { colors } from '../styles/color';
 
 const SubCategoryScreen = ({ route }) => {
-  const { categoryName, name } = route.params || {};
+  const { categoryName, name,id} = route.params || {};
   const navigation = useNavigation();
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,7 +59,7 @@ const SubCategoryScreen = ({ route }) => {
       const response = await axios.post(
         `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
         {
-          main: name || categoryName,
+          main: id || categoryName,
         }
       );
       console.log('Fetched products:', response.data);
@@ -72,13 +72,13 @@ const SubCategoryScreen = ({ route }) => {
       console.error('Error fetching products: ', error);
       setLoading(false);
     }
-  }, [categoryName || name]);
+  }, [categoryName || id]);
 
   useEffect(() => {
-    if (categoryName || name) {
+    if (categoryName || id) {
       fetchProducts();
     }
-  }, [categoryName || name, fetchProducts]);
+  }, [categoryName || id, fetchProducts]);
 
   const loadMoreProducts = () => {
     if (isLoadingMore || visibleProducts.length >= products.length) return;
@@ -254,6 +254,7 @@ const SubCategoryScreen = ({ route }) => {
     sortProducts();
   }, [sortValue, searchResults]);
 
+console.log(name);
 
 
   const MemoizedProductComponent = React.memo(({ product }) => (
@@ -271,7 +272,7 @@ const SubCategoryScreen = ({ route }) => {
 
   return (
     <View style={styles.container2}>
-      <CustomHeader2 title={categoryName || name} />
+      <CustomHeader2 title={ name} />
       <View style={styles.container}>
         <View style={styles.searchBox}>
           <Icon name="search" size={20} color="#484848" style={styles.icon} />
