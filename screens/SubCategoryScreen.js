@@ -157,28 +157,21 @@ const SubCategoryScreen = ({ route }) => {
         let filteredProducts = originalProducts.filter(product =>
           product.searchName.toLowerCase().includes(query.toLowerCase()),
         );
-
-        // Apply Category Filter
-
+  
+        // Apply Filters
         if (filterOptions.category) {
-          console.log(filterOptions.category, filteredProducts[0].mainId);
-
           filteredProducts = filteredProducts.filter(
             product => product.mainId === filterOptions.category,
           );
         }
         if (filterOptions.brand) {
-          console.log(filterOptions.brand, filteredProducts[0].brand);
-
           filteredProducts = filteredProducts.filter(
             product => product.brand === filterOptions.brand,
           );
         }
-
-        // Apply Discount Filter
+        // Discount Filter
         if (filterOptions.discount) {
           filteredProducts = filteredProducts.filter(product => {
-            console.log(product);
             switch (filterOptions.discount) {
               case '10_above':
                 return product.additionalDiscount >= 10;
@@ -186,7 +179,6 @@ const SubCategoryScreen = ({ route }) => {
                 return product.additionalDiscount >= 20;
               case '30_above':
                 return product.additionalDiscount >= 30;
-
               case '40_above':
                 return product.additionalDiscount >= 40;
               case '50_above':
@@ -199,45 +191,55 @@ const SubCategoryScreen = ({ route }) => {
                 return product.additionalDiscount >= 80;
               case '90_above':
                 return product.additionalDiscount >= 90;
-
               default:
                 return true;
             }
           });
         }
+  
+        // Price Filter
         if (filterOptions.minPrice || filterOptions.maxPrice) {
           filteredProducts = filteredProducts.filter(product => {
             const price = parseFloat(product.price);
             return (
-              price >= filterOptions.minPrice && price <= filterOptions.maxPrice
+              price >= (filterOptions.minPrice || 0) && 
+              price <= (filterOptions.maxPrice || Infinity)
             );
           });
         }
-
+  
         // Exclude Out of Stock products
         if (filterOptions.excludeOutOfStock) {
           filteredProducts = filteredProducts.filter(
             product => !product.outOfStock,
           );
         }
-
-        setSearchResults(query ? filteredProducts : originalProducts);
-        setSortedResults(filteredProducts ?? originalProducts);
-        setSortValue(null);
+  
+        // Set the final search results
+        setSearchResults(filteredProducts);
+        setSortedResults(filteredProducts); // Update sorted results too
+        setVisibleProducts(filteredProducts.slice(0, pageSize)); // Set visible products
+        setSortValue(null); // Reset sort value on search
       }, 300),
-
     [originalProducts, filterOptions],
   );
-
+  
   useEffect(() => {
     debouncedSearch(searchQuery);
   }, [searchQuery, debouncedSearch]);
-
+  
+  // Apply filter options
+  const applyFilters = filters => {
+    setFilterOptions(filters);
+    setFilterVisible(false); // Close the filter modal after applying filters
+    debouncedSearch(searchQuery); // Re-trigger the search with current query
+  };
+  
   // Sort products based on price
   useEffect(() => {
     const sortProducts = () => {
       let sortedProducts = [...searchResults];
-
+  
       if (sortValue === 'low_to_high') {
         sortedProducts.sort(
           (a, b) => parseFloat(a.price) - parseFloat(b.price),
@@ -247,23 +249,28 @@ const SubCategoryScreen = ({ route }) => {
           (a, b) => parseFloat(b.price) - parseFloat(a.price),
         );
       }
-
+  
       setSortedResults(sortedProducts);
+      setVisibleProducts(sortedProducts.slice(0, pageSize)); // Update visible products after sorting
     };
-
+  
     sortProducts();
   }, [sortValue, searchResults]);
+  
+  
+  // Apply filter options
+  // Apply filter options and trigger search
 
-console.log(name);
+  
+
+  // Apply filter options
+
 
 
   const MemoizedProductComponent = React.memo(({ product }) => (
     <ProductComponent product={product} />
   ));
-  const applyFilters = filters => {
-    setFilterOptions(filters);
-    setFilterVisible(false);
-  };
+
   const renderItem = ({ item }) => (
     <View style={styles.productContainer}>
       <MemoizedProductComponent product={item} />

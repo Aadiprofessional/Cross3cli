@@ -135,7 +135,7 @@ const GroupedProductScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchBox}>
+      {/* <View style={styles.searchBox}>
         <Icon name="search" size={20} color="#484848" style={styles.icon} />
         <TextInput
           style={styles.searchInput}
@@ -145,7 +145,7 @@ const GroupedProductScreen = () => {
           onChangeText={setSearchQuery}
           returnKeyType="search"
         />
-      </View>
+      </View> */}
 
       {loading ? (
         <SkeletonLoader />

@@ -188,6 +188,7 @@ const styles = StyleSheet.create({
   },
   historyTitle: {
     fontSize: 18,
+    color: '#000000',
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
   },
