@@ -9,6 +9,7 @@ import {
   FlatList,
   Modal,
   TouchableWithoutFeedback,
+  ScrollView,
 } from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
@@ -98,6 +99,7 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
           <TouchableWithoutFeedback onPress={handleOutsidePress}>
             <View style={styles.modalBackground}>
               <View style={styles.dropdown}>
+                {/* FlatList for scrolling company items */}
                 <FlatList
                   data={companies}
                   keyExtractor={(item) => item.name}
@@ -119,6 +121,7 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
                       ))}
                     </TouchableOpacity>
                   )}
+                  showsVerticalScrollIndicator={true} // Add scroll indicator for better UX
                 />
               </View>
             </View>
@@ -165,7 +168,6 @@ const styles = StyleSheet.create({
   },
   dropdown: {
     backgroundColor: '#ffffff', // Set a solid background color
-  
     width: '95%', // Set the modal width to 95%
     maxHeight: '70%', // Limit the height of the dropdown
     elevation: 5, // Add some shadow

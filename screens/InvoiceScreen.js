@@ -63,19 +63,18 @@ const InvoiceScreen = ({ route }) => {
         Platform.Version >= 30
           ? PermissionsAndroid.PERMISSIONS.MANAGE_EXTERNAL_STORAGE
           : PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-  
+
       const granted = await PermissionsAndroid.request(permission, {
         title: 'Storage Permission Required',
         message: 'This app needs access to your storage to download the PDF',
       });
-  
+
       return granted === PermissionsAndroid.RESULTS.GRANTED;
     } catch (err) {
       console.warn(err);
       return false;
     }
   };
-  
 
   
   const generatePdf = async () => {
@@ -322,17 +321,14 @@ let totalGstAmount = 0;
       //   });
 
       // Notify user
+      ToastAndroid.show(
+        'PDF uploaded and saved successfully.',
+        ToastAndroid.SHORT,
+      );
+
+      // Set the download URL or handle it as needed
       setPdfPath(downloadURL);
-
-  ToastAndroid.show(
-    'PDF uploaded and saved successfully.',
-    ToastAndroid.SHORT,
-  );
-
-    
-    } catch (error) { console.error('PDF generation error:', error);
-      Alert.alert('Error', 'Failed to generate or upload PDF.');
-     }
+    } catch (error) { }
   };
   const handleOpenInvoice = (url) => {
     if (url && /^https?:\/\//i.test(url)) { // Validate URL format

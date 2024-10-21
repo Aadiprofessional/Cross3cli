@@ -4,10 +4,10 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView, // Import ScrollView
+  ScrollView,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {colors} from '../styles/color';
+import { useNavigation } from '@react-navigation/native';
+import { colors } from '../styles/color';
 import Icon from 'react-native-vector-icons/Feather'; // Import Feather icons
 import RenderHTML from 'react-native-render-html'; // Import the render HTML library
 
@@ -76,7 +76,6 @@ const PrivacyPolicyScreen = () => {
     <View style={styles.container}>
       <View style={[styles.header, { backgroundColor: colors.main }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          {/* Use Feather icon for back button */}
           <Icon
             name="arrow-left"
             size={24}
@@ -91,6 +90,12 @@ const PrivacyPolicyScreen = () => {
         <RenderHTML
           contentWidth={400} // Adjust based on your design
           source={{ html: htmlContent }}
+          tagsStyles={{
+            h1: { color: 'black', fontFamily: 'Outfit-Medium' },  // Styles for <h1>
+            h2: { color: 'black', fontFamily: 'Outfit-Medium' },  // Styles for <h2>
+            p: { color: 'black', fontFamily: 'Outfit-Medium' },   // Styles for <p>
+            li: { color: 'black', fontFamily: 'Outfit-Medium' },   // Styles for <li>
+          }}
         />
       </ScrollView>
     </View>

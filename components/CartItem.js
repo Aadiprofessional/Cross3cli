@@ -34,7 +34,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
   }, [quantity]);
 
   const handleIncreaseQuantity = () => {
-    const newQuantity = itemQuantity * parsedBag; // Multiply by bag value
+    const newQuantity = itemQuantity + parsedBag; // Increment by bag value
     if (newQuantity > colormaxCartValue) {
       Toast.show({
         type: 'info',
@@ -48,10 +48,10 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
       onUpdateQuantity(cartId, newQuantity);
     }
   };
-  
+
   const handleDecreaseQuantity = () => {
-    const newQuantity = Math.max(itemQuantity / parsedBag, colorminCartValue); // Divide by bag value, ensuring it doesn't go below minCartValue
-    if (newQuantity < colorminCartValue) {
+    const newQuantity = itemQuantity - parsedBag; // Decrement by bag value
+    if (newQuantity < colorminCartValue * parsedBag) {
       Toast.show({
         type: 'info',
         position: 'bottom',
@@ -64,11 +64,10 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
       onUpdateQuantity(cartId, newQuantity);
     }
   };
-  
 
   const handleImagePress = () => {
-    
-    
+
+
     navigation.navigate('ProductDetailPage', {
       productId, mainId, attribute1D: attributeSelected1,
       attribute2D: attributeSelected2,
@@ -92,16 +91,21 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
         style={styles.productImageContainer}
         onPress={handleImagePress}>
         <Image
-          source={{ uri: image }}
+          source={{
+            uri: (image && !image.includes('undefined'))
+              ? image
+              : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
+          }}
           style={styles.productImage}
           resizeMode="contain"
         />
+
       </TouchableOpacity>
       <View style={styles.productDetails}>
-      <TouchableOpacity
-        style={styles.productName}
-        onPress={handleImagePress}>
-        <Text >{productName}</Text>
+        <TouchableOpacity
+          style={styles.productName}
+          onPress={handleImagePress}>
+          <Text >{productName}</Text>
         </TouchableOpacity>
         <Text style={styles.productPrice}>
           {Number(discountedPrice).toLocaleString("en-IN", {
@@ -111,19 +115,19 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
           })}
         </Text>
         <View style={styles.itemColorContainer}>
-        <View style={[styles.itemColor, { backgroundColor: colors.TextWhite }]}>
-  <Text style={styles.itemColorText}>
-    {`${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}`.length > 15 
-      ? `${`${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}`.substring(0, 15)}...`
-      : `${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}` }
-  </Text>
-</View>
+          <View style={[styles.itemColor, { backgroundColor: colors.TextWhite }]}>
+            <Text style={styles.itemColorText}>
+              {`${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}`.length > 15
+                ? `${`${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}`.substring(0, 15)}...`
+                : `${attributeSelected1}, ${attributeSelected2}, ${attributeSelected3}`}
+            </Text>
+          </View>
 
           <View style={styles.quantityContainer}>
             <TouchableOpacity
-              style={[styles.quantityButton, itemQuantity <= colorminCartValue && styles.disabledButton]}
+              style={[styles.quantityButton, itemQuantity <= colorminCartValue * bag && styles.disabledButton]}
               onPress={handleDecreaseQuantity}
-              disabled={itemQuantity <= colorminCartValue}>
+              disabled={itemQuantity <= colorminCartValue * bag}>
               <Text style={styles.quantityButtonText}>-</Text>
             </TouchableOpacity>
             <Text style={styles.quantityText}>{itemQuantity}</Text>

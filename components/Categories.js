@@ -24,7 +24,7 @@ const Categories = () => {
     const fetchCategories = async () => {
       try {
         const response = await fetch(
-          'https://crossbee-server-1036279390366.asia-south1.run.app/getMain',
+          'https://crossbee-server-1036279390366.asia-south1.run.app/getHomeMain',
         );
         const data = await response.json();
         setCategories(data);

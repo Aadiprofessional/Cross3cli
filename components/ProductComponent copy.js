@@ -40,7 +40,7 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
       attribute3D: product.attribute3,
     });
   };
-console.log(product);
+  console.log(product);
 
   const handleAddToCart = () => {
     if (!product.outOfStock && quantity > 0) {
@@ -66,7 +66,7 @@ console.log(product);
         discountedPrice: cutPrice,
         name: product.attribute3,
         colormaxCartValue: product.inventory,
-        gst:product.gst,
+        gst: product.gst,
       };
 
       addToCart(item);
@@ -89,10 +89,15 @@ console.log(product);
         <View style={styles.imageContainer}>
           <Image
             source={{
-              uri: product.image || product.mainImage || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
+              uri: (product.image && !product.image.includes('undefined'))
+                ? product.image
+                : (product.mainImage && !product.mainImage.includes('undefined'))
+                  ? product.mainImage
+                  : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
             }}
             style={styles.productImage}
           />
+
         </View>
 
         <View style={styles.productNameContainer}>
@@ -136,7 +141,7 @@ console.log(product);
         </View> */}
 
         <View style={styles.footerContainer}>
-          {cartVisible ? null : ( 
+          {cartVisible ? null : (
             product.outOfStock ? (
               <View style={styles.outOfStockButton}>
                 <Text style={styles.outOfStockText}>Out of Stock</Text>

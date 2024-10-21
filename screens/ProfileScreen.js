@@ -324,11 +324,12 @@ const ProfileScreen = ({ navigation }) => {
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Withdraw Amount</Text>
             <TextInput
-              style={styles.modalInput}
+              style={[styles.modalInput, { color: 'black', fontFamily: 'Outfit-Medium' }]}
               keyboardType="numeric"
               value={withdrawAmount}
               onChangeText={setWithdrawAmount}
               placeholder="Enter amount"
+              placeholderTextColor="black" // Set placeholder text color
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.button} onPress={handleWithdrawCancel}>
@@ -412,6 +413,8 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     marginBottom: 10,
+    fontFamily: 'Outfit-Medium',
+    color: colors.TextBlack,
   },
   modalInput: {
     borderWidth: 1,
@@ -419,6 +422,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 20,
+    fontFamily: 'Outfit-Medium',
+    color: '#ffff',
   },
   modalButtons: {
     flexDirection: 'row',

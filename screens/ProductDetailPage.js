@@ -113,7 +113,7 @@ const ProductDetailPage = ({ route }) => {
         selectedAttribute2
       ]?.[selectedAttribute3];
       if (currentProduct) {
-        return parseInt(currentProduct.minCartValue || '1', 10);
+        return parseInt(currentProduct.minCartValue *currentProduct.bag|| '1', 10);
       }
     }
     return 1; // Default value if no attributes or color are selected
@@ -220,14 +220,12 @@ const ProductDetailPage = ({ route }) => {
   const handleIncrease = () => {
     const maxQuantity = getMaxCartValue();
     const increment = parseInt(bag, 10) || 1; // Use the bag value or default to 1
-    const newQuantity = quantity * increment; // Multiply by bag size
-  
-    if (newQuantity <= maxQuantity) {
-      setQuantity(newQuantity);
+    if (quantity + increment <= maxQuantity) {
+      setQuantity(quantity + increment);
       Toast.show({
         type: 'success',
         text1: 'Quantity Increased',
-        text2: `Quantity is now ${newQuantity}`,
+        text2: `Quantity is now ${quantity + increment}`,
       });
     } else {
       Toast.show({
@@ -241,14 +239,12 @@ const ProductDetailPage = ({ route }) => {
   const handleDecrease = () => {
     const minCartValue = getMinCartValue();
     const decrement = parseInt(bag, 10) || 1; // Use the bag value or default to 1
-    const newQuantity = Math.max(quantity / decrement, minCartValue); // Divide by bag size and ensure it's not below minCartValue
-  
-    if (newQuantity >= minCartValue) {
-      setQuantity(newQuantity);
+    if (quantity - decrement >= minCartValue) {
+      setQuantity(quantity - decrement);
       Toast.show({
         type: 'info',
         text1: 'Quantity Decreased',
-        text2: `Quantity is now ${newQuantity}`,
+        text2: `Quantity is now ${quantity - decrement}`,
       });
     } else {
       Toast.show({
@@ -258,7 +254,6 @@ const ProductDetailPage = ({ route }) => {
       });
     }
   };
-  
  
  
   

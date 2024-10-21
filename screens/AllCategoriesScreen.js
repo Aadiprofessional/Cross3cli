@@ -28,7 +28,7 @@ const AllCategoriesScreen = () => {
       }
 
       const response = await axios.get(
-        'https://crossbee-server-1036279390366.asia-south1.run.app/getHomeMain'
+        'https://crossbee-server-1036279390366.asia-south1.run.app/getMain'
       );
       const fetchedCategories = response.data;
       await AsyncStorage.setItem('categories', JSON.stringify(fetchedCategories));
@@ -46,13 +46,13 @@ const AllCategoriesScreen = () => {
   }, [fetchCategories]);
 
   const navigateToSubCategory2 = useCallback(
-    (name,id) => {
+    (name, id) => {
       const trimmedName = name.trim(); // Remove leading and trailing spaces
-      navigation.navigate('SubCategoryScreen', { name: trimmedName , id});
+      navigation.navigate('SubCategoryScreen', { name: trimmedName, id });
     },
     [navigation]
   );
-  
+
   // Optimize category list rendering
   const categoryItems = useMemo(
     () =>
@@ -60,10 +60,18 @@ const AllCategoriesScreen = () => {
         <TouchableOpacity
           key={id}
           style={styles.categoryItem}
-          onPress={() => navigateToSubCategory2(name,id)}
+          onPress={() => navigateToSubCategory2(name, id)}
         >
           <View style={styles.categoryImageContainer}>
-            <Image source={{ uri: image }} style={styles.categoryImage} />
+            <Image
+              source={{
+                uri: (image && !image.includes('undefined'))
+                  ? image
+                  : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
+              }}
+              style={styles.categoryImage}
+            />
+
           </View>
           <Text style={styles.categoryName}>{name}</Text>
         </TouchableOpacity>

@@ -48,8 +48,8 @@ console.log(product);
         productName: product.displayName,
         productId: product.productId,
         price: product.price,
-        quantity: minCartValue,
-        image: product.image,
+        quantity: minCartValue*product.bag,
+        image: product.image||product.mainImage,
         colorminCartValue: minCartValue,
         attributeSelected1: product.attribute1,
         bag: product.bag,
@@ -87,12 +87,17 @@ console.log(product);
           </View>
         )}
         <View style={styles.imageContainer}>
-          <Image
-            source={{
-              uri: product.image || product.mainImage || 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
-            }}
-            style={styles.productImage}
-          />
+        <Image
+  source={{
+    uri: (product.image && !product.image.includes('undefined')) 
+        ? product.image 
+        : (product.mainImage && !product.mainImage.includes('undefined')) 
+        ? product.mainImage 
+        : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
+  }}
+  style={styles.productImage}
+/>
+
         </View>
 
         <View style={styles.productNameContainer}>
