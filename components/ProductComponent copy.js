@@ -38,6 +38,8 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
       attribute1D: product.attribute1,
       attribute2D: product.attribute2,
       attribute3D: product.attribute3,
+      mainName : product.mainName,
+      productName: product.productName
     });
   };
   console.log(product);
@@ -102,8 +104,8 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
 
         <View style={styles.productNameContainer}>
           <Text style={styles.productName} numberOfLines={1}>
-            {product.displayName.length > 13
-              ? `${product.displayName.substring(0, 13)}...`
+            {product.displayName.length > 10
+              ? `${product.displayName.substring(0, 10)}...`
               : product.displayName}
           </Text>
           {/* <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
@@ -140,24 +142,7 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
           </Text>
         </View> */}
 
-        <View style={styles.footerContainer}>
-          {cartVisible ? null : (
-            product.outOfStock ? (
-              <View style={styles.outOfStockButton}>
-                <Text style={styles.outOfStockText}>Out of Stock</Text>
-              </View>
-            ) : (
-              <>
-                <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-                  <Text style={styles.addToCartText}>Add to Cart</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.productDetailButton} onPress={handlePress}>
-                  <Text style={styles.productDetailText}>Details</Text>
-                </TouchableOpacity>
-              </>
-            )
-          )}
-        </View>
+
       </View>
     </TouchableOpacity>
   );
@@ -196,7 +181,7 @@ const styles = StyleSheet.create({
   },
   productContainer: {
 
-    height: 190, // Fixed height
+    height: 200, // Fixed height
     marginVertical: 10,
     backgroundColor: '#fff',
     borderRadius: 10,

@@ -38,6 +38,8 @@ const ProductComponent = ({ product, lowestPrice, cartVisible }) => { // Added c
       attribute1D: product.attribute1,
       attribute2D: product.attribute2,
       attribute3D: product.attribute3,
+      mainName : product.mainName,
+      productName: product.productName
     });
   };
 console.log(product);
@@ -102,8 +104,8 @@ console.log(product);
 
         <View style={styles.productNameContainer}>
           <Text style={styles.productName} numberOfLines={1}>
-            {product.displayName.length > 13
-              ? `${product.displayName.substring(0, 13)}...`
+            {product.displayName.length > 10
+              ? `${product.displayName.substring(0, 10)}...`
               : product.displayName}
           </Text>
           <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>

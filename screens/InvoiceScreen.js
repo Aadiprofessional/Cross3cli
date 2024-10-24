@@ -12,27 +12,71 @@ import {
   PermissionsAndroid,
   ToastAndroid,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
-import RNFS from 'react-native-fs';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import FileViewer from 'react-native-file-viewer';
-import { colors } from '../styles/color';
 import { useNavigation } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { colors } from '../styles/color';
 
 const InvoiceScreen = ({ route }) => {
-  const { invoiceData, quotationId, url } = route.params; // Destructure invoiceData from route params
+  const { invoiceData, quotationId, url } = route.params; 
   const [pdfPath, setPdfPath] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const navigation = useNavigation();
-
-
   const userId = auth().currentUser?.uid;
+
   if (!userId) {
     Alert.alert('Error', 'User not authenticated.');
-    return;
+    return null;
   }
+
+  useEffect(() => {
+    const fetchPhoneNumber = async () => {
+      const savedPhoneNumber = await AsyncStorage.getItem('phoneNumber');
+      setPhoneNumber(savedPhoneNumber || 'N/A');
+    };
+
+    fetchPhoneNumber();
+  }, []);
+
+  useEffect(() => {
+    if (pdfPath) {
+      sendQuotation();
+    }
+  }, [pdfPath]);
+
+  const sendQuotation = async () => {
+    const formattedNumber = phoneNumber.replace(/^91/, ''); // Remove '91' from the phone number
+    const body = {
+      url: pdfPath,
+      phone: formattedNumber,
+    };
+
+    try {
+      const response = await fetch('https://crossbee-server-1036279390366.asia-south1.run.app/sendQuotation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Quotation sent successfully:', data);
+        ToastAndroid.show('Quotation sent successfully!', ToastAndroid.SHORT);
+      } else {
+        console.error('Error sending quotation:', data);
+        ToastAndroid.show('Failed to send quotation.', ToastAndroid.SHORT);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      ToastAndroid.show('Network error while sending quotation.', ToastAndroid.SHORT);
+    }
+  };
 
   useEffect(() => {
     const handlePdfGeneration = async () => {
@@ -43,10 +87,7 @@ const InvoiceScreen = ({ route }) => {
         if (granted) {
           await generatePdf();
         } else {
-          Alert.alert(
-            'Permission Denied',
-            'Storage permission is required to generate the PDF.',
-          );
+          Alert.alert('Permission Denied', 'Storage permission is required to generate the PDF.');
         }
       } else {
         await generatePdf();
@@ -55,7 +96,6 @@ const InvoiceScreen = ({ route }) => {
 
     handlePdfGeneration();
   }, [invoiceData]);
-
 
   const requestStoragePermission = async () => {
     try {
@@ -76,20 +116,12 @@ const InvoiceScreen = ({ route }) => {
     }
   };
 
-  
   const generatePdf = async () => {
-console.log(invoiceData);
+    console.log("Starting PDF Generation...");
+    const startTime = Date.now();
 
-let totalGstAmount = 0;
-  invoiceData.cartItems.forEach(item => {
-    const discountedPrice = parseFloat(item.discountedPrice) || 0;
-    const gstRate = parseFloat(item.gst) || 0; // Use item-specific GST rate if available
-    const gstAmount = (discountedPrice * gstRate) / 100;
-    totalGstAmount += gstAmount;
-  });
     const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="en">
+      <html>
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -112,226 +144,46 @@ let totalGstAmount = 0;
               .quantity-title { color: #000; font-weight: bold; }
               .quantity-number { color: #333; }
           </style>
-      </head>
-      <body>
-          <section id="invoice">
-              <div class="container my-5 py-5">
-                  <div class="text-center pb-5">
-                      <img src="https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/logo.png?alt=media&token=b7622c61-0fff-4083-ac26-a202a0cd970d" alt="Company Logo" class="logo">
-                  </div>
-  
-                  <div class="invoice-section">
-                      <div class="invoice-to">
-                          <p class="fw-bold text-primary">Invoice To</p>
-                          <h4>${invoiceData.owner || 'N/A'}</h4>
-                          <ul class="list-unstyled m-0">
-                              <li>${invoiceData.address || 'N/A'}</li>
-                              <li>${invoiceData.email || 'N/A'}</li>
-                              <li>${invoiceData.phoneNumber || 'N/A'}</li>
-                          </ul>
-                      </div>
-                      <div class="invoice-from">
-                          <p class="fw-bold text-primary">Invoice From</p>
-                          <h4>Your Company Name</h4>
-                          <ul class="list-unstyled m-0">
-                              <li>Your Company Address</li>
-                              <li>Your Company Email</li>
-                              <li>Your Company Phone</li>
-                          </ul>
-                      </div>
-                  </div>
-  
-                  <div class="invoice-header d-flex justify-content-between align-items-center">
-                      <h2 class="text-start">Invoice</h2>
-                      <div class="text-end">
-                          <p class="m-0"><span class="fw-medium">Invoice No:</span> ${invoiceData.uid || 'N/A'
-      }</p>
-                          <p class="m-0"><span class="fw-medium">Invoice Date:</span> ${invoiceData.timestamp.split('T')[0]
-      }</p>
-                          <p class="m-0"><span class="fw-medium">Due Date:</span> ${invoiceData.timestamp.split('T')[0]
-      }</p>
-                      </div>
-                  </div>
-  
-                <table>
-  <thead>
-    <tr>
-      <th>No.</th>
-      <th>Description</th>
-      <th>Price</th>
-      <th>Discounted Price</th> <!-- New Column -->
-      <th>
-        <div class="quantity-title">Quantity</div>
-        <div class="quantity-number">(Number)</div>
-      </th>
-      <th>Total</th>
-    </tr>
-  </thead>
-  <tbody>
-    ${invoiceData.cartItems
-        .map(
-          (item, index) => `
-    <tr>
-      <td>${index + 1}</td>
-      <td>${item.productName || 'N/A'}</td>
-      <td>${item.price || '0.00'}</td>
-      <td>${item.discountedPrice || '0.00'}</td> <!-- Discounted Price Column -->
-      <td>${item.quantity || 0}</td>
-      <td>${(item.price * item.quantity).toFixed(2)}</td>
-    </tr>`
-        )
-        .join('')}
-
-    <!-- Sub-Total Row -->
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>Sub-Total</td>
-      <td>${invoiceData.totalAmount.toFixed(2)}</td>
-    </tr>
-
-    <!-- Coupon Discount Row -->
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>Coupon Discount</td>
-      <td>-${invoiceData.appliedCoupon.toFixed(2)}</td> <!-- Ensure coupon discount is displayed correctly -->
-    </tr>
-
-    <!-- Reward Points Row -->
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>Reward Points</td>
-      <td>-${invoiceData.rewardPointsPrice.toFixed(2)}</td>
-    </tr>
-
-    <!-- Shipping Charges Row -->
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>Shipping Charges</td>
-      <td>${invoiceData.shippingCharges.toFixed(2)}</td>
-    </tr>
-
-    <!-- TAX Row -->
-    <tr>
-      <td></td>
-      <td></td>
-       <td></td>
-      <td></td>
-      <td>TAX %</td>
-     <td>${totalGstAmount.toFixed(2)}</td>
-    </tr>
-
-    <!-- Grand Total Row -->
-    <tr>
-      <td></td>
-       <td></td>
-      <td></td>
-      <td></td>
-      <td class="text-primary fs-5 fw-bold">Grand Total</td>
-      <td class="text-primary fs-5 fw-bold">${(
-        invoiceData.totalAmount + gstAmount
-      ).toFixed(2)}</td>
-    </tr>
-  </tbody>
-</table>
-
-                  <div class="d-md-flex justify-content-between my-5">
-                      <div>
-                          <h5 class="fw-bold my-4">Payment Info</h5>
-                          <ul class="list-unstyled">
-                              <li><span class="fw-semibold">Account No: </span> 1234567890</li>
-                              <li><span class="fw-semibold">Account Name: </span> Your Account Name</li>
-                              <li><span class="fw-semibold">Branch Name: </span> Your Branch Name</li>
-                          </ul>
-                      </div>
-  
-                      <div>
-                          <h5 class="fw-bold my-4">Contact Us</h5>
-                          <ul class="list-unstyled">
-                              <li>123 Your Street, Your City</li>
-                              <li>+1 123 456 7890</li>
-                              <li>youremail@company.com</li>
-                          </ul>
-                      </div>
-                  </div>
-  
-                  <div class="text-center my-5">
-                      <p class="text-muted"><span class="fw-semibold">NOTICE: </span> A finance charge of 1.5% will be made on unpaid balances after 30 days.</p>
-                  </div>
-  
-                  <div id="footer-bottom">
-                      <div class="container border-top border-primary">
-                          <div class="row mt-3">
-                              <div class="col-md-6 copyright">
-                                  <p>© 2024 Invoice. <a href="#" target="_blank" class="text-decoration-none text-black-50">Terms & Conditions</a></p>
-                              </div>
-                              <div class="col-md-6 text-md-end">
-                                  
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-  
-              </div>
-          </section>
-      </body>
+          </head>
+        <body>
+          <h1>Invoice</h1>
+          <p>Total Amount: ${invoiceData.totalAmount.toFixed(2)}</p>
+          <p>Shipping Charges: ${invoiceData.shippingCharges.toFixed(2)}</p>
+          <p>Additional Discount: ${invoiceData.additionalDiscount.toFixed(2)}</p>
+        </body>
       </html>
-      `;
-    const fileName = `invoice_${invoiceData.orderId}.pdf`;
-    const tempFilePath = `${RNFS.TemporaryDirectoryPath}/${fileName}`;
+    `;
 
+    const fileName = `invoice_${invoiceData.orderId}.pdf`;
     const options = {
       html: htmlContent,
       fileName: fileName,
-      directory: 'Documents', // Temporary directory
+      directory: 'Documents', 
     };
 
     try {
-      // Generate PDF
       const { filePath: generatedFilePath } = await RNHTMLtoPDF.convert(options);
+      console.log("PDF Generated at:", generatedFilePath);
 
-      // Upload PDF to Firebase Storage
+      // Upload to Firebase Storage
+      console.log("Starting PDF Upload...");
       const reference = storage().ref(`users/${userId}/${quotationId}`);
       await reference.putFile(generatedFilePath);
 
       // Get download URL
+      console.log("Fetching Download URL...");
       const downloadURL = await reference.getDownloadURL();
 
-      // // Save PDF reference in Firestore
-      // await firestore()
-      //   .collection('users')
-      //   .doc(userId)
-      //   .collection('invoices')
-      //   .doc(invoiceData.orderId)
-      //   .set({
-      //     pdfUrl: downloadURL,
-      //     createdAt: firestore.FieldValue.serverTimestamp(),
-      //     // Add other relevant data if needed
-      //   });
-
-      // Notify user
-      ToastAndroid.show(
-        'PDF uploaded and saved successfully.',
-        ToastAndroid.SHORT,
-      );
-
-      // Set the download URL or handle it as needed
+      ToastAndroid.show('PDF uploaded and saved successfully.', ToastAndroid.SHORT);
       setPdfPath(downloadURL);
-    } catch (error) { }
+      console.log("PDF Path:", downloadURL);
+    } catch (error) {
+      console.error("Error generating or uploading PDF:", error);
+    }
   };
+
   const handleOpenInvoice = (url) => {
-    if (url && /^https?:\/\//i.test(url)) { // Validate URL format
+    if (url && /^https?:\/\//i.test(url)) {
       Linking.openURL(url).catch(err => {
         console.error('Failed to open URL:', err);
       });
@@ -339,55 +191,27 @@ let totalGstAmount = 0;
       console.log('No valid invoice URL provided');
     }
   };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>INVOICE</Text>
         <Image
-          source={require('../assets/logo.png')} // Replace with your logo path
+          source={require('../assets/logo.png')}
           style={styles.logo}
         />
       </View>
 
       <View style={styles.section}>
         <Text style={styles.subtitle}>
-          Total Amount: {Number(invoiceData.totalAmount.toFixed(2)).toLocaleString("en-IN", {
-            maximumFractionDigits: 0,
-            style: 'currency',
-            currency: 'INR',
-          })}
+          Total Amount: {Number(invoiceData.totalAmount.toFixed(2)).toLocaleString("en-IN", { style: 'currency', currency: 'INR' })}
         </Text>
         <Text style={styles.subtitle}>
-          Shipping Charges: {Number(invoiceData.shippingCharges.toFixed(2)).toLocaleString("en-IN", {
-            maximumFractionDigits: 0,
-            style: 'currency',
-            currency: 'INR',
-          })}
+          Shipping Charges: {Number(invoiceData.shippingCharges.toFixed(2)).toLocaleString("en-IN", { style: 'currency', currency: 'INR' })}
         </Text>
         <Text style={styles.subtitle}>
-          Additional Discount: {Number(invoiceData.additionalDiscount.toFixed(2)).toLocaleString("en-IN", {
-            maximumFractionDigits: 0,
-            style: 'currency',
-            currency: 'INR',
-          })}
+          Additional Discount: {Number(invoiceData.additionalDiscount.toFixed(2)).toLocaleString("en-IN", { style: 'currency', currency: 'INR' })}
         </Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.subtitle}>Items</Text>
-        {invoiceData.cartItems.map((item, index) => (
-          <View key={index} style={styles.tableRow}>
-            <Text style={styles.tableData}>{item.name}</Text>
-            <Text style={styles.tableData}>{item.quantity}</Text>
-            <Text style={styles.tableData}>
-              {Number((item.price * item.quantity).toFixed(2)).toLocaleString("en-IN", {
-                maximumFractionDigits: 0,
-                style: 'currency',
-                currency: 'INR',
-              })}
-            </Text>
-          </View>
-        ))}
       </View>
 
       <View style={styles.container2}>
@@ -397,11 +221,7 @@ let totalGstAmount = 0;
             try {
               navigation.reset({
                 index: 0,
-                routes: [
-                  {
-                    name: 'HomeTab',
-                  },
-                ],
+                routes: [{ name: 'HomeTab' }],
               });
             } catch (error) {
               console.error('Navigation error:', error);
@@ -411,21 +231,16 @@ let totalGstAmount = 0;
           <Text style={styles.buttonText}>Explore More</Text>
         </TouchableOpacity>
         {url && (
-          <TouchableOpacity
-            style={styles.downloadButton}
-            onPress={() => handleOpenInvoice(url)}
-          >
+          <TouchableOpacity style={styles.downloadButton} onPress={() => handleOpenInvoice(url)}>
             <View style={styles.iconContainer}>
               <Text style={styles.downloadText}>Download Quotation</Text>
             </View>
           </TouchableOpacity>
         )}
-
       </View>
     </ScrollView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -443,14 +258,13 @@ const styles = StyleSheet.create({
   downloadText: {
     color: '#fff',
     fontSize: 16,
-
     fontFamily: 'Outfit-Bold',
   },
   container2: {
-    flex: 1, // Takes up the full space of the screen
-    justifyContent: 'center', // Centers content vertically
-    alignItems: 'center', // Centers content horizontally
-    backgroundColor: '#fff', // Optional: sets the background color of the screen
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
   header: {
     alignItems: 'center',
@@ -458,7 +272,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-
     fontFamily: 'Outfit-Bold',
     color: colors.TextBlack,
   },
@@ -472,50 +285,27 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-
     fontFamily: 'Outfit-Bold',
     marginBottom: 10,
     color: colors.TextBlack,
   },
-  tableRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 5,
-  },
-  tableData: {
-    fontSize: 16,
-    fontFamily: 'Outfit-Bold',
-    color: '#333333',
-  },
   button3: {
     alignItems: 'center',
     paddingVertical: 10,
-    paddingHorizontal: 40, // Optional: add horizontal padding for better button shape
+    paddingHorizontal: 40,
     backgroundColor: colors.main,
     borderRadius: 5,
     marginTop: 20,
-    alignSelf: 'center', // This will keep it centered horizontally within its container
+    alignSelf: 'center',
   },
-
   buttonText: {
     color: '#fff',
     fontSize: 16,
-
     fontFamily: 'Outfit-Bold',
   },
-
-  tableRowAlt: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 5,
-    backgroundColor: '#ffffff', // White background
-  },
-
   iconContainer: {
-
-    alignItems: 'center', // Centers icon horizontally
-    justifyContent: 'center', // Centers icon vertically
-
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

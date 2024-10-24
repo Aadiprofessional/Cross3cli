@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,12 +9,12 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
 import Icon from 'react-native-vector-icons/Feather';
-import {colors} from '../styles/color';
+import { colors } from '../styles/color';
 
 const EditCompanyScreen = () => {
   const [companyName, setCompanyName] = useState('');
@@ -22,7 +22,6 @@ const EditCompanyScreen = () => {
   const [gst, setGst] = useState('');
   const [alternateNumber, setAlternateNumber] = useState('');
   const [mainAddress, setMainAddress] = useState('');
-
   const [pincode, setPincode] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
@@ -31,32 +30,25 @@ const EditCompanyScreen = () => {
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const route = useRoute();
-  const {company} = route.params;
+  const { company } = route.params;
 
   // Load existing company data
   useEffect(() => {
     if (company) {
-      // Assume pincode is the last part of the address after a comma
       const addressParts = company.address.split(',');
-      
-      // Extract the pincode (assuming the last part is the pincode)
       const pincodeFromAddress = addressParts[addressParts.length - 1].trim();
-      
-      // Reconstruct the main address without the pincode
       const addressWithoutPincode = addressParts.slice(0, -1).join(',').trim();
-      
+
       setCompanyName(company.name);
       setOwnerName(company.owner);
       setGst(company.gst);
-      setMainAddress(addressWithoutPincode); // Set address without pincode
-      setPincode(company.pincode || pincodeFromAddress); // Set pincode if not already separate
-      
+      setMainAddress(addressWithoutPincode);
+      setPincode(company.pincode || pincodeFromAddress);
       setAlternateNumber(company.alternateNumber.replace(/^\+91/, ''));
       setEmail(company.email);
       setPhoneNumber(company.phoneNumber.replace(/^\+91/, ''));
     }
   }, [company]);
-  
 
   const fetchLocationFromPincode = async pincode => {
     try {
@@ -64,7 +56,7 @@ const EditCompanyScreen = () => {
         `https://api.postalpincode.in/pincode/${pincode}`,
       );
       if (response.data[0].Status === 'Success') {
-        const {District, State} = response.data[0].PostOffice[0];
+        const { District, State } = response.data[0].PostOffice[0];
         setCity(District);
         setState(State);
       } else {
@@ -83,27 +75,12 @@ const EditCompanyScreen = () => {
   }, [pincode]);
 
   const handleSaveCompany = async () => {
-    if (
-      company.type !== 'Primary' &&
-      (!companyName ||
-        !ownerName ||
-        !gst ||
-        !alternateNumber ||
-        !mainAddress ||
-        !email ||
-        pincode.length !== 6 ||
-        phoneNumber.length !== 10)
-    ) {
-      Alert.alert('Missing Fields', 'Please fill in all required fields.');
-      return;
-    }
-
     const isValidEmail = email => {
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return regex.test(email);
     };
 
-    if (!isValidEmail(email)) {
+    if (email && !isValidEmail(email)) {
       Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
@@ -115,22 +92,22 @@ const EditCompanyScreen = () => {
         'https://crossbee-server-1036279390366.asia-south1.run.app/saveCompany',
         {
           uid,
-          companyId: company.id, // Pass the company ID to identify which company to edit
-          phoneNumber: phoneNumber.replace(/^\+91/, ''), // Remove +91 if present
+          companyId: company.id,
+          phoneNumber: phoneNumber.replace(/^\+91/, ''),
           alternateNumber: alternateNumber.replace(/^\+91/, ''),
           companyName: company.type !== 'Primary' ? companyName : company.name,
           gst: company.type !== 'Primary' ? gst : company.gst,
           email: company.type !== 'Primary' ? email : company.email,
-          address:
-            company.type !== 'Primary'
-              ? `${mainAddress}
-                , ${city}, ${state} - ${pincode}`
-              : company.address,
+          address: company.type !== 'Primary' ? `${mainAddress}, ${city}, ${state} - ${pincode}` : company.address,
           ownerName: company.type !== 'Primary' ? ownerName : company.owner,
-        },
+        }
+        
       );
 
       if (response.status === 200) {
+        // Log the response to check what data is returned
+        console.log('API Response:', response.data);
+        // Display success message
         Toast.show({
           type: 'success',
           position: 'top',
@@ -144,7 +121,8 @@ const EditCompanyScreen = () => {
     } catch (error) {
       console.error('Error updating company: ', error);
       Alert.alert('Error', 'There was a problem updating your company.');
-    } finally {
+    }
+     finally {
       setLoading(false);
     }
   };
@@ -159,12 +137,12 @@ const EditCompanyScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, {backgroundColor: colors.main}]}>
+      <View style={[styles.header, { backgroundColor: colors.main }]}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon
             name="arrow-left"
             size={24}
-            color="#fff" // Dark black color for icon
+            color="#fff"
             style={styles.backIcon}
           />
         </TouchableOpacity>
@@ -173,7 +151,7 @@ const EditCompanyScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollView}>
         <View style={styles.inputContainer}>
           <Text style={styles.label}>
-            Company Name <Text style={styles.requiredStar}>*</Text>
+            Company Name 
           </Text>
           <TextInput
             style={styles.input}
@@ -182,7 +160,9 @@ const EditCompanyScreen = () => {
             value={companyName}
             onChangeText={setCompanyName}
           />
-          <Text style={styles.label}>Phone Number <Text style={styles.requiredStar}>*</Text></Text>
+          <Text style={styles.label}>
+            Phone Number 
+          </Text>
           <TextInput
             style={styles.input}
             placeholder="Phone Number"
@@ -190,14 +170,16 @@ const EditCompanyScreen = () => {
             value={phoneNumber}
             onChangeText={text => {
               if (text.length <= 10 && /^[0-9]*$/.test(text)) {
-                setPhoneNumber(text.replace(/^\+91/, '')); // Remove +91 if present
+                setPhoneNumber(text.replace(/^\+91/, ''));
               }
             }}
             keyboardType="phone-pad"
             maxLength={10}
             editable={company.type !== 'Primary'}
           />
-           <Text style={styles.label}>Alternate Number <Text style={styles.requiredStar}>*</Text></Text>
+          <Text style={styles.label}>
+            Alternate Number 
+          </Text>
           <TextInput
             style={styles.input}
             placeholder="Alternate Number"
@@ -205,14 +187,14 @@ const EditCompanyScreen = () => {
             value={alternateNumber}
             onChangeText={text => {
               if (text.length <= 10 && /^[0-9]*$/.test(text)) {
-                setAlternateNumber(text.replace(/^\+91/, '')); // Remove +91 if present
+                setAlternateNumber(text.replace(/^\+91/, ''));
               }
             }}
             keyboardType="phone-pad"
             maxLength={10}
           />
           <Text style={styles.label}>
-            Owner Name <Text style={styles.requiredStar}>*</Text>
+            Owner Name 
           </Text>
           <TextInput
             style={styles.input}
@@ -222,7 +204,7 @@ const EditCompanyScreen = () => {
             onChangeText={setOwnerName}
           />
           <Text style={styles.label}>
-            GST <Text style={styles.requiredStar}>*</Text>
+            GST 
           </Text>
           <TextInput
             style={styles.input}
@@ -233,7 +215,7 @@ const EditCompanyScreen = () => {
             maxLength={15}
           />
           <Text style={styles.label}>
-            Main Address <Text style={styles.requiredStar}>*</Text>
+            Main Address 
           </Text>
           <TextInput
             style={styles.input}
@@ -242,9 +224,8 @@ const EditCompanyScreen = () => {
             value={mainAddress}
             onChangeText={setMainAddress}
           />
-
           <Text style={styles.label}>
-            Pincode <Text style={styles.requiredStar}>*</Text>
+            Pincode 
           </Text>
           <TextInput
             style={styles.input}
@@ -278,7 +259,7 @@ const EditCompanyScreen = () => {
             editable={false}
           />
           <Text style={styles.label}>
-            Email <Text style={styles.requiredStar}>*</Text>
+            Email 
           </Text>
           <TextInput
             style={styles.input}
@@ -286,12 +267,16 @@ const EditCompanyScreen = () => {
             placeholderTextColor="#999"
             value={email}
             onChangeText={setEmail}
+            keyboardType="email-address"
           />
         </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleSaveCompany}>
+          <Text style={styles.buttonText}>Save Company</Text>
+        </TouchableOpacity>
       </ScrollView>
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaveCompany}>
-        <Text style={styles.saveButtonText}>Save</Text>
-      </TouchableOpacity>
+      <Toast />
     </View>
   );
 };
@@ -337,14 +322,14 @@ const styles = StyleSheet.create({
   requiredStar: {
     color: 'red',
   },
-  saveButton: {
+  button: {
     backgroundColor: colors.main,
     padding: 15,
     alignItems: 'center',
     borderRadius: 5,
     margin: 20,
   },
-  saveButtonText: {
+  buttonText: {
     color: '#fff',
     fontSize: 18,
   },
@@ -353,6 +338,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+  },
+
+  scrollView: {
+    padding: 16,
   },
 });
 

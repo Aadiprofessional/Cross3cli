@@ -31,7 +31,7 @@ const WishlistScreen = ({ navigation }) => {
           productName: product.product,
           productId: product.productId,
           price: product.price,
-          quantity: product.minCartValue,
+          quantity: product.minCartValue*product.bag,
           image: product.image,
           bag: product.bag,
           colorminCartValue: product.minCartValue,

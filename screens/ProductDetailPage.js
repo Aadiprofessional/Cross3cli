@@ -22,7 +22,7 @@ import auth from '@react-native-firebase/auth';
 import CustomHeader2 from '../components/CustomHeader2';
 
 const ProductDetailPage = ({ route }) => {
-  const { mainId, productId, attribute1D, attribute2D, attribute3D } = route.params || {};
+  const { mainId, productId, attribute1D, attribute2D, attribute3D ,productName,mainName} = route.params || {};
   const [productData, setProductData] = useState(null);
   const [selectedAttribute1, setSelectedAttribute1] = useState(null);
   const [selectedAttribute2, setSelectedAttribute2] = useState(null);
@@ -42,7 +42,8 @@ const ProductDetailPage = ({ route }) => {
           'https://crossbee-server-1036279390366.asia-south1.run.app/productInfo',
           {
             main: mainId,
-          
+            productName: productName,
+            mainName:mainName,
             product: productId,
             uid: userId, // Add the user ID to the API request body
           },
@@ -67,7 +68,7 @@ const ProductDetailPage = ({ route }) => {
     };
 
     fetchProductDetails();
-  }, [mainId, productId, attribute1D, attribute2D, attribute3D]);
+  }, [mainId, productId, attribute1D, attribute2D, attribute3D,productName,mainName]);
 
 
   useEffect(() => {
@@ -272,6 +273,7 @@ const ProductDetailPage = ({ route }) => {
 
       const item = {
         productName,
+        mainName,
         productId,
         name: productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
           selectedAttribute2
@@ -335,7 +337,6 @@ const ProductDetailPage = ({ route }) => {
   const attribute1 = productData?.attribute1;
   const attribute2 = productData?.attribute2;
   const attribute3 = productData?.attribute3;
-  const productName = productData?.productName || 'Product Name';
  
   const storageOptions =
     productData && attribute1
@@ -616,6 +617,7 @@ const styles = StyleSheet.create({
   outOfStockContainer: {
     alignItems: 'center',
     marginTop: 20,
+    marginBottom:50,
   },
   outOfStockText: {
     fontSize: 18,

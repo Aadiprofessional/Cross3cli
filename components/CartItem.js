@@ -22,6 +22,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
     productId,
     discountedPrice,
     productName,
+    mainName,
     bag // Get the bag value from item
   } = item;
 
@@ -72,6 +73,9 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
       productId, mainId, attribute1D: attributeSelected1,
       attribute2D: attributeSelected2,
       attribute3D: attributeSelected3,
+      mainName :item.mainName,
+      productName
+      
 
     });
   };

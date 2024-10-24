@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-
+    color: colors.TextBlack,
     marginBottom: 10,
     fontFamily: 'Outfit-Bold',
   },

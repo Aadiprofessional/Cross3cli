@@ -51,28 +51,34 @@ const SubCategoryScreen = ({ route }) => {
   const fetchProducts = useCallback(async () => {
     const userId = auth().currentUser?.uid;
     if (!userId) {
-      console.error('User is not authenticated');
-      setLoading(false);
-      return;
+        console.error('User is not authenticated');
+        setLoading(false);
+        return;
     }
     try {
-      const response = await axios.post(
-        `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
-        {
-          main: id || categoryName,
-        }
-      );
-      console.log('Fetched products:', response.data);
-      setProducts(response.data);
-      setOriginalProducts(response.data); // Set original products to be used for filtering
-      setLoading(false);
-      setNoProductsFound(response.data.length === 0); // Set noProductsFound based on API response
-      setVisibleProducts(response.data.slice(0, pageSize)); // Load first 10 products initially
+        const response = await axios.post(
+            `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
+            {
+                main: id || categoryName,
+            }
+        );
+
+        console.log('Fetched products:', response.data);
+
+        // Filter out null values from the response
+        const filteredProducts = response.data.filter(product => product !== null);
+
+        setProducts(filteredProducts);
+        setOriginalProducts(filteredProducts); // Set original products to be used for filtering
+        setLoading(false);
+        setNoProductsFound(filteredProducts.length === 0); // Set noProductsFound based on API response
+        setVisibleProducts(filteredProducts.slice(0, pageSize)); // Load first 10 products initially
     } catch (error) {
-      console.error('Error fetching products: ', error);
-      setLoading(false);
+        console.error('Error fetching products: ', error);
+        setLoading(false);
     }
-  }, [categoryName || id]);
+}, [categoryName || id]);
+
 
   useEffect(() => {
     if (categoryName || id) {
@@ -154,10 +160,20 @@ const SubCategoryScreen = ({ route }) => {
   const debouncedSearch = useMemo(
     () =>
       debounce(query => {
-        let filteredProducts = originalProducts.filter(product =>
-          product.searchName.toLowerCase().includes(query.toLowerCase()),
-        );
-  
+        let filteredProducts = originalProducts.filter(product => {
+          // Assign 'null' to searchName if it's missing or invalid
+          let searchName = product && product.searchName ? product.searchName.toLowerCase() : null;
+        
+          // If searchName is not null, perform the search, otherwise return false
+          if (searchName) {
+            return searchName.includes(query.toLowerCase());
+          } else {
+            console.log(`Product missing or invalid searchName:`, product);
+            return false; // Exclude products with null searchName from the results
+          }
+        });
+        
+        
         // Apply Filters
         if (filterOptions.category) {
           filteredProducts = filteredProducts.filter(
@@ -271,12 +287,18 @@ const SubCategoryScreen = ({ route }) => {
     <ProductComponent product={product} />
   ));
 
-  const renderItem = ({ item }) => (
-    <View style={styles.productContainer}>
-      <MemoizedProductComponent product={item} />
-    </View>
-  );
-
+  const renderItem = ({ item }) => {
+    if (!item || !item.productId) {
+      console.log('Product missing productId:', item);
+      return null; // Skip rendering if productId is null or undefined
+    }
+  
+    return (
+      <View style={styles.productContainer}>
+        <MemoizedProductComponent product={item} />
+      </View>
+    );
+  };
   return (
     <View style={styles.container2}>
       <CustomHeader2 title={ name} />
@@ -326,7 +348,7 @@ const SubCategoryScreen = ({ route }) => {
           <FlatList
             data={visibleProducts} // Show the visible products (10 products at a time)
             renderItem={renderItem} // Use the updated renderItem
-            keyExtractor={(item, index) => `${item.productId}_${index}`}
+            keyExtractor={(item, index) => `${item.productId||products.productId}_${index}`}
             contentContainerStyle={styles.productList}
             style={styles.flatList}
             numColumns={2} // Two products per row
@@ -336,7 +358,7 @@ const SubCategoryScreen = ({ route }) => {
             removeClippedSubviews={true}
             windowSize={10}
             ListFooterComponent={
-              visibleProducts.length < products.length && (
+              visibleProducts.length > 0 && visibleProducts.length < products.length && (
                 <View style={styles.footerContainer}>
                   <TouchableOpacity onPress={loadMoreProducts} style={styles.loadMoreButton}>
                     {isLoadingMore ? (
@@ -348,6 +370,7 @@ const SubCategoryScreen = ({ route }) => {
                 </View>
               )
             }
+            
           />
         )}
 
