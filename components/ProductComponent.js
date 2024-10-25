@@ -39,7 +39,7 @@ const ProductComponent = ({ product, lowestPrice, cartVisible }) => { // Added c
       attribute2D: product.attribute2,
       attribute3D: product.attribute3,
       mainName : product.mainName,
-      productName: product.productName
+      productName: product.product
     });
   };
 console.log(product);

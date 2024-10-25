@@ -295,11 +295,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       return;
     }
 
-    if (!selectedPaymentOption) {
-      Alert.alert('Select Payment Option', 'Please select a payment option before proceeding.');
-      return;
-    }
-
+   
     setIsLoading(true);
 
     try {

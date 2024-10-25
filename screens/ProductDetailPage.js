@@ -32,6 +32,7 @@ const ProductDetailPage = ({ route }) => {
   const { addToCart } = useCart();
   const [imageIndex, setImageIndex] = useState(0);
   const scrollViewRef = useRef(null);
+console.log(productName);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -313,6 +314,7 @@ const ProductDetailPage = ({ route }) => {
       };
    
 
+
       // Add item to cart in Firebase
       addToCart(item);
     } else {
@@ -407,6 +409,8 @@ const ProductDetailPage = ({ route }) => {
         selectedAttribute2
       ]?.[selectedAttribute3]?.images[0],
 
+      
+
   };
 
   const getStockStatus = () => {
@@ -446,7 +450,7 @@ const ProductDetailPage = ({ route }) => {
     }
     return null; // Default value if no attributes or color are selected
   };
-  console.log(currentProduct);
+  console.log(productName);
 
   const stockStatus = getStockStatus();
   const estdArrivalDate = getEstimatedArrivalDate();

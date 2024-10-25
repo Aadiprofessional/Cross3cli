@@ -31,6 +31,7 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
     setIsWished(!isWished);
   };
 
+
   const handlePress = () => {
     navigation.navigate('ProductDetailPage', {
       mainId: product.mainId,
@@ -39,11 +40,9 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
       attribute2D: product.attribute2,
       attribute3D: product.attribute3,
       mainName : product.mainName,
-      productName: product.productName
+      productName: product.product,
     });
   };
-  console.log(product);
-
   const handleAddToCart = () => {
     if (!product.outOfStock && quantity > 0) {
       const item = {
@@ -78,7 +77,7 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
 
   const discountPercentage = product.additionalDiscount;
   const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
-
+  console.log(product);
 
   return (
     <TouchableOpacity style={styles.productContainer} onPress={handlePress}>
@@ -116,9 +115,9 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
             />
           </TouchableOpacity> */}
         </View>
-        <Text style={styles.productName2} numberOfLines={1}>
+        {/* <Text style={styles.productName2} numberOfLines={1}>
           {product.attribute1},{product.attribute2},{product.attribute3}
-        </Text>
+        </Text> */}
         {/* {discountPercentage ? (
           <View style={styles.discountContainer}>
             <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
@@ -181,7 +180,7 @@ const styles = StyleSheet.create({
   },
   productContainer: {
 
-    height: 200, // Fixed height
+    height: 180, // Fixed height
     marginVertical: 10,
     backgroundColor: '#fff',
     borderRadius: 10,

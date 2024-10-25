@@ -84,7 +84,7 @@ const ProductHeader = ({
             source={require('../../assets/delivery.png')}
             style={styles.shippingIcon}
           />
-          <Text style={styles.truckText}>{colorDeliveryTime} Days</Text>
+          <Text style={styles.truckText}>{colorDeliveryTime}</Text>
         </View>
       </View>
     </View>

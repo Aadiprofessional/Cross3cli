@@ -9,27 +9,52 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
-  
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { fetchProducts } from '../services/apiService';
-
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { ScrollView } from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
 import { colors } from '../styles/color';
 import ProductComponent2 from '../components/ProductComponent copy';
 
+const CACHE_KEY = 'PRODUCT_CACHE'; // Cache key for storing products
+
 const GroupedProductScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [originalProducts, setOriginalProducts] = useState({});
   const [searchResults, setSearchResults] = useState({});
   const [loading, setLoading] = useState(true);
-  const [visibleCategories, setVisibleCategories] = useState(2); 
+  const [visibleCategories, setVisibleCategories] = useState(2);
   const [loadingMore, setLoadingMore] = useState(false);
 
   const userUid = auth().currentUser?.uid;
+
+  // Save data to cache
+  const cacheProducts = async (products) => {
+    try {
+      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(products));
+    } catch (error) {
+      console.error('Error caching products:', error);
+    }
+  };
+
+  // Load cached data
+  const loadCachedProducts = async () => {
+    try {
+      const cachedProducts = await AsyncStorage.getItem(CACHE_KEY);
+      if (cachedProducts) {
+        const parsedProducts = JSON.parse(cachedProducts);
+        setOriginalProducts(parsedProducts);
+        setSearchResults(parsedProducts);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error loading cached products:', error);
+    }
+  };
 
   const loadProducts = async () => {
     try {
@@ -49,6 +74,7 @@ const GroupedProductScreen = () => {
 
       setOriginalProducts(groupedProducts);
       setSearchResults(groupedProducts);
+      cacheProducts(groupedProducts); // Cache the fetched data
       setLoading(false);
     } catch (error) {
       console.error('Error loading products:', error);
@@ -57,6 +83,7 @@ const GroupedProductScreen = () => {
   };
 
   useEffect(() => {
+    loadCachedProducts(); // Load cached products on mount
     loadProducts();
   }, []);
 
@@ -123,9 +150,9 @@ const GroupedProductScreen = () => {
     if (visibleCategories < Object.keys(searchResults).length) {
       setLoadingMore(true);
       setTimeout(() => {
-        setVisibleCategories(prevCount => prevCount + 2); 
+        setVisibleCategories(prevCount => prevCount + 2);
         setLoadingMore(false);
-      }, 1000); 
+      }, 1000);
     }
   };
 
@@ -135,67 +162,45 @@ const GroupedProductScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.searchBox}>
-        <Icon name="search" size={20} color="#484848" style={styles.icon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search your products"
-          placeholderTextColor="#484848"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          returnKeyType="search"
-        />
-      </View> */}
-
       {loading ? (
         <SkeletonLoader />
       ) : (
-        <ScrollView>
-          {Object.keys(searchResults)
-            .slice(0, visibleCategories)
-            .map((category, index) => (
-              <View key={`${category}-${index}`}>
-                <Text style={styles.categoryTitle}>{category}</Text>
-                <FlatList
-                  data={searchResults[category]}
-                  keyExtractor={(item) => item.productId}
-                  numColumns={2}
-                  renderItem={({ item }) => (
-                    <View style={styles.productContainer}>
-                      <MemoizedProductComponent product={item} />
-                    </View>
-                  )}
-                />
-              </View>
-          ))}
-
-          {loadingMore && (
-            <View style={styles.loadingIndicator}>
-              <ActivityIndicator size="large" color="#FFB800" />
+        <FlatList
+          data={Object.keys(searchResults).slice(0, visibleCategories)}
+          keyExtractor={(item, index) => `${item}-${index}`}
+          renderItem={({ item: category }) => (
+            <View>
+              <Text style={styles.categoryTitle}>{category}</Text>
+              <FlatList
+                data={searchResults[category]}
+                keyExtractor={(item) => item.productId}
+                numColumns={2}
+                renderItem={({ item }) => (
+                  <View style={styles.productContainer}>
+                    <MemoizedProductComponent product={item} />
+                  </View>
+                )}
+              />
             </View>
           )}
-
-          <TouchableOpacity onPress={loadMoreCategories}>
-            {visibleCategories < Object.keys(searchResults).length && (
-              <Text style={styles.loadMoreText}>Load more Products</Text>
-            )}
-          </TouchableOpacity>
-        </ScrollView>
+          ListFooterComponent={() => (
+            <TouchableOpacity onPress={loadMoreCategories}>
+              {visibleCategories < Object.keys(searchResults).length && (
+                <Text style={styles.loadMoreText}>Load more Products</Text>
+              )}
+            </TouchableOpacity>
+          )}
+        />
       )}
-
     </View>
   );
 };
 
 const styles = StyleSheet.create({
- container2: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
   container: {
     flex: 1,
-    paddingHorizontal: 10, // Equal margin on left and right of the screen
-    paddingVertical: 16,   // Equal margin on top and bottom
+    paddingHorizontal: 10,
+    paddingVertical: 16,
     backgroundColor: '#FFFFFF',
   },
   categoryTitle: {
@@ -204,29 +209,11 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 10,
   },
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ECECEC',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    marginBottom: 20,
-  },
   productContainer: {
-    width: '48%', // Ensures two cards per row with proper spacing
-    margin: '1%', // Equal margin around each product card for consistent spacing
+    width: '48%',
+    margin: '1%',
     backgroundColor: '#fff',
-
     overflow: 'hidden',
-
-  },
-  flatList: {
-    flex: 1,
-    marginHorizontal: 0, // Ensures no extra horizontal margin
-  },
-  productList: {
-    flexGrow: 1,
-    paddingHorizontal: 4, // Consistent padding between products
   },
   skeletonContainer: {
     flexDirection: 'row',
@@ -254,43 +241,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginTop: 6,
   },
-
   loadMoreText: {
-    color:colors.main,
+    color: colors.main,
     fontFamily: 'Outfit-Medium',
     fontSize: 15,
     textAlign: 'center',
-    textDecorationLine: 'underline', // Add underline
-  },
-  
-  icon: {
-    marginRight: 10,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    fontFamily: 'Outfit-Medium',
-    color: '#484848',
-  },
-  noResultsText: {
-    fontSize: 18,
-    fontFamily: 'Outfit-Medium',
-    color: '#484848',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-  
-  modalBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContainer: {
-    width: '80%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 20,
+    textDecorationLine: 'underline',
   },
 });
+
 export default GroupedProductScreen;

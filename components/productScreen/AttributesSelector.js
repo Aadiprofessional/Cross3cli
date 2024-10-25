@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import {colors} from '../../styles/color'; // Adjust the path accordingly
+import { colors } from '../../styles/color'; // Adjust the path accordingly
 
 const AttributesSelector = ({
   attributeData = [], // Set a default empty array in case attributeData is undefined
@@ -17,6 +17,12 @@ const AttributesSelector = ({
   // Check if the attributeData is available and has items
   const isDataAvailable = Array.isArray(attributeData) && attributeData.length > 0;
 
+  // Sort attribute data based on the numeric value in each item
+  const sortedAttributeData = [...attributeData].sort((a, b) => {
+    const numA = parseFloat(a.value); // Extract numeric part
+    const numB = parseFloat(b.value); // Extract numeric part
+    return numA - numB;
+  });
 
   return (
     <View style={styles.productDetails}>
@@ -24,7 +30,7 @@ const AttributesSelector = ({
       {isDataAvailable ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.colorScrollContainer}>
-            {attributeData.map(item => (
+            {sortedAttributeData.map(item => (
               <TouchableOpacity
                 key={item.id}
                 style={[
@@ -76,7 +82,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     marginRight: 5,
     shadowColor: '#000',
-    shadowOffset: {width: 2, height: 2},
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4, // Shadows for Android
@@ -86,7 +92,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.main,
     shadowColor: '#000',
-    shadowOffset: {width: 2, height: 2},
+    shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4, // Shadows for Android
