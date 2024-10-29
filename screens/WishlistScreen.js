@@ -13,11 +13,12 @@ const WishlistScreen = ({ navigation }) => {
   const handlePress = (product) => {
     navigation.navigate('ProductDetailPage', {
       mainId: product.mainId,
-   
       productId: product.productId,
       attribute1D: product.attribute1,
       attribute2D: product.attribute2,
       attribute3D: product.attribute3,
+      mainName : product.mainName,
+      productName: product.product
     });
   };
 
@@ -50,6 +51,7 @@ const WishlistScreen = ({ navigation }) => {
       }
     };
 
+
     const renderRightActions = (product) => (
       <RectButton
         style={styles.deleteButton}
@@ -58,6 +60,7 @@ const WishlistScreen = ({ navigation }) => {
         <Text style={styles.deleteButtonText}>Delete</Text>
       </RectButton>
     );
+console.log(item);
 
     return (
       <ReanimatedSwipeable

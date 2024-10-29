@@ -114,7 +114,7 @@ const QuotesScreen = () => {
     navigation.navigate('OrderSummary', {
       cartItems: quote.cartItems,
       totalAmount: quote.totalAmount,
-      totalAdditionalDiscount: totalAdditionalDiscount,
+      totalAdditionalDiscountValue: totalAdditionalDiscount,
     });
   };
 

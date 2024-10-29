@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal, Alert } from 'react-native';
 import axios from 'axios';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { colors } from '../styles/color'; // Adjust path as needed
@@ -13,7 +13,7 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
   const [excludeOutOfStock, setExcludeOutOfStock] = useState(filterOptions.excludeOutOfStock || false);
 
   const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]); // State for brands
+  const [brands, setBrands] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
 
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
@@ -37,9 +37,9 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
     const fetchBrands = async () => {
       try {
         const response = await axios.get('https://crossbee-server-1036279390366.asia-south1.run.app/brands'); // Replace with your brands API URL
-        const brandData = response.data.map((brand) => ({
-          label: brand.name,
-          value: brand.id,
+        const brandData = response.data.map((b) => ({
+          label: b.name,
+          value: b.name,
         }));
         setBrands(brandData);
       } catch (error) {
@@ -63,15 +63,35 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
     { label: '90% and above', value: '90_above' },
   ];
 
+  useEffect(() => {
+    const filters = [];
+    if (minPrice) filters.push(`Min Price: ₹${minPrice}`);
+    if (maxPrice) filters.push(`Max Price: ₹${maxPrice}`);
+    if (category) {
+      const categoryLabel = categories.find(cat => cat.value === category)?.label;
+      filters.push(`Category: ${categoryLabel || "N/A"}`);
+    }
+    if (discount) {
+      const discountLabel = discounts.find(disc => disc.value === discount)?.label;
+      filters.push(`Discount: ${discountLabel || "N/A"}`);
+    }
+    if (brand) {
+      const brandLabel = brands.find(b => b.value === brand)?.label;
+      filters.push(`Brand: ${brandLabel || "N/A"}`);
+    }
+    if (excludeOutOfStock) filters.push('Exclude Out of Stock');
+
+    setSelectedFilters(filters);
+  }, [minPrice, maxPrice, category, discount, brand, excludeOutOfStock, categories, brands]);
+
+
   const handleCategoryChange = (value) => {
     setCategory(value);
-    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Category:')).concat(`Category: ${categories.find(cat => cat.value === value)?.label}`));
     setIsCategoryModalVisible(false);
   };
 
-  const handleBrandChange = (value) => { // Handle brand selection
+  const handleBrandChange = (value) => {
     setBrand(value);
-    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Brand:')).concat(`Brand: ${brands.find(b => b.value === value)?.label}`));
     setIsBrandModalVisible(false);
   };
 
@@ -88,13 +108,11 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
 
   const handleDiscountChange = (value) => {
     setDiscount(value);
-    setSelectedFilters(prev => prev.filter(f => !f.startsWith('Discount:')).concat(`Discount: ${discounts.find(disc => disc.value === value)?.label}`));
     setIsDiscountModalVisible(false);
   };
 
   const handleExcludeOutOfStockChange = () => {
     setExcludeOutOfStock(prev => !prev);
-    setSelectedFilters(prev => prev.includes('Exclude Out of Stock') ? prev.filter(f => f !== 'Exclude Out of Stock') : [...prev, 'Exclude Out of Stock']);
   };
 
   const handlePriceChange = (text, isMaxPrice) => {
@@ -110,6 +128,30 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
 
   const removeFilter = (filter) => {
     setSelectedFilters(prev => prev.filter(f => f !== filter));
+    
+    if (filter.startsWith('Min Price:')) setMinPrice('');
+    else if (filter.startsWith('Max Price:')) setMaxPrice('');
+    else if (filter.startsWith('Category:')) {
+      setCategory(null);
+      // Add this line to handle the display correctly
+      setSelectedFilters(prev => prev.filter(f => !f.startsWith('Category:')));
+    } else if (filter.startsWith('Discount:')) {
+      setDiscount(null);
+    } else if (filter.startsWith('Brand:')) {
+      setBrand(null);
+      // Add this line to handle the display correctly
+      setSelectedFilters(prev => prev.filter(f => !f.startsWith('Brand:')));
+    } else if (filter === 'Exclude Out of Stock') setExcludeOutOfStock(false);
+  };
+
+  const resetFilters = () => {
+    setMinPrice('');
+    setMaxPrice('');
+    setCategory(null);
+    setDiscount(null);
+    setBrand(null);
+    setExcludeOutOfStock(false);
+    setSelectedFilters([]);
   };
 
   return (
@@ -186,7 +228,7 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
 
         {/* Discount Dropdown */}
         <TouchableOpacity onPress={() => setIsDiscountModalVisible(true)} style={styles.dropdown}>
-          <Text style={styles.priceLabel}>{discount ? discounts.find(disc => disc.value === discount)?.label : "Select Discount"}</Text>
+          <Text style={styles.priceLabel}>{discount ? discounts.find(d => d.value === discount)?.label : "Select Discount"}</Text>
         </TouchableOpacity>
         <Modal visible={isDiscountModalVisible} transparent={true} animationType="slide">
           <View style={styles.modalContainer}>
@@ -203,25 +245,27 @@ const FilterDropdown = ({ filterOptions, applyFilters }) => {
           </View>
         </Modal>
 
-        {/* Exclude Out of Stock */}
-        <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.excludeOutOfStockContainer}>
-          <View style={styles.checkboxContainer}>
-            <View style={[styles.checkbox, excludeOutOfStock && styles.checkboxChecked]}>
-              {excludeOutOfStock && <MaterialCommunityIcons name="check" size={16} color="#FFFFFF" />}
-            </View>
-            <Text style={styles.excludeText}>{excludeOutOfStock ? "Include Out of Stock" : "Exclude Out of Stock"}</Text>
-          </View>
-        </TouchableOpacity>
+        {/* Exclude Out of Stock Checkbox */}
+        <View style={styles.checkboxContainer}>
+          <TouchableOpacity onPress={handleExcludeOutOfStockChange} style={styles.checkbox}>
+            {excludeOutOfStock && <MaterialCommunityIcons name="check" size={20} color={colors.main} />}
+          </TouchableOpacity>
+          <Text style={styles.priceLabel}>Exclude Out of Stock</Text>
+        </View>
 
         <TouchableOpacity onPress={handleApplyFilters} style={styles.applyButton}>
           <Text style={styles.applyButtonText}>Apply Filters</Text>
         </TouchableOpacity>
+        {/* Reset Filters Button */}
+        <TouchableOpacity onPress={resetFilters} style={styles.resetButton}>
+          <Text style={styles.resetButtonText}>Reset Filters</Text>
+        </TouchableOpacity>
+
+        {/* Apply Filters Button */}
       </ScrollView>
     </View>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   dropdownContainer: {
@@ -231,12 +275,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   scrollView: {
-    maxHeight: 400,
+    maxHeight: 500,
   },
   priceInputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 10,
+    borderBottomColor: '#ccc',
   },
   priceLabel: {
     fontSize: 16,
@@ -249,6 +294,17 @@ const styles = StyleSheet.create({
     color: colors.TextBlack,
     fontFamily: 'Outfit-Medium',
 
+  },
+  resetButton: {
+    backgroundColor: '#FFFFFF00',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  resetButtonText: {
+    color: colors.second,
+    fontFamily: 'Outfit-Medium',
   },
   priceInput: {
     borderWidth: 1,

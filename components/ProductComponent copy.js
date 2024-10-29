@@ -102,10 +102,8 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
         </View>
 
         <View style={styles.productNameContainer}>
-          <Text style={styles.productName} numberOfLines={1}>
-            {product.displayName.length > 10
-              ? `${product.displayName.substring(0, 10)}...`
-              : product.displayName}
+        <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
+            {product.displayName}
           </Text>
           {/* <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
             <Icon

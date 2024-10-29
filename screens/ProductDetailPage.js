@@ -32,7 +32,7 @@ const ProductDetailPage = ({ route }) => {
   const { addToCart } = useCart();
   const [imageIndex, setImageIndex] = useState(0);
   const scrollViewRef = useRef(null);
-console.log(productName);
+
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -389,7 +389,9 @@ console.log(productName);
   const product = {
     mainId, // Already present in the component
     productId,
- 
+    attribute1: attribute1,
+    attribute2: attribute2,
+    attribute3: attribute3,
     attribute1Id: currentProduct?.attribute1Id,
     attribute2Id: currentProduct?.attribute2Id,
     attribute3Id: currentProduct?.attribute3Id,
@@ -404,15 +406,26 @@ console.log(productName);
         selectedAttribute2
       ]?.[selectedAttribute3]?.price,
     quantity,
-    image:
-      productData.data[attribute1][selectedAttribute1]?.[attribute2]?.[
-        selectedAttribute2
-      ]?.[selectedAttribute3]?.images[0],
+    mainImage:
+      currentProduct.images[0],
+      image : currentProduct.images[0],
+      bag,
+      main:mainName, // Added mainId
+      gst:gst,
+      lowestPrice,
+      inventory :currentProduct.inventory,
+      minCartValue : currentProduct.minCartValue,
+      outOfStock : currentProduct.outOfStock,
+      product : currentProduct.product,
+      productDiscount : currentProduct.productDiscount,
+      searchNamee : currentProduct.searchNamee,
+      userDiscount : currentProduct.userDiscount
 
-      
+
+
 
   };
-
+  console.log(currentProduct);
   const getStockStatus = () => {
     if (
       productData &&
@@ -450,7 +463,7 @@ console.log(productName);
     }
     return null; // Default value if no attributes or color are selected
   };
-  console.log(productName);
+
 
   const stockStatus = getStockStatus();
   const estdArrivalDate = getEstimatedArrivalDate();

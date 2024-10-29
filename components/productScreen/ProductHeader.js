@@ -8,8 +8,8 @@ import {
   Linking,
 } from 'react-native';
 import { colors } from '../../styles/color';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Import MaterialIcons for the heart icon
-import { useWishlist } from '../../components/WishlistContext'; // Import WishlistContext
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useWishlist } from '../../components/WishlistContext';
 
 const ProductHeader = ({
   product,
@@ -18,20 +18,20 @@ const ProductHeader = ({
   price,
   discountedPrice,
   colorDeliveryTime,
-  outOfStock, // Added outOfStock prop
+  outOfStock,
 }) => {
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist(); // Access wishlist and functions
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const [isWished, setIsWished] = useState(
-    wishlist.some((item) => item.productId === product.productId) // Check if the product is already in the wishlist
+    wishlist.some((item) => item.productId === product.productId)
   );
 
   const handleWishlistPress = () => {
     if (isWished) {
-      removeFromWishlist(product); // Remove product from wishlist
+      removeFromWishlist(product);
     } else {
-      addToWishlist(product); // Add product to wishlist
+      addToWishlist(product);
     }
-    setIsWished(!isWished); // Update the heart icon state
+    setIsWished(!isWished);
   };
 
   const handleCallPress = () => {
@@ -39,62 +39,58 @@ const ProductHeader = ({
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  // Round off the prices for comparison
   const roundedPrice = Math.round(parseFloat(price));
   const roundedDiscountedPrice = Math.round(parseFloat(discountedPrice));
 
   return (
-    <View style={styles.productDetails}>
+    <View style={styles.container}>
       <TouchableOpacity onPress={handleCallPress} style={styles.callIconContainer}>
         <Image style={styles.callIcon} source={require('../../assets/call.png')} />
       </TouchableOpacity>
       
-      {/* Wishlist Heart Icon */}
       <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
         <Icon name={isWished ? 'favorite' : 'favorite-border'} size={30} color={isWished ? 'red' : 'black'} />
       </TouchableOpacity>
 
-      <Text style={styles.title}>{name}</Text>
-
-      <View style={styles.priceRow}>
-        <View style={styles.priceDetails}>
-          <Text style={styles.priceText}>Price:</Text>
-          <Text style={styles.priceText}>
-            {outOfStock
-              ? 'XXXX' // Display 'XXXX' if outOfStock is true
-              : Number(discountedPrice).toLocaleString('en-IN', {
+      <View style={styles.productDetails}>
+        <Text style={styles.title}>{name}</Text>
+        <View style={styles.priceRow}>
+          <View style={styles.priceDetails}>
+            <Text style={styles.priceText}>Price:</Text>
+            <Text style={styles.priceText}>
+              {outOfStock
+                ? 'XXXX'
+                : Number(discountedPrice).toLocaleString('en-IN', {
+                    maximumFractionDigits: 0,
+                    style: 'currency',
+                    currency: 'INR',
+                  })}
+            </Text>
+            {!outOfStock && roundedPrice !== roundedDiscountedPrice && (
+              <Text style={styles.discountedText}>
+                {Number(price).toLocaleString('en-IN', {
                   maximumFractionDigits: 0,
                   style: 'currency',
                   currency: 'INR',
                 })}
-          </Text>
-          {/* Show original price only if it's different from the discounted price */}
-          {!outOfStock && roundedPrice !== roundedDiscountedPrice && (
-            <Text style={styles.discountedText}>
-              {Number(price).toLocaleString('en-IN', {
-                maximumFractionDigits: 0,
-                style: 'currency',
-                currency: 'INR',
-              })}
-            </Text>
-          )}
+              </Text>
+            )}
+          </View>
         </View>
-        <View style={styles.deliveryContainer}>
-          <Image
-            source={require('../../assets/delivery.png')}
-            style={styles.shippingIcon}
-          />
-          <Text style={styles.truckText}>{colorDeliveryTime}</Text>
-        </View>
+      </View>
+
+      {/* Delivery Container positioned independently */}
+      <View style={styles.deliveryContainer}>
+        <Image source={require('../../assets/delivery.png')} style={styles.shippingIcon} />
+        <Text style={styles.truckText}>{colorDeliveryTime}</Text>
       </View>
     </View>
   );
 };
 
-
 const styles = StyleSheet.create({
   productDetails: {
-    width: '90%',
+    width: '100%',
     marginTop: 10,
     position: 'relative',
   },
@@ -130,11 +126,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     position: 'absolute',
-    right: -40,
-    top: -40,
-    zIndex: 30,
+    right: 0, // Aligns it to the right end of the parent
+    top: 25, // Adjusts vertical position; you can change this to align as needed
     padding: 10,
-  },
+    zIndex: 30,
+},
+
   truckText: {
     color: '#333333',
     fontSize: 16,
@@ -147,8 +144,8 @@ const styles = StyleSheet.create({
   },
   callIconContainer: {
     position: 'absolute',
-    right: -30,
-    top: 40,
+    right: 10,
+    top: 50,
     padding: 10,
     zIndex: 40,
   },
@@ -158,8 +155,8 @@ const styles = StyleSheet.create({
   },
   heartIconContainer: {
     position: 'absolute',
-    top: -20,
-    right: -30,
+    top: 10,
+    right: 10,
     zIndex: 50,
   },
 });

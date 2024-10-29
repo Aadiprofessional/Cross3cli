@@ -38,11 +38,11 @@ const ProductComponent = ({ product, lowestPrice, cartVisible }) => { // Added c
       attribute1D: product.attribute1,
       attribute2D: product.attribute2,
       attribute3D: product.attribute3,
-      mainName : product.mainName,
+      mainName: product.mainName,
       productName: product.product
     });
   };
-console.log(product);
+  console.log(product);
 
   const handleAddToCart = () => {
     if (!product.outOfStock && quantity > 0) {
@@ -50,8 +50,8 @@ console.log(product);
         productName: product.displayName,
         productId: product.productId,
         price: product.price,
-        quantity: minCartValue*product.bag,
-        image: product.image||product.mainImage,
+        quantity: minCartValue * product.bag,
+        image: product.image || product.mainImage,
         colorminCartValue: minCartValue,
         attributeSelected1: product.attribute1,
         bag: product.bag,
@@ -68,7 +68,7 @@ console.log(product);
         discountedPrice: cutPrice,
         name: product.attribute3,
         colormaxCartValue: product.inventory,
-        gst:product.gst,
+        gst: product.gst,
       };
 
       addToCart(item);
@@ -89,24 +89,22 @@ console.log(product);
           </View>
         )}
         <View style={styles.imageContainer}>
-        <Image
-  source={{
-    uri: (product.image && !product.image.includes('undefined')) 
-        ? product.image 
-        : (product.mainImage && !product.mainImage.includes('undefined')) 
-        ? product.mainImage 
-        : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
-  }}
-  style={styles.productImage}
-/>
+          <Image
+            source={{
+              uri: (product.image && !product.image.includes('undefined'))
+                ? product.image
+                : (product.mainImage && !product.mainImage.includes('undefined'))
+                  ? product.mainImage
+                  : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
+            }}
+            style={styles.productImage}
+          />
 
         </View>
 
         <View style={styles.productNameContainer}>
-          <Text style={styles.productName} numberOfLines={1}>
-            {product.displayName.length > 10
-              ? `${product.displayName.substring(0, 10)}...`
-              : product.displayName}
+          <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
+            {product.displayName}
           </Text>
           <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
             <Icon
@@ -116,6 +114,7 @@ console.log(product);
             />
           </TouchableOpacity>
         </View>
+
         <Text style={styles.productName2} numberOfLines={1}>
           {product.attribute1},{product.attribute2},{product.attribute3}
         </Text>
@@ -143,7 +142,7 @@ console.log(product);
         </View>
 
         <View style={styles.footerContainer}>
-          {cartVisible ? null : ( 
+          {cartVisible ? null : (
             product.outOfStock ? (
               <View style={styles.outOfStockButton}>
                 <Text style={styles.outOfStockText}>Out of Stock</Text>
@@ -227,24 +226,26 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain',
   },
-  heartIconContainer: {
-    position: 'absolute',
-    top: 5,
-    right: 1,
-  },
+  
   productNameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    justifyContent: 'space-between', // Make texts attach to each other
+    justifyContent: 'space-between',
   },
   productName: {
     fontSize: 15,
     color: colors.TextBlack,
     fontFamily: 'Outfit-Bold',
-    marginVertical: 0, // Remove vertical margin
     flex: 1,
+    paddingRight: 30, // Add padding to avoid overlap with heart icon
   },
+  heartIconContainer: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+  },
+  
   productName2: {
     fontSize: 13,
     color: colors.TextBlack,
@@ -278,36 +279,43 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingTop: 10, // Add padding to create gap with content above
   },
-  addToCartButton: {
-    backgroundColor: '#FCCC51',
-    borderRadius: 15,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 5,
-  },
-  addToCartText: {
-    color: '#333',
-    fontFamily: 'Outfit-Medium',
-    fontSize: 9,
-    textAlign: 'center',
-  },
+ 
   productDetailButton: {
     borderColor: '#333',
     borderWidth: 1,
     borderRadius: 15,
     paddingVertical: 5,
     paddingHorizontal: 10,
-    alignItems: 'center',
+    justifyContent: 'center', // Center content vertically
+    alignItems: 'center', // Center content horizontally
     flex: 1,
   },
+  addToCartButton: {
+    backgroundColor: '#FCCC51',
+    borderRadius: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    justifyContent: 'center', // Center content vertically
+    alignItems: 'center', // Center content horizontally
+    flex: 1,
+    marginRight: 5,
+  },
+  
   productDetailText: {
     color: '#333',
     fontFamily: 'Outfit-Medium',
     fontSize: 9,
     textAlign: 'center',
+    textAlignVertical: 'center', // Center text vertically on Android
   },
+  addToCartText: {
+    color: '#333',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 9,
+    textAlign: 'center',
+    textAlignVertical: 'center', // Center text vertically on Android
+  },
+  
   outOfStockButton: {
     borderColor: 'red',
     borderWidth: 0,

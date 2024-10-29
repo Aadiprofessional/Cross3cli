@@ -71,38 +71,34 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
     fetchDiscounts();
   }, [initialTotalAmount]); // Run only when initialTotalAmount changes
+  console.log(cartItems, totalAdditionalDiscountValue, totalAmount);
 
-  // Modify calculateTotalAmount to only apply discounts/coupons to the subtotal
   const calculateTotalAmount = () => {
-    // Step 1: Get Subtotal (after reward points applied)
     let amount = calculateSubtotal();
 
-    // Step 2: Apply Initial Discount
     const applicableDiscount = discounts
       .filter(discount => discount.status === 'Active' && amount >= discount.amount)
-      .sort((a, b) => b.amount - a.amount)[0]; // Find the largest applicable discount
+      .sort((a, b) => b.amount - a.amount)[0];
 
     if (applicableDiscount) {
       const discountAmount = (amount * applicableDiscount.discount) / 100;
-      amount -= discountAmount; // Apply the discount to the amount
-      setAppliedDiscount(applicableDiscount); // Store the applied discount
+      amount -= discountAmount;
+      setAppliedDiscount(applicableDiscount);
     }
 
-    // Step 3: Apply Coupon Discount (if any)
     if (appliedCoupon) {
       amount -= Number(appliedCoupon.value);
     }
 
-    // Step 4: Subtract Additional Discounts
     amount -= totalAdditionalDiscountValue;
 
-    // Step 5: Add shipping charges (if any)
+    const gstTotal = calculateGSTTotal(); // Get total GST
+    amount -= gstTotal; // Subtract GST from total
+
     amount += data.shippingCharges;
 
-    // Step 6: Ensure Non-Negative Total
     return Math.max(0, amount);
   };
-
 
   const fetchRewardPoints = async () => {
     try {
@@ -153,7 +149,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
 
 
 
- 
+
   // Fetch reward points (existing logic)
   useEffect(() => {
     fetchRewardPoints();
@@ -224,9 +220,13 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       </View>
     );
   }
+  const calculateGSTTotal = () => {
+    return cartItems.reduce((totalGST, item) => {
+      const itemGST = (item.price * item.quantity * item.gst) / 100;
+      return totalGST + itemGST;
+    }, 0);
+  };
 
-  // Calculate subtotal
-  // Calculate subtotal (with reward points applied here)
   const calculateSubtotal = () => {
     let subtotal = cartItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
@@ -295,7 +295,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
       return;
     }
 
-   
+
     setIsLoading(true);
 
     try {
@@ -308,6 +308,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
             ...data,
             companyId: selectedCompanyId,  // Add selected company ID
             brandId: selectedBrandId,       // Add selected brand ID
+            gst : calculateGSTTotal().toFixed(2),
             // Include other relevant data if needed
           },
           useRewardPoints,
@@ -403,7 +404,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Additional Discount:</Text>
             <Text style={styles.summaryValue}>
-              -{Number(totalAdditionalDiscountValue.toFixed(0)).toLocaleString("en-IN", {
+              -{Number(totalAdditionalDiscountValue).toLocaleString("en-IN", {
                 maximumFractionDigits: 0,
                 style: 'currency',
                 currency: 'INR',
@@ -436,6 +437,16 @@ const OrderSummaryScreen = ({ route, navigation }) => {
               </Text>
             </View>
           )}
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>GST:</Text>
+            <Text style={styles.summaryValue}>
+              -{Number(calculateGSTTotal().toFixed(2)).toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+                style: 'currency',
+                currency: 'INR',
+              })}
+            </Text>
+          </View>
 
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total:</Text>
@@ -493,46 +504,47 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           </View>
 
           <View style={styles.couponSection}>
-            <Text style={styles.applicableCoupons}>Available Coupons</Text>
-            {availableCoupons.map((coupon, index) => (
-              <View key={index} style={styles.couponItem}>
-                <View style={styles.couponItemContainer}>
-                  <Text style={styles.applicableText}>
-                    <Text style={styles.couponCodeText}>{coupon.code}</Text>
-                    {'\n'}
-                    Save ₹{Number(coupon.value).toLocaleString("en-IN", { maximumFractionDigits: 0 })}  {/* Display coupon value */}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.applyTextButton}
-                    onPress={() => {
-                      setAppliedCoupon(coupon);
-                      setCouponCode(coupon.code); // Show the applied coupon code in the input field
-                      Alert.alert('Coupon applied', `Coupon ${coupon.code} applied successfully!`);
-                    }}
-                    disabled={!!appliedCoupon} // Disable button if coupon applied
-                  >
-                    <Text style={styles.applyTextButtonText}>
-                      {appliedCoupon && appliedCoupon.code === coupon.code ? 'Applied' : 'Apply'}
+            <Text style={styles.applicableCoupons}>Coupons</Text>
+            {coupons.map((coupon, index) => {
+              const isAvailable = coupon.min_amount <= totalAmount;
+              const isApplied = appliedCoupon && appliedCoupon.code === coupon.code;
+
+              return (
+                <View key={index} style={styles.couponItem}>
+                  <View style={styles.couponItemContainer}>
+                    <Text style={styles.applicableText}>
+                      <Text style={styles.couponCodeText}>{coupon.code}</Text>
+                      {'\n'}
+                      {isAvailable
+                        ? `Save ₹${Number(coupon.value).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`
+                        : coupon.description}
                     </Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.applyTextButton}
+                      onPress={() => {
+                        setAppliedCoupon(coupon);
+                        setCouponCode(coupon.code); // Show the applied coupon code in the input field
+                        Alert.alert('Coupon applied', `Coupon ${coupon.code} applied successfully!`);
+                      }}
+                      disabled={!isAvailable || isApplied}
+                    >
+                      <Text
+                        style={[
+                          styles.applyTextButtonText,
+                          (!isAvailable || isApplied) && { opacity: 0.5 } // Lower opacity for disabled buttons
+                        ]}
+                      >
+                        {isApplied ? 'Applied' : 'Apply'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  {index < coupons.length - 1 && <View style={styles.separator} />}
                 </View>
-                {index < availableCoupons.length - 1 && <View style={styles.separator} />}
-              </View>
-            ))}
-            <Text style={styles.applicableCoupons}>Unavailable Coupons</Text>
-            {unavailableCoupons.map((coupon, index) => (
-              <View key={index} style={styles.couponItem}>
-                <View style={styles.couponItemContainer}>
-                  <Text style={styles.applicableText}>
-                    <Text style={styles.couponCodeText}>{coupon.code}</Text>
-                    {'\n'}
-                    {coupon.description}
-                  </Text>
-                </View>
-                {index < unavailableCoupons.length - 1 && <View style={styles.separator} />}
-              </View>
-            ))}
+              );
+            })}
           </View>
+
+
 
           {appliedCoupon && (
             <TouchableOpacity
@@ -558,7 +570,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           onSelectCompany={handleSelectLog}
           pincode={selectedPincode}
         />
-       
+
         {cartItems.map(item => (
           <CartItem
             key={item.cartId}
@@ -567,7 +579,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
             onRemoveItem={removeCartItem}
           />
         ))}
-        < SuggestedProducts/>
+        < SuggestedProducts />
       </ScrollView>
 
       <View style={styles.checkoutContainer}>

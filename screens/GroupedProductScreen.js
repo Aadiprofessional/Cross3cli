@@ -1,38 +1,26 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
-  TextInput,
   StyleSheet,
   FlatList,
   Text,
-  ActivityIndicator,
   TouchableOpacity,
-  Modal,
-  Pressable,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/Ionicons';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { fetchProducts } from '../services/apiService';
-import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { ScrollView } from 'react-native-gesture-handler';
 import auth from '@react-native-firebase/auth';
-import { colors } from '../styles/color';
+import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import ProductComponent2 from '../components/ProductComponent copy';
+import { colors } from '../styles/color';
 
-const CACHE_KEY = 'PRODUCT_CACHE'; // Cache key for storing products
+const CACHE_KEY = 'PRODUCT_CACHE';
 
 const GroupedProductScreen = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [originalProducts, setOriginalProducts] = useState({});
   const [searchResults, setSearchResults] = useState({});
   const [loading, setLoading] = useState(true);
   const [visibleCategories, setVisibleCategories] = useState(2);
-  const [loadingMore, setLoadingMore] = useState(false);
 
   const userUid = auth().currentUser?.uid;
 
-  // Save data to cache
   const cacheProducts = async (products) => {
     try {
       await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(products));
@@ -41,13 +29,11 @@ const GroupedProductScreen = () => {
     }
   };
 
-  // Load cached data
   const loadCachedProducts = async () => {
     try {
       const cachedProducts = await AsyncStorage.getItem(CACHE_KEY);
       if (cachedProducts) {
         const parsedProducts = JSON.parse(cachedProducts);
-        setOriginalProducts(parsedProducts);
         setSearchResults(parsedProducts);
         setLoading(false);
       }
@@ -60,21 +46,17 @@ const GroupedProductScreen = () => {
     try {
       setLoading(true);
       const response = await fetch(`https://crossbee-server-1036279390366.asia-south1.run.app/allProducts?uid=${userUid}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch products');
-      }
-
       const productsData = await response.json();
       const groupedProducts = {};
+
       for (const [category, products] of Object.entries(productsData)) {
         if (Array.isArray(products)) {
           groupedProducts[category] = products;
         }
       }
 
-      setOriginalProducts(groupedProducts);
       setSearchResults(groupedProducts);
-      cacheProducts(groupedProducts); // Cache the fetched data
+      cacheProducts(groupedProducts);
       setLoading(false);
     } catch (error) {
       console.error('Error loading products:', error);
@@ -83,7 +65,7 @@ const GroupedProductScreen = () => {
   };
 
   useEffect(() => {
-    loadCachedProducts(); // Load cached products on mount
+    loadCachedProducts();
     loadProducts();
   }, []);
 
@@ -146,15 +128,14 @@ const GroupedProductScreen = () => {
     );
   };
 
-  const loadMoreCategories = () => {
-    if (visibleCategories < Object.keys(searchResults).length) {
-      setLoadingMore(true);
-      setTimeout(() => {
-        setVisibleCategories(prevCount => prevCount + 2);
-        setLoadingMore(false);
-      }, 1000);
-    }
-  };
+
+  const loadMoreCategories = useMemo(() => {
+    return () => {
+      if (visibleCategories < Object.keys(searchResults).length) {
+        setVisibleCategories((prevCount) => prevCount + 2);
+      }
+    };
+  }, [visibleCategories, searchResults]);
 
   const MemoizedProductComponent = React.memo(({ product }) => (
     <ProductComponent2 product={product} lowestPrice={product.lowestPrice} cartVisible={true} />
@@ -167,29 +148,30 @@ const GroupedProductScreen = () => {
       ) : (
         <FlatList
           data={Object.keys(searchResults).slice(0, visibleCategories)}
+          showsVerticalScrollIndicator={false}
           keyExtractor={(item, index) => `${item}-${index}`}
           renderItem={({ item: category }) => (
             <View>
               <Text style={styles.categoryTitle}>{category}</Text>
-              <FlatList
-                data={searchResults[category]}
-                keyExtractor={(item) => item.productId}
-                numColumns={2}
-                renderItem={({ item }) => (
-                  <View style={styles.productContainer}>
+              <View style={styles.productList}>
+                {searchResults[category].map((item) => (
+                  <View style={styles.productContainer} key={item.productId}>
                     <MemoizedProductComponent product={item} />
                   </View>
-                )}
-              />
+                ))}
+              </View>
             </View>
           )}
           ListFooterComponent={() => (
-            <TouchableOpacity onPress={loadMoreCategories}>
-              {visibleCategories < Object.keys(searchResults).length && (
+            visibleCategories < Object.keys(searchResults).length && (
+              <TouchableOpacity onPress={loadMoreCategories}>
                 <Text style={styles.loadMoreText}>Load more Products</Text>
-              )}
-            </TouchableOpacity>
+              </TouchableOpacity>
+            )
           )}
+          windowSize={5}
+          initialNumToRender={3}
+          maxToRenderPerBatch={5}
         />
       )}
     </View>
@@ -208,6 +190,10 @@ const styles = StyleSheet.create({
     fontFamily: 'Outfit-Bold',
     color: '#333333',
     marginBottom: 10,
+  },
+  productList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   productContainer: {
     width: '48%',
