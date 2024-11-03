@@ -11,8 +11,8 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
   const navigation = useNavigation();
   const { addToCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
-  const minCartValue = parseInt(product.minCartValue, 10) || 1;
-  const [quantity, setQuantity] = useState(minCartValue);
+
+
   const [isWished, setIsWished] = useState(wishlist.some(item => item.productId === product.productId));
   const [loading, setLoading] = useState(true); // Loading state
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -43,50 +43,11 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
       productName: product.product,
     });
   };
-  const handleAddToCart = () => {
-    if (!product.outOfStock && quantity > 0) {
-      const item = {
-        productName: product.displayName,
-        productId: product.productId,
-        price: product.price,
-        quantity: minCartValue,
-        image: product.image,
-        colorminCartValue: minCartValue,
-        attributeSelected1: product.attribute1,
-        bag: product.bag,
-        attributeSelected2: product.attribute2,
-        attributeSelected3: product.attribute3,
-        attribute1: product.attribute1,
-        attribute2: product.attribute2,
-        attribute3: product.attribute3,
-        attribute1Id: product.attribute1Id,
-        attribute2Id: product.attribute2Id,
-        attribute3Id: product.attribute3Id,
-        additionalDiscount: product.additionalDiscount || 0,
-        mainId: product.mainId,
-        discountedPrice: cutPrice,
-        name: product.attribute3,
-        colormaxCartValue: product.inventory,
-        gst: product.gst,
-      };
-
-      addToCart(item);
-      console.log('Adding to cart:', item);
-    }
-  };
-
-  const discountPercentage = product.additionalDiscount;
-  const cutPrice = (product.price * (1 - discountPercentage / 100)).toFixed(0);
-  console.log(product);
 
   return (
     <TouchableOpacity style={styles.productContainer} onPress={handlePress}>
       <View style={styles.productContent}>
-        {product.lowestPrice && (
-          <View style={styles.lowestPriceLabel}>
-            <Text style={styles.lowestPriceText}>Highest Discount</Text>
-          </View>
-        )}
+       
         <View style={styles.imageContainer}>
           <Image
             source={{
@@ -105,41 +66,8 @@ const ProductComponent2 = ({ product, lowestPrice, cartVisible }) => { // Added 
         <Text style={styles.productName} numberOfLines={2} ellipsizeMode="tail">
             {product.displayName}
           </Text>
-          {/* <TouchableOpacity style={styles.heartIconContainer} onPress={handleWishlistPress}>
-            <Icon
-              name={isWished ? 'favorite' : 'favorite-border'}
-              size={24}
-              color={isWished ? 'red' : 'black'}
-            />
-          </TouchableOpacity> */}
+        
         </View>
-        {/* <Text style={styles.productName2} numberOfLines={1}>
-          {product.attribute1},{product.attribute2},{product.attribute3}
-        </Text> */}
-        {/* {discountPercentage ? (
-          <View style={styles.discountContainer}>
-            <Text style={styles.discountText}>{discountPercentage}% OFF</Text>
-            <Text style={styles.cutPriceText}>
-              {Number(product.price).toLocaleString('en-IN', {
-                maximumFractionDigits: 0,
-                style: 'currency',
-                currency: 'INR',
-              })}
-            </Text>
-          </View>
-        ) : null}
-
-        <View style={styles.hotDealsContainer}>
-          <Text style={styles.originalPriceText}>
-            {Number(cutPrice).toLocaleString('en-IN', {
-              maximumFractionDigits: 0,
-              style: 'currency',
-              currency: 'INR',
-            })}
-          </Text>
-        </View> */}
-
-
       </View>
     </TouchableOpacity>
   );

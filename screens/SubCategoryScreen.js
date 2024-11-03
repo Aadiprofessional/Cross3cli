@@ -157,99 +157,92 @@ const SubCategoryScreen = ({ route }) => {
     );
   };
 
-  const debouncedSearch = useMemo(
-    () =>
-      debounce(query => {
-        let filteredProducts = originalProducts.filter(product => {
-          // Assign 'null' to searchName if it's missing or invalid
-          let searchName = product && product.searchName ? product.searchName.toLowerCase() : null;
-        
-          // If searchName is not null, perform the search, otherwise return false
-          if (searchName) {
-            return searchName.includes(query.toLowerCase());
-          } else {
-            console.log(`Product missing or invalid searchName:`, product);
-            return false; // Exclude products with null searchName from the results
+ // Apply filter options
+const applyFilters = filters => {
+  setFilterOptions(filters);
+  setFilterVisible(false); // Close the filter modal after applying filters
+  debouncedSearch(searchQuery); // Re-trigger the search with current query
+};
+
+// Modified search function with brands array filter
+const debouncedSearch = useMemo(
+  () =>
+    debounce(query => {
+      let filteredProducts = originalProducts.filter(product => {
+        let searchName = product && product.searchName ? product.searchName.toLowerCase() : null;
+
+        if (searchName) {
+          return searchName.includes(query.toLowerCase());
+        } else {
+          console.log(`Product missing or invalid searchName:`, product);
+          return false;
+        }
+      });
+
+      // Apply Filters
+      if (filterOptions.category) {
+        filteredProducts = filteredProducts.filter(
+          product => product.mainId === filterOptions.category,
+        );
+      }
+
+      // Brand filter with array support
+      if (filterOptions.brand) {
+        console.log("Brand filter applied:", filterOptions.brand);
+        filteredProducts = filteredProducts.filter(
+          product => product.brands.includes(filterOptions.brand)
+        );
+      }
+      // Discount Filter
+      if (filterOptions.discount) {
+        filteredProducts = filteredProducts.filter(product => {
+          switch (filterOptions.discount) {
+            case '10_above': return product.additionalDiscount >= 10;
+            case '20_above': return product.additionalDiscount >= 20;
+            case '30_above': return product.additionalDiscount >= 30;
+            case '40_above': return product.additionalDiscount >= 40;
+            case '50_above': return product.additionalDiscount >= 50;
+            case '60_above': return product.additionalDiscount >= 60;
+            case '70_above': return product.additionalDiscount >= 70;
+            case '80_above': return product.additionalDiscount >= 80;
+            case '90_above': return product.additionalDiscount >= 90;
+            default: return true;
           }
         });
-        
-        
-        // Apply Filters
-        if (filterOptions.category) {
-          filteredProducts = filteredProducts.filter(
-            product => product.mainId === filterOptions.category,
+      }
+
+      // Price Filter
+      if (filterOptions.minPrice || filterOptions.maxPrice) {
+        filteredProducts = filteredProducts.filter(product => {
+          const price = parseFloat(product.price);
+          return (
+            price >= (filterOptions.minPrice || 0) && 
+            price <= (filterOptions.maxPrice || Infinity)
           );
-        }
-        if (filterOptions.brand) {
-          filteredProducts = filteredProducts.filter(
-            product => product.brand === filterOptions.brand,
-          );
-        }
-        // Discount Filter
-        if (filterOptions.discount) {
-          filteredProducts = filteredProducts.filter(product => {
-            switch (filterOptions.discount) {
-              case '10_above':
-                return product.additionalDiscount >= 10;
-              case '20_above':
-                return product.additionalDiscount >= 20;
-              case '30_above':
-                return product.additionalDiscount >= 30;
-              case '40_above':
-                return product.additionalDiscount >= 40;
-              case '50_above':
-                return product.additionalDiscount >= 50;
-              case '60_above':
-                return product.additionalDiscount >= 60;
-              case '70_above':
-                return product.additionalDiscount >= 70;
-              case '80_above':
-                return product.additionalDiscount >= 80;
-              case '90_above':
-                return product.additionalDiscount >= 90;
-              default:
-                return true;
-            }
-          });
-        }
-  
-        // Price Filter
-        if (filterOptions.minPrice || filterOptions.maxPrice) {
-          filteredProducts = filteredProducts.filter(product => {
-            const price = parseFloat(product.price);
-            return (
-              price >= (filterOptions.minPrice || 0) && 
-              price <= (filterOptions.maxPrice || Infinity)
-            );
-          });
-        }
-  
-        // Exclude Out of Stock products
-        if (filterOptions.excludeOutOfStock) {
-          filteredProducts = filteredProducts.filter(
-            product => !product.outOfStock,
-          );
-        }
-  
-        // Set the final search results
-        setSearchResults(filteredProducts);
-        setSortedResults(filteredProducts); // Update sorted results too
-        setVisibleProducts(filteredProducts.slice(0, pageSize)); // Set visible products
-        setSortValue(null); // Reset sort value on search
-      }, 300),
-    [originalProducts, filterOptions],
-  );
+        });
+      }
+
+      // Exclude Out of Stock products
+      if (filterOptions.excludeOutOfStock) {
+        filteredProducts = filteredProducts.filter(
+          product => !product.outOfStock,
+        );
+      }
+
+      setSearchResults(filteredProducts);
+      setSortedResults(filteredProducts);
+      setVisibleProducts(filteredProducts.slice(0, pageSize));
+      setSortValue(null);
+    }, 300),
+  [originalProducts, filterOptions],
+);
+
   
   useEffect(() => {
     debouncedSearch(searchQuery);
   }, [searchQuery, debouncedSearch]);
   
-  // Apply filter options
-  const applyFilters = filters => {
-    setFilterOptions(filters);
-    setFilterVisible(false); // Close the filter modal after applying filters
-    debouncedSearch(searchQuery); // Re-trigger the search with current query
-  };
+
   
   // Sort products based on price
   useEffect(() => {

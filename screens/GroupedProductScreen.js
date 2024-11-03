@@ -138,7 +138,7 @@ const GroupedProductScreen = () => {
   }, [visibleCategories, searchResults]);
 
   const MemoizedProductComponent = React.memo(({ product }) => (
-    <ProductComponent2 product={product} lowestPrice={product.lowestPrice} cartVisible={true} />
+    <ProductComponent2 product={product} cartVisible={true} />
   ));
 
   return (

@@ -9,7 +9,6 @@ import {
   FlatList,
   Modal,
   TouchableWithoutFeedback,
-  ScrollView,
 } from 'react-native';
 import axios from 'axios';
 import auth from '@react-native-firebase/auth';
@@ -36,9 +35,7 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
       try {
         const response = await axios.post(
           'https://crossbee-server-1036279390366.asia-south1.run.app/logistics',
-          {
-            pincode: pincode, // Send pincode in the body
-          },
+          { pincode }
         );
 
         if (response.status === 200) {
@@ -52,7 +49,7 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
         }
       } catch (err) {
         setError('Failed to load companies');
-        Alert.alert('Error', err.message); // Show error alert
+        Alert.alert('Error', err.message);
       } finally {
         setLoading(false);
       }
@@ -69,7 +66,12 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
     }
   };
 
-  // Close modal if clicked outside
+  const handleDropdownPress = () => {
+    if (companies.length > 0) {
+      setDropdownVisible(true);
+    }
+  };
+
   const handleOutsidePress = () => {
     setDropdownVisible(false);
   };
@@ -81,14 +83,17 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
       <Text style={styles.label}>Select a Logistics:</Text>
       <TouchableOpacity
         style={styles.pickerContainer}
-        onPress={() => setDropdownVisible(true)}
+        onPress={handleDropdownPress}
       >
         <Text style={styles.pickerText}>
-          {selectedCompany ? selectedCompany.name : 'Select Company'}
+          {selectedCompany ? selectedCompany.name : 'Select Logistics'}
         </Text>
       </TouchableOpacity>
-      
-      {/* Modal for displaying dropdown items */}
+
+      {companies.length === 0 && !loading && (
+        <Text style={styles.noDataText}>No logistics available</Text>
+      )}
+
       {dropdownVisible && (
         <Modal
           transparent={true}
@@ -99,7 +104,6 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
           <TouchableWithoutFeedback onPress={handleOutsidePress}>
             <View style={styles.modalBackground}>
               <View style={styles.dropdown}>
-                {/* FlatList for scrolling company items */}
                 <FlatList
                   data={companies}
                   keyExtractor={(item) => item.name}
@@ -121,7 +125,7 @@ const CompanyDropdown3 = ({ onSelectCompany, pincode }) => {
                       ))}
                     </TouchableOpacity>
                   )}
-                  showsVerticalScrollIndicator={true} // Add scroll indicator for better UX
+                  showsVerticalScrollIndicator={true}
                 />
               </View>
             </View>
@@ -149,7 +153,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.TextBlack,
     borderRadius: 10,
-    overflow: 'hidden',
     backgroundColor: colors.white,
     height: 40,
     justifyContent: 'center',
@@ -158,19 +161,18 @@ const styles = StyleSheet.create({
   pickerText: {
     fontFamily: 'Outfit-Medium',
     color: colors.TextBlack,
-    textAlign: 'left',
   },
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   dropdown: {
-    backgroundColor: '#ffffff', // Set a solid background color
-    width: '95%', // Set the modal width to 95%
-    maxHeight: '70%', // Limit the height of the dropdown
-    elevation: 5, // Add some shadow
+    backgroundColor: '#ffffff',
+    width: '95%',
+    maxHeight: '70%',
+    elevation: 5,
   },
   dropdownItem: {
     padding: 10,
@@ -180,16 +182,22 @@ const styles = StyleSheet.create({
   itemTitle: {
     fontFamily: 'Outfit-Bold',
     fontSize: 16,
-    color: 'black', // Set text color to black
+    color: 'black',
   },
   itemTitle2: {
     fontFamily: 'Outfit-Medium',
     fontSize: 16,
-    color: 'black', // Set text color to black
+    color: 'black',
   },
   locationItem: {
     marginTop: 5,
     paddingVertical: 2,
+  },
+  noDataText: {
+    color: 'gray',
+    textAlign: 'center',
+    marginTop: 10,
+    fontFamily: 'Outfit-Medium',
   },
   errorText: {
     color: 'red',

@@ -93,7 +93,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
     amount -= totalAdditionalDiscountValue;
 
     const gstTotal = calculateGSTTotal(); // Get total GST
-    amount -= gstTotal; // Subtract GST from total
+    amount += gstTotal; // Subtract GST from total
 
     amount += data.shippingCharges;
 
@@ -440,7 +440,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>GST:</Text>
             <Text style={styles.summaryValue}>
-              -{Number(calculateGSTTotal().toFixed(2)).toLocaleString("en-IN", {
+              +{Number(calculateGSTTotal().toFixed(2)).toLocaleString("en-IN", {
                 maximumFractionDigits: 0,
                 style: 'currency',
                 currency: 'INR',
@@ -465,7 +465,7 @@ const OrderSummaryScreen = ({ route, navigation }) => {
           onPress={handleToggleRewardPoints}
         >
           <Text style={styles.rewardPointsText}>
-            Use Wallet Points (-{Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
+            Use Wallet Points ({Number(data.rewardPointsPrice.toFixed(2)).toLocaleString("en-IN", {
               maximumFractionDigits: 0,
               style: 'currency',
               currency: 'INR',

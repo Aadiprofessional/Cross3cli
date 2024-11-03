@@ -114,82 +114,83 @@ const SearchScreen = () => {
     <ProductComponent product={product} />
   ));
   // Filter products based on search query and filter options
-  const debouncedSearch = useMemo(
-    () =>
-      debounce(query => {
-        let filteredProducts = originalProducts.filter(product =>
-          product.searchName.toLowerCase().includes(query.toLowerCase()),
+// Filter products based on search query and filter options
+const debouncedSearch = useMemo(
+  () =>
+    debounce(query => {
+      let filteredProducts = originalProducts.filter(product =>
+        product.searchName.toLowerCase().includes(query.toLowerCase()),
+      );
+
+      // Apply Category Filter
+      if (filterOptions.category) {
+        console.log(filterOptions.category, filteredProducts[0].mainId);
+        filteredProducts = filteredProducts.filter(
+          product => product.mainId === filterOptions.category,
         );
+      }
 
-        // Apply Category Filter
+      // Apply Brand Filter
+      if (filterOptions.brand) {
+        console.log("Brand filter applied:", filterOptions.brand);
+        filteredProducts = filteredProducts.filter(
+          product => product.brands.includes(filterOptions.brand)
+        );
+      }
 
-        if (filterOptions.category) {
-          console.log(filterOptions.category, filteredProducts[0].mainId);
+      // Apply Discount Filter
+      if (filterOptions.discount) {
+        filteredProducts = filteredProducts.filter(product => {
+          console.log(product);
+          switch (filterOptions.discount) {
+            case '10_above':
+              return product.additionalDiscount >= 10;
+            case '20_above':
+              return product.additionalDiscount >= 20;
+            case '30_above':
+              return product.additionalDiscount >= 30;
+            case '40_above':
+              return product.additionalDiscount >= 40;
+            case '50_above':
+              return product.additionalDiscount >= 50;
+            case '60_above':
+              return product.additionalDiscount >= 60;
+            case '70_above':
+              return product.additionalDiscount >= 70;
+            case '80_above':
+              return product.additionalDiscount >= 80;
+            case '90_above':
+              return product.additionalDiscount >= 90;
+            default:
+              return true;
+          }
+        });
+      }
 
-          filteredProducts = filteredProducts.filter(
-            product => product.mainId === filterOptions.category,
+      if (filterOptions.minPrice || filterOptions.maxPrice) {
+        filteredProducts = filteredProducts.filter(product => {
+          const price = parseFloat(product.price);
+          return (
+            price >= filterOptions.minPrice && price <= filterOptions.maxPrice
           );
-        }
-        if (filterOptions.brand) {
-          console.log("Brand filter applied:", filterOptions.brand);
-          filteredProducts = filteredProducts.filter(
-            product => product.brand === filterOptions.brand,
-          );
-        }
+        });
+      }
 
-        // Apply Discount Filter
-        if (filterOptions.discount) {
-          filteredProducts = filteredProducts.filter(product => {
-            console.log(product);
-            switch (filterOptions.discount) {
-              case '10_above':
-                return product.additionalDiscount >= 10;
-              case '20_above':
-                return product.additionalDiscount >= 20;
-              case '30_above':
-                return product.additionalDiscount >= 30;
+      // Exclude Out of Stock products
+      if (filterOptions.excludeOutOfStock) {
+        filteredProducts = filteredProducts.filter(
+          product => !product.outOfStock,
+        );
+      }
 
-              case '40_above':
-                return product.additionalDiscount >= 40;
-              case '50_above':
-                return product.additionalDiscount >= 50;
-              case '60_above':
-                return product.additionalDiscount >= 60;
-              case '70_above':
-                return product.additionalDiscount >= 70;
-              case '80_above':
-                return product.additionalDiscount >= 80;
-              case '90_above':
-                return product.additionalDiscount >= 90;
+      setSearchResults(query ? filteredProducts : originalProducts);
+      setSortedResults(filteredProducts ?? originalProducts);
+      setSortValue(null);
+    }, 300),
 
-              default:
-                return true;
-            }
-          });
-        }
-        if (filterOptions.minPrice || filterOptions.maxPrice) {
-          filteredProducts = filteredProducts.filter(product => {
-            const price = parseFloat(product.price);
-            return (
-              price >= filterOptions.minPrice && price <= filterOptions.maxPrice
-            );
-          });
-        }
+  [originalProducts, filterOptions],
+);
 
-        // Exclude Out of Stock products
-        if (filterOptions.excludeOutOfStock) {
-          filteredProducts = filteredProducts.filter(
-            product => !product.outOfStock,
-          );
-        }
-
-        setSearchResults(query ? filteredProducts : originalProducts);
-        setSortedResults(filteredProducts ?? originalProducts);
-        setSortValue(null);
-      }, 300),
-
-    [originalProducts, filterOptions],
-  );
 
   useEffect(() => {
     debouncedSearch(searchQuery);

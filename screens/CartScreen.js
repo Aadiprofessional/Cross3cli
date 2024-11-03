@@ -97,7 +97,7 @@ const CartScreen = () => {
         {
           cartItems,
           uid: user.uid,
-          companyId, // Pass the selected companyId in the request body
+          companyId,
         },
       );
 

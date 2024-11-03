@@ -73,9 +73,9 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
       productId, mainId, attribute1D: attributeSelected1,
       attribute2D: attributeSelected2,
       attribute3D: attributeSelected3,
-      mainName :item.mainName,
+      mainName: item.mainName,
       productName
-      
+
 
     });
   };
@@ -109,8 +109,11 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
         <TouchableOpacity
           style={styles.productName}
           onPress={handleImagePress}>
-          <Text >{productName}</Text>
+          <Text style={{ color: colors.TextBlack, fontFamily: 'Outfit-Medium', fontSize: 14 }}>
+            {productName}
+          </Text>
         </TouchableOpacity>
+
         <Text style={styles.productPrice}>
           {Number(discountedPrice).toLocaleString("en-IN", {
             maximumFractionDigits: 2,
@@ -192,7 +195,7 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     fontFamily: 'Outfit-Medium',
-    color: colors.TextBlack,
+    color: '#FF0000FF',
   },
   productPrice: {
     fontSize: 18,

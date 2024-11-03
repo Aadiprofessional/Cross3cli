@@ -425,7 +425,7 @@ const ProductDetailPage = ({ route }) => {
 
 
   };
-  console.log(currentProduct);
+
   const getStockStatus = () => {
     if (
       productData &&
@@ -463,6 +463,9 @@ const ProductDetailPage = ({ route }) => {
     }
     return null; // Default value if no attributes or color are selected
   };
+
+console.log(currentProduct);
+console.log(productData);
 
 
   const stockStatus = getStockStatus();
@@ -526,10 +529,10 @@ const ProductDetailPage = ({ route }) => {
               bag={bag}
             />
             <View style={styles.productDetails}>
-              <Text style={styles.Head}>Brand:</Text>
-              <Text style={styles.regularText}>
-                {currentProduct?.brand || 'N/A'}
-              </Text>
+            <Text style={styles.Head}>
+  Brand: <Text style={styles.regularText}>{productData?.brands ?? 'N/A'}</Text>
+</Text>
+
             </View>
             <View style={styles.productDetails}>
               <Text style={styles.Head}>Product Description:</Text>

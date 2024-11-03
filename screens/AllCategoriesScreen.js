@@ -17,6 +17,7 @@ const AllCategoriesScreen = () => {
   const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadedImages, setLoadedImages] = useState({});
 
   // Fetch categories from API or cache
   const fetchCategories = useCallback(async () => {
@@ -24,19 +25,16 @@ const AllCategoriesScreen = () => {
       const cachedCategories = await AsyncStorage.getItem('categories');
       if (cachedCategories) {
         setCategories(JSON.parse(cachedCategories));
-        setLoading(false);
       }
-
       const response = await axios.get(
         'https://crossbee-server-1036279390366.asia-south1.run.app/getMain'
       );
       const fetchedCategories = response.data;
       await AsyncStorage.setItem('categories', JSON.stringify(fetchedCategories));
-
       setCategories(fetchedCategories);
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching categories: ', error);
+    } finally {
       setLoading(false);
     }
   }, []);
@@ -47,36 +45,57 @@ const AllCategoriesScreen = () => {
 
   const navigateToSubCategory2 = useCallback(
     (name, id) => {
-      const trimmedName = name.trim(); // Remove leading and trailing spaces
+      const trimmedName = name.trim();
       navigation.navigate('SubCategoryScreen', { name: trimmedName, id });
     },
     [navigation]
   );
 
-  // Optimize category list rendering
+  // Preload images to avoid lagging
+  useEffect(() => {
+    const preloadImages = async () => {
+      const promises = categories.map(async ({ id, image }) => {
+        const imageUrl = image && !image.includes('undefined')
+          ? image
+          : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656';
+        return Image.prefetch(imageUrl).then(() => {
+          setLoadedImages((prev) => ({ ...prev, [id]: true }));
+        });
+      });
+      await Promise.all(promises);
+    };
+    if (!loading) preloadImages();
+  }, [categories, loading]);
+
   const categoryItems = useMemo(
     () =>
-      categories.map(({ id, name, image }) => (
-        <TouchableOpacity
-          key={id}
-          style={styles.categoryItem}
-          onPress={() => navigateToSubCategory2(name, id)}
-        >
-          <View style={styles.categoryImageContainer}>
-            <Image
-              source={{
-                uri: (image && !image.includes('undefined'))
-                  ? image
-                  : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656',
-              }}
-              style={styles.categoryImage}
-            />
-
-          </View>
-          <Text style={styles.categoryName}>{name}</Text>
-        </TouchableOpacity>
-      )),
-    [categories, navigateToSubCategory2]
+      categories.map(({ id, name, image }) => {
+        const imageUrl = image && !image.includes('undefined')
+          ? image
+          : 'https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/no.png?alt=media&token=a464f751-0dc1-4759-945e-96ac1a5f3656';
+        return (
+          <TouchableOpacity
+            key={id}
+            style={styles.categoryItem}
+            onPress={() => navigateToSubCategory2(name, id)}
+          >
+            <View style={styles.categoryImageContainer}>
+              {loadedImages[id] ? (
+                <Image
+                  source={{ uri: imageUrl }}
+                  style={styles.categoryImage}
+                />
+              ) : (
+                <SkeletonPlaceholder>
+                  <View style={styles.skeletonImage} />
+                </SkeletonPlaceholder>
+              )}
+            </View>
+            <Text style={styles.categoryName}>{name}</Text>
+          </TouchableOpacity>
+        );
+      }),
+    [categories, navigateToSubCategory2, loadedImages]
   );
 
   return (
@@ -84,7 +103,7 @@ const AllCategoriesScreen = () => {
       {loading ? (
         <ScrollView
           contentContainerStyle={styles.scrollViewContent}
-          showsVerticalScrollIndicator={false} // Remove scroll line
+          showsVerticalScrollIndicator={false}
         >
           {Array(6)
             .fill('')
@@ -100,7 +119,7 @@ const AllCategoriesScreen = () => {
       ) : (
         <ScrollView
           contentContainerStyle={styles.scrollViewContent}
-          showsVerticalScrollIndicator={false} // Remove scroll line
+          showsVerticalScrollIndicator={false}
         >
           {categoryItems.length > 0 ? (
             categoryItems
