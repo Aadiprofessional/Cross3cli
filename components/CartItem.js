@@ -52,7 +52,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
 
   const handleDecreaseQuantity = () => {
     const newQuantity = itemQuantity - parsedBag; // Decrement by bag value
-    if (newQuantity < colorminCartValue * parsedBag) {
+    if (newQuantity < colorminCartValue ) {
       Toast.show({
         type: 'info',
         position: 'bottom',
@@ -132,9 +132,9 @@ const CartItem = ({ item, onUpdateQuantity, onRemoveItem, isOrderSummary }) => {
 
           <View style={styles.quantityContainer}>
             <TouchableOpacity
-              style={[styles.quantityButton, itemQuantity <= colorminCartValue * bag && styles.disabledButton]}
+              style={[styles.quantityButton, itemQuantity <= colorminCartValue && styles.disabledButton]}
               onPress={handleDecreaseQuantity}
-              disabled={itemQuantity <= colorminCartValue * bag}>
+              disabled={itemQuantity <= colorminCartValue}>
               <Text style={styles.quantityButtonText}>-</Text>
             </TouchableOpacity>
             <Text style={styles.quantityText}>{itemQuantity}</Text>

@@ -117,40 +117,104 @@ const InvoiceScreen = ({ route }) => {
   };
 
   const generatePdf = async () => {
-    console.log("Starting PDF Generation...");
-    const startTime = Date.now();
-
     const htmlContent = `
-      <html>
+      <!DOCTYPE html>
+      <html lang="en">
       <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Invoice</title>
-          <style>
-              body { font-family: 'Roboto', sans-serif; }
-              .logo { width: 150px; height: auto; }
-              .invoice-section { display: flex; justify-content: space-between; margin-top: 20px; }
-              .invoice-to, .invoice-from { width: 50%; }
-              .invoice-to { text-align: left; }
-              .invoice-from { text-align: right; }
-              .invoice-header { border-top: 3px solid #FCCC51; border-bottom: 3px solid #FCCC51; margin: 30px 0; padding: 10px 0; }
-              .invoice-header h2 { margin: 0; font-size: 2rem; font-weight: bold; color: #000; }
-              .text-primary { color: #FCCC51 !important; }
-              table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-              th, td { padding: 8px 12px; text-align: left; }
-              th { background-color: #f2f2f2; }
-              td { background-color: #ffffff; }
-              tr:nth-child(odd) td { background-color: #f2f2f2; } /* Alternate row colors */
-              .quantity-title { color: #000; font-weight: bold; }
-              .quantity-number { color: #333; }
-          </style>
-          </head>
-        <body>
-          <h1>Invoice</h1>
-          <p>Total Amount: ${invoiceData.totalAmount.toFixed(2)}</p>
-          <p>Shipping Charges: ${invoiceData.shippingCharges.toFixed(2)}</p>
-          <p>Additional Discount: ${invoiceData.additionalDiscount.toFixed(2)}</p>
-        </body>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Invoice</title>
+        <style>
+          body { font-family: 'Roboto', sans-serif; }
+          .logo { width: 150px; height: auto; }
+          .invoice-section { display: flex; justify-content: space-between; margin-top: 20px; }
+          .invoice-to, .invoice-from { width: 50%; }
+          .invoice-to { text-align: left; }
+          .invoice-from { text-align: right; }
+          .invoice-header { border-top: 3px solid #FCCC51; border-bottom: 3px solid #FCCC51; margin: 30px 0; padding: 10px 0; }
+          .invoice-header h2 { font-size: 2rem; font-weight: bold; color: #000; }
+          .text-primary { color: #FCCC51; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+          th, td { padding: 8px 12px; text-align: left; }
+          th { background-color: #f2f2f2; }
+          td { background-color: #ffffff; }
+          tr:nth-child(odd) td { background-color: #f2f2f2; }
+          .quantity-title { color: #000; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <section id="invoice">
+          <div class="text-center pb-5">
+            <img src="https://firebasestorage.googleapis.com/v0/b/crossbee.appspot.com/o/logo.png?alt=media&token=b7622c61-0fff-4083-ac26-a202a0cd970d" alt="Company Logo" class="logo">
+          </div>
+
+          <div class="invoice-section">
+            <div class="invoice-to">
+              <p class="text-primary">Invoice To</p>
+              <h4>${invoiceData.owner || 'N/A'}</h4>
+              <ul>
+                <li>${invoiceData.address || 'N/A'}</li>
+                <li>${invoiceData.email || 'N/A'}</li>
+                <li>${invoiceData.phoneNumber || 'N/A'}</li>
+              </ul>
+            </div>
+            <div class="invoice-from">
+              <p class="text-primary">Invoice From</p>
+              <h4>Your Company Name</h4>
+              <ul>
+                <li>Your Company Address</li>
+                <li>Your Company Email</li>
+                <li>Your Company Phone</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="invoice-header">
+            <h2>Invoice</h2>
+            <div>
+              <p>Invoice No: ${invoiceData.uid || 'N/A'}</p>
+              <p>Invoice Date: ${invoiceData.timestamp.split('T')[0]}</p>
+              <p>Due Date: ${invoiceData.timestamp.split('T')[0]}</p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Discounted Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${invoiceData.cartItems.map((item, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${item.productName || 'N/A'}</td>
+                  <td>${item.price || '0.00'}</td>
+                  <td>${item.discountedPrice || '0.00'}</td>
+                  <td>${item.quantity || 0}</td>
+                  <td>${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>`).join('')}
+              <tr>
+                <td colspan="4">Sub-Total</td>
+                <td colspan="2">${invoiceData.totalAmount.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td colspan="4">Shipping Charges</td>
+                <td colspan="2">${invoiceData.shippingCharges.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td colspan="4" class="text-primary">Grand Total</td>
+                <td colspan="2" class="text-primary">${(invoiceData.totalAmount + invoiceData.shippingCharges).toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </body>
       </html>
     `;
 

@@ -115,7 +115,7 @@ const ProductDetailPage = ({ route }) => {
         selectedAttribute2
       ]?.[selectedAttribute3];
       if (currentProduct) {
-        return parseInt(currentProduct.minCartValue *currentProduct.bag|| '1', 10);
+        return parseInt(currentProduct.minCartValue|| '1', 10);
       }
     }
     return 1; // Default value if no attributes or color are selected
