@@ -33,6 +33,7 @@ const ProductDetailPage = ({ route }) => {
   const [imageIndex, setImageIndex] = useState(0);
   const scrollViewRef = useRef(null);
 
+console.log(mainName);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -306,9 +307,9 @@ const ProductDetailPage = ({ route }) => {
         attribute1Id: attribute1Id,
         attribute2Id: attribute2Id,
         attribute3Id: attribute3Id,
-        additionalDiscount: discountPercentage || 0, // Ensure additionalDiscount is passed
+        additionalDiscount: discountPercentage || 0, 
         discountedPrice: cutPrice,
-        mainId, // Added mainId
+        mainId, 
         gst:gst,
 
       };
@@ -464,8 +465,6 @@ const ProductDetailPage = ({ route }) => {
     return null; // Default value if no attributes or color are selected
   };
 
-console.log(currentProduct);
-console.log(productData);
 
 
   const stockStatus = getStockStatus();

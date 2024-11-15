@@ -38,7 +38,7 @@ const ProductComponent = ({ product, lowestPrice, cartVisible }) => { // Added c
       attribute1D: product.attribute1,
       attribute2D: product.attribute2,
       attribute3D: product.attribute3,
-      mainName: product.mainName,
+      mainName: product.main,
       productName: product.product
     });
   };
@@ -57,9 +57,9 @@ const ProductComponent = ({ product, lowestPrice, cartVisible }) => { // Added c
         bag: product.bag,
         attributeSelected2: product.attribute2,
         attributeSelected3: product.attribute3,
-        attribute1: product.attribute1,
-        attribute2: product.attribute2,
-        attribute3: product.attribute3,
+        attribute1: product.attribute1Name,
+        attribute2: product.attribute2Name,
+        attribute3: product.attribute3Name,
         attribute1Id: product.attribute1Id,
         attribute2Id: product.attribute2Id,
         attribute3Id: product.attribute3Id,

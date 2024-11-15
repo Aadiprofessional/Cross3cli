@@ -29,11 +29,11 @@ export const WishlistProvider = ({ children }) => {
         }
       }
     };
-  
+
     fetchWishlist();
   }, []);
-  
-  
+
+
   const addToWishlist = (product) => {
     const userId = auth().currentUser.uid; // Ensure uid is assigned here
     console.log(userId);
@@ -49,7 +49,11 @@ export const WishlistProvider = ({ children }) => {
         body: JSON.stringify({
           uid: userId,
           mainId: product.mainId,
-      
+          mainName: product.main,
+          productName: product.product,
+          attribute1Name: product.attribute1,
+          attribute2Name: product.attribute2,
+          attribute3Name: product.attribute3,
           productId: product.productId,
           attribute1Id: product.attribute1Id,
           attribute2Id: product.attribute2Id,
@@ -77,7 +81,11 @@ export const WishlistProvider = ({ children }) => {
         body: JSON.stringify({
           uid: userId,
           mainId: product.mainId,
-        
+          mainName: product.main,
+          productName: product.product,
+          attribute1Name: product.attribute1,
+          attribute2Name: product.attribute2,
+          attribute3Name: product.attribute3,
           productId: product.productId,
           attribute1Id: product.attribute1Id,
           attribute2Id: product.attribute2Id,
