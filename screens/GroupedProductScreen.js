@@ -188,8 +188,9 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 18,
     fontFamily: 'Outfit-Bold',
-    color: '#333333',
+    color: colors.main,
     marginBottom: 10,
+    textDecorationLine: 'underline',
   },
   productList: {
     flexDirection: 'row',

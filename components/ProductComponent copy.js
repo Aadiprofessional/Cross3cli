@@ -147,9 +147,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', // Make texts attach to each other
   },
   productName: {
-    fontSize: 15,
+    fontSize: 14,
     color: colors.TextBlack,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Outfit-Medium',
     marginVertical: 0, // Remove vertical margin
     flex: 1,
   },

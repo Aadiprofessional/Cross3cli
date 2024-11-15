@@ -51,33 +51,35 @@ const SubCategoryScreen = ({ route }) => {
   const fetchProducts = useCallback(async () => {
     const userId = auth().currentUser?.uid;
     if (!userId) {
-        console.error('User is not authenticated');
-        setLoading(false);
-        return;
+      console.error('User is not authenticated');
+      setLoading(false);
+      return;
     }
     try {
-        const response = await axios.post(
-            `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
-            {
-                main: id || categoryName,
-            }
-        );
-
-        console.log('Fetched products:', response.data);
-
-        // Filter out null values from the response
-        const filteredProducts = response.data.filter(product => product !== null);
-
+      const response = await axios.post(
+        `https://crossbee-server-1036279390366.asia-south1.run.app/products?uid=${userId}`,
+        { main: id || categoryName }
+      );
+  
+      // Access the correct nested array format
+      const data = Array.isArray(response.data) ? response.data : response.data.array;
+      if (Array.isArray(data)) {
+        const filteredProducts = data.filter(product => product !== null);
         setProducts(filteredProducts);
-        setOriginalProducts(filteredProducts); // Set original products to be used for filtering
-        setLoading(false);
-        setNoProductsFound(filteredProducts.length === 0); // Set noProductsFound based on API response
-        setVisibleProducts(filteredProducts.slice(0, pageSize)); // Load first 10 products initially
+        setOriginalProducts(filteredProducts);
+        setNoProductsFound(filteredProducts.length === 0);
+        setVisibleProducts(filteredProducts.slice(0, pageSize));
+      } else {
+        console.error('Unexpected response format:', response.data);
+        setNoProductsFound(true); // Show no products found if response is invalid
+      }
+      setLoading(false);
     } catch (error) {
-        console.error('Error fetching products: ', error);
-        setLoading(false);
+      console.error('Error fetching products: ', error);
+      setLoading(false);
     }
-}, [categoryName || id]);
+  }, [categoryName, id]);
+  
 
 
   useEffect(() => {

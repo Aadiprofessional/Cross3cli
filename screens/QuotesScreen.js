@@ -94,7 +94,7 @@ const QuotesScreen = () => {
   );
 
   const handleStartShopping = () => {
-    navigation.navigate('HomeTab');
+    navigation.navigate('Home');
   };
 
   const handleGetQuotation = () => {

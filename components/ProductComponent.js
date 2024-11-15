@@ -50,7 +50,7 @@ const ProductComponent = ({ product, lowestPrice, cartVisible }) => { // Added c
         productName: product.displayName,
         productId: product.productId,
         price: product.price,
-        quantity: minCartValue * product.bag,
+        quantity: minCartValue,
         image: product.image || product.mainImage,
         colorminCartValue: minCartValue,
         attributeSelected1: product.attribute1,

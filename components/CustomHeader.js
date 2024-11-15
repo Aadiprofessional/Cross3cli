@@ -95,9 +95,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   profile: {
-    marginHorizontal: 10,
-    width: 35,
-    height: 37,
+  
+    width: 30,
+    height: 32,
   },
   wishlistContainer: {
     position: 'relative',

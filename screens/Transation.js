@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import axios from 'axios';
-import { colors } from '../styles/color';  // Assuming colors.primary is defined here
+import { colors } from '../styles/color';
 
 const TransactionScreen = () => {
   const [transactionId, setTransactionId] = useState('');
@@ -24,13 +24,20 @@ const TransactionScreen = () => {
         const response = await axios.get(
           `https://crossbee-server-1036279390366.asia-south1.run.app/getTransactions?uid=${user.uid}`
         );
-        setTransactions(response.data || []);
+  
+        // Sort transactions by timestamp in descending order
+        const sortedTransactions = (response.data || []).sort(
+          (a, b) => b.timestamp._seconds - a.timestamp._seconds
+        );
+  
+        setTransactions(sortedTransactions);
       }
     } catch (error) {
       console.error('Error fetching transactions:', error);
       Alert.alert('Error', 'Failed to fetch transactions. Please try again.');
     }
   };
+  
 
   useEffect(() => {
     fetchTransactions(); // Fetch transactions on component load
@@ -44,13 +51,11 @@ const TransactionScreen = () => {
         return;
       }
 
-      // Check if transaction ID has exactly 12 digits
       if (transactionId.length !== 12) {
         Alert.alert('Failed', 'Transaction ID must be exactly 12 digits');
         return;
       }
 
-      // Check if amount is a valid number and has at most 8 digits
       if (!/^\d{1,8}$/.test(amount)) {
         Alert.alert('Error', 'Amount must be a numeric value with up to 8 digits');
         return;
@@ -86,7 +91,6 @@ const TransactionScreen = () => {
     const date = new Date(timestamp._seconds * 1000);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   };
- 
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -95,7 +99,7 @@ const TransactionScreen = () => {
           placeholder="Transaction ID"
           placeholderTextColor="#484848"
           value={transactionId}
-          onChangeText={text => setTransactionId(text.replace(/[^0-9]/g, '').slice(0, 12))}  // Restrict input to digits and limit to 12
+          onChangeText={text => setTransactionId(text.replace(/[^0-9]/g, '').slice(0, 12))}
           style={styles.input}
           maxLength={12}
           keyboardType="numeric"
@@ -104,7 +108,7 @@ const TransactionScreen = () => {
           placeholder="Amount"
           value={amount}
           placeholderTextColor="#484848"
-          onChangeText={text => setAmount(text.replace(/[^0-9]/g, '').slice(0, 8))}  // Restrict input to digits and limit to 8
+          onChangeText={text => setAmount(text.replace(/[^0-9]/g, '').slice(0, 8))}
           keyboardType="numeric"
           maxLength={8}
           style={styles.input}
@@ -114,7 +118,6 @@ const TransactionScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Transaction History */}
       <View style={styles.transactionHistoryContainer}>
         <Text style={styles.historyTitle}>Transaction History</Text>
         {transactions.length > 0 ? (
@@ -136,7 +139,6 @@ const TransactionScreen = () => {
               <Text style={styles.transactionText}>
                 Phone: {transaction.phone}
               </Text>
-
               <Text style={styles.transactionText}>
                 Date: {formatDate(transaction.timestamp)}
               </Text>
@@ -193,19 +195,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   transactionCard: {
-    backgroundColor: colors.primary,  // Using colors.primary for background
+    backgroundColor: colors.primary,
     borderRadius: 5,
     padding: 15,
     marginBottom: 10,
   },
   transactionText: {
     fontSize: 16,
-    color: '#333', // White text for better contrast on primary background
+    color: '#333',
     fontFamily: 'Outfit-Medium',
   },
   transactionText2: {
     fontSize: 24,
-    color: colors.orange, // White text for better contrast on primary background
+    color: colors.orange,
     fontFamily: 'Outfit-Medium',
   },
   noTransactionsText: {
